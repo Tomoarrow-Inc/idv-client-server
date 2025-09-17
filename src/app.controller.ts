@@ -1,12 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
+import { AppService, IssueAccessTokenResult, TokenResponseBody } from './app.service';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
+    try {
+      return await this.appService.issueClientCredentialsToken();
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    }
   }
 }
