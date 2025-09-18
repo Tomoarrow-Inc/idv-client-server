@@ -39,21 +39,37 @@ interface EcKeyPair {
 }
 
 
-const TOMO_IDV_CLIENT_ID = 'tomo-idv-client';
+const TOMO_IDV_CLIENT_ID = 'a4257965e28d48039fc43f4a23066d31';
+
 const publicJwk: JsonWebKey = {
-  "kty": "EC",
-  "x": "e7JBRpkaXzTsCij57UMYlDFrof2cDTWXdrhEfrwXgzE",
-  "y": "aEMPbkQJjBsK7KBXZabWL1T8eKUjZqhEZVXdwlomdwU",
-  "crv": "P-256"
+
+"kty": "EC",
+
+"x": "e7JBRpkaXzTsCij57UMYlDFrof2cDTWXdrhEfrwXgzE",
+
+"y": "aEMPbkQJjBsK7KBXZabWL1T8eKUjZqhEZVXdwlomdwU",
+
+"crv": "P-256"
+
 };
 
-const TOMO_IDV_SECRET: JsonWebKey = {
-  "kty": "EC",
-  "x": "e7JBRpkaXzTsCij57UMYlDFrof2cDTWXdrhEfrwXgzE",
-  "y": "aEMPbkQJjBsK7KBXZabWL1T8eKUjZqhEZVXdwlomdwU",
-  "crv": "P-256",
-  "d": "gggGIeDCXmttfwOGw1i5fGlTTl-nTcoFugbn3aq3xCw"
-};
+  
+
+const TOMO_IDV_SECRET: JsonWebKey = {"kty":"EC","crv":"P-256","x":"1Y-sARZpbUsDkOanGqfqyXKo0oLP1UDLUsY4uDOZq_U","y":"WoF1SNrJ0k_BsvuTQituWFTEe0DAT7a5-Dpb-7bxI3k","d":"ehfxLB232FXagkzajmMeKNQWHzJAXHPVcPnjNFdYsDY"};
+
+// const TOMO_IDV_SECRET: JsonWebKey = {
+
+// "kty": "EC",
+
+// "x": "e7JBRpkaXzTsCij57UMYlDFrof2cDTWXdrhEfrwXgzE",
+
+// "y": "aEMPbkQJjBsK7KBXZabWL1T8eKUjZqhEZVXdwlomdwU",
+
+// "crv": "P-256",
+
+// "d": "gggGIeDCXmttfwOGw1i5fGlTTl-nTcoFugbn3aq3xCw"
+
+// };
 
 
 
