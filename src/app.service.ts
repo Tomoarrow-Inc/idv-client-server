@@ -28,7 +28,7 @@ export interface IssueAccessTokenResult {
   tokenType: string;
   expiresIn: number;
   scope: string | null;
-  claims: Record<string, unknown>;
+  claims?: Record<string, unknown>;
 }
 
 interface EcKeyPair {
@@ -55,10 +55,21 @@ const TOMO_IDV_SECRET: JsonWebKey = {
   "d": "gggGIeDCXmttfwOGw1i5fGlTTl-nTcoFugbn3aq3xCw"
 };
 
+
+
+
 @Injectable()
 export class AppService {
   getHello(): string {
     return 'Hello World!';
+  }
+
+  async getKyc(): Promise<any> {
+    const baseUrl = this.resolveBaseUrl();
+    const response = await fetch(`${baseUrl}/v1/kyc`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${this.issueClientCredentialsToken()}` },
+    });
   }
 
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
@@ -78,7 +89,7 @@ export class AppService {
 
       const tokenResponse = await this.requestAccessToken(baseUrl, assertion);
       const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
-      const claims = this.verifyJwt(tokenResponse.access_token, createPublicKey({ key: publicJwk, format: 'jwk' }));
+      // const claims = this.verifyJwt(tokenResponse.access_token, createPublicKey({ key: publicJwk, format: 'jwk' }));
 
       return {
         clientId: TOMO_IDV_CLIENT_ID,
@@ -86,7 +97,7 @@ export class AppService {
         tokenType: tokenResponse.token_type,
         expiresIn: tokenResponse.expires_in,
         scope,
-        claims,
+        // claims,
       };
 
     } catch (error) {

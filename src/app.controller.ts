@@ -13,4 +13,9 @@ export class AppController {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
+
+  @Get('kyc')
+  async getKyc(): Promise<any> {
+    return await this.appService.getKyc();
+  }
 }
