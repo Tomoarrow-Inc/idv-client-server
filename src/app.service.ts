@@ -9,6 +9,7 @@ import {
   KeyObject,
   JsonWebKey,
 } from 'node:crypto';
+import { StateService } from './state.service';
 
 export type RegistrationResponseBody = {
   client_id: string;
@@ -76,16 +77,41 @@ const TOMO_IDV_SECRET: JsonWebKey = {"kty":"EC","crv":"P-256","x":"1Y-sARZpbUsDk
 
 @Injectable()
 export class AppService {
+  constructor(private readonly stateService: StateService) {}
+
   getHello(): string {
     return 'Hello World!';
   }
 
   async getKyc(): Promise<any> {
     const baseUrl = this.resolveBaseUrl();
-    const response = await fetch(`${baseUrl}/v1/kyc`, {
-      method: 'GET',
-      headers: { Authorization: `Bearer ${this.issueClientCredentialsToken()}` },
+    
+    // State에서 access_token 가져오기
+    const accessToken = this.getState('access_token');
+    if (!accessToken) {
+      throw new Error('No access token found. Please call /issueClientCredentialsToken first.');
+    }
+
+    // 요청 본문 구성
+    const requestBody = {
+      clientId: TOMO_IDV_CLIENT_ID,
+      fields: []
+    };
+
+    const response = await fetch(`${baseUrl}/v1/idv/kyc`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(requestBody)
     });
+
+    if (!response.ok) {
+      throw new Error(`KYC request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
   }
 
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
@@ -107,7 +133,7 @@ export class AppService {
       const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
       // const claims = this.verifyJwt(tokenResponse.access_token, createPublicKey({ key: publicJwk, format: 'jwk' }));
 
-      return {
+      const result = {
         clientId: TOMO_IDV_CLIENT_ID,
         accessToken: tokenResponse.access_token,
         tokenType: tokenResponse.token_type,
@@ -115,6 +141,18 @@ export class AppService {
         scope,
         // claims,
       };
+
+      // access_token을 State에 저장
+      this.setState('access_token', tokenResponse.access_token);
+      this.setState('token_info', {
+        clientId: TOMO_IDV_CLIENT_ID,
+        tokenType: tokenResponse.token_type,
+        expiresIn: tokenResponse.expires_in,
+        scope,
+        issuedAt: new Date().toISOString()
+      });
+
+      return result;
 
     } catch (error) {
       throw new Error(`Failed to issue client credentials token: ${error}`);
@@ -168,13 +206,14 @@ export class AppService {
 
   private createClientAssertion(privateKey: KeyObject, clientId: string, audience: string): string {
     const now = Math.floor(Date.now() / 1000);
+    const jti = crypto.randomUUID();
     const payload = {
       iss: clientId,
       sub: clientId,
       aud: audience,
       iat: now,
       exp: now + 300,
-      jti: 'test-jti-1',
+      jti: jti,
     };
     return this.signJwt(privateKey, payload);
   }
@@ -240,7 +279,6 @@ export class AppService {
 
   private async requestAccessToken(baseUrl: string, assertion: string): Promise<TokenResponseBody> {
     try {
-      console.log('requestAccessToken', baseUrl, assertion);
       const params = new URLSearchParams();
       params.set('grant_type', 'client_credentials');
       params.set('scope', 'idv.read');
@@ -291,5 +329,133 @@ export class AppService {
 
     const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as Record<string, unknown>;
     return decoded;
+  }
+
+  // ==================== State Management Methods ====================
+
+  /**
+   * State 값 설정
+   */
+  setState(key: string, value: any): void {
+    this.stateService.set(key, value);
+  }
+
+  /**
+   * State 값 조회
+   */
+  getState(key: string): any {
+    return this.stateService.get(key);
+  }
+
+  /**
+   * State 값이 존재하는지 확인
+   */
+  hasState(key: string): boolean {
+    return this.stateService.has(key);
+  }
+
+  /**
+   * State 값 삭제
+   */
+  deleteState(key: string): boolean {
+    return this.stateService.delete(key);
+  }
+
+  /**
+   * 모든 State 조회
+   */
+  getAllStates(): Record<string, any> {
+    return this.stateService.getAll();
+  }
+
+  /**
+   * State 값 업데이트
+   */
+  updateState(key: string, updater: (current: any) => any): void {
+    this.stateService.update(key, updater);
+  }
+
+  /**
+   * State 값 증가
+   */
+  incrementState(key: string, amount: number = 1): number {
+    return this.stateService.increment(key, amount);
+  }
+
+  /**
+   * State 값 감소
+   */
+  decrementState(key: string, amount: number = 1): number {
+    return this.stateService.decrement(key, amount);
+  }
+
+  /**
+   * 배열에 값 추가
+   */
+  pushToState(key: string, value: any): void {
+    this.stateService.push(key, value);
+  }
+
+  /**
+   * 배열에서 값 제거
+   */
+  removeFromState(key: string, value: any): void {
+    this.stateService.remove(key, value);
+  }
+
+  /**
+   * 객체에 속성 추가/업데이트
+   */
+  setStateProperty(key: string, property: string, value: any): void {
+    this.stateService.setProperty(key, property, value);
+  }
+
+  /**
+   * 객체에서 속성 제거
+   */
+  removeStateProperty(key: string, property: string): void {
+    this.stateService.removeProperty(key, property);
+  }
+
+  /**
+   * State 변경 리스너 등록
+   */
+  subscribeToState(key: string, callback: (value: any) => void): () => void {
+    return this.stateService.subscribe(key, callback);
+  }
+
+  /**
+   * State 개수 조회
+   */
+  getStateCount(): number {
+    return this.stateService.size();
+  }
+
+  /**
+   * 특정 패턴과 일치하는 키들 조회
+   */
+  getStateKeys(pattern?: string): string[] {
+    return this.stateService.getKeys(pattern);
+  }
+
+  /**
+   * State 백업
+   */
+  backupState(): string {
+    return this.stateService.backup();
+  }
+
+  /**
+   * State 복원
+   */
+  restoreState(backup: string): void {
+    this.stateService.restore(backup);
+  }
+
+  /**
+   * 모든 State 삭제
+   */
+  clearAllStates(): void {
+    this.stateService.clear();
   }
 }
