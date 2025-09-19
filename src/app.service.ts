@@ -93,12 +93,13 @@ export class AppService {
     }
 
     // 요청 본문 구성
+    // 
     const requestBody = {
-      clientId: TOMO_IDV_CLIENT_ID,
+      user_id: "7999752903327968492",
       fields: []
     };
 
-    const response = await fetch(`${baseUrl}/v1/idv/kyc`, {
+    const response = await fetch(`${baseUrl}/v1/idv/jp/kyc/hashed`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
