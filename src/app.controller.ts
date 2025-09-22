@@ -24,4 +24,13 @@ export class AppController {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
+
+  @Get('applications')
+  async getApplications(): Promise<any> {
+    try {
+      return await this.appService.getApplications();
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
 }
