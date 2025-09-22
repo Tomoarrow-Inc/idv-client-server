@@ -43,24 +43,24 @@ interface EcKeyPair {
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 // const TOMO_IDV_CLIENT_ID = 'a4257965e28d48039fc43f4a23066d31';
 
-const publicJwk: JsonWebKey = JSON.parse(process.env.PUBLIC_JWK as string);
+// const publicJwk: JsonWebKey = JSON.parse(process.env.PUBLIC_JWK as string);
 
-// const publicJwk: JsonWebKey = {
+const publicJwk: JsonWebKey = {
 
-// "kty": "EC",
+"kty": "EC",
 
-// "x": "e7JBRpkaXzTsCij57UMYlDFrof2cDTWXdrhEfrwXgzE",
+"x": "e7JBRpkaXzTsCij57UMYlDFrof2cDTWXdrhEfrwXgzE",
 
-// "y": "aEMPbkQJjBsK7KBXZabWL1T8eKUjZqhEZVXdwlomdwU",
+"y": "aEMPbkQJjBsK7KBXZabWL1T8eKUjZqhEZVXdwlomdwU",
 
-// "crv": "P-256"
+"crv": "P-256"
 
-// };
+};
 
-const TOMO_IDV_SECRET: JsonWebKey = JSON.parse(process.env.TOMO_IDV_SECRET as string);
+// const TOMO_IDV_SECRET: JsonWebKey = JSON.parse(process.env.TOMO_IDV_SECRET as string);
 
 
-// const TOMO_IDV_SECRET: JsonWebKey = {"kty":"EC","crv":"P-256","x":"1Y-sARZpbUsDkOanGqfqyXKo0oLP1UDLUsY4uDOZq_U","y":"WoF1SNrJ0k_BsvuTQituWFTEe0DAT7a5-Dpb-7bxI3k","d":"ehfxLB232FXagkzajmMeKNQWHzJAXHPVcPnjNFdYsDY"};
+const TOMO_IDV_SECRET: JsonWebKey = {"kty":"EC","crv":"P-256","x":"1Y-sARZpbUsDkOanGqfqyXKo0oLP1UDLUsY4uDOZq_U","y":"WoF1SNrJ0k_BsvuTQituWFTEe0DAT7a5-Dpb-7bxI3k","d":"ehfxLB232FXagkzajmMeKNQWHzJAXHPVcPnjNFdYsDY"};
 
 // const TOMO_IDV_SECRET: JsonWebKey = {
 
