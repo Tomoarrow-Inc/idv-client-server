@@ -33,4 +33,13 @@ export class AppController {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
+
+  @Get('link_token')
+  async getLinkToken(): Promise<any> {
+    try {
+      return await this.appService.getLinkToken();
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
 }

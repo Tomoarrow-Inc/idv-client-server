@@ -150,6 +150,36 @@ export class AppService {
     return await response.json();
   }
 
+  async getLinkToken(): Promise<any> {
+    const baseUrl = this.resolveBaseUrl();
+    
+    // State에서 access_token 가져오기
+    const accessToken = this.getState('access_token');
+    if (!accessToken) {
+      throw new Error('No access token found. Please call /issueClientCredentialsToken first.');
+    }
+
+    // 하드코딩된 요청 본문
+    const requestBody = {
+      session_id: "61638cdce9087a54af23e76fddadbafa"
+    };
+
+    const response = await fetch(`${baseUrl}/v1/idv/us/generate_link_token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Link token request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
     try {
       const baseUrl = this.resolveBaseUrl();
