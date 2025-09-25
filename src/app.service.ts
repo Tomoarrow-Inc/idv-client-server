@@ -161,7 +161,8 @@ export class AppService {
 
     // 하드코딩된 요청 본문
     const requestBody = {
-      session_id: "61638cdce9087a54af23e76fddadbafa"
+      user_id: "7999752903327968493", // auth_id (4, chanhee@tomoarrow.com)
+      email: "chanhee@tomoarrow.com"
     };
 
     const response = await fetch(`${baseUrl}/v1/idv/us/generate_link_token`, {
