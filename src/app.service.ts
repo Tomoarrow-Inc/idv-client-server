@@ -40,6 +40,8 @@ interface EcKeyPair {
 }
 
 
+const USER_ID = process.env.USER_ID as string;
+
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 // const TOMO_IDV_CLIENT_ID = 'a4257965e28d48039fc43f4a23066d31';
 
@@ -99,7 +101,7 @@ export class AppService {
     // 요청 본문 구성
     // 
     const requestBody = {
-      user_id: process.env.USER_ID as string,
+      user_id: USER_ID,
       // user_id: "7999752903327968492",
       fields: []
     };
@@ -131,7 +133,8 @@ export class AppService {
 
     // 하드코딩된 요청 본문
     const requestBody = {
-      user_id: "7999752903327968493", // auth_id (4, chanhee@tomoarrow.com)
+      user_id: USER_ID
+      // user_id: "7999752903327968492", // auth_id (4, chanhee@tomoarrow.com)
     };
 
     const response = await fetch(`${baseUrl}/v1/idv/jp/integrated_app/applications`, {
@@ -161,7 +164,8 @@ export class AppService {
 
     // 하드코딩된 요청 본문
     const requestBody = {
-      user_id: "7999752903327968493", // auth_id (4, chanhee@tomoarrow.com)
+      user_id: USER_ID,
+      // user_id: "7999752903327968492", // auth_id (4, chanhee@tomoarrow.com)
       email: "chanhee@tomoarrow.com"
     };
 
@@ -188,6 +192,8 @@ export class AppService {
 
       console.log('baseUrl', baseUrl);
 
+      // TODO:  SDK로 만들어줘야함 start ---
+      
       // const clientKeys = this.generateEcP256();
       const kid = this.computeJwkThumbprint(publicJwk);
       console.log('kid', kid);
@@ -197,6 +203,8 @@ export class AppService {
         TOMO_IDV_CLIENT_ID,
         `${baseUrl}/oauth2/token`,
       );
+
+      // SDK로 만들어줘야함 end ---
 
       const tokenResponse = await this.requestAccessToken(baseUrl, assertion);
       const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
@@ -354,6 +362,8 @@ export class AppService {
       params.set('resource', baseUrl);
       params.set('client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
       params.set('client_assertion', assertion);
+      
+      // TODO: SDK로 assertion 만 만들어주는걸로 하기
 
       const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
         method: 'POST',
