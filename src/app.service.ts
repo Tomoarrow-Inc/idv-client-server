@@ -118,7 +118,7 @@ export class AppService {
     const requestBody = {
       user_id: USER_ID,
       // user_id: "7999752903327968492", // auth_id (4, chanhee@tomoarrow.com)
-      return_url: "exp://192.168.11.159:8083"
+      callback_url: "idvexpo://verify"
     };
 
     const response = await fetch(`${baseUrl}/v1/idv/jp/integrated_app/applications`, {
