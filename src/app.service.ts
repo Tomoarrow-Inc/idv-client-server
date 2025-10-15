@@ -45,38 +45,21 @@ const USER_ID = process.env.USER_ID as string;
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 // const TOMO_IDV_CLIENT_ID = 'a4257965e28d48039fc43f4a23066d31';
 
-// const publicJwk: JsonWebKey = JSON.parse(process.env.PUBLIC_JWK as string);
+const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
 
+
+
+// QUESTION : 뭐를 위한 publicJwk 인지 용도를 까먹음, 현재 코드상 사용안하는 코드
+// registerClient 를 위한거라고 생각해도 client의 키페어는 idv-console에서 생성하고 idv-server에 RegisterClient 하는 중
 const publicJwk: JsonWebKey = {
-
 "kty": "EC",
-
 "x": "e7JBRpkaXzTsCij57UMYlDFrof2cDTWXdrhEfrwXgzE",
-
 "y": "aEMPbkQJjBsK7KBXZabWL1T8eKUjZqhEZVXdwlomdwU",
-
 "crv": "P-256"
-
 };
 
-// const TOMO_IDV_SECRET: JsonWebKey = JSON.parse(process.env.TOMO_IDV_SECRET as string);
 
 
-const TOMO_IDV_SECRET: JsonWebKey = {"kty":"EC","crv":"P-256","x":"1Y-sARZpbUsDkOanGqfqyXKo0oLP1UDLUsY4uDOZq_U","y":"WoF1SNrJ0k_BsvuTQituWFTEe0DAT7a5-Dpb-7bxI3k","d":"ehfxLB232FXagkzajmMeKNQWHzJAXHPVcPnjNFdYsDY"};
-
-// const TOMO_IDV_SECRET: JsonWebKey = {
-
-// "kty": "EC",
-
-// "x": "e7JBRpkaXzTsCij57UMYlDFrof2cDTWXdrhEfrwXgzE",
-
-// "y": "aEMPbkQJjBsK7KBXZabWL1T8eKUjZqhEZVXdwlomdwU",
-
-// "crv": "P-256",
-
-// "d": "gggGIeDCXmttfwOGw1i5fGlTTl-nTcoFugbn3aq3xCw"
-
-// };
 
 
 
@@ -198,9 +181,13 @@ export class AppService {
       // const clientKeys = this.generateEcP256();
       const kid = this.computeJwkThumbprint(publicJwk);
       console.log('kid', kid);
+      
+      // base64Url로 인코딩된 TOMO_IDV_SECRET를 JWK로 변환
+      const privateJwk = this.decodeBase64UrlToJwk(TOMO_IDV_SECRET);
+      const privateKey = createPrivateKey({ key: privateJwk, format: 'jwk' });
 
       const assertion = this.createClientAssertion(
-        createPrivateKey({ key: TOMO_IDV_SECRET, format: 'jwk' }),
+        privateKey,
         TOMO_IDV_CLIENT_ID,
         `${baseUrl}/oauth2/token`,
       );
@@ -280,6 +267,28 @@ export class AppService {
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=+$/u, '');
+  }
+
+  private base64UrlDecode(str: string): Buffer {
+    // base64url을 base64로 변환
+    let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    
+    // 패딩 추가 (필요한 경우)
+    while (base64.length % 4) {
+      base64 += '=';
+    }
+    
+    return Buffer.from(base64, 'base64');
+  }
+
+  private decodeBase64UrlToJwk(encodedJwk: string): JsonWebKey {
+    try {
+      const decoded = this.base64UrlDecode(encodedJwk);
+      const jwk = JSON.parse(decoded.toString('utf8')) as JsonWebKey;
+      return jwk;
+    } catch (error) {
+      throw new Error(`Failed to decode base64url JWK: ${error}`);
+    }
   }
 
   private createClientAssertion(privateKey: KeyObject, clientId: string, audience: string): string {
