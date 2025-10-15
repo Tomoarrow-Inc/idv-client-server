@@ -150,7 +150,8 @@ export class AppService {
     const requestBody = {
       user_id: USER_ID,
       // user_id: "7999752903327968492", // auth_id (4, chanhee@tomoarrow.com)
-      email: "chanhee@tomoarrow.com"
+      email: "chanhee@tomoarrow.com",
+      callback_url: "idvexpo://verify"
     };
 
     const response = await fetch(`${baseUrl}/v1/idv/us/generate_link_token`, {
