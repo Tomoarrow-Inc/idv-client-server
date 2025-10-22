@@ -1,4 +1,4 @@
-FROM node:20-alpine AS development
+FROM node:20-alpine 
 
 RUN npm install -g pnpm
 
@@ -11,3 +11,5 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install 
 
 EXPOSE 3000
+
+CMD ["pnpm", "start:prod"]

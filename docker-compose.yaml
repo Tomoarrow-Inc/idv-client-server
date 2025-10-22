@@ -1,0 +1,12 @@
+
+services:
+  client-server:
+    image: tomoadmin/idv-client-server:test-0.0.0.1
+    build:
+      context: ./
+
+    ports:
+      - "3000:3000"
+
+    env_file:
+      - .env
