@@ -154,7 +154,7 @@ export class AppService {
       callback_url: "idvexpo://verify"
     };
 
-    const response = await fetch(`${baseUrl}/v1/idv/us/generate_link_token`, {
+    const response = await fetch(`${baseUrl}/v1/idv/us/init`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -180,8 +180,8 @@ export class AppService {
       // TODO:  SDK로 만들어줘야함 start ---
       
       // const clientKeys = this.generateEcP256();
-      const kid = this.computeJwkThumbprint(publicJwk);
-      console.log('kid', kid);
+      // const kid = this.computeJwkThumbprint(publicJwk);
+      // console.log('kid', kid);
       
       // base64Url로 인코딩된 TOMO_IDV_SECRET를 JWK로 변환
       const privateJwk = this.decodeBase64UrlToJwk(TOMO_IDV_SECRET);
@@ -190,7 +190,7 @@ export class AppService {
       const assertion = this.createClientAssertion(
         privateKey,
         TOMO_IDV_CLIENT_ID,
-        `${baseUrl}/oauth2/token`,
+        `${baseUrl}/v1/oauth2/token`,
       );
 
       // SDK로 만들어줘야함 end ---
