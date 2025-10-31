@@ -1,7 +1,7 @@
 
 services:
   client-server:
-    image: tomoadmin/idv-client-server:test-0.0.0.2
+    image: tomoadmin/idv-client-server:test-0.0.0.3
     build:
       context: ./
 
