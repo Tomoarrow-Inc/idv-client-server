@@ -39,29 +39,8 @@ interface EcKeyPair {
   privateJwk: JsonWebKey;
 }
 
-
-const USER_ID = process.env.USER_ID as string;
-
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
-// const TOMO_IDV_CLIENT_ID = 'a4257965e28d48039fc43f4a23066d31';
-
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
-
-
-
-// QUESTION : 뭐를 위한 publicJwk 인지 용도를 까먹음, 현재 코드상 사용안하는 코드
-// registerClient 를 위한거라고 생각해도 client의 키페어는 idv-console에서 생성하고 idv-server에 RegisterClient 하는 중
-const publicJwk: JsonWebKey = {
-"kty": "EC",
-"x": "e7JBRpkaXzTsCij57UMYlDFrof2cDTWXdrhEfrwXgzE",
-"y": "aEMPbkQJjBsK7KBXZabWL1T8eKUjZqhEZVXdwlomdwU",
-"crv": "P-256"
-};
-
-
-
-
-
 
 
 @Injectable()
@@ -72,7 +51,7 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async getKyc(): Promise<any> {
+  async getKycUS(user_id: string): Promise<any> {
     const baseUrl = this.resolveBaseUrl();
     
     // State에서 access_token 가져오기
@@ -84,12 +63,11 @@ export class AppService {
     // 요청 본문 구성
     // 
     const requestBody = {
-      user_id: USER_ID,
-      // user_id: "7999752903327968492",
+      user_id: user_id,
       fields: []
     };
 
-    const response = await fetch(`${baseUrl}/v1/idv/jp/kyc/hashed`, {
+    const response = await fetch(`${baseUrl}/v1/idv/us/kyc/get`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -105,7 +83,39 @@ export class AppService {
     return await response.json();
   }
 
-  async getApplications(): Promise<any> {
+  async getKycJP(user_id: string): Promise<any> {
+    const baseUrl = this.resolveBaseUrl();
+    
+    // State에서 access_token 가져오기
+    const accessToken = this.getState('access_token');
+    if (!accessToken) {
+      throw new Error('No access token found. Please call /issueClientCredentialsToken first.');
+    }
+
+    // 요청 본문 구성
+    // 
+    const requestBody = {
+      user_id: user_id,
+      fields: []
+    };
+
+    const response = await fetch(`${baseUrl}/v1/idv/jp/kyc/get`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`KYC request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  async idvStartJP(user_id: string): Promise<any> {
     const baseUrl = this.resolveBaseUrl();
     
     // State에서 access_token 가져오기
@@ -116,8 +126,7 @@ export class AppService {
 
     // 하드코딩된 요청 본문
     const requestBody = {
-      user_id: USER_ID,
-      // user_id: "7999752903327968492", // auth_id (4, chanhee@tomoarrow.com)
+      user_id: user_id,
       callback_url: "idvexpo://verify"
     };
 
@@ -137,7 +146,7 @@ export class AppService {
     return await response.json();
   }
 
-  async getLinkToken(): Promise<any> {
+  async idvStartUS(user_id: string): Promise<any> {
     const baseUrl = this.resolveBaseUrl();
     
     // State에서 access_token 가져오기
@@ -148,8 +157,7 @@ export class AppService {
 
     // 하드코딩된 요청 본문
     const requestBody = {
-      user_id: USER_ID,
-      // user_id: "7999752903327968492", // auth_id (4, chanhee@tomoarrow.com)
+      user_id: user_id,
       email: "chanhee@tomoarrow.com",
       callback_url: "idvexpo://verify"
     };

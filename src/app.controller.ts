@@ -16,30 +16,41 @@ export class AppController {
     }
   } 
 
-  @Get('kyc')
-  async getKyc(): Promise<any> {
+  @Get('us/start')
+  async idvStartUS(@Query('user_id') user_id: string): Promise<any> {
     try {
-      return await this.appService.getKyc();
+      return await this.appService.idvStartUS(user_id);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
-  @Get('applications')
-  async getApplications(): Promise<any> {
+  @Get('us/kyc/get')
+  async getKycUS(@Query('user_id') user_id: string): Promise<any> {
     try {
-      return await this.appService.getApplications();
+      return await this.appService.getKycUS(user_id);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
-  @Get('link_token')
-  async getLinkToken(): Promise<any> {
+  @Get('jp/start')
+  async idvStartJP(@Query('user_id') user_id: string): Promise<any> {
     try {
-      return await this.appService.getLinkToken();
+      return await this.appService.idvStartJP(user_id);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
+
+
+  @Get('jp/kyc/get')
+  async getKycJP(@Query('user_id') user_id: string): Promise<any> {
+    try {
+      return await this.appService.getKycJP(user_id);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
+
 }
