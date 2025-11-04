@@ -130,7 +130,7 @@ export class AppService {
       callback_url: "idvexpo://verify"
     };
 
-    const response = await fetch(`${baseUrl}/v1/idv/jp/integrated_app/applications`, {
+    const response = await fetch(`${baseUrl}/v1/idv/jp/start`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
