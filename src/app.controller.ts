@@ -53,4 +53,13 @@ export class AppController {
     }
   }
 
+  @Get('start')
+  async idvStart(@Query('user_id') user_id: string, @Query('callback_url') callback_url: string, @Query('email') email: string, @Query('country') country: string): Promise<any> {
+    try {
+      return await this.appService.idvStart(user_id, callback_url, email, country);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    }
+  }
+
 }

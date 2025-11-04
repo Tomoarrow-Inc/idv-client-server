@@ -178,6 +178,40 @@ export class AppService {
     return await response.json();
   }
 
+  async idvStart(user_id: string, callback_url: string, email: string, country: string): Promise<any> {
+  // async idvStart(user_id: string, callback_url: string, email: string, country: string): Promise<any> {
+    const baseUrl = this.resolveBaseUrl();
+    
+    // State에서 access_token 가져오기
+    const accessToken = this.getState('access_token');
+    if (!accessToken) {
+      throw new Error('No access token found. Please call /issueClientCredentialsToken first.');
+    }
+
+    // 하드코딩된 요청 본문
+    const requestBody = {
+      user_id: user_id,
+      email: email,
+      callback_url: callback_url,
+      country: country
+    };
+
+    const response = await fetch(`${baseUrl}/v1/idv/start`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Link token request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
     try {
       const baseUrl = this.resolveBaseUrl();
