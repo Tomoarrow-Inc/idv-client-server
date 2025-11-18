@@ -109,7 +109,8 @@ export class AppService {
     });
 
     if (!response.ok) {
-      throw new Error(`KYC request failed: ${response.status} ${response.statusText}`);
+      const errorBody = await response.json().catch(() => JSON.stringify(response.text()));
+      throw new Error(`KYC request failed: ${response.status} ${response.statusText} ${errorBody}`);
     }
 
     return await response.json();
