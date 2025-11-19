@@ -26,9 +26,21 @@ export class AppController {
   }
 
   @Get('us/kyc/get')
-  async getKycUS(@Query('user_id') user_id: string): Promise<any> {
+  async getKycUS(
+    @Query('user_id') user_id: string,
+    @Query('fields') fields?: string | string[]
+  ): Promise<any> {
     try {
-      return await this.appService.getKycUS(user_id);
+      // fields를 배열로 변환 (없으면 undefined, 문자열이면 배열로 변환)
+      const fieldsArray = fields === undefined 
+        ? undefined 
+        : Array.isArray(fields) 
+          ? fields 
+          : typeof fields === 'string' && fields.trim() === ''
+            ? []
+            : fields.split(',').map(f => f.trim()).filter(f => f.length > 0);
+      
+      return await this.appService.getKycUS(user_id, fieldsArray);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
@@ -45,9 +57,21 @@ export class AppController {
 
 
   @Get('jp/kyc/get')
-  async getKycJP(@Query('user_id') user_id: string): Promise<any> {
+  async getKycJP(
+    @Query('user_id') user_id: string,
+    @Query('fields') fields?: string | string[]
+  ): Promise<any> {
     try {
-      return await this.appService.getKycJP(user_id);
+      // fields를 배열로 변환 (없으면 undefined, 문자열이면 배열로 변환)
+      const fieldsArray = fields === undefined 
+        ? undefined 
+        : Array.isArray(fields) 
+          ? fields 
+          : typeof fields === 'string' && fields.trim() === ''
+            ? []
+            : fields.split(',').map(f => f.trim()).filter(f => f.length > 0);
+      
+      return await this.appService.getKycJP(user_id, fieldsArray);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }

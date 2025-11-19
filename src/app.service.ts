@@ -51,7 +51,7 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async getKycUS(user_id: string): Promise<any> {
+  async getKycUS(user_id: string, fields?: string[]): Promise<any> {
     const baseUrl = this.resolveBaseUrl();
     
     // State에서 access_token 가져오기
@@ -61,13 +61,19 @@ export class AppService {
     }
 
     // 요청 본문 구성
-    // 
-    const requestBody = {
+    // fields가 undefined면 fields를 포함하지 않음 (기본값)
+    // fields가 빈 배열이거나 값이 있으면 fields를 포함
+    const requestBody: { user_id: string; fields?: string[] } = {
       user_id: user_id,
-      fields: [ "date_of_birth" ,"email_address" ,"phone_number" ,"family_name" ,"given_name" ,"city" ,"country" ,"postal_code" ,"region" ,"street"]
+      // date_of_birth ,email_address ,phone_number ,family_name ,given_name ,city ,country ,postal_code ,region ,street
+      // fields: [ "date_of_birth" ,"email_address" ,"phone_number" ,"family_name" ,"given_name" ,"city" ,"country" ,"postal_code" ,"region" ,"street"]
       // fields: [ "date_of_birth" ,"email_address" ,"phone_number" ,"family_name" ,"city" ,"region" ]
       // fields: [] 
     };
+
+    if (fields !== undefined) {
+      requestBody.fields = fields;
+    }
 
     const response = await fetch(`${baseUrl}/v1/idv/us/kyc/get`, {
       method: 'POST',
@@ -85,7 +91,7 @@ export class AppService {
     return await response.json();
   }
 
-  async getKycJP(user_id: string): Promise<any> {
+  async getKycJP(user_id: string, fields?: string[]): Promise<any> {
     const baseUrl = this.resolveBaseUrl();
     
     // State에서 access_token 가져오기
@@ -95,13 +101,19 @@ export class AppService {
     }
 
     // 요청 본문 구성
-    // 
-    const requestBody = {
+    // fields가 undefined면 fields를 포함하지 않음 (기본값)
+    // fields가 빈 배열이거나 값이 있으면 fields를 포함
+    const requestBody: { user_id: string; fields?: string[] } = {
       user_id: user_id,
-      fields: ["name", "date_of_birth", "sex", "address", "postal_code"]
+      // name, date_of_birth, sex, address, postal_code
+      // fields: ["name", "date_of_birth", "sex", "address", "postal_code"]
       // fields: ["name", "date_of_birth", "postal_code"]
       // fields: []
     };
+
+    if (fields !== undefined) {
+      requestBody.fields = fields;
+    }
 
     const response = await fetch(`${baseUrl}/v1/idv/jp/kyc/get`, {
       method: 'POST',
