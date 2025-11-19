@@ -64,7 +64,9 @@ export class AppService {
     // 
     const requestBody = {
       user_id: user_id,
-      fields: []
+      fields: [ "date_of_birth" ,"email_address" ,"phone_number" ,"family_name" ,"given_name" ,"city" ,"country" ,"postal_code" ,"region" ,"street"]
+      // fields: [ "date_of_birth" ,"email_address" ,"phone_number" ,"family_name" ,"city" ,"region" ]
+      // fields: [] 
     };
 
     const response = await fetch(`${baseUrl}/v1/idv/us/kyc/get`, {
@@ -96,7 +98,9 @@ export class AppService {
     // 
     const requestBody = {
       user_id: user_id,
-      fields: []
+      fields: ["name", "date_of_birth", "sex", "address", "postal_code"]
+      // fields: ["name", "date_of_birth", "postal_code"]
+      // fields: []
     };
 
     const response = await fetch(`${baseUrl}/v1/idv/jp/kyc/get`, {
