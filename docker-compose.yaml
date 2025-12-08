@@ -1,6 +1,6 @@
 
 services:
-  # unit-black-client-server로 배포할 땐 port 80 으로 맞춰야함
+  # NOTE: unit-black-client-server로 배포할 땐 port 80 으로 맞춰야함(필수)
   client-server:
     image: tomoadmin/idv-client-server:0.0.1
     build:
@@ -16,6 +16,7 @@ services:
     environment:
       - IDV_BASE_URL=https://api.tomopayment.com
 
+
   client-server-test:
     image: tomoadmin/idv-client-server:test-0.0.0.5
     build:
@@ -28,6 +29,7 @@ services:
     environment:
       - IDV_BASE_URL=https://test.tomopayment.com
 
+
   client-server-dev:
     image: tomoadmin/idv-client-server:test-0.0.0.7
     build:
@@ -39,6 +41,7 @@ services:
 
     environment:
       - IDV_BASE_URL=https://dev.tomopayment.com
+
 
   client-server-prod:
     image: tomoadmin/idv-client-server:test-0.0.0.7
