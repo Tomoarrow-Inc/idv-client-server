@@ -125,7 +125,15 @@ export class AppService {
     });
 
     if (!response.ok) {
-      const errorBody = await response.json().catch(() => JSON.stringify(response.text()));
+      // Response body를 한 번만 읽기 위해 먼저 텍스트로 읽고, JSON 파싱 시도
+      const errorText = await response.text();
+      let errorBody: string;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorBody = JSON.stringify(errorJson);
+      } catch {
+        errorBody = errorText;
+      }
       throw new Error(`KYC request failed: ${response.status} ${response.statusText} ${errorBody}`);
     }
 

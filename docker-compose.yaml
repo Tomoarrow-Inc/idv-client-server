@@ -1,9 +1,10 @@
 
 services:
   client-server:
-    image: tomoadmin/idv-client-server:test-0.0.0.6
+    image: tomoadmin/idv-client-server:0.0.1
     build:
       context: ./
+      target: production
 
     ports:
       - "80:3000"
