@@ -16,6 +16,15 @@ export class AppController {
     }
   } 
 
+  @Get('access_token_sdk')
+  async issueClientCredentialsTokenSdk(): Promise<IssueAccessTokenResult> {
+    try {
+      return await this.appService.issueClientCredentialsTokenSdk();
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    }
+  } 
+
   @Get('us/start')
   async idvStartUS(@Query('user_id') user_id: string): Promise<any> {
     try {

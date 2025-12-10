@@ -10,6 +10,7 @@ import {
   JsonWebKey,
 } from 'node:crypto';
 import { StateService } from './state.service';
+import { createClientAssertion, buildTokenRequest } from './sdk/tomo-idv-node';
 
 export type RegistrationResponseBody = {
   client_id: string;
@@ -45,10 +46,51 @@ const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
 
 @Injectable()
 export class AppService {
-  constructor(private readonly stateService: StateService) {}
+  constructor(private readonly stateService: StateService) {
+
+  }
 
   getHello(): string {
     return 'Hello World!';
+  }
+
+  async issueClientCredentialsTokenSdk(): Promise<IssueAccessTokenResult> {
+    const baseUrl = this.resolveBaseUrl();
+
+    const clientAssertion = createClientAssertion({
+      client_id: TOMO_IDV_CLIENT_ID,
+      secret_key: TOMO_IDV_SECRET,
+      base_url: baseUrl,
+    });
+
+    const { headers, body } = buildTokenRequest(clientAssertion);
+
+    try {
+      const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
+        method: 'POST',
+        headers,
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to issue client credentials token: ${response.status} ${response.statusText}`);
+      }
+
+      const tokenResponse = await response.json();
+      const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
+
+      return {
+        clientId: TOMO_IDV_CLIENT_ID,
+        accessToken: tokenResponse.access_token,
+        tokenType: tokenResponse.token_type,
+        expiresIn: tokenResponse.expires_in,
+        scope,
+      };
+
+    } catch (error) {
+      throw new Error(`Failed to issue client credentials token: ${error}`);
+    }
+
   }
 
   async getKycUS(user_id: string, fields?: string[]): Promise<any> {
