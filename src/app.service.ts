@@ -24,6 +24,10 @@ export type TokenResponseBody = {
   scopeGranted?: string;
 };
 
+type SafeFetchResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; status?: number; message: string };
+
 export interface IssueAccessTokenResult {
   clientId: string;
   accessToken: string;
@@ -65,32 +69,26 @@ export class AppService {
 
     const { headers, body } = buildTokenRequest(clientAssertion);
 
-    try {
-      const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
-        method: 'POST',
-        headers,
-        body,
-      });
+    const result = await this.safeFetchJson<TokenResponseBody>(`${baseUrl}/v1/oauth2/token`, {
+      method: 'POST',
+      headers,
+      body,
+    });
 
-      if (!response.ok) {
-        throw new Error(`Failed to issue client credentials token: ${response.status} ${response.statusText}`);
-      }
-
-      const tokenResponse = await response.json();
-      const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
-
-      return {
-        clientId: TOMO_IDV_CLIENT_ID,
-        accessToken: tokenResponse.access_token,
-        tokenType: tokenResponse.token_type,
-        expiresIn: tokenResponse.expires_in,
-        scope,
-      };
-
-    } catch (error) {
-      throw new Error(`Failed to issue client credentials token: ${error}`);
+    if (!result.ok) {
+      throw new Error(`Failed to issue client credentials token: ${result.status ?? 'unknown'} ${result.message}`);
     }
 
+    const tokenResponse = result.data;
+    const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
+
+    return {
+      clientId: TOMO_IDV_CLIENT_ID,
+      accessToken: tokenResponse.access_token,
+      tokenType: tokenResponse.token_type,
+      expiresIn: tokenResponse.expires_in,
+      scope,
+    };
   }
 
   async getKycUS(user_id: string, fields?: string[]): Promise<any> {
@@ -117,7 +115,7 @@ export class AppService {
       requestBody.fields = fields;
     }
 
-    const response = await fetch(`${baseUrl}/v1/idv/us/kyc/get`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/us/kyc/get`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -126,19 +124,11 @@ export class AppService {
       body: JSON.stringify(requestBody)
     });
 
-    if (!response.ok) {
-      // Response body를 한 번만 읽기 위해 먼저 텍스트로 읽고, JSON 파싱 시도
-      const errorText = await response.text();
-      let errorBody: string;
-      try {
-        const errorJson = JSON.parse(errorText);
-        errorBody = JSON.stringify(errorJson);
-      } catch {
-        errorBody = errorText;
-      }
-      throw new Error(`KYC request failed: ${response.status} ${response.statusText} ${errorBody}`);
+    if (!result.ok) {
+      throw new Error(`KYC request failed: ${result.status ?? 'unknown'} ${result.message}`);
     }
-    return await response.json();
+
+    return result.data;
   }
 
   async getKycJP(user_id: string, fields?: string[]): Promise<any> {
@@ -165,7 +155,7 @@ export class AppService {
       requestBody.fields = fields;
     }
 
-    const response = await fetch(`${baseUrl}/v1/idv/jp/kyc/get`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/jp/kyc/get`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -174,20 +164,11 @@ export class AppService {
       body: JSON.stringify(requestBody)
     });
 
-    if (!response.ok) {
-      // Response body를 한 번만 읽기 위해 먼저 텍스트로 읽고, JSON 파싱 시도
-      const errorText = await response.text();
-      let errorBody: string;
-      try {
-        const errorJson = JSON.parse(errorText);
-        errorBody = JSON.stringify(errorJson);
-      } catch {
-        errorBody = errorText;
-      }
-      throw new Error(`KYC request failed: ${response.status} ${response.statusText} ${errorBody}`);
+    if (!result.ok) {
+      throw new Error(`KYC request failed: ${result.status ?? 'unknown'} ${result.message}`);
     }
 
-    return await response.json();
+    return result.data;
   }
 
   async idvStartJP(user_id: string): Promise<any> {
@@ -205,7 +186,7 @@ export class AppService {
       callback_url: "idvexpo://verify"
     };
 
-    const response = await fetch(`${baseUrl}/v1/idv/jp/start`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/jp/start`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -214,11 +195,11 @@ export class AppService {
       body: JSON.stringify(requestBody)
     });
 
-    if (!response.ok) {
-      throw new Error(`Applications request failed: ${response.status} ${response.statusText}`);
+    if (!result.ok) {
+      throw new Error(`Applications request failed: ${result.status ?? 'unknown'} ${result.message}`);
     }
 
-    return await response.json();
+    return result.data;
   }
 
   async idvStartUS(user_id: string): Promise<any> {
@@ -237,7 +218,7 @@ export class AppService {
       callback_url: "idvexpo://verify"
     };
 
-    const response = await fetch(`${baseUrl}/v1/idv/us/start`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/us/start`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -246,11 +227,11 @@ export class AppService {
       body: JSON.stringify(requestBody)
     });
 
-    if (!response.ok) {
-      throw new Error(`Link token request failed: ${response.status} ${response.statusText}`);
+    if (!result.ok) {
+      throw new Error(`Link token request failed: ${result.status ?? 'unknown'} ${result.message}`);
     }
 
-    return await response.json();
+    return result.data;
   }
 
   async idvStart(user_id: string, callback_url: string, email: string, country: string): Promise<any> {
@@ -271,7 +252,7 @@ export class AppService {
       country: country
     };
 
-    const response = await fetch(`${baseUrl}/v1/idv/start`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/start`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -280,11 +261,11 @@ export class AppService {
       body: JSON.stringify(requestBody)
     });
 
-    if (!response.ok) {
-      throw new Error(`Link token request failed: ${response.status} ${response.statusText}`);
+    if (!result.ok) {
+      throw new Error(`Link token request failed: ${result.status ?? 'unknown'} ${result.message}`);
     }
 
-    return await response.json();
+    return result.data;
   }
 
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
@@ -345,6 +326,25 @@ export class AppService {
   private resolveBaseUrl(): string {
     const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';
     return base.replace(/\/$/, '');
+  }
+
+  private async safeFetchJson<T>(url: string, init?: RequestInit): Promise<SafeFetchResult<T>> {
+    try {
+      const response = await fetch(url, init);
+      const text = await response.text();
+
+      if (!response.ok) {
+        return { ok: false, status: response.status, message: text || response.statusText };
+      }
+
+      try {
+        return { ok: true, data: JSON.parse(text) as T };
+      } catch {
+        return { ok: false, status: response.status, message: 'Invalid JSON response' };
+      }
+    } catch (error) {
+      return { ok: false, message: `Fetch failed: ${error}` };
+    }
   }
 
   private resolveAuthorizationServerKey(): KeyObject {
@@ -440,78 +440,66 @@ export class AppService {
       throw new Error('Public JWK missing EC coordinates');
     }
 
-    try {
-      const response = await fetch(`${baseUrl}/v1/admin/clients`, {
-        method: 'POST',
-        headers: {
-          Authorization: 'Bearer ssa-token',
-          'Content-Type': 'application/json',
+    const result = await this.safeFetchJson<RegistrationResponseBody>(`${baseUrl}/v1/admin/clients`, {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ssa-token',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jwks: {
+          keys: [
+            {
+              kty: 'EC',
+              crv: 'P-256',
+              x: jwk.x,
+              y: jwk.y,
+              kid,
+              alg: 'ES256',
+              use: 'sig',
+            },
+          ],
         },
-        body: JSON.stringify({
-          jwks: {
-            keys: [
-              {
-                kty: 'EC',
-                crv: 'P-256',
-                x: jwk.x,
-                y: jwk.y,
-                kid,
-                alg: 'ES256',
-                use: 'sig',
-              },
-            ],
-          },
-          kid,
-          client_metadata: null,
-        }),
-      });
+        kid,
+        client_metadata: null,
+      }),
+    });
 
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Failed to register client (${response.status}): ${text}`);
-      }
-
-      const json = (await response.json()) as RegistrationResponseBody;
-      if (!json.client_id) {
-        throw new Error('registerClient response missing client_id');
-      }
-      return json.client_id;
-
-    } catch (error) {
-      throw new Error(`Failed to register client: ${error}`);
+    if (!result.ok) {
+      throw new Error(`Failed to register client (${result.status ?? 'unknown'}): ${result.message}`);
     }
+
+    const json = result.data;
+    if (!json.client_id) {
+      throw new Error('registerClient response missing client_id');
+    }
+    return json.client_id;
   }
 
   private async requestAccessToken(baseUrl: string, assertion: string): Promise<TokenResponseBody> {
-    try {
-      const params = new URLSearchParams();
-      params.set('grant_type', 'client_credentials');
-      params.set('scope', 'idv.read');
-      params.set('resource', baseUrl);
-      params.set('client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
-      params.set('client_assertion', assertion);
-      
-      // TODO: SDK로 assertion 만 만들어주는걸로 하기
+    const params = new URLSearchParams();
+    params.set('grant_type', 'client_credentials');
+    params.set('scope', 'idv.read');
+    params.set('resource', baseUrl);
+    params.set('client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
+    params.set('client_assertion', assertion);
+    
+    // TODO: SDK로 assertion 만 만들어주는걸로 하기
 
-      const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          DPoP: 'dpop-proof',
-        },
-        body: params.toString(),
-      });
+    const result = await this.safeFetchJson<TokenResponseBody>(`${baseUrl}/v1/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        DPoP: 'dpop-proof',
+      },
+      body: params.toString(),
+    });
 
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Failed to issue access token (${response.status}): ${text}`);
-      }
-
-      return (await response.json()) as TokenResponseBody;
-
-    } catch (error) {
-      throw new Error(`Failed to request access token: ${error}`);
+    if (!result.ok) {
+      throw new Error(`Failed to issue access token (${result.status ?? 'unknown'}): ${result.message}`);
     }
+
+    return result.data;
   }
 
   private verifyJwt(token: string, publicKey: KeyObject): Record<string, unknown> {
