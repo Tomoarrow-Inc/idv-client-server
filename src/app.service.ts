@@ -1,20 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {
-  createHash,
-  createPublicKey,
-  createSign,
-  createVerify,
-  createPrivateKey,
-  generateKeyPairSync,
-  KeyObject,
-  JsonWebKey,
-} from 'node:crypto';
 import { StateService } from './state.service';
 import { createClientAssertion, buildTokenRequest } from './sdk/tomo-idv-node';
-
-export type RegistrationResponseBody = {
-  client_id: string;
-};
 
 export type TokenResponseBody = {
   access_token: string;
@@ -35,13 +21,6 @@ export interface IssueAccessTokenResult {
   expiresIn: number;
   scope: string | null;
   claims?: Record<string, unknown>;
-}
-
-interface EcKeyPair {
-  publicKey: KeyObject;
-  privateKey: KeyObject;
-  publicJwk: JsonWebKey;
-  privateJwk: JsonWebKey;
 }
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
@@ -82,6 +61,15 @@ export class AppService {
     const tokenResponse = result.data;
     const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
 
+    this.setState('access_token', tokenResponse.access_token);
+    this.setState('token_info', {
+      clientId: TOMO_IDV_CLIENT_ID,
+      tokenType: tokenResponse.token_type,
+      expiresIn: tokenResponse.expires_in,
+      scope,
+      issuedAt: new Date().toISOString(),
+    });
+
     return {
       clientId: TOMO_IDV_CLIENT_ID,
       accessToken: tokenResponse.access_token,
@@ -97,7 +85,7 @@ export class AppService {
     // State에서 access_token 가져오기
     const accessToken = this.getState('access_token');
     if (!accessToken) {
-      throw new Error('No access token found. Please call /issueClientCredentialsToken first.');
+      throw new Error('No access token found. Please call /access_token_sdk first.');
     }
 
     // 요청 본문 구성
@@ -137,7 +125,7 @@ export class AppService {
     // State에서 access_token 가져오기
     const accessToken = this.getState('access_token');
     if (!accessToken) {
-      throw new Error('No access token found. Please call /issueClientCredentialsToken first.');
+      throw new Error('No access token found. Please call /access_token_sdk first.');
     }
 
     // 요청 본문 구성
@@ -177,7 +165,7 @@ export class AppService {
     // State에서 access_token 가져오기
     const accessToken = this.getState('access_token');
     if (!accessToken) {
-      throw new Error('No access token found. Please call /issueClientCredentialsToken first.');
+      throw new Error('No access token found. Please call /access_token_sdk first.');
     }
 
     // 하드코딩된 요청 본문
@@ -208,7 +196,7 @@ export class AppService {
     // State에서 access_token 가져오기
     const accessToken = this.getState('access_token');
     if (!accessToken) {
-      throw new Error('No access token found. Please call /issueClientCredentialsToken first.');
+      throw new Error('No access token found. Please call /access_token_sdk first.');
     }
 
     // 하드코딩된 요청 본문
@@ -241,7 +229,7 @@ export class AppService {
     // State에서 access_token 가져오기
     const accessToken = this.getState('access_token');
     if (!accessToken) {
-      throw new Error('No access token found. Please call /issueClientCredentialsToken first.');
+      throw new Error('No access token found. Please call /access_token_sdk first.');
     }
 
     // 하드코딩된 요청 본문
@@ -268,61 +256,6 @@ export class AppService {
     return result.data;
   }
 
-  async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
-    try {
-      const baseUrl = this.resolveBaseUrl();
-      // const asPublicKey = this.resolveAuthorizationServerKey();
-
-      console.log('baseUrl', baseUrl);
-
-      // TODO:  SDK로 만들어줘야함 start ---
-      
-      // const clientKeys = this.generateEcP256();
-      // const kid = this.computeJwkThumbprint(publicJwk);
-      // console.log('kid', kid);
-      
-      // base64Url로 인코딩된 TOMO_IDV_SECRET를 JWK로 변환
-      const privateJwk = this.decodeBase64UrlToJwk(TOMO_IDV_SECRET);
-      const privateKey = createPrivateKey({ key: privateJwk, format: 'jwk' });
-
-      const assertion = this.createClientAssertion(
-        privateKey,
-        TOMO_IDV_CLIENT_ID,
-        `${baseUrl}/v1/oauth2/token`,
-      );
-
-      // SDK로 만들어줘야함 end ---
-
-      const tokenResponse = await this.requestAccessToken(baseUrl, assertion);
-      const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
-      // const claims = this.verifyJwt(tokenResponse.access_token, createPublicKey({ key: publicJwk, format: 'jwk' }));
-
-      const result = {
-        clientId: TOMO_IDV_CLIENT_ID,
-        accessToken: tokenResponse.access_token,
-        tokenType: tokenResponse.token_type,
-        expiresIn: tokenResponse.expires_in,
-        scope,
-        // claims,
-      };
-
-      // access_token을 State에 저장
-      this.setState('access_token', tokenResponse.access_token);
-      this.setState('token_info', {
-        clientId: TOMO_IDV_CLIENT_ID,
-        tokenType: tokenResponse.token_type,
-        expiresIn: tokenResponse.expires_in,
-        scope,
-        issuedAt: new Date().toISOString()
-      });
-
-      return result;
-
-    } catch (error) {
-      throw new Error(`Failed to issue client credentials token: ${error}`);
-    }
-  }
-
   private resolveBaseUrl(): string {
     const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';
     return base.replace(/\/$/, '');
@@ -345,185 +278,6 @@ export class AppService {
     } catch (error) {
       return { ok: false, message: `Fetch failed: ${error}` };
     }
-  }
-
-  private resolveAuthorizationServerKey(): KeyObject {
-    const raw = process.env.AS_SIGNING_JWK;
-    if (!raw) {
-      throw new Error('AS_SIGNING_JWK env var must be set to verify access tokens');
-    }
-
-    let jwk: JsonWebKey;
-    try {
-      jwk = JSON.parse(raw) as JsonWebKey;
-    } catch (error) {
-      throw new Error('AS_SIGNING_JWK must contain valid JWK JSON');
-    }
-
-    return createPublicKey({ key: jwk, format: 'jwk' });
-  }
-
-  private generateEcP256(): EcKeyPair {
-    const { publicKey, privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
-    const publicJwk = publicKey.export({ format: 'jwk' }) as JsonWebKey;
-    const privateJwk = privateKey.export({ format: 'jwk' }) as JsonWebKey;
-    return { publicKey, privateKey, publicJwk, privateJwk };
-  }
-
-  private computeJwkThumbprint(jwk: JsonWebKey): string {
-    if (jwk.kty !== 'EC' || jwk.crv !== 'P-256' || !jwk.x || !jwk.y) {
-      throw new Error('Expected EC P-256 public JWK');
-    }
-    const canonical = `{"crv":"P-256","kty":"EC","x":"${jwk.x}","y":"${jwk.y}"}`;
-    const digest = createHash('sha256').update(canonical).digest();
-    return this.base64UrlEncode(digest);
-  }
-
-  private base64UrlEncode(buffer: Buffer): string {
-    return buffer
-      .toString('base64')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/u, '');
-  }
-
-  private base64UrlDecode(str: string): Buffer {
-    // base64url을 base64로 변환
-    let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-    
-    // 패딩 추가 (필요한 경우)
-    while (base64.length % 4) {
-      base64 += '=';
-    }
-    
-    return Buffer.from(base64, 'base64');
-  }
-
-  private decodeBase64UrlToJwk(encodedJwk: string): JsonWebKey {
-    try {
-      const decoded = this.base64UrlDecode(encodedJwk);
-      const jwk = JSON.parse(decoded.toString('utf8')) as JsonWebKey;
-      return jwk;
-    } catch (error) {
-      throw new Error(`Failed to decode base64url JWK: ${error}`);
-    }
-  }
-
-  private createClientAssertion(privateKey: KeyObject, clientId: string, audience: string): string {
-    const now = Math.floor(Date.now() / 1000);
-    const jti = crypto.randomUUID();
-    const payload = {
-      iss: clientId,
-      sub: clientId,
-      aud: audience,
-      iat: now,
-      exp: now + 300,
-      jti: jti,
-    };
-    return this.signJwt(privateKey, payload);
-  }
-
-  private signJwt(privateKey: KeyObject, payload: Record<string, unknown>): string {
-    const header = this.base64UrlEncode(Buffer.from(JSON.stringify({ alg: 'ES256', typ: 'JWT' })));
-    const body = this.base64UrlEncode(Buffer.from(JSON.stringify(payload)));
-    const signingInput = `${header}.${body}`;
-    const signer = createSign('sha256');
-    signer.update(signingInput);
-    signer.end();
-    const signature = signer.sign({ key: privateKey, dsaEncoding: 'ieee-p1363' });
-    const encodedSignature = this.base64UrlEncode(signature);
-    return `${signingInput}.${encodedSignature}`;
-  }
-
-  private async registerClient(baseUrl: string, kid: string, jwk: JsonWebKey): Promise<string> {
-    if (!jwk.x || !jwk.y) {
-      throw new Error('Public JWK missing EC coordinates');
-    }
-
-    const result = await this.safeFetchJson<RegistrationResponseBody>(`${baseUrl}/v1/admin/clients`, {
-      method: 'POST',
-      headers: {
-        Authorization: 'Bearer ssa-token',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jwks: {
-          keys: [
-            {
-              kty: 'EC',
-              crv: 'P-256',
-              x: jwk.x,
-              y: jwk.y,
-              kid,
-              alg: 'ES256',
-              use: 'sig',
-            },
-          ],
-        },
-        kid,
-        client_metadata: null,
-      }),
-    });
-
-    if (!result.ok) {
-      throw new Error(`Failed to register client (${result.status ?? 'unknown'}): ${result.message}`);
-    }
-
-    const json = result.data;
-    if (!json.client_id) {
-      throw new Error('registerClient response missing client_id');
-    }
-    return json.client_id;
-  }
-
-  private async requestAccessToken(baseUrl: string, assertion: string): Promise<TokenResponseBody> {
-    const params = new URLSearchParams();
-    params.set('grant_type', 'client_credentials');
-    params.set('scope', 'idv.read');
-    params.set('resource', baseUrl);
-    params.set('client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
-    params.set('client_assertion', assertion);
-    
-    // TODO: SDK로 assertion 만 만들어주는걸로 하기
-
-    const result = await this.safeFetchJson<TokenResponseBody>(`${baseUrl}/v1/oauth2/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        DPoP: 'dpop-proof',
-      },
-      body: params.toString(),
-    });
-
-    if (!result.ok) {
-      throw new Error(`Failed to issue access token (${result.status ?? 'unknown'}): ${result.message}`);
-    }
-
-    return result.data;
-  }
-
-  private verifyJwt(token: string, publicKey: KeyObject): Record<string, unknown> {
-    const [header, payload, signature] = token.split('.');
-    if (!header || !payload || !signature) {
-      throw new Error('Malformed JWT');
-    }
-
-    const signingInput = `${header}.${payload}`;
-    const verifier = createVerify('sha256');
-    verifier.update(signingInput);
-    verifier.end();
-
-    const signatureValid = verifier.verify(
-      { key: publicKey, dsaEncoding: 'ieee-p1363' },
-      Buffer.from(signature, 'base64url'),
-    );
-
-    if (!signatureValid) {
-      throw new Error('Access token signature verification failed');
-    }
-
-    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as Record<string, unknown>;
-    return decoded;
   }
 
   // ==================== State Management Methods ====================
