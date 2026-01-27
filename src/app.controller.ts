@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
-import { AppService, IssueAccessTokenResult } from './app.service';
+import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
+import { AppService, IssueAccessTokenResult, TokenResponseBody } from './app.service';
+import { contract } from './contract/api';
 
 
 
@@ -7,80 +8,65 @@ import { AppService, IssueAccessTokenResult } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('access_token_sdk')
-  async issueClientCredentialsTokenSdk(): Promise<IssueAccessTokenResult> {
+  // @Get('access_token')
+  // async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
+  //   try {
+  //     return await this.appService.issueClientCredentialsToken();
+  //   } catch (error) {
+  //     throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+  //   }
+  // } 
+
+  @Post(contract.access_token.path)
+  async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
     try {
-      return await this.appService.issueClientCredentialsTokenSdk();
+      return await this.appService.issueClientCredentialsToken();
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   } 
 
-  @Get('us/start')
-  async idvStartUS(@Query('user_id') user_id: string): Promise<any> {
+  @Post(contract.idv_us_start.path)
+  async idvStartUS(@Body() body: any): Promise<any> {
     try {
-      return await this.appService.idvStartUS(user_id);
+      return await this.appService.idvStartUS(body?.user_id, body?.email, body?.callback_url);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
-  @Get('us/kyc/get')
-  async getKycUS(
-    @Query('user_id') user_id: string,
-    @Query('fields') fields?: string | string[]
-  ): Promise<any> {
+  @Post(contract.idv_us_get_result.path)
+  async getKycUS(@Body() body: any): Promise<any> {
     try {
-      // fields를 배열로 변환 (없으면 undefined, 문자열이면 배열로 변환)
-      const fieldsArray = fields === undefined 
-        ? undefined 
-        : Array.isArray(fields) 
-          ? fields 
-          : typeof fields === 'string' && fields.trim() === ''
-            ? []
-            : fields.split(',').map(f => f.trim()).filter(f => f.length > 0);
-      
-      return await this.appService.getKycUS(user_id, fieldsArray);
+      return await this.appService.getKycUS(body?.user_id, body?.fields);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
-  @Get('jp/start')
-  async idvStartJP(@Query('user_id') user_id: string): Promise<any> {
+  @Post(contract.idv_jp_start.path)
+  async idvStartJP(@Body() body: any): Promise<any> {
     try {
-      return await this.appService.idvStartJP(user_id);
+      return await this.appService.idvStartJP(body?.user_id, body?.callback_url);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
 
-  @Get('jp/kyc/get')
-  async getKycJP(
-    @Query('user_id') user_id: string,
-    @Query('fields') fields?: string | string[]
-  ): Promise<any> {
+  @Post(contract.idv_jp_get_result.path)
+  async getKycJP(@Body() body: any): Promise<any> {
     try {
-      // fields를 배열로 변환 (없으면 undefined, 문자열이면 배열로 변환)
-      const fieldsArray = fields === undefined 
-        ? undefined 
-        : Array.isArray(fields) 
-          ? fields 
-          : typeof fields === 'string' && fields.trim() === ''
-            ? []
-            : fields.split(',').map(f => f.trim()).filter(f => f.length > 0);
-      
-      return await this.appService.getKycJP(user_id, fieldsArray);
+      return await this.appService.getKycJP(body?.user_id, body?.fields);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
-  @Get('start')
-  async idvStart(@Query('user_id') user_id: string, @Query('callback_url') callback_url: string, @Query('email') email: string, @Query('country') country: string): Promise<any> {
+  @Post(contract.idv_start.path)
+  async idvStart(@Body() body: any): Promise<any> {
     try {
-      return await this.appService.idvStart(user_id, callback_url, email, country);
+      return await this.appService.idvStart(body?.user_id, body?.callback_url, body?.email, body?.country);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }

@@ -15,68 +15,55 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
+const api_1 = require("./contract/api");
 let AppController = class AppController {
     appService;
     constructor(appService) {
         this.appService = appService;
     }
-    async issueClientCredentialsTokenSdk() {
+    async issueClientCredentialsToken() {
         try {
-            return await this.appService.issueClientCredentialsTokenSdk();
+            return await this.appService.issueClientCredentialsToken();
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
         }
     }
-    async idvStartUS(user_id) {
+    async idvStartUS(body) {
         try {
-            return await this.appService.idvStartUS(user_id);
+            return await this.appService.idvStartUS(body?.user_id, body?.email, body?.callback_url);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
         }
     }
-    async getKycUS(user_id, fields) {
+    async getKycUS(body) {
         try {
-            const fieldsArray = fields === undefined
-                ? undefined
-                : Array.isArray(fields)
-                    ? fields
-                    : typeof fields === 'string' && fields.trim() === ''
-                        ? []
-                        : fields.split(',').map(f => f.trim()).filter(f => f.length > 0);
-            return await this.appService.getKycUS(user_id, fieldsArray);
+            return await this.appService.getKycUS(body?.user_id, body?.fields);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
         }
     }
-    async idvStartJP(user_id) {
+    async idvStartJP(body) {
         try {
-            return await this.appService.idvStartJP(user_id);
+            return await this.appService.idvStartJP(body?.user_id, body?.callback_url);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
         }
     }
-    async getKycJP(user_id, fields) {
+    async getKycJP(body) {
         try {
-            const fieldsArray = fields === undefined
-                ? undefined
-                : Array.isArray(fields)
-                    ? fields
-                    : typeof fields === 'string' && fields.trim() === ''
-                        ? []
-                        : fields.split(',').map(f => f.trim()).filter(f => f.length > 0);
-            return await this.appService.getKycJP(user_id, fieldsArray);
+            return await this.appService.getKycJP(body?.user_id, body?.fields);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
         }
     }
-    async idvStart(user_id, callback_url, email, country) {
+    async idvStart(body) {
         try {
-            return await this.appService.idvStart(user_id, callback_url, email, country);
+            return await this.appService.idvStart(body?.user_id, body?.callback_url, body?.email, body?.country);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
@@ -85,49 +72,44 @@ let AppController = class AppController {
 };
 exports.AppController = AppController;
 __decorate([
-    (0, common_1.Get)('access_token_sdk'),
+    (0, common_1.Post)(api_1.contract.access_token.path),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], AppController.prototype, "issueClientCredentialsTokenSdk", null);
+], AppController.prototype, "issueClientCredentialsToken", null);
 __decorate([
-    (0, common_1.Get)('us/start'),
-    __param(0, (0, common_1.Query)('user_id')),
+    (0, common_1.Post)(api_1.contract.idv_us_start.path),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "idvStartUS", null);
 __decorate([
-    (0, common_1.Get)('us/kyc/get'),
-    __param(0, (0, common_1.Query)('user_id')),
-    __param(1, (0, common_1.Query)('fields')),
+    (0, common_1.Post)(api_1.contract.idv_us_get_result.path),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getKycUS", null);
 __decorate([
-    (0, common_1.Get)('jp/start'),
-    __param(0, (0, common_1.Query)('user_id')),
+    (0, common_1.Post)(api_1.contract.idv_jp_start.path),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "idvStartJP", null);
 __decorate([
-    (0, common_1.Get)('jp/kyc/get'),
-    __param(0, (0, common_1.Query)('user_id')),
-    __param(1, (0, common_1.Query)('fields')),
+    (0, common_1.Post)(api_1.contract.idv_jp_get_result.path),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getKycJP", null);
 __decorate([
-    (0, common_1.Get)('start'),
-    __param(0, (0, common_1.Query)('user_id')),
-    __param(1, (0, common_1.Query)('callback_url')),
-    __param(2, (0, common_1.Query)('email')),
-    __param(3, (0, common_1.Query)('country')),
+    (0, common_1.Post)(api_1.contract.idv_start.path),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "idvStart", null);
 exports.AppController = AppController = __decorate([

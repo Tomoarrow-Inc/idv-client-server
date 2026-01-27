@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion, buildTokenRequest } from './sdk/tomo-idv-node';
+import { contract } from './contract/api';
+
+export type RegistrationResponseBody = {
+  client_id: string;
+};
 
 export type TokenResponseBody = {
   access_token: string;
@@ -37,7 +42,7 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async issueClientCredentialsTokenSdk(): Promise<IssueAccessTokenResult> {
+  async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
     const baseUrl = this.resolveBaseUrl();
 
     const clientAssertion = createClientAssertion({
@@ -48,8 +53,9 @@ export class AppService {
 
     const { headers, body } = buildTokenRequest(clientAssertion);
 
-    const result = await this.safeFetchJson<TokenResponseBody>(`${baseUrl}/v1/oauth2/token`, {
-      method: 'POST',
+    // const result = await this.safeFetchJson<TokenResponseBody>(`${baseUrl}/v1/oauth2/token`, {
+    const result = await this.safeFetchJson<TokenResponseBody>(`${baseUrl}${contract.access_token.path}`, {
+      method: contract.access_token.method,
       headers,
       body,
     });
@@ -103,8 +109,9 @@ export class AppService {
       requestBody.fields = fields;
     }
 
-    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/us/kyc/get`, {
-      method: 'POST',
+    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/us/kyc/get`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_us_get_result.path}`, {
+      method: contract.idv_us_get_result.method,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`
@@ -143,8 +150,9 @@ export class AppService {
       requestBody.fields = fields;
     }
 
-    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/jp/kyc/get`, {
-      method: 'POST',
+    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/jp/kyc/get`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_jp_get_result.path}`, {
+      method: contract.idv_jp_get_result.method,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`
@@ -159,7 +167,7 @@ export class AppService {
     return result.data;
   }
 
-  async idvStartJP(user_id: string): Promise<any> {
+  async idvStartJP(user_id: string, callback_url?: string): Promise<any> {
     const baseUrl = this.resolveBaseUrl();
     
     // State에서 access_token 가져오기
@@ -171,11 +179,12 @@ export class AppService {
     // 하드코딩된 요청 본문
     const requestBody = {
       user_id: user_id,
-      callback_url: "idvexpo://verify"
+      callback_url: callback_url ?? "idvexpo://verify"
     };
 
-    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/jp/start`, {
-      method: 'POST',
+    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/jp/start`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_jp_start.path}`, {
+      method: contract.idv_jp_start.method,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`
@@ -190,7 +199,7 @@ export class AppService {
     return result.data;
   }
 
-  async idvStartUS(user_id: string): Promise<any> {
+  async idvStartUS(user_id: string, email?: string, callback_url?: string): Promise<any> {
     const baseUrl = this.resolveBaseUrl();
     
     // State에서 access_token 가져오기
@@ -202,12 +211,13 @@ export class AppService {
     // 하드코딩된 요청 본문
     const requestBody = {
       user_id: user_id,
-      email: "chanhee@tomoarrow.com",
-      callback_url: "idvexpo://verify"
+      email: email ?? "chanhee@tomoarrow.com",
+      callback_url: callback_url ?? "idvexpo://verify"
     };
 
-    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/us/start`, {
-      method: 'POST',
+    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/us/start`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_us_start.path}`, {
+      method: contract.idv_us_start.method,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`
@@ -240,8 +250,9 @@ export class AppService {
       country: country
     };
 
-    const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/start`, {
-      method: 'POST',
+    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/start`, {
+    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_start.path}`, {
+      method: contract.idv_start.method,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`
@@ -254,6 +265,61 @@ export class AppService {
     }
 
     return result.data;
+  }
+
+  async issueClientCredentialsTokenOld(): Promise<IssueAccessTokenResult> {
+    try {
+      const baseUrl = this.resolveBaseUrl();
+      // const asPublicKey = this.resolveAuthorizationServerKey();
+
+      console.log('baseUrl', baseUrl);
+
+      // TODO:  SDK로 만들어줘야함 start ---
+      
+      // const clientKeys = this.generateEcP256();
+      // const kid = this.computeJwkThumbprint(publicJwk);
+      // console.log('kid', kid);
+      
+      // base64Url로 인코딩된 TOMO_IDV_SECRET를 JWK로 변환
+      const privateJwk = this.decodeBase64UrlToJwk(TOMO_IDV_SECRET);
+      const privateKey = createPrivateKey({ key: privateJwk, format: 'jwk' });
+
+      const assertion = this.createClientAssertion(
+        privateKey,
+        TOMO_IDV_CLIENT_ID,
+        `${baseUrl}/v1/oauth2/token`,
+      );
+
+      // SDK로 만들어줘야함 end ---
+
+      const tokenResponse = await this.requestAccessToken(baseUrl, assertion);
+      const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
+      // const claims = this.verifyJwt(tokenResponse.access_token, createPublicKey({ key: publicJwk, format: 'jwk' }));
+
+      const result = {
+        clientId: TOMO_IDV_CLIENT_ID,
+        accessToken: tokenResponse.access_token,
+        tokenType: tokenResponse.token_type,
+        expiresIn: tokenResponse.expires_in,
+        scope,
+        // claims,
+      };
+
+      // access_token을 State에 저장
+      this.setState('access_token', tokenResponse.access_token);
+      this.setState('token_info', {
+        clientId: TOMO_IDV_CLIENT_ID,
+        tokenType: tokenResponse.token_type,
+        expiresIn: tokenResponse.expires_in,
+        scope,
+        issuedAt: new Date().toISOString()
+      });
+
+      return result;
+
+    } catch (error) {
+      throw new Error(`Failed to issue client credentials token: ${error}`);
+    }
   }
 
   private resolveBaseUrl(): string {

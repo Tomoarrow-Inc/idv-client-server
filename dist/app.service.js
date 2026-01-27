@@ -13,6 +13,7 @@ exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
 const state_service_1 = require("./state.service");
 const tomo_idv_node_1 = require("./sdk/tomo-idv-node");
+const api_1 = require("./contract/api");
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET;
 let AppService = class AppService {
@@ -23,7 +24,7 @@ let AppService = class AppService {
     getHello() {
         return 'Hello World!';
     }
-    async issueClientCredentialsTokenSdk() {
+    async issueClientCredentialsToken() {
         const baseUrl = this.resolveBaseUrl();
         const clientAssertion = (0, tomo_idv_node_1.createClientAssertion)({
             client_id: TOMO_IDV_CLIENT_ID,
@@ -31,8 +32,8 @@ let AppService = class AppService {
             base_url: baseUrl,
         });
         const { headers, body } = (0, tomo_idv_node_1.buildTokenRequest)(clientAssertion);
-        const result = await this.safeFetchJson(`${baseUrl}/v1/oauth2/token`, {
-            method: 'POST',
+        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.access_token.path}`, {
+            method: api_1.contract.access_token.method,
             headers,
             body,
         });
@@ -69,8 +70,8 @@ let AppService = class AppService {
         if (fields !== undefined) {
             requestBody.fields = fields;
         }
-        const result = await this.safeFetchJson(`${baseUrl}/v1/idv/us/kyc/get`, {
-            method: 'POST',
+        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_us_get_result.path}`, {
+            method: api_1.contract.idv_us_get_result.method,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
@@ -94,8 +95,8 @@ let AppService = class AppService {
         if (fields !== undefined) {
             requestBody.fields = fields;
         }
-        const result = await this.safeFetchJson(`${baseUrl}/v1/idv/jp/kyc/get`, {
-            method: 'POST',
+        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_jp_get_result.path}`, {
+            method: api_1.contract.idv_jp_get_result.method,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
@@ -107,7 +108,7 @@ let AppService = class AppService {
         }
         return result.data;
     }
-    async idvStartJP(user_id) {
+    async idvStartJP(user_id, callback_url) {
         const baseUrl = this.resolveBaseUrl();
         const accessToken = this.getState('access_token');
         if (!accessToken) {
@@ -115,10 +116,10 @@ let AppService = class AppService {
         }
         const requestBody = {
             user_id: user_id,
-            callback_url: "idvexpo://verify"
+            callback_url: callback_url ?? "idvexpo://verify"
         };
-        const result = await this.safeFetchJson(`${baseUrl}/v1/idv/jp/start`, {
-            method: 'POST',
+        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_jp_start.path}`, {
+            method: api_1.contract.idv_jp_start.method,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
@@ -130,7 +131,7 @@ let AppService = class AppService {
         }
         return result.data;
     }
-    async idvStartUS(user_id) {
+    async idvStartUS(user_id, email, callback_url) {
         const baseUrl = this.resolveBaseUrl();
         const accessToken = this.getState('access_token');
         if (!accessToken) {
@@ -138,11 +139,11 @@ let AppService = class AppService {
         }
         const requestBody = {
             user_id: user_id,
-            email: "chanhee@tomoarrow.com",
-            callback_url: "idvexpo://verify"
+            email: email ?? "chanhee@tomoarrow.com",
+            callback_url: callback_url ?? "idvexpo://verify"
         };
-        const result = await this.safeFetchJson(`${baseUrl}/v1/idv/us/start`, {
-            method: 'POST',
+        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_us_start.path}`, {
+            method: api_1.contract.idv_us_start.method,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
@@ -166,8 +167,8 @@ let AppService = class AppService {
             callback_url: callback_url,
             country: country
         };
-        const result = await this.safeFetchJson(`${baseUrl}/v1/idv/start`, {
-            method: 'POST',
+        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_start.path}`, {
+            method: api_1.contract.idv_start.method,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
@@ -178,6 +179,36 @@ let AppService = class AppService {
             throw new Error(`Link token request failed: ${result.status ?? 'unknown'} ${result.message}`);
         }
         return result.data;
+    }
+    async issueClientCredentialsTokenOld() {
+        try {
+            const baseUrl = this.resolveBaseUrl();
+            console.log('baseUrl', baseUrl);
+            const privateJwk = this.decodeBase64UrlToJwk(TOMO_IDV_SECRET);
+            const privateKey = createPrivateKey({ key: privateJwk, format: 'jwk' });
+            const assertion = this.createClientAssertion(privateKey, TOMO_IDV_CLIENT_ID, `${baseUrl}/v1/oauth2/token`);
+            const tokenResponse = await this.requestAccessToken(baseUrl, assertion);
+            const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
+            const result = {
+                clientId: TOMO_IDV_CLIENT_ID,
+                accessToken: tokenResponse.access_token,
+                tokenType: tokenResponse.token_type,
+                expiresIn: tokenResponse.expires_in,
+                scope,
+            };
+            this.setState('access_token', tokenResponse.access_token);
+            this.setState('token_info', {
+                clientId: TOMO_IDV_CLIENT_ID,
+                tokenType: tokenResponse.token_type,
+                expiresIn: tokenResponse.expires_in,
+                scope,
+                issuedAt: new Date().toISOString()
+            });
+            return result;
+        }
+        catch (error) {
+            throw new Error(`Failed to issue client credentials token: ${error}`);
+        }
     }
     resolveBaseUrl() {
         const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';

@@ -1,4 +1,7 @@
 import { StateService } from './state.service';
+export type RegistrationResponseBody = {
+    client_id: string;
+};
 export type TokenResponseBody = {
     access_token: string;
     token_type: string;
@@ -18,12 +21,13 @@ export declare class AppService {
     private readonly stateService;
     constructor(stateService: StateService);
     getHello(): string;
-    issueClientCredentialsTokenSdk(): Promise<IssueAccessTokenResult>;
+    issueClientCredentialsToken(): Promise<IssueAccessTokenResult>;
     getKycUS(user_id: string, fields?: string[]): Promise<any>;
     getKycJP(user_id: string, fields?: string[]): Promise<any>;
-    idvStartJP(user_id: string): Promise<any>;
-    idvStartUS(user_id: string): Promise<any>;
+    idvStartJP(user_id: string, callback_url?: string): Promise<any>;
+    idvStartUS(user_id: string, email?: string, callback_url?: string): Promise<any>;
     idvStart(user_id: string, callback_url: string, email: string, country: string): Promise<any>;
+    issueClientCredentialsTokenOld(): Promise<IssueAccessTokenResult>;
     private resolveBaseUrl;
     private safeFetchJson;
     setState(key: string, value: any): void;
