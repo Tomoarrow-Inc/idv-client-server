@@ -1,11 +1,18 @@
-import { DefaultApi } from './generated/apis/DefaultApi';
-import { Configuration } from './generated/runtime';
-import type { TokenResponse } from './generated/models/TokenResponse';
-import type { GetKycUnionResp } from './generated/models/GetKycUnionResp';
-import type { LiquidIntegratedAppResponse } from './generated/models/LiquidIntegratedAppResponse';
-import type { PlaidStartIdvResp } from './generated/models/PlaidStartIdvResp';
-import type { StartIdvResp } from './generated/models/StartIdvResp';
-import { Country } from './generated/models/Country';
+import { DefaultApi } from './generated/idv-client-server/apis/DefaultApi';
+import { Configuration } from './generated/idv-client-server/runtime';
+import type { TokenResponse } from './generated/idv-client-server/models/TokenResponse';
+import type { GetKycUnionResp } from './generated/idv-client-server/models/GetKycUnionResp';
+import type { LiquidIntegratedAppResponse } from './generated/idv-client-server/models/LiquidIntegratedAppResponse';
+import type { PlaidStartIdvResp } from './generated/idv-client-server/models/PlaidStartIdvResp';
+import type { StartIdvResp } from './generated/idv-client-server/models/StartIdvResp';
+import { Country } from './generated/idv-client-server/models/Country';
+import type {
+  GetKycUsBody,
+  GetKycJpBody,
+  IdvUsStartBody,
+  IdvJpStartBody,
+  IdvStartBody,
+} from './api-contract';
 
 function resolveBaseUrl(): string {
   const raw =
@@ -17,9 +24,14 @@ function createConfiguration(): Configuration {
   return new Configuration({ basePath: resolveBaseUrl() });
 }
 
+function countryFromString(s: string): Country {
+  const u = s?.toUpperCase();
+  return u === 'US' ? Country.Us : u === 'UK' ? Country.Uk : u === 'CA' ? Country.Ca : u === 'JP' ? Country.Jp : Country.Unknown;
+}
+
 /**
  * idv-server OpenAPI contract client.
- * Wraps OpenAPI-generated DefaultApi with Configuration.
+ * Methods accept wire-format body (snake_case) to align with controller and idv-server API.
  */
 export class IdvServerClient {
   private readonly api: DefaultApi;
@@ -44,67 +56,55 @@ export class IdvServerClient {
     });
   }
 
-  async getKycUS(accessToken: string, userId: string): Promise<GetKycUnionResp> {
+  async getKycUS(accessToken: string, body: GetKycUsBody): Promise<GetKycUnionResp> {
     return this.api.v1IdvUsKycGetPost({
       authorization: `Bearer ${accessToken}`,
-      getKycReq: { userId, country: Country.Us },
+      plaidGetKycReq: { userId: body.user_id, fields: body.fields as any },
     });
   }
 
-  async getKycJP(accessToken: string, userId: string): Promise<GetKycUnionResp> {
+  async getKycJP(accessToken: string, body: GetKycJpBody): Promise<GetKycUnionResp> {
     return this.api.v1IdvJpKycGetPost({
       authorization: `Bearer ${accessToken}`,
-      getKycReq: { userId, country: Country.Jp },
+      liquidGetKycReq: { userId: body.user_id, fields: body.fields as any },
     });
   }
 
   async idvStartJP(
     accessToken: string,
-    userId: string,
-    callbackUrl: string = 'idvexpo://verify'
+    body: IdvJpStartBody
   ): Promise<LiquidIntegratedAppResponse> {
     return this.api.v1IdvJpStartPost({
       authorization: `Bearer ${accessToken}`,
-      liquidStartIdvRequest: { userId, callbackUrl },
+      liquidStartIdvRequest: {
+        userId: body.user_id,
+        callbackUrl: body.callback_url ?? 'idvexpo://verify',
+      },
     });
   }
 
   async idvStartUS(
     accessToken: string,
-    userId: string,
-    email: string = 'chanhee@tomoarrow.com',
-    callbackUrl: string = 'idvexpo://verify'
+    body: IdvUsStartBody
   ): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvUsStartPost({
       authorization: `Bearer ${accessToken}`,
-      plaidStartIdvRequest: { userId, email, callbackUrl },
+      plaidStartIdvRequest: {
+        userId: body.user_id,
+        email: body.email ?? 'chanhee@tomoarrow.com',
+        callbackUrl: body.callback_url ?? 'idvexpo://verify',
+      },
     });
   }
 
-  async idvStart(
-    accessToken: string,
-    userId: string,
-    callbackUrl: string,
-    email: string,
-    country: string
-  ): Promise<StartIdvResp> {
-    const sirqCountry =
-      country === 'US'
-        ? Country.Us
-        : country === 'UK'
-          ? Country.Uk
-          : country === 'CA'
-            ? Country.Ca
-            : country === 'JP'
-              ? Country.Jp
-              : Country.Unknown;
+  async idvStart(accessToken: string, body: IdvStartBody): Promise<StartIdvResp> {
     return this.api.v1IdvStartPost({
       authorization: `Bearer ${accessToken}`,
       startIdvReq: {
-        sirqUserId: userId,
-        sirqCallbackUrl: callbackUrl,
-        sirqEmail: email,
-        sirqCountry,
+        userId: body.user_id,
+        callbackUrl: body.callback_url,
+        email: body.email,
+        country: countryFromString(body.country),
       },
     });
   }

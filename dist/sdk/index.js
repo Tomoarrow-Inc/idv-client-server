@@ -6,6 +6,6 @@ Object.defineProperty(exports, "createClientAssertion", { enumerable: true, get:
 Object.defineProperty(exports, "buildTokenRequest", { enumerable: true, get: function () { return tomo_idv_node_1.buildTokenRequest; } });
 var idv_client_1 = require("./idv-client");
 Object.defineProperty(exports, "IdvServerClient", { enumerable: true, get: function () { return idv_client_1.IdvServerClient; } });
-var Country_1 = require("./generated/models/Country");
+var Country_1 = require("./generated/idv-client-server/models/Country");
 Object.defineProperty(exports, "Country", { enumerable: true, get: function () { return Country_1.Country; } });
 //# sourceMappingURL=index.js.map

@@ -1,21 +1,21 @@
 import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
-import { AppService, IssueAccessTokenResult, TokenResponseBody } from './app.service';
+import { AppService, IssueAccessTokenResult } from './app.service';
 import { contract } from './contract/api';
-
-
+import type {
+  GetKycUsBody,
+  GetKycJpBody,
+  IdvUsStartBody,
+  IdvJpStartBody,
+  IdvStartBody,
+  GetKycUnionResp,
+  PlaidStartIdvResp,
+  LiquidIntegratedAppResponse,
+  StartIdvResp,
+} from './sdk';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
-  // @Get('access_token')
-  // async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
-  //   try {
-  //     return await this.appService.issueClientCredentialsToken();
-  //   } catch (error) {
-  //     throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
-  //   }
-  // } 
 
   @Post(contract.access_token.path)
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
@@ -24,52 +24,50 @@ export class AppController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
-  } 
+  }
 
   @Post(contract.idv_us_start.path)
-  async idvStartUS(@Body() body: any): Promise<any> {
+  async idvStartUS(@Body() body: IdvUsStartBody): Promise<PlaidStartIdvResp> {
     try {
-      return await this.appService.idvStartUS(body?.user_id, body?.email, body?.callback_url);
+      return await this.appService.idvStartUS(body);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
   @Post(contract.idv_us_get_result.path)
-  async getKycUS(@Body() body: any): Promise<any> {
+  async getKycUS(@Body() body: GetKycUsBody): Promise<GetKycUnionResp> {
     try {
-      return await this.appService.getKycUS(body?.user_id, body?.fields);
+      return await this.appService.getKycUS(body);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
   @Post(contract.idv_jp_start.path)
-  async idvStartJP(@Body() body: any): Promise<any> {
+  async idvStartJP(@Body() body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
     try {
-      return await this.appService.idvStartJP(body?.user_id, body?.callback_url);
+      return await this.appService.idvStartJP(body);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
-
   @Post(contract.idv_jp_get_result.path)
-  async getKycJP(@Body() body: any): Promise<any> {
+  async getKycJP(@Body() body: GetKycJpBody): Promise<GetKycUnionResp> {
     try {
-      return await this.appService.getKycJP(body?.user_id, body?.fields);
+      return await this.appService.getKycJP(body);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
 
   @Post(contract.idv_start.path)
-  async idvStart(@Body() body: any): Promise<any> {
+  async idvStart(@Body() body: IdvStartBody): Promise<StartIdvResp> {
     try {
-      return await this.appService.idvStart(body?.user_id, body?.callback_url, body?.email, body?.country);
+      return await this.appService.idvStart(body);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
     }
   }
-
 }

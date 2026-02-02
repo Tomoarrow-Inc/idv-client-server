@@ -1,5 +1,6 @@
 import { StateService } from './state.service';
 import { IdvServerClient } from './idvServer/idvServerClient';
+import type { GetKycUsBody, GetKycJpBody, IdvUsStartBody, IdvJpStartBody, IdvStartBody, GetKycUnionResp, PlaidStartIdvResp, LiquidIntegratedAppResponse, StartIdvResp } from './sdk';
 export type RegistrationResponseBody = {
     client_id: string;
 };
@@ -24,11 +25,11 @@ export declare class AppService {
     constructor(stateService: StateService, idvServerClient: IdvServerClient);
     getHello(): string;
     issueClientCredentialsToken(): Promise<IssueAccessTokenResult>;
-    getKycUS(user_id: string, _fields?: string[]): Promise<any>;
-    getKycJP(user_id: string, _fields?: string[]): Promise<any>;
-    idvStartJP(user_id: string, callback_url?: string): Promise<any>;
-    idvStartUS(user_id: string, email?: string, callback_url?: string): Promise<any>;
-    idvStart(user_id: string, callback_url: string, email: string, country: string): Promise<any>;
+    getKycUS(body: GetKycUsBody): Promise<GetKycUnionResp>;
+    getKycJP(body: GetKycJpBody): Promise<GetKycUnionResp>;
+    idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse>;
+    idvStartUS(body: IdvUsStartBody): Promise<PlaidStartIdvResp>;
+    idvStart(body: IdvStartBody): Promise<StartIdvResp>;
     issueClientCredentialsTokenOld(): Promise<IssueAccessTokenResult>;
     private resolveBaseUrl;
     private safeFetchJson;

@@ -31,7 +31,7 @@ let AppController = class AppController {
     }
     async idvStartUS(body) {
         try {
-            return await this.appService.idvStartUS(body?.user_id, body?.email, body?.callback_url);
+            return await this.appService.idvStartUS(body);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
@@ -39,7 +39,7 @@ let AppController = class AppController {
     }
     async getKycUS(body) {
         try {
-            return await this.appService.getKycUS(body?.user_id, body?.fields);
+            return await this.appService.getKycUS(body);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
@@ -47,7 +47,7 @@ let AppController = class AppController {
     }
     async idvStartJP(body) {
         try {
-            return await this.appService.idvStartJP(body?.user_id, body?.callback_url);
+            return await this.appService.idvStartJP(body);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
@@ -55,7 +55,7 @@ let AppController = class AppController {
     }
     async getKycJP(body) {
         try {
-            return await this.appService.getKycJP(body?.user_id, body?.fields);
+            return await this.appService.getKycJP(body);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
@@ -63,7 +63,7 @@ let AppController = class AppController {
     }
     async idvStart(body) {
         try {
-            return await this.appService.idvStart(body?.user_id, body?.callback_url, body?.email, body?.country);
+            return await this.appService.idvStart(body);
         }
         catch (error) {
             throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);

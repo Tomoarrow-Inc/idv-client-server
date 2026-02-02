@@ -9,7 +9,19 @@ export {
 // idv-server contract client
 export { IdvServerClient } from './idv-client';
 
-// Convenience re-exports of generated types
-export type { TokenResponse } from './generated/models/TokenResponse';
-export type { GetKycUnionResp } from './generated/models/GetKycUnionResp';
-export { Country } from './generated/models/Country';
+// Request body types (wire format, same as controller / idv-server)
+export type {
+  GetKycUsBody,
+  GetKycJpBody,
+  IdvUsStartBody,
+  IdvJpStartBody,
+  IdvStartBody,
+} from './api-contract';
+
+// Response types (generated)
+export type { TokenResponse } from './generated/idv-client-server/models/TokenResponse';
+export type { GetKycUnionResp } from './generated/idv-client-server/models/GetKycUnionResp';
+export type { PlaidStartIdvResp } from './generated/idv-client-server/models/PlaidStartIdvResp';
+export type { LiquidIntegratedAppResponse } from './generated/idv-client-server/models/LiquidIntegratedAppResponse';
+export type { StartIdvResp } from './generated/idv-client-server/models/StartIdvResp';
+export { Country } from './generated/idv-client-server/models/Country';

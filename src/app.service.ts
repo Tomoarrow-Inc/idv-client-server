@@ -2,6 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion } from './sdk/tomo-idv-node';
 import { IdvServerClient } from './idvServer/idvServerClient';
+import type {
+  GetKycUsBody,
+  GetKycJpBody,
+  IdvUsStartBody,
+  IdvJpStartBody,
+  IdvStartBody,
+  GetKycUnionResp,
+  PlaidStartIdvResp,
+  LiquidIntegratedAppResponse,
+  StartIdvResp,
+} from './sdk';
 
 export type RegistrationResponseBody = {
   client_id: string;
@@ -58,26 +69,7 @@ export class AppService {
       resource: `https://api.tomopayment.com/v1/idv`,
     });
 
-<<<<<<< HEAD
-    if (!result.ok) {
-      throw new Error(`Failed to issue client credentials token: ${result.status ?? 'unknown'} ${result.message}`);
-    }
-
-    const tokenResponse = result.data;
-    const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
-
-    this.setState('access_token', tokenResponse.access_token);
-    this.setState('token_info', {
-      clientId: TOMO_IDV_CLIENT_ID,
-      tokenType: tokenResponse.token_type,
-      expiresIn: tokenResponse.expires_in,
-      scope,
-      issuedAt: new Date().toISOString(),
-    });
-
-=======
-    const scope = tokenResponse.scopeGranted ?? null;
->>>>>>> 7e0dcf5 (OpenApi contract was applied)
+    const scope = tokenResponse.scope ?? null;
     return {
       clientId: TOMO_IDV_CLIENT_ID,
       accessToken: tokenResponse.accessToken,
@@ -87,49 +79,44 @@ export class AppService {
     };
   }
 
-  async getKycUS(user_id: string, _fields?: string[]): Promise<any> {
+  async getKycUS(body: GetKycUsBody): Promise<GetKycUnionResp> {
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-    return this.idvServerClient.getKycUS(accessToken, user_id);
+    return this.idvServerClient.getKycUS(accessToken, body);
   }
 
-  async getKycJP(user_id: string, _fields?: string[]): Promise<any> {
+  async getKycJP(body: GetKycJpBody): Promise<GetKycUnionResp> {
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-    return this.idvServerClient.getKycJP(accessToken, user_id);
+    return this.idvServerClient.getKycJP(accessToken, body);
   }
 
-  async idvStartJP(user_id: string, callback_url?: string): Promise<any> {
+  async idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-    return this.idvServerClient.idvStartJP(accessToken, user_id, callback_url ?? 'idvexpo://verify');
+    return this.idvServerClient.idvStartJP(accessToken, body);
   }
 
-  async idvStartUS(user_id: string, email?: string, callback_url?: string): Promise<any> {
+  async idvStartUS(body: IdvUsStartBody): Promise<PlaidStartIdvResp> {
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-    return this.idvServerClient.idvStartUS(
-      accessToken,
-      user_id,
-      email ?? 'chanhee@tomoarrow.com',
-      callback_url ?? 'idvexpo://verify'
-    );
+    return this.idvServerClient.idvStartUS(accessToken, body);
   }
 
-  async idvStart(user_id: string, callback_url: string, email: string, country: string): Promise<any> {
+  async idvStart(body: IdvStartBody): Promise<StartIdvResp> {
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-    return this.idvServerClient.idvStart(accessToken, user_id, callback_url, email, country);
+    return this.idvServerClient.idvStart(accessToken, body);
   }
 
   async issueClientCredentialsTokenOld(): Promise<IssueAccessTokenResult> {

@@ -40,19 +40,7 @@ let AppService = class AppService {
             scope: 'idv.read',
             resource: `https://api.tomopayment.com/v1/idv`,
         });
-        if (!result.ok) {
-            throw new Error(`Failed to issue client credentials token: ${result.status ?? 'unknown'} ${result.message}`);
-        }
-        const tokenResponse = result.data;
-        const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
-        this.setState('access_token', tokenResponse.access_token);
-        this.setState('token_info', {
-            clientId: TOMO_IDV_CLIENT_ID,
-            tokenType: tokenResponse.token_type,
-            expiresIn: tokenResponse.expires_in,
-            scope,
-            issuedAt: new Date().toISOString(),
-        });
+        const scope = tokenResponse.scope ?? null;
         return {
             clientId: TOMO_IDV_CLIENT_ID,
             accessToken: tokenResponse.accessToken,
@@ -61,40 +49,40 @@ let AppService = class AppService {
             scope,
         };
     }
-    async getKycUS(user_id, _fields) {
+    async getKycUS(body) {
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        return this.idvServerClient.getKycUS(accessToken, user_id);
+        return this.idvServerClient.getKycUS(accessToken, body);
     }
-    async getKycJP(user_id, _fields) {
+    async getKycJP(body) {
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        return this.idvServerClient.getKycJP(accessToken, user_id);
+        return this.idvServerClient.getKycJP(accessToken, body);
     }
-    async idvStartJP(user_id, callback_url) {
+    async idvStartJP(body) {
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        return this.idvServerClient.idvStartJP(accessToken, user_id, callback_url ?? 'idvexpo://verify');
+        return this.idvServerClient.idvStartJP(accessToken, body);
     }
-    async idvStartUS(user_id, email, callback_url) {
+    async idvStartUS(body) {
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        return this.idvServerClient.idvStartUS(accessToken, user_id, email ?? 'chanhee@tomoarrow.com', callback_url ?? 'idvexpo://verify');
+        return this.idvServerClient.idvStartUS(accessToken, body);
     }
-    async idvStart(user_id, callback_url, email, country) {
+    async idvStart(body) {
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        return this.idvServerClient.idvStart(accessToken, user_id, callback_url, email, country);
+        return this.idvServerClient.idvStart(accessToken, body);
     }
     async issueClientCredentialsTokenOld() {
         try {
