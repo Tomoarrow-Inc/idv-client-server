@@ -13,13 +13,15 @@ exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
 const state_service_1 = require("./state.service");
 const tomo_idv_node_1 = require("./sdk/tomo-idv-node");
-const api_1 = require("./contract/api");
+const idvServerClient_1 = require("./idvServer/idvServerClient");
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET;
 let AppService = class AppService {
     stateService;
-    constructor(stateService) {
+    idvServerClient;
+    constructor(stateService, idvServerClient) {
         this.stateService = stateService;
+        this.idvServerClient = idvServerClient;
     }
     getHello() {
         return 'Hello World!';
@@ -31,11 +33,12 @@ let AppService = class AppService {
             secret_key: TOMO_IDV_SECRET,
             base_url: baseUrl,
         });
-        const { headers, body } = (0, tomo_idv_node_1.buildTokenRequest)(clientAssertion);
-        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.access_token.path}`, {
-            method: api_1.contract.access_token.method,
-            headers,
-            body,
+        const tokenResponse = await this.idvServerClient.issueToken({
+            clientAssertion,
+            clientAssertionType: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+            grantType: 'client_credentials',
+            scope: 'idv.read',
+            resource: `https://api.tomopayment.com/v1/idv`,
         });
         if (!result.ok) {
             throw new Error(`Failed to issue client credentials token: ${result.status ?? 'unknown'} ${result.message}`);
@@ -52,133 +55,46 @@ let AppService = class AppService {
         });
         return {
             clientId: TOMO_IDV_CLIENT_ID,
-            accessToken: tokenResponse.access_token,
-            tokenType: tokenResponse.token_type,
-            expiresIn: tokenResponse.expires_in,
+            accessToken: tokenResponse.accessToken,
+            tokenType: tokenResponse.tokenType,
+            expiresIn: tokenResponse.expiresIn,
             scope,
         };
     }
-    async getKycUS(user_id, fields) {
-        const baseUrl = this.resolveBaseUrl();
+    async getKycUS(user_id, _fields) {
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        const requestBody = {
-            user_id: user_id,
-        };
-        if (fields !== undefined) {
-            requestBody.fields = fields;
-        }
-        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_us_get_result.path}`, {
-            method: api_1.contract.idv_us_get_result.method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify(requestBody)
-        });
-        if (!result.ok) {
-            throw new Error(`KYC request failed: ${result.status ?? 'unknown'} ${result.message}`);
-        }
-        return result.data;
+        return this.idvServerClient.getKycUS(accessToken, user_id);
     }
-    async getKycJP(user_id, fields) {
-        const baseUrl = this.resolveBaseUrl();
+    async getKycJP(user_id, _fields) {
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        const requestBody = {
-            user_id: user_id,
-        };
-        if (fields !== undefined) {
-            requestBody.fields = fields;
-        }
-        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_jp_get_result.path}`, {
-            method: api_1.contract.idv_jp_get_result.method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify(requestBody)
-        });
-        if (!result.ok) {
-            throw new Error(`KYC request failed: ${result.status ?? 'unknown'} ${result.message}`);
-        }
-        return result.data;
+        return this.idvServerClient.getKycJP(accessToken, user_id);
     }
     async idvStartJP(user_id, callback_url) {
-        const baseUrl = this.resolveBaseUrl();
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        const requestBody = {
-            user_id: user_id,
-            callback_url: callback_url ?? "idvexpo://verify"
-        };
-        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_jp_start.path}`, {
-            method: api_1.contract.idv_jp_start.method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify(requestBody)
-        });
-        if (!result.ok) {
-            throw new Error(`Applications request failed: ${result.status ?? 'unknown'} ${result.message}`);
-        }
-        return result.data;
+        return this.idvServerClient.idvStartJP(accessToken, user_id, callback_url ?? 'idvexpo://verify');
     }
     async idvStartUS(user_id, email, callback_url) {
-        const baseUrl = this.resolveBaseUrl();
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        const requestBody = {
-            user_id: user_id,
-            email: email ?? "chanhee@tomoarrow.com",
-            callback_url: callback_url ?? "idvexpo://verify"
-        };
-        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_us_start.path}`, {
-            method: api_1.contract.idv_us_start.method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify(requestBody)
-        });
-        if (!result.ok) {
-            throw new Error(`Link token request failed: ${result.status ?? 'unknown'} ${result.message}`);
-        }
-        return result.data;
+        return this.idvServerClient.idvStartUS(accessToken, user_id, email ?? 'chanhee@tomoarrow.com', callback_url ?? 'idvexpo://verify');
     }
     async idvStart(user_id, callback_url, email, country) {
-        const baseUrl = this.resolveBaseUrl();
         const accessToken = this.getState('access_token');
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
-        const requestBody = {
-            user_id: user_id,
-            email: email,
-            callback_url: callback_url,
-            country: country
-        };
-        const result = await this.safeFetchJson(`${baseUrl}${api_1.contract.idv_start.path}`, {
-            method: api_1.contract.idv_start.method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify(requestBody)
-        });
-        if (!result.ok) {
-            throw new Error(`Link token request failed: ${result.status ?? 'unknown'} ${result.message}`);
-        }
-        return result.data;
+        return this.idvServerClient.idvStart(accessToken, user_id, callback_url, email, country);
     }
     async issueClientCredentialsTokenOld() {
         try {
@@ -290,6 +206,7 @@ let AppService = class AppService {
 exports.AppService = AppService;
 exports.AppService = AppService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [state_service_1.StateService])
+    __metadata("design:paramtypes", [state_service_1.StateService,
+        idvServerClient_1.IdvServerClient])
 ], AppService);
 //# sourceMappingURL=app.service.js.map

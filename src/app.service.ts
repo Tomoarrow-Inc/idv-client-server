@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
-import { createClientAssertion, buildTokenRequest } from './sdk/tomo-idv-node';
-import { contract } from './contract/api';
+import { createClientAssertion } from './sdk/tomo-idv-node';
+import { IdvServerClient } from './idvServer/idvServerClient';
 
 export type RegistrationResponseBody = {
   client_id: string;
@@ -31,12 +31,12 @@ export interface IssueAccessTokenResult {
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
 
-
 @Injectable()
 export class AppService {
-  constructor(private readonly stateService: StateService) {
-
-  }
+  constructor(
+    private readonly stateService: StateService,
+    private readonly idvServerClient: IdvServerClient
+  ) {}
 
   getHello(): string {
     return 'Hello World!';
@@ -44,22 +44,21 @@ export class AppService {
 
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
     const baseUrl = this.resolveBaseUrl();
-
     const clientAssertion = createClientAssertion({
       client_id: TOMO_IDV_CLIENT_ID,
       secret_key: TOMO_IDV_SECRET,
       base_url: baseUrl,
     });
 
-    const { headers, body } = buildTokenRequest(clientAssertion);
-
-    // const result = await this.safeFetchJson<TokenResponseBody>(`${baseUrl}/v1/oauth2/token`, {
-    const result = await this.safeFetchJson<TokenResponseBody>(`${baseUrl}${contract.access_token.path}`, {
-      method: contract.access_token.method,
-      headers,
-      body,
+    const tokenResponse = await this.idvServerClient.issueToken({
+      clientAssertion,
+      clientAssertionType: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      grantType: 'client_credentials',
+      scope: 'idv.read',
+      resource: `https://api.tomopayment.com/v1/idv`,
     });
 
+<<<<<<< HEAD
     if (!result.ok) {
       throw new Error(`Failed to issue client credentials token: ${result.status ?? 'unknown'} ${result.message}`);
     }
@@ -76,195 +75,61 @@ export class AppService {
       issuedAt: new Date().toISOString(),
     });
 
+=======
+    const scope = tokenResponse.scopeGranted ?? null;
+>>>>>>> 7e0dcf5 (OpenApi contract was applied)
     return {
       clientId: TOMO_IDV_CLIENT_ID,
-      accessToken: tokenResponse.access_token,
-      tokenType: tokenResponse.token_type,
-      expiresIn: tokenResponse.expires_in,
+      accessToken: tokenResponse.accessToken,
+      tokenType: tokenResponse.tokenType,
+      expiresIn: tokenResponse.expiresIn,
       scope,
     };
   }
 
-  async getKycUS(user_id: string, fields?: string[]): Promise<any> {
-    const baseUrl = this.resolveBaseUrl();
-    
-    // State에서 access_token 가져오기
+  async getKycUS(user_id: string, _fields?: string[]): Promise<any> {
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-
-    // 요청 본문 구성
-    // fields가 undefined면 fields를 포함하지 않음 (기본값)
-    // fields가 빈 배열이거나 값이 있으면 fields를 포함
-    const requestBody: { user_id: string; fields?: string[] } = {
-      user_id: user_id,
-      // date_of_birth ,email_address ,phone_number ,family_name ,given_name ,city ,country ,postal_code ,region ,street
-      // fields: [ "date_of_birth" ,"email_address" ,"phone_number" ,"family_name" ,"given_name" ,"city" ,"country" ,"postal_code" ,"region" ,"street"]
-      // fields: [ "date_of_birth" ,"email_address" ,"phone_number" ,"family_name" ,"city" ,"region" ]
-      // fields: [] 
-    };
-
-    if (fields !== undefined) {
-      requestBody.fields = fields;
-    }
-
-    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/us/kyc/get`, {
-    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_us_get_result.path}`, {
-      method: contract.idv_us_get_result.method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!result.ok) {
-      throw new Error(`KYC request failed: ${result.status ?? 'unknown'} ${result.message}`);
-    }
-
-    return result.data;
+    return this.idvServerClient.getKycUS(accessToken, user_id);
   }
 
-  async getKycJP(user_id: string, fields?: string[]): Promise<any> {
-    const baseUrl = this.resolveBaseUrl();
-    
-    // State에서 access_token 가져오기
+  async getKycJP(user_id: string, _fields?: string[]): Promise<any> {
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-
-    // 요청 본문 구성
-    // fields가 undefined면 fields를 포함하지 않음 (기본값)
-    // fields가 빈 배열이거나 값이 있으면 fields를 포함
-    const requestBody: { user_id: string; fields?: string[] } = {
-      user_id: user_id,
-      // name, date_of_birth, sex, address, postal_code
-      // fields: ["name", "date_of_birth", "sex", "address", "postal_code"]
-      // fields: ["name", "date_of_birth", "postal_code"]
-      // fields: []
-    };
-
-    if (fields !== undefined) {
-      requestBody.fields = fields;
-    }
-
-    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/jp/kyc/get`, {
-    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_jp_get_result.path}`, {
-      method: contract.idv_jp_get_result.method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!result.ok) {
-      throw new Error(`KYC request failed: ${result.status ?? 'unknown'} ${result.message}`);
-    }
-
-    return result.data;
+    return this.idvServerClient.getKycJP(accessToken, user_id);
   }
 
   async idvStartJP(user_id: string, callback_url?: string): Promise<any> {
-    const baseUrl = this.resolveBaseUrl();
-    
-    // State에서 access_token 가져오기
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-
-    // 하드코딩된 요청 본문
-    const requestBody = {
-      user_id: user_id,
-      callback_url: callback_url ?? "idvexpo://verify"
-    };
-
-    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/jp/start`, {
-    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_jp_start.path}`, {
-      method: contract.idv_jp_start.method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!result.ok) {
-      throw new Error(`Applications request failed: ${result.status ?? 'unknown'} ${result.message}`);
-    }
-
-    return result.data;
+    return this.idvServerClient.idvStartJP(accessToken, user_id, callback_url ?? 'idvexpo://verify');
   }
 
   async idvStartUS(user_id: string, email?: string, callback_url?: string): Promise<any> {
-    const baseUrl = this.resolveBaseUrl();
-    
-    // State에서 access_token 가져오기
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-
-    // 하드코딩된 요청 본문
-    const requestBody = {
-      user_id: user_id,
-      email: email ?? "chanhee@tomoarrow.com",
-      callback_url: callback_url ?? "idvexpo://verify"
-    };
-
-    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/us/start`, {
-    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_us_start.path}`, {
-      method: contract.idv_us_start.method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!result.ok) {
-      throw new Error(`Link token request failed: ${result.status ?? 'unknown'} ${result.message}`);
-    }
-
-    return result.data;
+    return this.idvServerClient.idvStartUS(
+      accessToken,
+      user_id,
+      email ?? 'chanhee@tomoarrow.com',
+      callback_url ?? 'idvexpo://verify'
+    );
   }
 
   async idvStart(user_id: string, callback_url: string, email: string, country: string): Promise<any> {
-  // async idvStart(user_id: string, callback_url: string, email: string, country: string): Promise<any> {
-    const baseUrl = this.resolveBaseUrl();
-    
-    // State에서 access_token 가져오기
     const accessToken = this.getState('access_token');
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }
-
-    // 하드코딩된 요청 본문
-    const requestBody = {
-      user_id: user_id,
-      email: email,
-      callback_url: callback_url,
-      country: country
-    };
-
-    // const result = await this.safeFetchJson<any>(`${baseUrl}/v1/idv/start`, {
-    const result = await this.safeFetchJson<any>(`${baseUrl}${contract.idv_start.path}`, {
-      method: contract.idv_start.method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!result.ok) {
-      throw new Error(`Link token request failed: ${result.status ?? 'unknown'} ${result.message}`);
-    }
-
-    return result.data;
+    return this.idvServerClient.idvStart(accessToken, user_id, callback_url, email, country);
   }
 
   async issueClientCredentialsTokenOld(): Promise<IssueAccessTokenResult> {

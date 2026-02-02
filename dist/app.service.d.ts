@@ -1,4 +1,5 @@
 import { StateService } from './state.service';
+import { IdvServerClient } from './idvServer/idvServerClient';
 export type RegistrationResponseBody = {
     client_id: string;
 };
@@ -19,11 +20,12 @@ export interface IssueAccessTokenResult {
 }
 export declare class AppService {
     private readonly stateService;
-    constructor(stateService: StateService);
+    private readonly idvServerClient;
+    constructor(stateService: StateService, idvServerClient: IdvServerClient);
     getHello(): string;
     issueClientCredentialsToken(): Promise<IssueAccessTokenResult>;
-    getKycUS(user_id: string, fields?: string[]): Promise<any>;
-    getKycJP(user_id: string, fields?: string[]): Promise<any>;
+    getKycUS(user_id: string, _fields?: string[]): Promise<any>;
+    getKycJP(user_id: string, _fields?: string[]): Promise<any>;
     idvStartJP(user_id: string, callback_url?: string): Promise<any>;
     idvStartUS(user_id: string, email?: string, callback_url?: string): Promise<any>;
     idvStart(user_id: string, callback_url: string, email: string, country: string): Promise<any>;

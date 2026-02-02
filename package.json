@@ -8,6 +8,7 @@
   "scripts": {
     "build": "nest build",
     "gen": "../node_modules/.bin/orval --config ../contracts/orval/configs/idv-client-server.cjs",
+    "sync-client": "node scripts/copy-openapi-client.mjs",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
