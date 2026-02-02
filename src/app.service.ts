@@ -2,16 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion } from './sdk/tomo-idv-node';
 import { IdvServerClient } from './idvServer/idvServerClient';
-import type {
-  GetKycUsBody,
-  GetKycJpBody,
-  IdvUsStartBody,
-  IdvJpStartBody,
-  IdvStartBody,
-  GetKycUnionResp,
-  PlaidStartIdvResp,
-  LiquidIntegratedAppResponse,
-  StartIdvResp,
+import {
+  toSnakeCaseKeys,
+  type GetKycUsBody,
+  type GetKycJpBody,
+  type IdvUsStartBody,
+  type IdvJpStartBody,
+  type IdvStartBody,
+  type GetKycUnionResp,
+  type PlaidStartIdvResp,
+  type LiquidIntegratedAppResponse,
+  type StartIdvResp,
 } from './sdk';
 
 export type RegistrationResponseBody = {
@@ -54,6 +55,9 @@ export class AppService {
   }
 
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.service.ts:issueClientCredentialsToken:entry',message:'token endpoint entered',data:{stateHasAccessTokenBefore:this.hasState('access_token')},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+    // #endregion
     const baseUrl = this.resolveBaseUrl();
     const clientAssertion = createClientAssertion({
       client_id: TOMO_IDV_CLIENT_ID,
@@ -69,18 +73,37 @@ export class AppService {
       resource: `https://api.tomopayment.com/v1/idv`,
     });
 
-    const scope = tokenResponse.scope ?? null;
-    return {
+    const accessToken = (tokenResponse as { access_token?: string }).access_token ?? (tokenResponse as { accessToken?: string }).accessToken;
+    const tokenType = (tokenResponse as { token_type?: string }).token_type ?? (tokenResponse as { tokenType?: string }).tokenType;
+    const expiresIn = (tokenResponse as { expires_in?: number }).expires_in ?? (tokenResponse as { expiresIn?: number }).expiresIn;
+    const scopeVal = (tokenResponse as { scope?: string }).scope ?? null;
+
+    this.setState('access_token', accessToken);
+    this.setState('token_info', {
       clientId: TOMO_IDV_CLIENT_ID,
-      accessToken: tokenResponse.accessToken,
-      tokenType: tokenResponse.tokenType,
-      expiresIn: tokenResponse.expiresIn,
-      scope,
-    };
+      tokenType: tokenType,
+      expiresIn: expiresIn,
+      scope: scopeVal,
+      issuedAt: new Date().toISOString(),
+    });
+
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.service.ts:issueClientCredentialsToken:afterSetState',message:'token stored in state',data:{stateHasAccessToken:this.hasState('access_token')},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'H1'})}).catch(()=>{});
+    // #endregion
+    return toSnakeCaseKeys({
+      clientId: TOMO_IDV_CLIENT_ID,
+      accessToken: accessToken,
+      tokenType: tokenType,
+      expiresIn: expiresIn,
+      scope: scopeVal,
+    }) as IssueAccessTokenResult;
   }
 
   async getKycUS(body: GetKycUsBody): Promise<GetKycUnionResp> {
     const accessToken = this.getState('access_token');
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.service.ts:getKycUS',message:'getState access_token',data:{accessTokenPresent:!!accessToken,stateKeys:this.getStateKeys()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
+    // #endregion
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }

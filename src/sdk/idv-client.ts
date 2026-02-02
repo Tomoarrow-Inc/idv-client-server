@@ -13,6 +13,7 @@ import type {
   IdvJpStartBody,
   IdvStartBody,
 } from './api-contract';
+import { toSnakeCaseKeys } from './case-converter';
 
 function resolveBaseUrl(): string {
   const raw =
@@ -47,47 +48,51 @@ export class IdvServerClient {
     resource?: string;
     scope?: string;
   }): Promise<TokenResponse> {
-    return this.api.v1Oauth2TokenPost({
+    const result = await this.api.v1Oauth2TokenPost({
       clientAssertion: params.clientAssertion,
       clientAssertionType: params.clientAssertionType,
       grantType: params.grantType,
       resource: params.resource,
       scope: params.scope,
     });
+    return toSnakeCaseKeys(result) as TokenResponse;
   }
 
   async getKycUS(accessToken: string, body: GetKycUsBody): Promise<GetKycUnionResp> {
-    return this.api.v1IdvUsKycGetPost({
+    const result = await this.api.v1IdvUsKycGetPost({
       authorization: `Bearer ${accessToken}`,
       plaidGetKycReq: { userId: body.user_id, fields: body.fields as any },
     });
+    return toSnakeCaseKeys(result) as GetKycUnionResp;
   }
 
   async getKycJP(accessToken: string, body: GetKycJpBody): Promise<GetKycUnionResp> {
-    return this.api.v1IdvJpKycGetPost({
+    const result = await this.api.v1IdvJpKycGetPost({
       authorization: `Bearer ${accessToken}`,
       liquidGetKycReq: { userId: body.user_id, fields: body.fields as any },
     });
+    return toSnakeCaseKeys(result) as GetKycUnionResp;
   }
 
   async idvStartJP(
     accessToken: string,
     body: IdvJpStartBody
   ): Promise<LiquidIntegratedAppResponse> {
-    return this.api.v1IdvJpStartPost({
+    const result = await this.api.v1IdvJpStartPost({
       authorization: `Bearer ${accessToken}`,
       liquidStartIdvRequest: {
         userId: body.user_id,
         callbackUrl: body.callback_url ?? 'idvexpo://verify',
       },
     });
+    return toSnakeCaseKeys(result) as LiquidIntegratedAppResponse;
   }
 
   async idvStartUS(
     accessToken: string,
     body: IdvUsStartBody
   ): Promise<PlaidStartIdvResp> {
-    return this.api.v1IdvUsStartPost({
+    const result = await this.api.v1IdvUsStartPost({
       authorization: `Bearer ${accessToken}`,
       plaidStartIdvRequest: {
         userId: body.user_id,
@@ -95,10 +100,11 @@ export class IdvServerClient {
         callbackUrl: body.callback_url ?? 'idvexpo://verify',
       },
     });
+    return toSnakeCaseKeys(result) as PlaidStartIdvResp;
   }
 
   async idvStart(accessToken: string, body: IdvStartBody): Promise<StartIdvResp> {
-    return this.api.v1IdvStartPost({
+    const result = await this.api.v1IdvStartPost({
       authorization: `Bearer ${accessToken}`,
       startIdvReq: {
         userId: body.user_id,
@@ -107,5 +113,6 @@ export class IdvServerClient {
         country: countryFromString(body.country),
       },
     });
+    return toSnakeCaseKeys(result) as StartIdvResp;
   }
 }

@@ -1,6 +1,5 @@
 import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
 import { AppService, IssueAccessTokenResult } from './app.service';
-import { contract } from './contract/api';
 import type {
   GetKycUsBody,
   GetKycJpBody,
@@ -17,7 +16,7 @@ import type {
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post(contract.access_token.path)
+  @Post('/v1/oauth2/token')
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
     try {
       return await this.appService.issueClientCredentialsToken();
@@ -26,7 +25,7 @@ export class AppController {
     }
   }
 
-  @Post(contract.idv_us_start.path)
+  @Post('/v1/idv/us/start')
   async idvStartUS(@Body() body: IdvUsStartBody): Promise<PlaidStartIdvResp> {
     try {
       return await this.appService.idvStartUS(body);
@@ -35,7 +34,7 @@ export class AppController {
     }
   }
 
-  @Post(contract.idv_us_get_result.path)
+  @Post('/v1/idv/us/kyc/get')
   async getKycUS(@Body() body: GetKycUsBody): Promise<GetKycUnionResp> {
     try {
       return await this.appService.getKycUS(body);
@@ -44,7 +43,7 @@ export class AppController {
     }
   }
 
-  @Post(contract.idv_jp_start.path)
+  @Post('/v1/idv/jp/start')
   async idvStartJP(@Body() body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
     try {
       return await this.appService.idvStartJP(body);
@@ -53,7 +52,7 @@ export class AppController {
     }
   }
 
-  @Post(contract.idv_jp_get_result.path)
+  @Post('/v1/idv/jp/kyc/get')
   async getKycJP(@Body() body: GetKycJpBody): Promise<GetKycUnionResp> {
     try {
       return await this.appService.getKycJP(body);
@@ -62,7 +61,7 @@ export class AppController {
     }
   }
 
-  @Post(contract.idv_start.path)
+  @Post('/v1/idv/start')
   async idvStart(@Body() body: IdvStartBody): Promise<StartIdvResp> {
     try {
       return await this.appService.idvStart(body);
