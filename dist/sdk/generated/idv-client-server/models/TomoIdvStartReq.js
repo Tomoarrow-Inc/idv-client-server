@@ -4,17 +4,19 @@ exports.instanceOfTomoIdvStartReq = instanceOfTomoIdvStartReq;
 exports.TomoIdvStartReqFromJSON = TomoIdvStartReqFromJSON;
 exports.TomoIdvStartReqFromJSONTyped = TomoIdvStartReqFromJSONTyped;
 exports.TomoIdvStartReqToJSON = TomoIdvStartReqToJSON;
+exports.TomoIdvStartReqToJSONTyped = TomoIdvStartReqToJSONTyped;
 function instanceOfTomoIdvStartReq(value) {
-    let isInstance = true;
-    isInstance = isInstance && "redirectUrl" in value;
-    isInstance = isInstance && "userId" in value;
-    return isInstance;
+    if (!('redirectUrl' in value) || value['redirectUrl'] === undefined)
+        return false;
+    if (!('userId' in value) || value['userId'] === undefined)
+        return false;
+    return true;
 }
 function TomoIdvStartReqFromJSON(json) {
     return TomoIdvStartReqFromJSONTyped(json, false);
 }
 function TomoIdvStartReqFromJSONTyped(json, ignoreDiscriminator) {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -22,16 +24,16 @@ function TomoIdvStartReqFromJSONTyped(json, ignoreDiscriminator) {
         'userId': json['user_id'],
     };
 }
-function TomoIdvStartReqToJSON(value) {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+function TomoIdvStartReqToJSON(json) {
+    return TomoIdvStartReqToJSONTyped(json, false);
+}
+function TomoIdvStartReqToJSONTyped(value, ignoreDiscriminator = false) {
+    if (value == null) {
+        return value;
     }
     return {
-        'redirect_url': value.redirectUrl,
-        'user_id': value.userId,
+        'redirect_url': value['redirectUrl'],
+        'user_id': value['userId'],
     };
 }
 //# sourceMappingURL=TomoIdvStartReq.js.map

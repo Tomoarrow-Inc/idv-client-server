@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
-const api_1 = require("./contract/api");
 let AppController = class AppController {
     appService;
     constructor(appService) {
@@ -72,41 +71,41 @@ let AppController = class AppController {
 };
 exports.AppController = AppController;
 __decorate([
-    (0, common_1.Post)(api_1.contract.access_token.path),
+    (0, common_1.Post)('/v1/oauth2/token'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "issueClientCredentialsToken", null);
 __decorate([
-    (0, common_1.Post)(api_1.contract.idv_us_start.path),
+    (0, common_1.Post)('/v1/idv/us/start'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "idvStartUS", null);
 __decorate([
-    (0, common_1.Post)(api_1.contract.idv_us_get_result.path),
+    (0, common_1.Post)('/v1/idv/us/kyc/get'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getKycUS", null);
 __decorate([
-    (0, common_1.Post)(api_1.contract.idv_jp_start.path),
+    (0, common_1.Post)('/v1/idv/jp/start'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "idvStartJP", null);
 __decorate([
-    (0, common_1.Post)(api_1.contract.idv_jp_get_result.path),
+    (0, common_1.Post)('/v1/idv/jp/kyc/get'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getKycJP", null);
 __decorate([
-    (0, common_1.Post)(api_1.contract.idv_start.path),
+    (0, common_1.Post)('/v1/idv/start'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

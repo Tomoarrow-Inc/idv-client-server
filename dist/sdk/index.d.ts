@@ -1,3 +1,4 @@
+export { toSnakeCaseKeys, toCamelCaseKeys } from './case-converter';
 export { createClientAssertion, buildTokenRequest, type ClientAssertionOptions, type BodyOptions, } from './tomo-idv-node';
 export { IdvServerClient } from './idv-client';
 export type { GetKycUsBody, GetKycJpBody, IdvUsStartBody, IdvJpStartBody, IdvStartBody, } from './api-contract';

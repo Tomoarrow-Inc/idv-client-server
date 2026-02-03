@@ -142,60 +142,60 @@ export class AppService {
     return this.idvServerClient.idvStart(accessToken, body);
   }
 
-  async issueClientCredentialsTokenOld(): Promise<IssueAccessTokenResult> {
-    try {
-      const baseUrl = this.resolveBaseUrl();
-      // const asPublicKey = this.resolveAuthorizationServerKey();
+  // async issueClientCredentialsTokenOld(): Promise<IssueAccessTokenResult> {
+  //   try {
+  //     const baseUrl = this.resolveBaseUrl();
+  //     // const asPublicKey = this.resolveAuthorizationServerKey();
 
-      console.log('baseUrl', baseUrl);
+  //     console.log('baseUrl', baseUrl);
 
-      // TODO:  SDK로 만들어줘야함 start ---
+  //     // TODO:  SDK로 만들어줘야함 start ---
       
-      // const clientKeys = this.generateEcP256();
-      // const kid = this.computeJwkThumbprint(publicJwk);
-      // console.log('kid', kid);
+  //     // const clientKeys = this.generateEcP256();
+  //     // const kid = this.computeJwkThumbprint(publicJwk);
+  //     // console.log('kid', kid);
       
-      // base64Url로 인코딩된 TOMO_IDV_SECRET를 JWK로 변환
-      const privateJwk = this.decodeBase64UrlToJwk(TOMO_IDV_SECRET);
-      const privateKey = createPrivateKey({ key: privateJwk, format: 'jwk' });
+  //     // base64Url로 인코딩된 TOMO_IDV_SECRET를 JWK로 변환
+  //     const privateJwk = this.decodeBase64UrlToJwk(TOMO_IDV_SECRET);
+  //     const privateKey = createPrivateKey({ key: privateJwk, format: 'jwk' });
 
-      const assertion = this.createClientAssertion(
-        privateKey,
-        TOMO_IDV_CLIENT_ID,
-        `${baseUrl}/v1/oauth2/token`,
-      );
+  //     const assertion = this.createClientAssertion(
+  //       privateKey,
+  //       TOMO_IDV_CLIENT_ID,
+  //       `${baseUrl}/v1/oauth2/token`,
+  //     );
 
-      // SDK로 만들어줘야함 end ---
+  //     // SDK로 만들어줘야함 end ---
 
-      const tokenResponse = await this.requestAccessToken(baseUrl, assertion);
-      const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
-      // const claims = this.verifyJwt(tokenResponse.access_token, createPublicKey({ key: publicJwk, format: 'jwk' }));
+  //     const tokenResponse = await this.requestAccessToken(baseUrl, assertion);
+  //     const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
+  //     // const claims = this.verifyJwt(tokenResponse.access_token, createPublicKey({ key: publicJwk, format: 'jwk' }));
 
-      const result = {
-        clientId: TOMO_IDV_CLIENT_ID,
-        accessToken: tokenResponse.access_token,
-        tokenType: tokenResponse.token_type,
-        expiresIn: tokenResponse.expires_in,
-        scope,
-        // claims,
-      };
+  //     const result = {
+  //       clientId: TOMO_IDV_CLIENT_ID,
+  //       accessToken: tokenResponse.access_token,
+  //       tokenType: tokenResponse.token_type,
+  //       expiresIn: tokenResponse.expires_in,
+  //       scope,
+  //       // claims,
+  //     };
 
-      // access_token을 State에 저장
-      this.setState('access_token', tokenResponse.access_token);
-      this.setState('token_info', {
-        clientId: TOMO_IDV_CLIENT_ID,
-        tokenType: tokenResponse.token_type,
-        expiresIn: tokenResponse.expires_in,
-        scope,
-        issuedAt: new Date().toISOString()
-      });
+  //     // access_token을 State에 저장
+  //     this.setState('access_token', tokenResponse.access_token);
+  //     this.setState('token_info', {
+  //       clientId: TOMO_IDV_CLIENT_ID,
+  //       tokenType: tokenResponse.token_type,
+  //       expiresIn: tokenResponse.expires_in,
+  //       scope,
+  //       issuedAt: new Date().toISOString()
+  //     });
 
-      return result;
+  //     return result;
 
-    } catch (error) {
-      throw new Error(`Failed to issue client credentials token: ${error}`);
-    }
-  }
+  //   } catch (error) {
+  //     throw new Error(`Failed to issue client credentials token: ${error}`);
+  //   }
+  // }
 
   private resolveBaseUrl(): string {
     const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';

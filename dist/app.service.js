@@ -14,6 +14,7 @@ const common_1 = require("@nestjs/common");
 const state_service_1 = require("./state.service");
 const tomo_idv_node_1 = require("./sdk/tomo-idv-node");
 const idvServerClient_1 = require("./idvServer/idvServerClient");
+const sdk_1 = require("./sdk");
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET;
 let AppService = class AppService {
@@ -27,6 +28,7 @@ let AppService = class AppService {
         return 'Hello World!';
     }
     async issueClientCredentialsToken() {
+        fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app.service.ts:issueClientCredentialsToken:entry', message: 'token endpoint entered', data: { stateHasAccessTokenBefore: this.hasState('access_token') }, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId: 'H1' }) }).catch(() => { });
         const baseUrl = this.resolveBaseUrl();
         const clientAssertion = (0, tomo_idv_node_1.createClientAssertion)({
             client_id: TOMO_IDV_CLIENT_ID,
@@ -40,17 +42,30 @@ let AppService = class AppService {
             scope: 'idv.read',
             resource: `https://api.tomopayment.com/v1/idv`,
         });
-        const scope = tokenResponse.scope ?? null;
-        return {
+        const accessToken = tokenResponse.access_token ?? tokenResponse.accessToken;
+        const tokenType = tokenResponse.token_type ?? tokenResponse.tokenType;
+        const expiresIn = tokenResponse.expires_in ?? tokenResponse.expiresIn;
+        const scopeVal = tokenResponse.scope ?? null;
+        this.setState('access_token', accessToken);
+        this.setState('token_info', {
             clientId: TOMO_IDV_CLIENT_ID,
-            accessToken: tokenResponse.accessToken,
-            tokenType: tokenResponse.tokenType,
-            expiresIn: tokenResponse.expiresIn,
-            scope,
-        };
+            tokenType: tokenType,
+            expiresIn: expiresIn,
+            scope: scopeVal,
+            issuedAt: new Date().toISOString(),
+        });
+        fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app.service.ts:issueClientCredentialsToken:afterSetState', message: 'token stored in state', data: { stateHasAccessToken: this.hasState('access_token') }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'post-fix', hypothesisId: 'H1' }) }).catch(() => { });
+        return (0, sdk_1.toSnakeCaseKeys)({
+            clientId: TOMO_IDV_CLIENT_ID,
+            accessToken: accessToken,
+            tokenType: tokenType,
+            expiresIn: expiresIn,
+            scope: scopeVal,
+        });
     }
     async getKycUS(body) {
         const accessToken = this.getState('access_token');
+        fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app.service.ts:getKycUS', message: 'getState access_token', data: { accessTokenPresent: !!accessToken, stateKeys: this.getStateKeys() }, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId: 'H2' }) }).catch(() => { });
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
@@ -83,36 +98,6 @@ let AppService = class AppService {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }
         return this.idvServerClient.idvStart(accessToken, body);
-    }
-    async issueClientCredentialsTokenOld() {
-        try {
-            const baseUrl = this.resolveBaseUrl();
-            console.log('baseUrl', baseUrl);
-            const privateJwk = this.decodeBase64UrlToJwk(TOMO_IDV_SECRET);
-            const privateKey = createPrivateKey({ key: privateJwk, format: 'jwk' });
-            const assertion = this.createClientAssertion(privateKey, TOMO_IDV_CLIENT_ID, `${baseUrl}/v1/oauth2/token`);
-            const tokenResponse = await this.requestAccessToken(baseUrl, assertion);
-            const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
-            const result = {
-                clientId: TOMO_IDV_CLIENT_ID,
-                accessToken: tokenResponse.access_token,
-                tokenType: tokenResponse.token_type,
-                expiresIn: tokenResponse.expires_in,
-                scope,
-            };
-            this.setState('access_token', tokenResponse.access_token);
-            this.setState('token_info', {
-                clientId: TOMO_IDV_CLIENT_ID,
-                tokenType: tokenResponse.token_type,
-                expiresIn: tokenResponse.expires_in,
-                scope,
-                issuedAt: new Date().toISOString()
-            });
-            return result;
-        }
-        catch (error) {
-            throw new Error(`Failed to issue client credentials token: ${error}`);
-        }
     }
     resolveBaseUrl() {
         const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';

@@ -4,25 +4,35 @@ exports.instanceOfPlaidGetKycResp = instanceOfPlaidGetKycResp;
 exports.PlaidGetKycRespFromJSON = PlaidGetKycRespFromJSON;
 exports.PlaidGetKycRespFromJSONTyped = PlaidGetKycRespFromJSONTyped;
 exports.PlaidGetKycRespToJSON = PlaidGetKycRespToJSON;
+exports.PlaidGetKycRespToJSONTyped = PlaidGetKycRespToJSONTyped;
 function instanceOfPlaidGetKycResp(value) {
-    let isInstance = true;
-    isInstance = isInstance && "city" in value;
-    isInstance = isInstance && "country" in value;
-    isInstance = isInstance && "dateOfBirth" in value;
-    isInstance = isInstance && "emailAddress" in value;
-    isInstance = isInstance && "familyName" in value;
-    isInstance = isInstance && "givenName" in value;
-    isInstance = isInstance && "phoneNumber" in value;
-    isInstance = isInstance && "postalCode" in value;
-    isInstance = isInstance && "region" in value;
-    isInstance = isInstance && "street" in value;
-    return isInstance;
+    if (!('city' in value) || value['city'] === undefined)
+        return false;
+    if (!('country' in value) || value['country'] === undefined)
+        return false;
+    if (!('dateOfBirth' in value) || value['dateOfBirth'] === undefined)
+        return false;
+    if (!('emailAddress' in value) || value['emailAddress'] === undefined)
+        return false;
+    if (!('familyName' in value) || value['familyName'] === undefined)
+        return false;
+    if (!('givenName' in value) || value['givenName'] === undefined)
+        return false;
+    if (!('phoneNumber' in value) || value['phoneNumber'] === undefined)
+        return false;
+    if (!('postalCode' in value) || value['postalCode'] === undefined)
+        return false;
+    if (!('region' in value) || value['region'] === undefined)
+        return false;
+    if (!('street' in value) || value['street'] === undefined)
+        return false;
+    return true;
 }
 function PlaidGetKycRespFromJSON(json) {
     return PlaidGetKycRespFromJSONTyped(json, false);
 }
 function PlaidGetKycRespFromJSONTyped(json, ignoreDiscriminator) {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -38,24 +48,24 @@ function PlaidGetKycRespFromJSONTyped(json, ignoreDiscriminator) {
         'street': json['street'],
     };
 }
-function PlaidGetKycRespToJSON(value) {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+function PlaidGetKycRespToJSON(json) {
+    return PlaidGetKycRespToJSONTyped(json, false);
+}
+function PlaidGetKycRespToJSONTyped(value, ignoreDiscriminator = false) {
+    if (value == null) {
+        return value;
     }
     return {
-        'city': value.city,
-        'country': value.country,
-        'date_of_birth': value.dateOfBirth,
-        'email_address': value.emailAddress,
-        'family_name': value.familyName,
-        'given_name': value.givenName,
-        'phone_number': value.phoneNumber,
-        'postal_code': value.postalCode,
-        'region': value.region,
-        'street': value.street,
+        'city': value['city'],
+        'country': value['country'],
+        'date_of_birth': value['dateOfBirth'],
+        'email_address': value['emailAddress'],
+        'family_name': value['familyName'],
+        'given_name': value['givenName'],
+        'phone_number': value['phoneNumber'],
+        'postal_code': value['postalCode'],
+        'region': value['region'],
+        'street': value['street'],
     };
 }
 //# sourceMappingURL=PlaidGetKycResp.js.map

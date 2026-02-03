@@ -5,7 +5,8 @@ export interface LiquidGetKycResp {
     postalCode?: string;
     sex: string;
 }
-export declare function instanceOfLiquidGetKycResp(value: object): boolean;
+export declare function instanceOfLiquidGetKycResp(value: object): value is LiquidGetKycResp;
 export declare function LiquidGetKycRespFromJSON(json: any): LiquidGetKycResp;
 export declare function LiquidGetKycRespFromJSONTyped(json: any, ignoreDiscriminator: boolean): LiquidGetKycResp;
-export declare function LiquidGetKycRespToJSON(value?: LiquidGetKycResp | null): any;
+export declare function LiquidGetKycRespToJSON(json: any): LiquidGetKycResp;
+export declare function LiquidGetKycRespToJSONTyped(value?: LiquidGetKycResp | null, ignoreDiscriminator?: boolean): any;

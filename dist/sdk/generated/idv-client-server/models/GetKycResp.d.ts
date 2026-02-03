@@ -13,7 +13,8 @@ export interface GetKycResp {
     sex?: string;
     street?: string;
 }
-export declare function instanceOfGetKycResp(value: object): boolean;
+export declare function instanceOfGetKycResp(value: object): value is GetKycResp;
 export declare function GetKycRespFromJSON(json: any): GetKycResp;
 export declare function GetKycRespFromJSONTyped(json: any, ignoreDiscriminator: boolean): GetKycResp;
-export declare function GetKycRespToJSON(value?: GetKycResp | null): any;
+export declare function GetKycRespToJSON(json: any): GetKycResp;
+export declare function GetKycRespToJSONTyped(value?: GetKycResp | null, ignoreDiscriminator?: boolean): any;

@@ -1,6 +1,6 @@
 import { StateService } from './state.service';
 import { IdvServerClient } from './idvServer/idvServerClient';
-import type { GetKycUsBody, GetKycJpBody, IdvUsStartBody, IdvJpStartBody, IdvStartBody, GetKycUnionResp, PlaidStartIdvResp, LiquidIntegratedAppResponse, StartIdvResp } from './sdk';
+import { type GetKycUsBody, type GetKycJpBody, type IdvUsStartBody, type IdvJpStartBody, type IdvStartBody, type GetKycUnionResp, type PlaidStartIdvResp, type LiquidIntegratedAppResponse, type StartIdvResp } from './sdk';
 export type RegistrationResponseBody = {
     client_id: string;
 };
@@ -30,7 +30,6 @@ export declare class AppService {
     idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse>;
     idvStartUS(body: IdvUsStartBody): Promise<PlaidStartIdvResp>;
     idvStart(body: IdvStartBody): Promise<StartIdvResp>;
-    issueClientCredentialsTokenOld(): Promise<IssueAccessTokenResult>;
     private resolveBaseUrl;
     private safeFetchJson;
     setState(key: string, value: any): void;

@@ -4,18 +4,20 @@ exports.instanceOfGetKycReq = instanceOfGetKycReq;
 exports.GetKycReqFromJSON = GetKycReqFromJSON;
 exports.GetKycReqFromJSONTyped = GetKycReqFromJSONTyped;
 exports.GetKycReqToJSON = GetKycReqToJSON;
+exports.GetKycReqToJSONTyped = GetKycReqToJSONTyped;
 const Country_1 = require("./Country");
 function instanceOfGetKycReq(value) {
-    let isInstance = true;
-    isInstance = isInstance && "country" in value;
-    isInstance = isInstance && "userId" in value;
-    return isInstance;
+    if (!('country' in value) || value['country'] === undefined)
+        return false;
+    if (!('userId' in value) || value['userId'] === undefined)
+        return false;
+    return true;
 }
 function GetKycReqFromJSON(json) {
     return GetKycReqFromJSONTyped(json, false);
 }
 function GetKycReqFromJSONTyped(json, ignoreDiscriminator) {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -23,16 +25,16 @@ function GetKycReqFromJSONTyped(json, ignoreDiscriminator) {
         'userId': json['user_id'],
     };
 }
-function GetKycReqToJSON(value) {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+function GetKycReqToJSON(json) {
+    return GetKycReqToJSONTyped(json, false);
+}
+function GetKycReqToJSONTyped(value, ignoreDiscriminator = false) {
+    if (value == null) {
+        return value;
     }
     return {
-        'country': (0, Country_1.CountryToJSON)(value.country),
-        'user_id': value.userId,
+        'country': (0, Country_1.CountryToJSON)(value['country']),
+        'user_id': value['userId'],
     };
 }
 //# sourceMappingURL=GetKycReq.js.map

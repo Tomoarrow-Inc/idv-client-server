@@ -4,59 +4,62 @@ exports.instanceOfGetKycResp = instanceOfGetKycResp;
 exports.GetKycRespFromJSON = GetKycRespFromJSON;
 exports.GetKycRespFromJSONTyped = GetKycRespFromJSONTyped;
 exports.GetKycRespToJSON = GetKycRespToJSON;
-const runtime_1 = require("../runtime");
+exports.GetKycRespToJSONTyped = GetKycRespToJSONTyped;
 function instanceOfGetKycResp(value) {
-    let isInstance = true;
-    isInstance = isInstance && "country" in value;
-    isInstance = isInstance && "dateOfBirth" in value;
-    isInstance = isInstance && "fullAddress" in value;
-    isInstance = isInstance && "fullName" in value;
-    return isInstance;
+    if (!('country' in value) || value['country'] === undefined)
+        return false;
+    if (!('dateOfBirth' in value) || value['dateOfBirth'] === undefined)
+        return false;
+    if (!('fullAddress' in value) || value['fullAddress'] === undefined)
+        return false;
+    if (!('fullName' in value) || value['fullName'] === undefined)
+        return false;
+    return true;
 }
 function GetKycRespFromJSON(json) {
     return GetKycRespFromJSONTyped(json, false);
 }
 function GetKycRespFromJSONTyped(json, ignoreDiscriminator) {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
-        'city': !(0, runtime_1.exists)(json, 'city') ? undefined : json['city'],
+        'city': json['city'] == null ? undefined : json['city'],
         'country': json['country'],
         'dateOfBirth': json['date_of_birth'],
-        'emailAddress': !(0, runtime_1.exists)(json, 'email_address') ? undefined : json['email_address'],
-        'familyName': !(0, runtime_1.exists)(json, 'family_name') ? undefined : json['family_name'],
+        'emailAddress': json['email_address'] == null ? undefined : json['email_address'],
+        'familyName': json['family_name'] == null ? undefined : json['family_name'],
         'fullAddress': json['full_address'],
         'fullName': json['full_name'],
-        'givenName': !(0, runtime_1.exists)(json, 'given_name') ? undefined : json['given_name'],
-        'phoneNumber': !(0, runtime_1.exists)(json, 'phone_number') ? undefined : json['phone_number'],
-        'postalCode': !(0, runtime_1.exists)(json, 'postal_code') ? undefined : json['postal_code'],
-        'region': !(0, runtime_1.exists)(json, 'region') ? undefined : json['region'],
-        'sex': !(0, runtime_1.exists)(json, 'sex') ? undefined : json['sex'],
-        'street': !(0, runtime_1.exists)(json, 'street') ? undefined : json['street'],
+        'givenName': json['given_name'] == null ? undefined : json['given_name'],
+        'phoneNumber': json['phone_number'] == null ? undefined : json['phone_number'],
+        'postalCode': json['postal_code'] == null ? undefined : json['postal_code'],
+        'region': json['region'] == null ? undefined : json['region'],
+        'sex': json['sex'] == null ? undefined : json['sex'],
+        'street': json['street'] == null ? undefined : json['street'],
     };
 }
-function GetKycRespToJSON(value) {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+function GetKycRespToJSON(json) {
+    return GetKycRespToJSONTyped(json, false);
+}
+function GetKycRespToJSONTyped(value, ignoreDiscriminator = false) {
+    if (value == null) {
+        return value;
     }
     return {
-        'city': value.city,
-        'country': value.country,
-        'date_of_birth': value.dateOfBirth,
-        'email_address': value.emailAddress,
-        'family_name': value.familyName,
-        'full_address': value.fullAddress,
-        'full_name': value.fullName,
-        'given_name': value.givenName,
-        'phone_number': value.phoneNumber,
-        'postal_code': value.postalCode,
-        'region': value.region,
-        'sex': value.sex,
-        'street': value.street,
+        'city': value['city'],
+        'country': value['country'],
+        'date_of_birth': value['dateOfBirth'],
+        'email_address': value['emailAddress'],
+        'family_name': value['familyName'],
+        'full_address': value['fullAddress'],
+        'full_name': value['fullName'],
+        'given_name': value['givenName'],
+        'phone_number': value['phoneNumber'],
+        'postal_code': value['postalCode'],
+        'region': value['region'],
+        'sex': value['sex'],
+        'street': value['street'],
     };
 }
 //# sourceMappingURL=GetKycResp.js.map

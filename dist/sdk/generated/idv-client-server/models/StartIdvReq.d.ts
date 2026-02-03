@@ -5,7 +5,8 @@ export interface StartIdvReq {
     email: string;
     userId: string;
 }
-export declare function instanceOfStartIdvReq(value: object): boolean;
+export declare function instanceOfStartIdvReq(value: object): value is StartIdvReq;
 export declare function StartIdvReqFromJSON(json: any): StartIdvReq;
 export declare function StartIdvReqFromJSONTyped(json: any, ignoreDiscriminator: boolean): StartIdvReq;
-export declare function StartIdvReqToJSON(value?: StartIdvReq | null): any;
+export declare function StartIdvReqToJSON(json: any): StartIdvReq;
+export declare function StartIdvReqToJSONTyped(value?: StartIdvReq | null, ignoreDiscriminator?: boolean): any;

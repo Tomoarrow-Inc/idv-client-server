@@ -4,31 +4,32 @@ exports.instanceOfLiquidIntegratedAppResponse = instanceOfLiquidIntegratedAppRes
 exports.LiquidIntegratedAppResponseFromJSON = LiquidIntegratedAppResponseFromJSON;
 exports.LiquidIntegratedAppResponseFromJSONTyped = LiquidIntegratedAppResponseFromJSONTyped;
 exports.LiquidIntegratedAppResponseToJSON = LiquidIntegratedAppResponseToJSON;
+exports.LiquidIntegratedAppResponseToJSONTyped = LiquidIntegratedAppResponseToJSONTyped;
 function instanceOfLiquidIntegratedAppResponse(value) {
-    let isInstance = true;
-    isInstance = isInstance && "startIdvUri" in value;
-    return isInstance;
+    if (!('startIdvUri' in value) || value['startIdvUri'] === undefined)
+        return false;
+    return true;
 }
 function LiquidIntegratedAppResponseFromJSON(json) {
     return LiquidIntegratedAppResponseFromJSONTyped(json, false);
 }
 function LiquidIntegratedAppResponseFromJSONTyped(json, ignoreDiscriminator) {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         'startIdvUri': json['start_idv_uri'],
     };
 }
-function LiquidIntegratedAppResponseToJSON(value) {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+function LiquidIntegratedAppResponseToJSON(json) {
+    return LiquidIntegratedAppResponseToJSONTyped(json, false);
+}
+function LiquidIntegratedAppResponseToJSONTyped(value, ignoreDiscriminator = false) {
+    if (value == null) {
+        return value;
     }
     return {
-        'start_idv_uri': value.startIdvUri,
+        'start_idv_uri': value['startIdvUri'],
     };
 }
 //# sourceMappingURL=LiquidIntegratedAppResponse.js.map

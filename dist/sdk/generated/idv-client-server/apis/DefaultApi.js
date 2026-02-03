@@ -61,15 +61,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/ca/kyc/get`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.PlaidGetKycReqToJSON)(requestParameters.plaidGetKycReq),
+            body: (0, index_1.PlaidGetKycReqToJSON)(requestParameters['plaidGetKycReq']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.GetKycUnionRespFromJSON)(jsonValue));
     }
@@ -81,15 +81,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/ca/start`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.PlaidStartIdvRequestToJSON)(requestParameters.plaidStartIdvRequest),
+            body: (0, index_1.PlaidStartIdvRequestToJSON)(requestParameters['plaidStartIdvRequest']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.PlaidStartIdvRespFromJSON)(jsonValue));
     }
@@ -121,15 +121,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/cn/result`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.TomoIdvGetResultReqToJSON)(requestParameters.tomoIdvGetResultReq),
+            body: (0, index_1.TomoIdvGetResultReqToJSON)(requestParameters['tomoIdvGetResultReq']),
         }, initOverrides);
         if (this.isJsonMime(response.headers.get('content-type'))) {
             return new runtime.JSONApiResponse(response);
@@ -146,15 +146,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/cn/start`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.TomoIdvStartReqToJSON)(requestParameters.tomoIdvStartReq),
+            body: (0, index_1.TomoIdvStartReqToJSON)(requestParameters['tomoIdvStartReq']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.TomoIdvStartResFromJSON)(jsonValue));
     }
@@ -166,15 +166,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/cn/token`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.TomoIdvIssueTokenReqToJSON)(requestParameters.tomoIdvIssueTokenReq),
+            body: (0, index_1.TomoIdvIssueTokenReqToJSON)(requestParameters['tomoIdvIssueTokenReq']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.TomoIdvIssueTokenResFromJSON)(jsonValue));
     }
@@ -206,15 +206,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/jp/kyc/get`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.LiquidGetKycReqToJSON)(requestParameters.liquidGetKycReq),
+            body: (0, index_1.LiquidGetKycReqToJSON)(requestParameters['liquidGetKycReq']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.GetKycUnionRespFromJSON)(jsonValue));
     }
@@ -226,15 +226,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/jp/start`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.LiquidStartIdvRequestToJSON)(requestParameters.liquidStartIdvRequest),
+            body: (0, index_1.LiquidStartIdvRequestToJSON)(requestParameters['liquidStartIdvRequest']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.LiquidIntegratedAppResponseFromJSON)(jsonValue));
     }
@@ -246,15 +246,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/kyc/get`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.GetKycReqToJSON)(requestParameters.getKycReq),
+            body: (0, index_1.GetKycReqToJSON)(requestParameters['getKycReq']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.GetKycRespFromJSON)(jsonValue));
     }
@@ -266,15 +266,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/start`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.StartIdvReqToJSON)(requestParameters.startIdvReq),
+            body: (0, index_1.StartIdvReqToJSON)(requestParameters['startIdvReq']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.StartIdvRespFromJSON)(jsonValue));
     }
@@ -306,15 +306,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/uk/kyc/get`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.PlaidGetKycReqToJSON)(requestParameters.plaidGetKycReq),
+            body: (0, index_1.PlaidGetKycReqToJSON)(requestParameters['plaidGetKycReq']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.GetKycUnionRespFromJSON)(jsonValue));
     }
@@ -326,15 +326,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/uk/start`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.PlaidStartIdvRequestToJSON)(requestParameters.plaidStartIdvRequest),
+            body: (0, index_1.PlaidStartIdvRequestToJSON)(requestParameters['plaidStartIdvRequest']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.PlaidStartIdvRespFromJSON)(jsonValue));
     }
@@ -366,15 +366,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/us/kyc/get`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.PlaidGetKycReqToJSON)(requestParameters.plaidGetKycReq),
+            body: (0, index_1.PlaidGetKycReqToJSON)(requestParameters['plaidGetKycReq']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.GetKycUnionRespFromJSON)(jsonValue));
     }
@@ -386,15 +386,15 @@ class DefaultApi extends runtime.BaseAPI {
         const queryParameters = {};
         const headerParameters = {};
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
-            headerParameters['Authorization'] = String(requestParameters.authorization);
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
         }
         const response = await this.request({
             path: `/v1/idv/us/start`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: (0, index_1.PlaidStartIdvRequestToJSON)(requestParameters.plaidStartIdvRequest),
+            body: (0, index_1.PlaidStartIdvRequestToJSON)(requestParameters['plaidStartIdvRequest']),
         }, initOverrides);
         return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.PlaidStartIdvRespFromJSON)(jsonValue));
     }
@@ -403,14 +403,14 @@ class DefaultApi extends runtime.BaseAPI {
         return await response.value();
     }
     async v1Oauth2TokenPostRaw(requestParameters, initOverrides) {
-        if (requestParameters.clientAssertion === null || requestParameters.clientAssertion === undefined) {
-            throw new runtime.RequiredError('clientAssertion', 'Required parameter requestParameters.clientAssertion was null or undefined when calling v1Oauth2TokenPost.');
+        if (requestParameters['clientAssertion'] == null) {
+            throw new runtime.RequiredError('clientAssertion', 'Required parameter "clientAssertion" was null or undefined when calling v1Oauth2TokenPost().');
         }
-        if (requestParameters.clientAssertionType === null || requestParameters.clientAssertionType === undefined) {
-            throw new runtime.RequiredError('clientAssertionType', 'Required parameter requestParameters.clientAssertionType was null or undefined when calling v1Oauth2TokenPost.');
+        if (requestParameters['clientAssertionType'] == null) {
+            throw new runtime.RequiredError('clientAssertionType', 'Required parameter "clientAssertionType" was null or undefined when calling v1Oauth2TokenPost().');
         }
-        if (requestParameters.grantType === null || requestParameters.grantType === undefined) {
-            throw new runtime.RequiredError('grantType', 'Required parameter requestParameters.grantType was null or undefined when calling v1Oauth2TokenPost.');
+        if (requestParameters['grantType'] == null) {
+            throw new runtime.RequiredError('grantType', 'Required parameter "grantType" was null or undefined when calling v1Oauth2TokenPost().');
         }
         const queryParameters = {};
         const headerParameters = {};
@@ -426,20 +426,20 @@ class DefaultApi extends runtime.BaseAPI {
         else {
             formParams = new URLSearchParams();
         }
-        if (requestParameters.clientAssertion !== undefined) {
-            formParams.append('client_assertion', requestParameters.clientAssertion);
+        if (requestParameters['clientAssertion'] != null) {
+            formParams.append('client_assertion', requestParameters['clientAssertion']);
         }
-        if (requestParameters.clientAssertionType !== undefined) {
-            formParams.append('client_assertion_type', requestParameters.clientAssertionType);
+        if (requestParameters['clientAssertionType'] != null) {
+            formParams.append('client_assertion_type', requestParameters['clientAssertionType']);
         }
-        if (requestParameters.grantType !== undefined) {
-            formParams.append('grant_type', requestParameters.grantType);
+        if (requestParameters['grantType'] != null) {
+            formParams.append('grant_type', requestParameters['grantType']);
         }
-        if (requestParameters.resource !== undefined) {
-            formParams.append('resource', requestParameters.resource);
+        if (requestParameters['resource'] != null) {
+            formParams.append('resource', requestParameters['resource']);
         }
-        if (requestParameters.scope !== undefined) {
-            formParams.append('scope', requestParameters.scope);
+        if (requestParameters['scope'] != null) {
+            formParams.append('scope', requestParameters['scope']);
         }
         const response = await this.request({
             path: `/v1/oauth2/token`,

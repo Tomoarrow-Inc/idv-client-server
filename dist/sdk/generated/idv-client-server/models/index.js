@@ -18,8 +18,6 @@ __exportStar(require("./Country"), exports);
 __exportStar(require("./GetKycReq"), exports);
 __exportStar(require("./GetKycResp"), exports);
 __exportStar(require("./GetKycUnionResp"), exports);
-__exportStar(require("./GetKycUnionRespMap"), exports);
-__exportStar(require("./GetKycUnionRespStandard"), exports);
 __exportStar(require("./LiquidGetKycReq"), exports);
 __exportStar(require("./LiquidGetKycResp"), exports);
 __exportStar(require("./LiquidIdvField"), exports);

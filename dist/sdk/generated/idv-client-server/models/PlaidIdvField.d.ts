@@ -11,6 +11,8 @@ export declare const PlaidIdvField: {
     readonly Street: "street";
 };
 export type PlaidIdvField = typeof PlaidIdvField[keyof typeof PlaidIdvField];
+export declare function instanceOfPlaidIdvField(value: any): boolean;
 export declare function PlaidIdvFieldFromJSON(json: any): PlaidIdvField;
 export declare function PlaidIdvFieldFromJSONTyped(json: any, ignoreDiscriminator: boolean): PlaidIdvField;
 export declare function PlaidIdvFieldToJSON(value?: PlaidIdvField | null): any;
+export declare function PlaidIdvFieldToJSONTyped(value: any, ignoreDiscriminator: boolean): PlaidIdvField;

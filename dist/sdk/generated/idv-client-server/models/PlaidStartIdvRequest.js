@@ -4,18 +4,21 @@ exports.instanceOfPlaidStartIdvRequest = instanceOfPlaidStartIdvRequest;
 exports.PlaidStartIdvRequestFromJSON = PlaidStartIdvRequestFromJSON;
 exports.PlaidStartIdvRequestFromJSONTyped = PlaidStartIdvRequestFromJSONTyped;
 exports.PlaidStartIdvRequestToJSON = PlaidStartIdvRequestToJSON;
+exports.PlaidStartIdvRequestToJSONTyped = PlaidStartIdvRequestToJSONTyped;
 function instanceOfPlaidStartIdvRequest(value) {
-    let isInstance = true;
-    isInstance = isInstance && "callbackUrl" in value;
-    isInstance = isInstance && "email" in value;
-    isInstance = isInstance && "userId" in value;
-    return isInstance;
+    if (!('callbackUrl' in value) || value['callbackUrl'] === undefined)
+        return false;
+    if (!('email' in value) || value['email'] === undefined)
+        return false;
+    if (!('userId' in value) || value['userId'] === undefined)
+        return false;
+    return true;
 }
 function PlaidStartIdvRequestFromJSON(json) {
     return PlaidStartIdvRequestFromJSONTyped(json, false);
 }
 function PlaidStartIdvRequestFromJSONTyped(json, ignoreDiscriminator) {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -24,17 +27,17 @@ function PlaidStartIdvRequestFromJSONTyped(json, ignoreDiscriminator) {
         'userId': json['user_id'],
     };
 }
-function PlaidStartIdvRequestToJSON(value) {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
+function PlaidStartIdvRequestToJSON(json) {
+    return PlaidStartIdvRequestToJSONTyped(json, false);
+}
+function PlaidStartIdvRequestToJSONTyped(value, ignoreDiscriminator = false) {
+    if (value == null) {
+        return value;
     }
     return {
-        'callback_url': value.callbackUrl,
-        'email': value.email,
-        'user_id': value.userId,
+        'callback_url': value['callbackUrl'],
+        'email': value['email'],
+        'user_id': value['userId'],
     };
 }
 //# sourceMappingURL=PlaidStartIdvRequest.js.map

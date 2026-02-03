@@ -2,8 +2,6 @@ export * from './Country';
 export * from './GetKycReq';
 export * from './GetKycResp';
 export * from './GetKycUnionResp';
-export * from './GetKycUnionRespMap';
-export * from './GetKycUnionRespStandard';
 export * from './LiquidGetKycReq';
 export * from './LiquidGetKycResp';
 export * from './LiquidIdvField';
