@@ -37,6 +37,23 @@ exports.DefaultApi = void 0;
 const runtime = __importStar(require("../runtime"));
 const index_1 = require("../models/index");
 class DefaultApi extends runtime.BaseAPI {
+    async v1IdvCaCookieStartPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/ca/cookie/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.PlaidStartIdvRequestToJSON)(requestParameters['plaidStartIdvRequest']),
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.PlaidStartIdvRespFromJSON)(jsonValue));
+    }
+    async v1IdvCaCookieStartPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvCaCookieStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
     async v1IdvCaHealthGetRaw(initOverrides) {
         const queryParameters = {};
         const headerParameters = {};
@@ -76,6 +93,22 @@ class DefaultApi extends runtime.BaseAPI {
     async v1IdvCaKycGetPost(requestParameters = {}, initOverrides) {
         const response = await this.v1IdvCaKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+    async v1IdvCaKycPutPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/ca/kyc/put`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.PlaidPutKycReqToJSON)(requestParameters['plaidPutKycReq']),
+        }, initOverrides);
+        return new runtime.VoidApiResponse(response);
+    }
+    async v1IdvCaKycPutPost(requestParameters = {}, initOverrides) {
+        await this.v1IdvCaKycPutPostRaw(requestParameters, initOverrides);
     }
     async v1IdvCaStartPostRaw(requestParameters, initOverrides) {
         const queryParameters = {};
@@ -117,6 +150,71 @@ class DefaultApi extends runtime.BaseAPI {
         const response = await this.v1IdvCnHealthGetRaw(initOverrides);
         return await response.value();
     }
+    async v1IdvCnMockResultPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        }
+        const response = await this.request({
+            path: `/v1/idv/cn/mock/result`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.TomoIdvMockGetResultReqToJSON)(requestParameters['tomoIdvMockGetResultReq']),
+        }, initOverrides);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse(response);
+        }
+        else {
+            return new runtime.TextApiResponse(response);
+        }
+    }
+    async v1IdvCnMockResultPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvCnMockResultPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+    async v1IdvCnMockStartPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        }
+        const response = await this.request({
+            path: `/v1/idv/cn/mock/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.TomoIdvMockStartReqToJSON)(requestParameters['tomoIdvMockStartReq']),
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.TomoIdvMockStartResFromJSON)(jsonValue));
+    }
+    async v1IdvCnMockStartPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvCnMockStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+    async v1IdvCnMockTokenPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        }
+        const response = await this.request({
+            path: `/v1/idv/cn/mock/token`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.TomoIdvMockIssueTokenReqToJSON)(requestParameters['tomoIdvMockIssueTokenReq']),
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.TomoIdvMockIssueTokenResFromJSON)(jsonValue));
+    }
+    async v1IdvCnMockTokenPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvCnMockTokenPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
     async v1IdvCnResultPostRaw(requestParameters, initOverrides) {
         const queryParameters = {};
         const headerParameters = {};
@@ -140,6 +238,26 @@ class DefaultApi extends runtime.BaseAPI {
     }
     async v1IdvCnResultPost(requestParameters = {}, initOverrides) {
         const response = await this.v1IdvCnResultPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+    async v1IdvCnResultWebPostRaw(initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        const response = await this.request({
+            path: `/v1/idv/cn/result/web`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse(response);
+        }
+        else {
+            return new runtime.TextApiResponse(response);
+        }
+    }
+    async v1IdvCnResultWebPost(initOverrides) {
+        const response = await this.v1IdvCnResultWebPostRaw(initOverrides);
         return await response.value();
     }
     async v1IdvCnStartPostRaw(requestParameters, initOverrides) {
@@ -182,6 +300,23 @@ class DefaultApi extends runtime.BaseAPI {
         const response = await this.v1IdvCnTokenPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
+    async v1IdvJpCookieStartPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/jp/cookie/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.LiquidStartIdvRequestToJSON)(requestParameters['liquidStartIdvRequest']),
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.LiquidIntegratedAppResponseFromJSON)(jsonValue));
+    }
+    async v1IdvJpCookieStartPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvJpCookieStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
     async v1IdvJpHealthGetRaw(initOverrides) {
         const queryParameters = {};
         const headerParameters = {};
@@ -220,6 +355,39 @@ class DefaultApi extends runtime.BaseAPI {
     }
     async v1IdvJpKycGetPost(requestParameters = {}, initOverrides) {
         const response = await this.v1IdvJpKycGetPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+    async v1IdvJpKycPutPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/jp/kyc/put`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.LiquidPutKycReqToJSON)(requestParameters['liquidPutKycReq']),
+        }, initOverrides);
+        return new runtime.VoidApiResponse(response);
+    }
+    async v1IdvJpKycPutPost(requestParameters = {}, initOverrides) {
+        await this.v1IdvJpKycPutPostRaw(requestParameters, initOverrides);
+    }
+    async v1IdvJpNotificationPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/jp/notification`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters['body'],
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.EitherStringValueFromJSON)(jsonValue));
+    }
+    async v1IdvJpNotificationPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvJpNotificationPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
     async v1IdvJpStartPostRaw(requestParameters, initOverrides) {
@@ -262,6 +430,57 @@ class DefaultApi extends runtime.BaseAPI {
         const response = await this.v1IdvKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
+    async v1IdvLiquidTokenSessionPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/liquid/token/session`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.LiquidSessionTokenRequestToJSON)(requestParameters['liquidSessionTokenRequest']),
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.SessionTokenFromJSON)(jsonValue));
+    }
+    async v1IdvLiquidTokenSessionPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvLiquidTokenSessionPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+    async v1IdvLoginTicketPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/login-ticket`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.LoginTicketRequestToJSON)(requestParameters['loginTicketRequest']),
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.LoginTicketResponseFromJSON)(jsonValue));
+    }
+    async v1IdvLoginTicketPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvLoginTicketPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+    async v1IdvPlaidTokenSessionPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/plaid/token/session`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.PlaidSessionTokenRequestToJSON)(requestParameters['plaidSessionTokenRequest']),
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.SessionTokenFromJSON)(jsonValue));
+    }
+    async v1IdvPlaidTokenSessionPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvPlaidTokenSessionPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
     async v1IdvStartPostRaw(requestParameters, initOverrides) {
         const queryParameters = {};
         const headerParameters = {};
@@ -280,6 +499,23 @@ class DefaultApi extends runtime.BaseAPI {
     }
     async v1IdvStartPost(requestParameters = {}, initOverrides) {
         const response = await this.v1IdvStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+    async v1IdvUkCookieStartPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/uk/cookie/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.PlaidStartIdvRequestToJSON)(requestParameters['plaidStartIdvRequest']),
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.PlaidStartIdvRespFromJSON)(jsonValue));
+    }
+    async v1IdvUkCookieStartPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvUkCookieStartPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
     async v1IdvUkHealthGetRaw(initOverrides) {
@@ -322,6 +558,22 @@ class DefaultApi extends runtime.BaseAPI {
         const response = await this.v1IdvUkKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
+    async v1IdvUkKycPutPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/uk/kyc/put`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.PlaidPutKycReqToJSON)(requestParameters['plaidPutKycReq']),
+        }, initOverrides);
+        return new runtime.VoidApiResponse(response);
+    }
+    async v1IdvUkKycPutPost(requestParameters = {}, initOverrides) {
+        await this.v1IdvUkKycPutPostRaw(requestParameters, initOverrides);
+    }
     async v1IdvUkStartPostRaw(requestParameters, initOverrides) {
         const queryParameters = {};
         const headerParameters = {};
@@ -340,6 +592,23 @@ class DefaultApi extends runtime.BaseAPI {
     }
     async v1IdvUkStartPost(requestParameters = {}, initOverrides) {
         const response = await this.v1IdvUkStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+    async v1IdvUsCookieStartPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/us/cookie/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.PlaidStartIdvRequestToJSON)(requestParameters['plaidStartIdvRequest']),
+        }, initOverrides);
+        return new runtime.JSONApiResponse(response, (jsonValue) => (0, index_1.PlaidStartIdvRespFromJSON)(jsonValue));
+    }
+    async v1IdvUsCookieStartPost(requestParameters = {}, initOverrides) {
+        const response = await this.v1IdvUsCookieStartPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
     async v1IdvUsHealthGetRaw(initOverrides) {
@@ -381,6 +650,22 @@ class DefaultApi extends runtime.BaseAPI {
     async v1IdvUsKycGetPost(requestParameters = {}, initOverrides) {
         const response = await this.v1IdvUsKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+    async v1IdvUsKycPutPostRaw(requestParameters, initOverrides) {
+        const queryParameters = {};
+        const headerParameters = {};
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+        const response = await this.request({
+            path: `/v1/idv/us/kyc/put`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: (0, index_1.PlaidPutKycReqToJSON)(requestParameters['plaidPutKycReq']),
+        }, initOverrides);
+        return new runtime.VoidApiResponse(response);
+    }
+    async v1IdvUsKycPutPost(requestParameters = {}, initOverrides) {
+        await this.v1IdvUsKycPutPostRaw(requestParameters, initOverrides);
     }
     async v1IdvUsStartPostRaw(requestParameters, initOverrides) {
         const queryParameters = {};
