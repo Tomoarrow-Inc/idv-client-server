@@ -51,20 +51,8 @@ export function GetKycUnionRespFromJSONTyped(json: any, ignoreDiscriminator: boo
     if (instanceOfPlaidGetKycResp(json)) {
         return PlaidGetKycRespFromJSONTyped(json, true);
     }
-    // idv-server returns snake_case; instanceOf* check camelCase and fail. Try snake_case detection.
-    // Plaid: given_name/city/country. Liquid: name, date_of_birth, address, sex, postal_code (JP can return subset via GetKycUnionRespMap).
-    const hasPlaidSnake = typeof json === 'object' && ('date_of_birth' in json || 'given_name' in json) && ('city' in json || 'country' in json);
-    const hasLiquidSnake = typeof json === 'object' && ('name' in json || 'date_of_birth' in json) && 'address' in json;
-    const hasAnyLiquidKey = typeof json === 'object' && ('name' in json || 'date_of_birth' in json || 'address' in json || 'sex' in json || 'postal_code' in json);
-    const hasNoPlaidKey = typeof json === 'object' && !('given_name' in json) && !('city' in json);
-    if (hasPlaidSnake) {
-        return PlaidGetKycRespFromJSONTyped(json, true);
-    }
-    if (hasLiquidSnake || (hasAnyLiquidKey && hasNoPlaidKey)) {
-        return LiquidGetKycRespFromJSONTyped(json, true);
-    }
-    // Preserve field-digest or other shapes instead of returning {}
-    return json as GetKycUnionResp;
+
+    return {} as any;
 }
 
 export function GetKycUnionRespToJSON(json: any): any {
