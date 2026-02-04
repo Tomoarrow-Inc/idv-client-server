@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const source = join(__dirname, '..', '..', 'ci', 'contracts', 'openapi-generator', 'generated', 'idv-client-server');
-const dest = join(__dirname, '..', 'src', 'sdk', 'generated', 'idv-client-server');
+const dest = join(__dirname, '..', 'src', 'sdk', 'generated');
 
 if (!existsSync(source)) {
   console.error('Source not found:', source);

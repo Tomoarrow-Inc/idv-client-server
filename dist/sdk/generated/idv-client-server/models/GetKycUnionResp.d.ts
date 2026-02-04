@@ -1,5 +1,6 @@
 import type { LiquidGetKycResp } from './LiquidGetKycResp';
-export type GetKycUnionResp = LiquidGetKycResp | {
+import type { PlaidGetKycResp } from './PlaidGetKycResp';
+export type GetKycUnionResp = LiquidGetKycResp | PlaidGetKycResp | {
     [key: string]: string;
 };
 export declare function GetKycUnionRespFromJSON(json: any): GetKycUnionResp;

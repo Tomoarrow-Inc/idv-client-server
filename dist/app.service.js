@@ -28,7 +28,6 @@ let AppService = class AppService {
         return 'Hello World!';
     }
     async issueClientCredentialsToken() {
-        fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app.service.ts:issueClientCredentialsToken:entry', message: 'token endpoint entered', data: { stateHasAccessTokenBefore: this.hasState('access_token') }, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId: 'H1' }) }).catch(() => { });
         const baseUrl = this.resolveBaseUrl();
         const clientAssertion = (0, tomo_idv_node_1.createClientAssertion)({
             client_id: TOMO_IDV_CLIENT_ID,
@@ -54,7 +53,6 @@ let AppService = class AppService {
             scope: scopeVal,
             issuedAt: new Date().toISOString(),
         });
-        fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app.service.ts:issueClientCredentialsToken:afterSetState', message: 'token stored in state', data: { stateHasAccessToken: this.hasState('access_token') }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'post-fix', hypothesisId: 'H1' }) }).catch(() => { });
         return (0, sdk_1.toSnakeCaseKeys)({
             clientId: TOMO_IDV_CLIENT_ID,
             accessToken: accessToken,
@@ -65,7 +63,6 @@ let AppService = class AppService {
     }
     async getKycUS(body) {
         const accessToken = this.getState('access_token');
-        fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app.service.ts:getKycUS', message: 'getState access_token', data: { accessTokenPresent: !!accessToken, stateKeys: this.getStateKeys() }, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId: 'H2' }) }).catch(() => { });
         if (!accessToken) {
             throw new Error('No access token found. Please call /access_token_sdk first.');
         }

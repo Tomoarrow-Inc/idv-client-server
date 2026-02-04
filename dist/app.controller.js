@@ -57,7 +57,12 @@ let AppController = class AppController {
             return await this.appService.getKycJP(body);
         }
         catch (error) {
-            throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
+            if (error?.response && typeof error.response.text === 'function') {
+                const bodyText = await error.response.text();
+                const status = error.response.status || common_1.HttpStatus.BAD_GATEWAY;
+                throw new common_1.HttpException({ message: bodyText || error.message, statusCode: status }, status);
+            }
+            throw new common_1.HttpException(error?.message ?? 'Unknown error', common_1.HttpStatus.BAD_GATEWAY);
         }
     }
     async idvStart(body) {

@@ -19,13 +19,20 @@ import {
     LiquidGetKycRespFromJSONTyped,
     LiquidGetKycRespToJSON,
 } from './LiquidGetKycResp';
+import type { PlaidGetKycResp } from './PlaidGetKycResp';
+import {
+    instanceOfPlaidGetKycResp,
+    PlaidGetKycRespFromJSON,
+    PlaidGetKycRespFromJSONTyped,
+    PlaidGetKycRespToJSON,
+} from './PlaidGetKycResp';
 
 /**
  * @type GetKycUnionResp
  * 
  * @export
  */
-export type GetKycUnionResp = LiquidGetKycResp | { [key: string]: string; };
+export type GetKycUnionResp = LiquidGetKycResp | PlaidGetKycResp | { [key: string]: string; };
 
 export function GetKycUnionRespFromJSON(json: any): GetKycUnionResp {
     return GetKycUnionRespFromJSONTyped(json, false);
@@ -40,6 +47,9 @@ export function GetKycUnionRespFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     if (instanceOfLiquidGetKycResp(json)) {
         return LiquidGetKycRespFromJSONTyped(json, true);
+    }
+    if (instanceOfPlaidGetKycResp(json)) {
+        return PlaidGetKycRespFromJSONTyped(json, true);
     }
 
     return {} as any;
@@ -58,6 +68,9 @@ export function GetKycUnionRespToJSONTyped(value?: GetKycUnionResp | null, ignor
     }
     if (instanceOfLiquidGetKycResp(value)) {
         return LiquidGetKycRespToJSON(value as LiquidGetKycResp);
+    }
+    if (instanceOfPlaidGetKycResp(value)) {
+        return PlaidGetKycRespToJSON(value as PlaidGetKycResp);
     }
 
     return {};

@@ -55,9 +55,6 @@ export class AppService {
   }
 
   async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.service.ts:issueClientCredentialsToken:entry',message:'token endpoint entered',data:{stateHasAccessTokenBefore:this.hasState('access_token')},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-    // #endregion
     const baseUrl = this.resolveBaseUrl();
     const clientAssertion = createClientAssertion({
       client_id: TOMO_IDV_CLIENT_ID,
@@ -87,9 +84,6 @@ export class AppService {
       issuedAt: new Date().toISOString(),
     });
 
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.service.ts:issueClientCredentialsToken:afterSetState',message:'token stored in state',data:{stateHasAccessToken:this.hasState('access_token')},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'H1'})}).catch(()=>{});
-    // #endregion
     return toSnakeCaseKeys({
       clientId: TOMO_IDV_CLIENT_ID,
       accessToken: accessToken,
@@ -101,9 +95,6 @@ export class AppService {
 
   async getKycUS(body: GetKycUsBody): Promise<GetKycUnionResp> {
     const accessToken = this.getState('access_token');
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/203d449b-b9fb-4397-a200-2f7bfd7ddc4c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app.service.ts:getKycUS',message:'getState access_token',data:{accessTokenPresent:!!accessToken,stateKeys:this.getStateKeys()},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
     if (!accessToken) {
       throw new Error('No access token found. Please call /access_token_sdk first.');
     }

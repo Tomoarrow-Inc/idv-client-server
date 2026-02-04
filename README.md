@@ -44,18 +44,56 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
-## Run tests
+## Testing
+
+이 프로젝트에는 idv-server와의 실제 통신을 검증하는 **E2E / 통합 테스트**가 포함됩니다. 이제 모든 E2E는 IdvServerClient를 목 처리하지 않고 **실제 idv-server로 HTTP 요청**을 전송합니다.
+
+테스트는 **저장소 루트의 [dcp](../dcp) 스크립트**로 정의된 `dcp ghci`를 사용해 **컨테이너 내부**에서 실행합니다. `dcp ghci run --rm --entrypoint sh idv-client-server -c "{command}"` 형태로 idv-client-server 서비스 컨테이너 안에서 명령을 수행합니다.
+
+### 필수 환경 변수 (실제 idv-server 호출)
+
+`TOMO_IDV_CLIENT_ID`, `TOMO_IDV_SECRET`, `IDV_BASE_URL` 이 설정되어 있어야 합니다. idv-server-ghci를 사용할 때는 `IDV_BASE_URL=http://idv-server-ghci` 를 사용합니다.
+
+### 테스트 종류
+
+| 구분 | 대상 | idv-server 필요 여부 |
+|------|------|----------------------|
+| 단위 테스트 | `IdvServerClient` 등 일반 단위 | 불필요 (목 사용 가능) |
+| E2E 테스트 | HTTP 엔드포인트 — `/v1/oauth2/token`, `/v1/idv/*` | **필수** (실제 호출) |
+| 통합 테스트 | `src/sdk/idv-client.integration.spec.ts` — SDK가 idv-server를 직접 호출 | **필수** (`RUN_IDV_INTEGRATION_TESTS=true`) |
+
+### 실행 방법 (dcp — 저장소 루트에서)
 
 ```bash
-# unit tests
-$ pnpm run test
+# idv-server-ghci 등 실서버 기동 후 실행
 
-# e2e tests
-$ pnpm run test:e2e
+# 1. 단위 테스트 전체
+./dcp ghci run --rm --entrypoint sh idv-client-server -c "pnpm run test"
 
-# test coverage
-$ pnpm run test:cov
+# 2. E2E 테스트 (실제 idv-server 필요)
+./dcp ghci run --rm --entrypoint sh idv-client-server -c "TOMO_IDV_CLIENT_ID=... TOMO_IDV_SECRET=... IDV_BASE_URL=http://idv-server-ghci pnpm run test:e2e"
+
+# 3. 통합 테스트 (SDK → idv-server)
+./dcp ghci run --rm --entrypoint sh idv-client-server -c "RUN_IDV_INTEGRATION_TESTS=true TOMO_IDV_CLIENT_ID=... TOMO_IDV_SECRET=... IDV_BASE_URL=http://idv-server-ghci pnpm run test -- --testPathPattern=idv-client.integration"
 ```
+
+### 실행 방법 (로컬 pnpm — idv-client-server 디렉터리에서)
+
+```bash
+cd idv-client-server
+# idv-server 기동 및 env 설정 후 실행
+TOMO_IDV_CLIENT_ID=... TOMO_IDV_SECRET=... IDV_BASE_URL=http://idv-server-ghci pnpm run test:e2e
+RUN_IDV_INTEGRATION_TESTS=true TOMO_IDV_CLIENT_ID=... TOMO_IDV_SECRET=... IDV_BASE_URL=http://idv-server-ghci pnpm run test -- --testPathPattern=idv-client.integration
+```
+
+### E2E에서 검증하는 엔드포인트 (실제 호출)
+
+- `POST /v1/oauth2/token` — 액세스 토큰 발급
+- `POST /v1/idv/us/start` — US IDV 시작
+- `POST /v1/idv/us/kyc/get` — US KYC 조회 (토큰 필요)
+- `POST /v1/idv/jp/start` — JP IDV 시작
+- `POST /v1/idv/jp/kyc/get` — JP KYC 조회 (토큰 필요)
+- `POST /v1/idv/start` — 공통 IDV 시작 (토큰 필요)
 
 ## Deployment
 

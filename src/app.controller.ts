@@ -56,8 +56,16 @@ export class AppController {
   async getKycJP(@Body() body: GetKycJpBody): Promise<GetKycUnionResp> {
     try {
       return await this.appService.getKycJP(body);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_GATEWAY);
+    } catch (error: any) {
+      if (error?.response && typeof error.response.text === 'function') {
+        const bodyText = await error.response.text();
+        const status = error.response.status || HttpStatus.BAD_GATEWAY;
+        throw new HttpException(
+          { message: bodyText || error.message, statusCode: status },
+          status,
+        );
+      }
+      throw new HttpException(error?.message ?? 'Unknown error', HttpStatus.BAD_GATEWAY);
     }
   }
 
