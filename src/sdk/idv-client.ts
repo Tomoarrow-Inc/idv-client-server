@@ -1,11 +1,11 @@
-import { DefaultApi } from './generated/idv-client-server/apis/DefaultApi';
-import { Configuration } from './generated/idv-client-server/runtime';
-import type { TokenResponse } from './generated/idv-client-server/models/TokenResponse';
-import type { GetKycUnionResp } from './generated/idv-client-server/models/GetKycUnionResp';
-import type { LiquidIntegratedAppResponse } from './generated/idv-client-server/models/LiquidIntegratedAppResponse';
-import type { PlaidStartIdvResp } from './generated/idv-client-server/models/PlaidStartIdvResp';
-import type { StartIdvResp } from './generated/idv-client-server/models/StartIdvResp';
-import { Country } from './generated/idv-client-server/models/Country';
+import { DefaultApi } from './generated/apis/DefaultApi';
+import { Configuration } from './generated/runtime';
+import type { TokenResponse } from './generated/models/TokenResponse';
+import type { GetKycUnionResp } from './api-contract';
+import type { LiquidIntegratedAppResponse } from './generated/models/LiquidIntegratedAppResponse';
+import type { PlaidStartIdvResp } from './generated/models/PlaidStartIdvResp';
+import type { StartIdvResp } from './generated/models/StartIdvResp';
+import { Country } from './generated/models/Country';
 import type {
   GetKycUsBody,
   GetKycJpBody,

@@ -18,7 +18,6 @@ import type {
   EitherStringValue,
   GetKycReq,
   GetKycResp,
-  GetKycUnionResp,
   LiquidGetKycReq,
   LiquidIntegratedAppResponse,
   LiquidPutKycReq,
@@ -53,8 +52,6 @@ import {
     GetKycReqToJSON,
     GetKycRespFromJSON,
     GetKycRespToJSON,
-    GetKycUnionRespFromJSON,
-    GetKycUnionRespToJSON,
     LiquidGetKycReqFromJSON,
     LiquidGetKycReqToJSON,
     LiquidIntegratedAppResponseFromJSON,
@@ -307,7 +304,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
-    async v1IdvCaKycGetPostRaw(requestParameters: V1IdvCaKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetKycUnionResp>> {
+    async v1IdvCaKycGetPostRaw(requestParameters: V1IdvCaKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: string; }>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -326,12 +323,12 @@ export class DefaultApi extends runtime.BaseAPI {
             body: PlaidGetKycReqToJSON(requestParameters['plaidGetKycReq']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetKycUnionRespFromJSON(jsonValue));
+        return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async v1IdvCaKycGetPost(requestParameters: V1IdvCaKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetKycUnionResp> {
+    async v1IdvCaKycGetPost(requestParameters: V1IdvCaKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: string; }> {
         const response = await this.v1IdvCaKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -700,7 +697,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
-    async v1IdvJpKycGetPostRaw(requestParameters: V1IdvJpKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetKycUnionResp>> {
+    async v1IdvJpKycGetPostRaw(requestParameters: V1IdvJpKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: string; }>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -719,12 +716,12 @@ export class DefaultApi extends runtime.BaseAPI {
             body: LiquidGetKycReqToJSON(requestParameters['liquidGetKycReq']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetKycUnionRespFromJSON(jsonValue));
+        return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async v1IdvJpKycGetPost(requestParameters: V1IdvJpKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetKycUnionResp> {
+    async v1IdvJpKycGetPost(requestParameters: V1IdvJpKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: string; }> {
         const response = await this.v1IdvJpKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -1013,7 +1010,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
-    async v1IdvUkKycGetPostRaw(requestParameters: V1IdvUkKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetKycUnionResp>> {
+    async v1IdvUkKycGetPostRaw(requestParameters: V1IdvUkKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: string; }>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -1032,12 +1029,12 @@ export class DefaultApi extends runtime.BaseAPI {
             body: PlaidGetKycReqToJSON(requestParameters['plaidGetKycReq']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetKycUnionRespFromJSON(jsonValue));
+        return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async v1IdvUkKycGetPost(requestParameters: V1IdvUkKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetKycUnionResp> {
+    async v1IdvUkKycGetPost(requestParameters: V1IdvUkKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: string; }> {
         const response = await this.v1IdvUkKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -1156,7 +1153,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
-    async v1IdvUsKycGetPostRaw(requestParameters: V1IdvUsKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetKycUnionResp>> {
+    async v1IdvUsKycGetPostRaw(requestParameters: V1IdvUsKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: string; }>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -1175,12 +1172,12 @@ export class DefaultApi extends runtime.BaseAPI {
             body: PlaidGetKycReqToJSON(requestParameters['plaidGetKycReq']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GetKycUnionRespFromJSON(jsonValue));
+        return new runtime.JSONApiResponse<any>(response);
     }
 
     /**
      */
-    async v1IdvUsKycGetPost(requestParameters: V1IdvUsKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetKycUnionResp> {
+    async v1IdvUsKycGetPost(requestParameters: V1IdvUsKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: string; }> {
         const response = await this.v1IdvUsKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
     }

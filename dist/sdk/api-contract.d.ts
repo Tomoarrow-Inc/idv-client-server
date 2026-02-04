@@ -1,3 +1,4 @@
+export type GetKycUnionResp = Record<string, string>;
 export type GetKycUsBody = {
     user_id: string;
     fields?: string[];

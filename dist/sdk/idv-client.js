@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IdvServerClient = void 0;
-const DefaultApi_1 = require("./generated/idv-client-server/apis/DefaultApi");
-const runtime_1 = require("./generated/idv-client-server/runtime");
-const Country_1 = require("./generated/idv-client-server/models/Country");
+const DefaultApi_1 = require("./generated/apis/DefaultApi");
+const runtime_1 = require("./generated/runtime");
+const Country_1 = require("./generated/models/Country");
 const case_converter_1 = require("./case-converter");
 function resolveBaseUrl() {
     const raw = process.env.IDV_BASE_URL ?? process.env.IDV_SERVER ?? process.env.IDV_BASEURL ?? 'http://idv-server-ghci';

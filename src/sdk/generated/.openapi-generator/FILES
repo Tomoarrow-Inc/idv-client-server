@@ -8,9 +8,7 @@ models/EitherStringValueOneOf.ts
 models/EitherStringValueOneOf1.ts
 models/GetKycReq.ts
 models/GetKycResp.ts
-models/GetKycUnionResp.ts
 models/LiquidGetKycReq.ts
-models/LiquidGetKycResp.ts
 models/LiquidIdvField.ts
 models/LiquidIntegratedAppResponse.ts
 models/LiquidPutKycReq.ts
@@ -19,7 +17,6 @@ models/LiquidStartIdvRequest.ts
 models/LoginTicketRequest.ts
 models/LoginTicketResponse.ts
 models/PlaidGetKycReq.ts
-models/PlaidGetKycResp.ts
 models/PlaidIdvField.ts
 models/PlaidPutKycReq.ts
 models/PlaidSessionTokenRequest.ts
