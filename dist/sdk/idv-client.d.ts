@@ -4,7 +4,11 @@ import type { GetKycUnionResp } from './api-contract';
 import type { LiquidIntegratedAppResponse } from './generated/models/LiquidIntegratedAppResponse';
 import type { PlaidStartIdvResp } from './generated/models/PlaidStartIdvResp';
 import type { StartIdvResp } from './generated/models/StartIdvResp';
-import type { GetKycUsBody, GetKycJpBody, IdvUsStartBody, IdvJpStartBody, IdvStartBody } from './api-contract';
+import type { TomoIdvStartRes } from './generated/models/TomoIdvStartRes';
+import type { TomoIdvIssueTokenRes } from './generated/models/TomoIdvIssueTokenRes';
+import type { TomoIdvMockStartRes } from './generated/models/TomoIdvMockStartRes';
+import type { TomoIdvMockIssueTokenRes } from './generated/models/TomoIdvMockIssueTokenRes';
+import type { GetKycUsBody, GetKycJpBody, IdvUsStartBody, IdvJpStartBody, IdvStartBody, IdvCnStartBody, IdvCnTokenBody, IdvCnResultBody, IdvCnMockStartBody, IdvCnMockTokenBody, IdvCnMockResultBody } from './api-contract';
 export declare class IdvServerClient {
     private readonly api;
     constructor(config?: Configuration);
@@ -20,4 +24,10 @@ export declare class IdvServerClient {
     idvStartJP(accessToken: string, body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse>;
     idvStartUS(accessToken: string, body: IdvUsStartBody): Promise<PlaidStartIdvResp>;
     idvStart(accessToken: string, body: IdvStartBody): Promise<StartIdvResp>;
+    idvStartCN(accessToken: string, body: IdvCnStartBody): Promise<TomoIdvStartRes>;
+    idvTokenCN(accessToken: string, body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes>;
+    idvResultCN(accessToken: string, body: IdvCnResultBody): Promise<any>;
+    idvMockStartCN(accessToken: string, body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes>;
+    idvMockTokenCN(accessToken: string, body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes>;
+    idvMockResultCN(accessToken: string, body: IdvCnMockResultBody): Promise<any>;
 }

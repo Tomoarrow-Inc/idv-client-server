@@ -3,8 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.IdvServerClient = void 0;
 const DefaultApi_1 = require("./generated/apis/DefaultApi");
 const runtime_1 = require("./generated/runtime");
-const Country_1 = require("./generated/models/Country");
-const case_converter_1 = require("./case-converter");
 function resolveBaseUrl() {
     const raw = process.env.IDV_BASE_URL ?? process.env.IDV_SERVER ?? process.env.IDV_BASEURL ?? 'http://idv-server-ghci';
     return raw.replace(/\/+$/, '');
@@ -12,71 +10,111 @@ function resolveBaseUrl() {
 function createConfiguration() {
     return new runtime_1.Configuration({ basePath: resolveBaseUrl() });
 }
-function countryFromString(s) {
-    const u = s?.toUpperCase();
-    return u === 'US' ? Country_1.Country.Us : u === 'UK' ? Country_1.Country.Uk : u === 'CA' ? Country_1.Country.Ca : u === 'JP' ? Country_1.Country.Jp : Country_1.Country.Unknown;
-}
 class IdvServerClient {
     api;
     constructor(config) {
         this.api = new DefaultApi_1.DefaultApi(config ?? createConfiguration());
     }
     async issueToken(params) {
-        const result = await this.api.v1Oauth2TokenPost({
+        return this.api.v1Oauth2TokenPost({
             clientAssertion: params.clientAssertion,
             clientAssertionType: params.clientAssertionType,
             grantType: params.grantType,
             resource: params.resource,
             scope: params.scope,
         });
-        return (0, case_converter_1.toSnakeCaseKeys)(result);
     }
     async getKycUS(accessToken, body) {
-        const result = await this.api.v1IdvUsKycGetPost({
+        return this.api.v1IdvUsKycGetPost({
             authorization: `Bearer ${accessToken}`,
             plaidGetKycReq: { userId: body.user_id, fields: body.fields },
         });
-        return (0, case_converter_1.toSnakeCaseKeys)(result);
     }
     async getKycJP(accessToken, body) {
-        const result = await this.api.v1IdvJpKycGetPost({
+        return this.api.v1IdvJpKycGetPost({
             authorization: `Bearer ${accessToken}`,
             liquidGetKycReq: { userId: body.user_id, fields: body.fields },
         });
-        return (0, case_converter_1.toSnakeCaseKeys)(result);
     }
     async idvStartJP(accessToken, body) {
-        const result = await this.api.v1IdvJpStartPost({
+        return this.api.v1IdvJpStartPost({
             authorization: `Bearer ${accessToken}`,
             liquidStartIdvRequest: {
                 userId: body.user_id,
-                callbackUrl: body.callback_url ?? 'idvexpo://verify',
+                callbackUrl: body.callback_url,
             },
         });
-        return (0, case_converter_1.toSnakeCaseKeys)(result);
     }
     async idvStartUS(accessToken, body) {
-        const result = await this.api.v1IdvUsStartPost({
+        return this.api.v1IdvUsStartPost({
             authorization: `Bearer ${accessToken}`,
             plaidStartIdvRequest: {
                 userId: body.user_id,
-                email: body.email ?? 'chanhee@tomoarrow.com',
-                callbackUrl: body.callback_url ?? 'idvexpo://verify',
+                email: body.email,
+                callbackUrl: body.callback_url,
             },
         });
-        return (0, case_converter_1.toSnakeCaseKeys)(result);
     }
     async idvStart(accessToken, body) {
-        const result = await this.api.v1IdvStartPost({
+        return this.api.v1IdvStartPost({
             authorization: `Bearer ${accessToken}`,
             startIdvReq: {
                 userId: body.user_id,
                 callbackUrl: body.callback_url,
                 email: body.email,
-                country: countryFromString(body.country),
+                country: body.country,
             },
         });
-        return (0, case_converter_1.toSnakeCaseKeys)(result);
+    }
+    async idvStartCN(accessToken, body) {
+        return this.api.v1IdvCnStartPost({
+            authorization: `Bearer ${accessToken}`,
+            tomoIdvStartReq: {
+                userId: body.user_id,
+                redirectUrl: body.redirect_url,
+            },
+        });
+    }
+    async idvTokenCN(accessToken, body) {
+        return this.api.v1IdvCnTokenPost({
+            authorization: `Bearer ${accessToken}`,
+            tomoIdvIssueTokenReq: {
+                userId: body.user_id,
+            },
+        });
+    }
+    async idvResultCN(accessToken, body) {
+        return this.api.v1IdvCnResultPost({
+            authorization: `Bearer ${accessToken}`,
+            tomoIdvGetResultReq: {
+                userId: body.user_id,
+            },
+        });
+    }
+    async idvMockStartCN(accessToken, body) {
+        return this.api.v1IdvCnMockStartPost({
+            authorization: `Bearer ${accessToken}`,
+            tomoIdvMockStartReq: {
+                userId: body.user_id,
+                redirectUrl: body.redirect_url,
+            },
+        });
+    }
+    async idvMockTokenCN(accessToken, body) {
+        return this.api.v1IdvCnMockTokenPost({
+            authorization: `Bearer ${accessToken}`,
+            tomoIdvMockIssueTokenReq: {
+                userId: body.user_id,
+            },
+        });
+    }
+    async idvMockResultCN(accessToken, body) {
+        return this.api.v1IdvCnMockResultPost({
+            authorization: `Bearer ${accessToken}`,
+            tomoIdvMockGetResultReq: {
+                userId: body.user_id,
+            },
+        });
     }
 }
 exports.IdvServerClient = IdvServerClient;

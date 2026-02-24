@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Country = exports.IdvServerClient = exports.buildTokenRequest = exports.createClientAssertion = exports.toCamelCaseKeys = exports.toSnakeCaseKeys = void 0;
+exports.LiquidIdvField = exports.PlaidIdvField = exports.Country = exports.IdvServerClient = exports.buildTokenRequest = exports.createClientAssertion = exports.toCamelCaseKeys = exports.toSnakeCaseKeys = void 0;
 var case_converter_1 = require("./case-converter");
 Object.defineProperty(exports, "toSnakeCaseKeys", { enumerable: true, get: function () { return case_converter_1.toSnakeCaseKeys; } });
 Object.defineProperty(exports, "toCamelCaseKeys", { enumerable: true, get: function () { return case_converter_1.toCamelCaseKeys; } });
@@ -11,4 +11,8 @@ var idv_client_1 = require("./idv-client");
 Object.defineProperty(exports, "IdvServerClient", { enumerable: true, get: function () { return idv_client_1.IdvServerClient; } });
 var Country_1 = require("./generated/models/Country");
 Object.defineProperty(exports, "Country", { enumerable: true, get: function () { return Country_1.Country; } });
+var PlaidIdvField_1 = require("./generated/models/PlaidIdvField");
+Object.defineProperty(exports, "PlaidIdvField", { enumerable: true, get: function () { return PlaidIdvField_1.PlaidIdvField; } });
+var LiquidIdvField_1 = require("./generated/models/LiquidIdvField");
+Object.defineProperty(exports, "LiquidIdvField", { enumerable: true, get: function () { return LiquidIdvField_1.LiquidIdvField; } });
 //# sourceMappingURL=index.js.map

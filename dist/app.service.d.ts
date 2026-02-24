@@ -1,35 +1,29 @@
 import { StateService } from './state.service';
 import { IdvServerClient } from './idvServer/idvServerClient';
-import { type GetKycUsBody, type GetKycJpBody, type IdvUsStartBody, type IdvJpStartBody, type IdvStartBody, type GetKycUnionResp, type PlaidStartIdvResp, type LiquidIntegratedAppResponse, type StartIdvResp } from './sdk';
-export type RegistrationResponseBody = {
-    client_id: string;
-};
-export type TokenResponseBody = {
-    access_token: string;
-    token_type: string;
-    expires_in: number;
-    scope?: string;
-    scopeGranted?: string;
-};
-export interface IssueAccessTokenResult {
-    clientId: string;
-    accessToken: string;
-    tokenType: string;
-    expiresIn: number;
-    scope: string | null;
-    claims?: Record<string, unknown>;
-}
+import type { TokenResponse } from './sdk';
+import type { TomoIdvStartRes } from './sdk/generated/models/TomoIdvStartRes';
+import type { TomoIdvIssueTokenRes } from './sdk/generated/models/TomoIdvIssueTokenRes';
+import type { TomoIdvMockStartRes } from './sdk/generated/models/TomoIdvMockStartRes';
+import type { TomoIdvMockIssueTokenRes } from './sdk/generated/models/TomoIdvMockIssueTokenRes';
+import type { GetKycUsBody, GetKycJpBody, IdvUsStartBody, IdvJpStartBody, IdvStartBody, IdvCnStartBody, IdvCnTokenBody, IdvCnResultBody, IdvCnMockStartBody, IdvCnMockTokenBody, IdvCnMockResultBody, GetKycUnionResp, PlaidStartIdvResp, LiquidIntegratedAppResponse, StartIdvResp } from './sdk';
 export declare class AppService {
     private readonly stateService;
     private readonly idvServerClient;
     constructor(stateService: StateService, idvServerClient: IdvServerClient);
     getHello(): string;
-    issueClientCredentialsToken(): Promise<IssueAccessTokenResult>;
+    issueClientCredentialsToken(): Promise<TokenResponse>;
     getKycUS(body: GetKycUsBody): Promise<GetKycUnionResp>;
     getKycJP(body: GetKycJpBody): Promise<GetKycUnionResp>;
     idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse>;
     idvStartUS(body: IdvUsStartBody): Promise<PlaidStartIdvResp>;
     idvStart(body: IdvStartBody): Promise<StartIdvResp>;
+    idvStartCN(body: IdvCnStartBody): Promise<TomoIdvStartRes>;
+    idvTokenCN(body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes>;
+    idvResultCN(body: IdvCnResultBody): Promise<any>;
+    idvMockStartCN(body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes>;
+    idvMockTokenCN(body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes>;
+    idvMockResultCN(body: IdvCnMockResultBody): Promise<any>;
+    private requireAccessToken;
     private resolveBaseUrl;
     private safeFetchJson;
     setState(key: string, value: any): void;

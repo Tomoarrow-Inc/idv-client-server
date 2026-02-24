@@ -14,7 +14,6 @@ const common_1 = require("@nestjs/common");
 const state_service_1 = require("./state.service");
 const tomo_idv_node_1 = require("./sdk/tomo-idv-node");
 const idvServerClient_1 = require("./idvServer/idvServerClient");
-const sdk_1 = require("./sdk");
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET;
 let AppService = class AppService {
@@ -41,60 +40,55 @@ let AppService = class AppService {
             scope: 'idv.read',
             resource: `https://api.tomopayment.com/v1/idv`,
         });
-        const accessToken = tokenResponse.access_token ?? tokenResponse.accessToken;
-        const tokenType = tokenResponse.token_type ?? tokenResponse.tokenType;
-        const expiresIn = tokenResponse.expires_in ?? tokenResponse.expiresIn;
-        const scopeVal = tokenResponse.scope ?? null;
-        this.setState('access_token', accessToken);
+        this.setState('access_token', tokenResponse.accessToken);
         this.setState('token_info', {
             clientId: TOMO_IDV_CLIENT_ID,
-            tokenType: tokenType,
-            expiresIn: expiresIn,
-            scope: scopeVal,
+            tokenType: tokenResponse.tokenType,
+            expiresIn: tokenResponse.expiresIn,
+            scope: tokenResponse.scope ?? null,
             issuedAt: new Date().toISOString(),
         });
-        return (0, sdk_1.toSnakeCaseKeys)({
-            clientId: TOMO_IDV_CLIENT_ID,
-            accessToken: accessToken,
-            tokenType: tokenType,
-            expiresIn: expiresIn,
-            scope: scopeVal,
-        });
+        return tokenResponse;
     }
     async getKycUS(body) {
-        const accessToken = this.getState('access_token');
-        if (!accessToken) {
-            throw new Error('No access token found. Please call /access_token_sdk first.');
-        }
-        return this.idvServerClient.getKycUS(accessToken, body);
+        return this.idvServerClient.getKycUS(this.requireAccessToken(), body);
     }
     async getKycJP(body) {
-        const accessToken = this.getState('access_token');
-        if (!accessToken) {
-            throw new Error('No access token found. Please call /access_token_sdk first.');
-        }
-        return this.idvServerClient.getKycJP(accessToken, body);
+        return this.idvServerClient.getKycJP(this.requireAccessToken(), body);
     }
     async idvStartJP(body) {
-        const accessToken = this.getState('access_token');
-        if (!accessToken) {
-            throw new Error('No access token found. Please call /access_token_sdk first.');
-        }
-        return this.idvServerClient.idvStartJP(accessToken, body);
+        return this.idvServerClient.idvStartJP(this.requireAccessToken(), body);
     }
     async idvStartUS(body) {
-        const accessToken = this.getState('access_token');
-        if (!accessToken) {
-            throw new Error('No access token found. Please call /access_token_sdk first.');
-        }
-        return this.idvServerClient.idvStartUS(accessToken, body);
+        return this.idvServerClient.idvStartUS(this.requireAccessToken(), body);
     }
     async idvStart(body) {
+        return this.idvServerClient.idvStart(this.requireAccessToken(), body);
+    }
+    async idvStartCN(body) {
+        return this.idvServerClient.idvStartCN(this.requireAccessToken(), body);
+    }
+    async idvTokenCN(body) {
+        return this.idvServerClient.idvTokenCN(this.requireAccessToken(), body);
+    }
+    async idvResultCN(body) {
+        return this.idvServerClient.idvResultCN(this.requireAccessToken(), body);
+    }
+    async idvMockStartCN(body) {
+        return this.idvServerClient.idvMockStartCN(this.requireAccessToken(), body);
+    }
+    async idvMockTokenCN(body) {
+        return this.idvServerClient.idvMockTokenCN(this.requireAccessToken(), body);
+    }
+    async idvMockResultCN(body) {
+        return this.idvServerClient.idvMockResultCN(this.requireAccessToken(), body);
+    }
+    requireAccessToken() {
         const accessToken = this.getState('access_token');
         if (!accessToken) {
-            throw new Error('No access token found. Please call /access_token_sdk first.');
+            throw new Error('No access token found. Please call /v1/oauth2/token first.');
         }
-        return this.idvServerClient.idvStart(accessToken, body);
+        return accessToken;
     }
     resolveBaseUrl() {
         const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';

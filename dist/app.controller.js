@@ -15,6 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
+const runtime_1 = require("./sdk/generated/runtime");
+async function rethrow(error) {
+    if (error instanceof runtime_1.ResponseError) {
+        const status = error.response.status || common_1.HttpStatus.BAD_GATEWAY;
+        let body;
+        try {
+            body = await error.response.text();
+        }
+        catch { }
+        throw new common_1.HttpException({ statusCode: status, message: body || error.message }, status);
+    }
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    throw new common_1.HttpException(msg, common_1.HttpStatus.BAD_GATEWAY);
+}
 let AppController = class AppController {
     appService;
     constructor(appService) {
@@ -24,53 +38,96 @@ let AppController = class AppController {
         try {
             return await this.appService.issueClientCredentialsToken();
         }
-        catch (error) {
-            throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
+        catch (e) {
+            return rethrow(e);
         }
     }
     async idvStartUS(body) {
         try {
             return await this.appService.idvStartUS(body);
         }
-        catch (error) {
-            throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
+        catch (e) {
+            return rethrow(e);
         }
     }
     async getKycUS(body) {
         try {
             return await this.appService.getKycUS(body);
         }
-        catch (error) {
-            throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
+        catch (e) {
+            return rethrow(e);
         }
     }
     async idvStartJP(body) {
         try {
             return await this.appService.idvStartJP(body);
         }
-        catch (error) {
-            throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
+        catch (e) {
+            return rethrow(e);
         }
     }
     async getKycJP(body) {
         try {
             return await this.appService.getKycJP(body);
         }
-        catch (error) {
-            if (error?.response && typeof error.response.text === 'function') {
-                const bodyText = await error.response.text();
-                const status = error.response.status || common_1.HttpStatus.BAD_GATEWAY;
-                throw new common_1.HttpException({ message: bodyText || error.message, statusCode: status }, status);
-            }
-            throw new common_1.HttpException(error?.message ?? 'Unknown error', common_1.HttpStatus.BAD_GATEWAY);
+        catch (e) {
+            return rethrow(e);
         }
     }
     async idvStart(body) {
         try {
             return await this.appService.idvStart(body);
         }
-        catch (error) {
-            throw new common_1.HttpException(error.message, common_1.HttpStatus.BAD_GATEWAY);
+        catch (e) {
+            return rethrow(e);
+        }
+    }
+    async idvStartCN(body) {
+        try {
+            return await this.appService.idvStartCN(body);
+        }
+        catch (e) {
+            return rethrow(e);
+        }
+    }
+    async idvTokenCN(body) {
+        try {
+            return await this.appService.idvTokenCN(body);
+        }
+        catch (e) {
+            return rethrow(e);
+        }
+    }
+    async idvResultCN(body) {
+        try {
+            return await this.appService.idvResultCN(body);
+        }
+        catch (e) {
+            return rethrow(e);
+        }
+    }
+    async idvMockStartCN(body) {
+        try {
+            return await this.appService.idvMockStartCN(body);
+        }
+        catch (e) {
+            return rethrow(e);
+        }
+    }
+    async idvMockTokenCN(body) {
+        try {
+            return await this.appService.idvMockTokenCN(body);
+        }
+        catch (e) {
+            return rethrow(e);
+        }
+    }
+    async idvMockResultCN(body) {
+        try {
+            return await this.appService.idvMockResultCN(body);
+        }
+        catch (e) {
+            return rethrow(e);
         }
     }
 };
@@ -116,6 +173,48 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "idvStart", null);
+__decorate([
+    (0, common_1.Post)('/v1/idv/cn/start'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "idvStartCN", null);
+__decorate([
+    (0, common_1.Post)('/v1/idv/cn/token'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "idvTokenCN", null);
+__decorate([
+    (0, common_1.Post)('/v1/idv/cn/result'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "idvResultCN", null);
+__decorate([
+    (0, common_1.Post)('/v1/idv/cn/mock/start'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "idvMockStartCN", null);
+__decorate([
+    (0, common_1.Post)('/v1/idv/cn/mock/token'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "idvMockTokenCN", null);
+__decorate([
+    (0, common_1.Post)('/v1/idv/cn/mock/result'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "idvMockResultCN", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService])
