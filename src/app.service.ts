@@ -2,43 +2,32 @@ import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion } from './sdk/tomo-idv-node';
 import { IdvServerClient } from './idvServer/idvServerClient';
-import {
-  toSnakeCaseKeys,
-  type GetKycUsBody,
-  type GetKycJpBody,
-  type IdvUsStartBody,
-  type IdvJpStartBody,
-  type IdvStartBody,
-  type GetKycUnionResp,
-  type PlaidStartIdvResp,
-  type LiquidIntegratedAppResponse,
-  type StartIdvResp,
+import type { TokenResponse } from './sdk';
+import type { TomoIdvStartRes } from './sdk/generated/models/TomoIdvStartRes';
+import type { TomoIdvIssueTokenRes } from './sdk/generated/models/TomoIdvIssueTokenRes';
+import type { TomoIdvMockStartRes } from './sdk/generated/models/TomoIdvMockStartRes';
+import type { TomoIdvMockIssueTokenRes } from './sdk/generated/models/TomoIdvMockIssueTokenRes';
+import type {
+  GetKycUsBody,
+  GetKycJpBody,
+  IdvUsStartBody,
+  IdvJpStartBody,
+  IdvStartBody,
+  IdvCnStartBody,
+  IdvCnTokenBody,
+  IdvCnResultBody,
+  IdvCnMockStartBody,
+  IdvCnMockTokenBody,
+  IdvCnMockResultBody,
+  GetKycUnionResp,
+  PlaidStartIdvResp,
+  LiquidIntegratedAppResponse,
+  StartIdvResp,
 } from './sdk';
-
-export type RegistrationResponseBody = {
-  client_id: string;
-};
-
-export type TokenResponseBody = {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  scope?: string;
-  scopeGranted?: string;
-};
 
 type SafeFetchResult<T> =
   | { ok: true; data: T }
   | { ok: false; status?: number; message: string };
-
-export interface IssueAccessTokenResult {
-  clientId: string;
-  accessToken: string;
-  tokenType: string;
-  expiresIn: number;
-  scope: string | null;
-  claims?: Record<string, unknown>;
-}
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
@@ -54,7 +43,7 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async issueClientCredentialsToken(): Promise<IssueAccessTokenResult> {
+  async issueClientCredentialsToken(): Promise<TokenResponse> {
     const baseUrl = this.resolveBaseUrl();
     const clientAssertion = createClientAssertion({
       client_id: TOMO_IDV_CLIENT_ID,
@@ -70,123 +59,71 @@ export class AppService {
       resource: `https://api.tomopayment.com/v1/idv`,
     });
 
-    const accessToken = (tokenResponse as { access_token?: string }).access_token ?? (tokenResponse as { accessToken?: string }).accessToken;
-    const tokenType = (tokenResponse as { token_type?: string }).token_type ?? (tokenResponse as { tokenType?: string }).tokenType;
-    const expiresIn = (tokenResponse as { expires_in?: number }).expires_in ?? (tokenResponse as { expiresIn?: number }).expiresIn;
-    const scopeVal = (tokenResponse as { scope?: string }).scope ?? null;
-
-    this.setState('access_token', accessToken);
+    this.setState('access_token', tokenResponse.accessToken);
     this.setState('token_info', {
       clientId: TOMO_IDV_CLIENT_ID,
-      tokenType: tokenType,
-      expiresIn: expiresIn,
-      scope: scopeVal,
+      tokenType: tokenResponse.tokenType,
+      expiresIn: tokenResponse.expiresIn,
+      scope: tokenResponse.scope ?? null,
       issuedAt: new Date().toISOString(),
     });
 
-    return toSnakeCaseKeys({
-      clientId: TOMO_IDV_CLIENT_ID,
-      accessToken: accessToken,
-      tokenType: tokenType,
-      expiresIn: expiresIn,
-      scope: scopeVal,
-    }) as IssueAccessTokenResult;
+    return tokenResponse;
   }
 
   async getKycUS(body: GetKycUsBody): Promise<GetKycUnionResp> {
-    const accessToken = this.getState('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found. Please call /access_token_sdk first.');
-    }
-    return this.idvServerClient.getKycUS(accessToken, body);
+    return this.idvServerClient.getKycUS(this.requireAccessToken(), body);
   }
 
   async getKycJP(body: GetKycJpBody): Promise<GetKycUnionResp> {
-    const accessToken = this.getState('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found. Please call /access_token_sdk first.');
-    }
-    return this.idvServerClient.getKycJP(accessToken, body);
+    return this.idvServerClient.getKycJP(this.requireAccessToken(), body);
   }
 
   async idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
-    const accessToken = this.getState('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found. Please call /access_token_sdk first.');
-    }
-    return this.idvServerClient.idvStartJP(accessToken, body);
+    return this.idvServerClient.idvStartJP(this.requireAccessToken(), body);
   }
 
   async idvStartUS(body: IdvUsStartBody): Promise<PlaidStartIdvResp> {
-    const accessToken = this.getState('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found. Please call /access_token_sdk first.');
-    }
-    return this.idvServerClient.idvStartUS(accessToken, body);
+    return this.idvServerClient.idvStartUS(this.requireAccessToken(), body);
   }
 
   async idvStart(body: IdvStartBody): Promise<StartIdvResp> {
-    const accessToken = this.getState('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found. Please call /access_token_sdk first.');
-    }
-    return this.idvServerClient.idvStart(accessToken, body);
+    return this.idvServerClient.idvStart(this.requireAccessToken(), body);
   }
 
-  // async issueClientCredentialsTokenOld(): Promise<IssueAccessTokenResult> {
-  //   try {
-  //     const baseUrl = this.resolveBaseUrl();
-  //     // const asPublicKey = this.resolveAuthorizationServerKey();
+  // ── CN (TomoIdv) ──
 
-  //     console.log('baseUrl', baseUrl);
+  async idvStartCN(body: IdvCnStartBody): Promise<TomoIdvStartRes> {
+    return this.idvServerClient.idvStartCN(this.requireAccessToken(), body);
+  }
 
-  //     // TODO:  SDK로 만들어줘야함 start ---
-      
-  //     // const clientKeys = this.generateEcP256();
-  //     // const kid = this.computeJwkThumbprint(publicJwk);
-  //     // console.log('kid', kid);
-      
-  //     // base64Url로 인코딩된 TOMO_IDV_SECRET를 JWK로 변환
-  //     const privateJwk = this.decodeBase64UrlToJwk(TOMO_IDV_SECRET);
-  //     const privateKey = createPrivateKey({ key: privateJwk, format: 'jwk' });
+  async idvTokenCN(body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes> {
+    return this.idvServerClient.idvTokenCN(this.requireAccessToken(), body);
+  }
 
-  //     const assertion = this.createClientAssertion(
-  //       privateKey,
-  //       TOMO_IDV_CLIENT_ID,
-  //       `${baseUrl}/v1/oauth2/token`,
-  //     );
+  async idvResultCN(body: IdvCnResultBody): Promise<any> {
+    return this.idvServerClient.idvResultCN(this.requireAccessToken(), body);
+  }
 
-  //     // SDK로 만들어줘야함 end ---
+  async idvMockStartCN(body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes> {
+    return this.idvServerClient.idvMockStartCN(this.requireAccessToken(), body);
+  }
 
-  //     const tokenResponse = await this.requestAccessToken(baseUrl, assertion);
-  //     const scope = tokenResponse.scope ?? tokenResponse.scopeGranted ?? null;
-  //     // const claims = this.verifyJwt(tokenResponse.access_token, createPublicKey({ key: publicJwk, format: 'jwk' }));
+  async idvMockTokenCN(body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes> {
+    return this.idvServerClient.idvMockTokenCN(this.requireAccessToken(), body);
+  }
 
-  //     const result = {
-  //       clientId: TOMO_IDV_CLIENT_ID,
-  //       accessToken: tokenResponse.access_token,
-  //       tokenType: tokenResponse.token_type,
-  //       expiresIn: tokenResponse.expires_in,
-  //       scope,
-  //       // claims,
-  //     };
+  async idvMockResultCN(body: IdvCnMockResultBody): Promise<any> {
+    return this.idvServerClient.idvMockResultCN(this.requireAccessToken(), body);
+  }
 
-  //     // access_token을 State에 저장
-  //     this.setState('access_token', tokenResponse.access_token);
-  //     this.setState('token_info', {
-  //       clientId: TOMO_IDV_CLIENT_ID,
-  //       tokenType: tokenResponse.token_type,
-  //       expiresIn: tokenResponse.expires_in,
-  //       scope,
-  //       issuedAt: new Date().toISOString()
-  //     });
-
-  //     return result;
-
-  //   } catch (error) {
-  //     throw new Error(`Failed to issue client credentials token: ${error}`);
-  //   }
-  // }
+  private requireAccessToken(): string {
+    const accessToken = this.getState('access_token');
+    if (!accessToken) {
+      throw new Error('No access token found. Please call /v1/oauth2/token first.');
+    }
+    return accessToken;
+  }
 
   private resolveBaseUrl(): string {
     const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';

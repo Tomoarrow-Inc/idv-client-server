@@ -5,15 +5,23 @@ import type { GetKycUnionResp } from './api-contract';
 import type { LiquidIntegratedAppResponse } from './generated/models/LiquidIntegratedAppResponse';
 import type { PlaidStartIdvResp } from './generated/models/PlaidStartIdvResp';
 import type { StartIdvResp } from './generated/models/StartIdvResp';
-import { Country } from './generated/models/Country';
+import type { TomoIdvStartRes } from './generated/models/TomoIdvStartRes';
+import type { TomoIdvIssueTokenRes } from './generated/models/TomoIdvIssueTokenRes';
+import type { TomoIdvMockStartRes } from './generated/models/TomoIdvMockStartRes';
+import type { TomoIdvMockIssueTokenRes } from './generated/models/TomoIdvMockIssueTokenRes';
 import type {
   GetKycUsBody,
   GetKycJpBody,
   IdvUsStartBody,
   IdvJpStartBody,
   IdvStartBody,
+  IdvCnStartBody,
+  IdvCnTokenBody,
+  IdvCnResultBody,
+  IdvCnMockStartBody,
+  IdvCnMockTokenBody,
+  IdvCnMockResultBody,
 } from './api-contract';
-import { toSnakeCaseKeys } from './case-converter';
 
 function resolveBaseUrl(): string {
   const raw =
@@ -25,14 +33,10 @@ function createConfiguration(): Configuration {
   return new Configuration({ basePath: resolveBaseUrl() });
 }
 
-function countryFromString(s: string): Country {
-  const u = s?.toUpperCase();
-  return u === 'US' ? Country.Us : u === 'UK' ? Country.Uk : u === 'CA' ? Country.Ca : u === 'JP' ? Country.Jp : Country.Unknown;
-}
-
 /**
  * idv-server OpenAPI contract client.
  * Methods accept wire-format body (snake_case) to align with controller and idv-server API.
+ * Returns generated types directly (camelCase) — no extra conversion.
  */
 export class IdvServerClient {
   private readonly api: DefaultApi;
@@ -48,71 +52,123 @@ export class IdvServerClient {
     resource?: string;
     scope?: string;
   }): Promise<TokenResponse> {
-    const result = await this.api.v1Oauth2TokenPost({
+    return this.api.v1Oauth2TokenPost({
       clientAssertion: params.clientAssertion,
       clientAssertionType: params.clientAssertionType,
       grantType: params.grantType,
       resource: params.resource,
       scope: params.scope,
     });
-    return toSnakeCaseKeys(result) as TokenResponse;
   }
 
   async getKycUS(accessToken: string, body: GetKycUsBody): Promise<GetKycUnionResp> {
-    const result = await this.api.v1IdvUsKycGetPost({
+    return this.api.v1IdvUsKycGetPost({
       authorization: `Bearer ${accessToken}`,
-      plaidGetKycReq: { userId: body.user_id, fields: body.fields as any },
+      plaidGetKycReq: { userId: body.user_id, fields: body.fields },
     });
-    return toSnakeCaseKeys(result) as GetKycUnionResp;
   }
 
   async getKycJP(accessToken: string, body: GetKycJpBody): Promise<GetKycUnionResp> {
-    const result = await this.api.v1IdvJpKycGetPost({
+    return this.api.v1IdvJpKycGetPost({
       authorization: `Bearer ${accessToken}`,
-      liquidGetKycReq: { userId: body.user_id, fields: body.fields as any },
+      liquidGetKycReq: { userId: body.user_id, fields: body.fields },
     });
-    return toSnakeCaseKeys(result) as GetKycUnionResp;
   }
 
   async idvStartJP(
     accessToken: string,
     body: IdvJpStartBody
   ): Promise<LiquidIntegratedAppResponse> {
-    const result = await this.api.v1IdvJpStartPost({
+    return this.api.v1IdvJpStartPost({
       authorization: `Bearer ${accessToken}`,
       liquidStartIdvRequest: {
         userId: body.user_id,
-        callbackUrl: body.callback_url ?? 'idvexpo://verify',
+        callbackUrl: body.callback_url,
       },
     });
-    return toSnakeCaseKeys(result) as LiquidIntegratedAppResponse;
   }
 
   async idvStartUS(
     accessToken: string,
     body: IdvUsStartBody
   ): Promise<PlaidStartIdvResp> {
-    const result = await this.api.v1IdvUsStartPost({
+    return this.api.v1IdvUsStartPost({
       authorization: `Bearer ${accessToken}`,
       plaidStartIdvRequest: {
         userId: body.user_id,
-        email: body.email ?? 'chanhee@tomoarrow.com',
-        callbackUrl: body.callback_url ?? 'idvexpo://verify',
+        email: body.email,
+        callbackUrl: body.callback_url,
       },
     });
-    return toSnakeCaseKeys(result) as PlaidStartIdvResp;
   }
 
   async idvStart(accessToken: string, body: IdvStartBody): Promise<StartIdvResp> {
-    const result = await this.api.v1IdvStartPost({
+    return this.api.v1IdvStartPost({
       authorization: `Bearer ${accessToken}`,
       startIdvReq: {
         userId: body.user_id,
         callbackUrl: body.callback_url,
         email: body.email,
-        country: countryFromString(body.country),
+        country: body.country,
       },
     });
-    return toSnakeCaseKeys(result) as StartIdvResp;
+  }
+
+  // ── CN (TomoIdv) ──
+
+  async idvStartCN(accessToken: string, body: IdvCnStartBody): Promise<TomoIdvStartRes> {
+    return this.api.v1IdvCnStartPost({
+      authorization: `Bearer ${accessToken}`,
+      tomoIdvStartReq: {
+        userId: body.user_id,
+        redirectUrl: body.redirect_url,
+      },
+    });
+  }
+
+  async idvTokenCN(accessToken: string, body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes> {
+    return this.api.v1IdvCnTokenPost({
+      authorization: `Bearer ${accessToken}`,
+      tomoIdvIssueTokenReq: {
+        userId: body.user_id,
+      },
+    });
+  }
+
+  async idvResultCN(accessToken: string, body: IdvCnResultBody): Promise<any> {
+    return this.api.v1IdvCnResultPost({
+      authorization: `Bearer ${accessToken}`,
+      tomoIdvGetResultReq: {
+        userId: body.user_id,
+      },
+    });
+  }
+
+  async idvMockStartCN(accessToken: string, body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes> {
+    return this.api.v1IdvCnMockStartPost({
+      authorization: `Bearer ${accessToken}`,
+      tomoIdvMockStartReq: {
+        userId: body.user_id,
+        redirectUrl: body.redirect_url,
+      },
+    });
+  }
+
+  async idvMockTokenCN(accessToken: string, body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes> {
+    return this.api.v1IdvCnMockTokenPost({
+      authorization: `Bearer ${accessToken}`,
+      tomoIdvMockIssueTokenReq: {
+        userId: body.user_id,
+      },
+    });
+  }
+
+  async idvMockResultCN(accessToken: string, body: IdvCnMockResultBody): Promise<any> {
+    return this.api.v1IdvCnMockResultPost({
+      authorization: `Bearer ${accessToken}`,
+      tomoIdvMockGetResultReq: {
+        userId: body.user_id,
+      },
+    });
   }
 }
