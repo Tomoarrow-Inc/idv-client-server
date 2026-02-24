@@ -299,7 +299,7 @@ export class IdvServerClient {
   }
 
   async idvResultCN(accessToken: string, body: IdvCnResultBody): Promise<any> {
-    return this.api.v1IdvCnResultPost({
+    return this.api.v1IdvCnKycGetPost({
       authorization: `Bearer ${accessToken}`,
       tomoIdvGetResultReq: {
         userId: body.user_id,
@@ -335,7 +335,7 @@ export class IdvServerClient {
   }
 
   async idvMockResultCN(accessToken: string, body: IdvCnMockResultBody): Promise<any> {
-    return this.api.v1IdvCnMockResultPost({
+    return this.api.v1IdvCnMockKycGetPost({
       authorization: `Bearer ${accessToken}`,
       tomoIdvMockGetResultReq: {
         userId: body.user_id,

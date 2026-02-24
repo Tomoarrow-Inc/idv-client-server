@@ -124,7 +124,12 @@ export interface V1IdvCaStartPostRequest {
     plaidStartIdvRequest?: PlaidStartIdvRequest;
 }
 
-export interface V1IdvCnMockResultPostRequest {
+export interface V1IdvCnKycGetPostRequest {
+    authorization?: string;
+    tomoIdvGetResultReq?: TomoIdvGetResultReq;
+}
+
+export interface V1IdvCnMockKycGetPostRequest {
     authorization?: string;
     tomoIdvMockGetResultReq?: TomoIdvMockGetResultReq;
 }
@@ -137,11 +142,6 @@ export interface V1IdvCnMockStartPostRequest {
 export interface V1IdvCnMockTokenPostRequest {
     authorization?: string;
     tomoIdvMockIssueTokenReq?: TomoIdvMockIssueTokenReq;
-}
-
-export interface V1IdvCnResultPostRequest {
-    authorization?: string;
-    tomoIdvGetResultReq?: TomoIdvGetResultReq;
 }
 
 export interface V1IdvCnStartPostRequest {
@@ -420,7 +420,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
-    async v1IdvCnMockResultPostRaw(requestParameters: V1IdvCnMockResultPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async v1IdvCnKycGetPostRaw(requestParameters: V1IdvCnKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -432,7 +432,42 @@ export class DefaultApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/v1/idv/cn/mock/result`,
+            path: `/v1/idv/cn/kyc/get`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: TomoIdvGetResultReqToJSON(requestParameters['tomoIdvGetResultReq']),
+        }, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<any>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async v1IdvCnKycGetPost(requestParameters: V1IdvCnKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.v1IdvCnKycGetPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async v1IdvCnMockKycGetPostRaw(requestParameters: V1IdvCnMockKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        }
+
+        const response = await this.request({
+            path: `/v1/idv/cn/mock/kyc/get`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -448,8 +483,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
-    async v1IdvCnMockResultPost(requestParameters: V1IdvCnMockResultPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.v1IdvCnMockResultPostRaw(requestParameters, initOverrides);
+    async v1IdvCnMockKycGetPost(requestParameters: V1IdvCnMockKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.v1IdvCnMockKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -512,41 +547,6 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async v1IdvCnMockTokenPost(requestParameters: V1IdvCnMockTokenPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TomoIdvMockIssueTokenRes> {
         const response = await this.v1IdvCnMockTokenPostRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
-    async v1IdvCnResultPostRaw(requestParameters: V1IdvCnResultPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
-        }
-
-        const response = await this.request({
-            path: `/v1/idv/cn/result`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: TomoIdvGetResultReqToJSON(requestParameters['tomoIdvGetResultReq']),
-        }, initOverrides);
-
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
-    }
-
-    /**
-     */
-    async v1IdvCnResultPost(requestParameters: V1IdvCnResultPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.v1IdvCnResultPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
