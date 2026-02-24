@@ -2,27 +2,53 @@ import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion } from './sdk/tomo-idv-node';
 import { IdvServerClient } from './idvServer/idvServerClient';
-import type { TokenResponse } from './sdk';
+import type { TokenResponse } from './sdk/generated/models/TokenResponse';
+import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
+import type { LiquidIntegratedAppResponse } from './sdk/generated/models/LiquidIntegratedAppResponse';
+import type { StartIdvResp } from './sdk/generated/models/StartIdvResp';
+import type { GetKycResp } from './sdk/generated/models/GetKycResp';
+import type { SessionToken } from './sdk/generated/models/SessionToken';
+import type { LoginTicketResponse } from './sdk/generated/models/LoginTicketResponse';
+import type { EitherStringValue } from './sdk/generated/models/EitherStringValue';
 import type { TomoIdvStartRes } from './sdk/generated/models/TomoIdvStartRes';
 import type { TomoIdvIssueTokenRes } from './sdk/generated/models/TomoIdvIssueTokenRes';
 import type { TomoIdvMockStartRes } from './sdk/generated/models/TomoIdvMockStartRes';
 import type { TomoIdvMockIssueTokenRes } from './sdk/generated/models/TomoIdvMockIssueTokenRes';
 import type {
-  GetKycUsBody,
-  GetKycJpBody,
-  IdvUsStartBody,
-  IdvJpStartBody,
+  // Generic
   IdvStartBody,
+  IdvKycGetBody,
+  // US
+  IdvUsStartBody,
+  GetKycUsBody,
+  PutKycUsBody,
+  IdvUsCookieStartBody,
+  PlaidSessionTokenBody,
+  // UK
+  IdvUkStartBody,
+  GetKycUkBody,
+  PutKycUkBody,
+  IdvUkCookieStartBody,
+  // CA
+  IdvCaStartBody,
+  GetKycCaBody,
+  PutKycCaBody,
+  IdvCaCookieStartBody,
+  // JP
+  IdvJpStartBody,
+  GetKycJpBody,
+  PutKycJpBody,
+  IdvJpCookieStartBody,
+  LiquidSessionTokenBody,
+  // CN
   IdvCnStartBody,
   IdvCnTokenBody,
   IdvCnResultBody,
   IdvCnMockStartBody,
   IdvCnMockTokenBody,
   IdvCnMockResultBody,
-  GetKycUnionResp,
-  PlaidStartIdvResp,
-  LiquidIntegratedAppResponse,
-  StartIdvResp,
+  // Login Ticket
+  LoginTicketBody,
 } from './sdk';
 
 type SafeFetchResult<T> =
@@ -42,6 +68,8 @@ export class AppService {
   getHello(): string {
     return 'Hello World!';
   }
+
+  // ── OAuth2 ──
 
   async issueClientCredentialsToken(): Promise<TokenResponse> {
     const baseUrl = this.resolveBaseUrl();
@@ -71,24 +99,106 @@ export class AppService {
     return tokenResponse;
   }
 
-  async getKycUS(body: GetKycUsBody): Promise<GetKycUnionResp> {
-    return this.idvServerClient.getKycUS(this.requireAccessToken(), body);
+  // ── Generic (country-agnostic) ──
+
+  async idvStart(body: IdvStartBody): Promise<StartIdvResp> {
+    return this.idvServerClient.idvStart(this.requireAccessToken(), body);
   }
 
-  async getKycJP(body: GetKycJpBody): Promise<GetKycUnionResp> {
-    return this.idvServerClient.getKycJP(this.requireAccessToken(), body);
+  async idvKycGet(body: IdvKycGetBody): Promise<GetKycResp> {
+    return this.idvServerClient.idvKycGet(this.requireAccessToken(), body);
   }
 
-  async idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
-    return this.idvServerClient.idvStartJP(this.requireAccessToken(), body);
-  }
+  // ── US (Plaid) ──
 
   async idvStartUS(body: IdvUsStartBody): Promise<PlaidStartIdvResp> {
     return this.idvServerClient.idvStartUS(this.requireAccessToken(), body);
   }
 
-  async idvStart(body: IdvStartBody): Promise<StartIdvResp> {
-    return this.idvServerClient.idvStart(this.requireAccessToken(), body);
+  async getKycUS(body: GetKycUsBody): Promise<{ [key: string]: string }> {
+    return this.idvServerClient.getKycUS(this.requireAccessToken(), body);
+  }
+
+  async putKycUS(body: PutKycUsBody): Promise<void> {
+    return this.idvServerClient.putKycUS(body);
+  }
+
+  async idvCookieStartUS(body: IdvUsCookieStartBody): Promise<PlaidStartIdvResp> {
+    return this.idvServerClient.idvCookieStartUS(body);
+  }
+
+  async healthUS(): Promise<string> {
+    return this.idvServerClient.healthUS();
+  }
+
+  // ── UK (Plaid) ──
+
+  async idvStartUK(body: IdvUkStartBody): Promise<PlaidStartIdvResp> {
+    return this.idvServerClient.idvStartUK(this.requireAccessToken(), body);
+  }
+
+  async getKycUK(body: GetKycUkBody): Promise<{ [key: string]: string }> {
+    return this.idvServerClient.getKycUK(this.requireAccessToken(), body);
+  }
+
+  async putKycUK(body: PutKycUkBody): Promise<void> {
+    return this.idvServerClient.putKycUK(body);
+  }
+
+  async idvCookieStartUK(body: IdvUkCookieStartBody): Promise<PlaidStartIdvResp> {
+    return this.idvServerClient.idvCookieStartUK(body);
+  }
+
+  async healthUK(): Promise<string> {
+    return this.idvServerClient.healthUK();
+  }
+
+  // ── CA (Plaid) ──
+
+  async idvStartCA(body: IdvCaStartBody): Promise<PlaidStartIdvResp> {
+    return this.idvServerClient.idvStartCA(this.requireAccessToken(), body);
+  }
+
+  async getKycCA(body: GetKycCaBody): Promise<{ [key: string]: string }> {
+    return this.idvServerClient.getKycCA(this.requireAccessToken(), body);
+  }
+
+  async putKycCA(body: PutKycCaBody): Promise<void> {
+    return this.idvServerClient.putKycCA(body);
+  }
+
+  async idvCookieStartCA(body: IdvCaCookieStartBody): Promise<PlaidStartIdvResp> {
+    return this.idvServerClient.idvCookieStartCA(body);
+  }
+
+  async healthCA(): Promise<string> {
+    return this.idvServerClient.healthCA();
+  }
+
+  // ── JP (Liquid) ──
+
+  async idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
+    return this.idvServerClient.idvStartJP(this.requireAccessToken(), body);
+  }
+
+  async getKycJP(body: GetKycJpBody): Promise<{ [key: string]: string }> {
+    return this.idvServerClient.getKycJP(this.requireAccessToken(), body);
+  }
+
+  async putKycJP(body: PutKycJpBody): Promise<void> {
+    return this.idvServerClient.putKycJP(body);
+  }
+
+  async idvCookieStartJP(body: IdvJpCookieStartBody): Promise<LiquidIntegratedAppResponse> {
+    return this.idvServerClient.idvCookieStartJP(body);
+  }
+
+  async notificationJP(body: any): Promise<EitherStringValue> {
+    return this.idvServerClient.notificationJP(body);
+  }
+
+  async healthJP(): Promise<string> {
+    return this.idvServerClient.healthJP();
   }
 
   // ── CN (TomoIdv) ──
@@ -105,6 +215,14 @@ export class AppService {
     return this.idvServerClient.idvResultCN(this.requireAccessToken(), body);
   }
 
+  async idvResultWebCN(): Promise<any> {
+    return this.idvServerClient.idvResultWebCN();
+  }
+
+  async healthCN(): Promise<string> {
+    return this.idvServerClient.healthCN();
+  }
+
   async idvMockStartCN(body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes> {
     return this.idvServerClient.idvMockStartCN(this.requireAccessToken(), body);
   }
@@ -116,6 +234,24 @@ export class AppService {
   async idvMockResultCN(body: IdvCnMockResultBody): Promise<any> {
     return this.idvServerClient.idvMockResultCN(this.requireAccessToken(), body);
   }
+
+  // ── Session Tokens ──
+
+  async plaidTokenSession(body: PlaidSessionTokenBody): Promise<SessionToken> {
+    return this.idvServerClient.plaidTokenSession(body);
+  }
+
+  async liquidTokenSession(body: LiquidSessionTokenBody): Promise<SessionToken> {
+    return this.idvServerClient.liquidTokenSession(body);
+  }
+
+  // ── Login Ticket ──
+
+  async loginTicket(body: LoginTicketBody): Promise<LoginTicketResponse> {
+    return this.idvServerClient.loginTicket(body);
+  }
+
+  // ── Helpers ──
 
   private requireAccessToken(): string {
     const accessToken = this.getState('access_token');
@@ -151,128 +287,74 @@ export class AppService {
 
   // ==================== State Management Methods ====================
 
-  /**
-   * State 값 설정
-   */
   setState(key: string, value: any): void {
     this.stateService.set(key, value);
   }
 
-  /**
-   * State 값 조회
-   */
   getState(key: string): any {
     return this.stateService.get(key);
   }
 
-  /**
-   * State 값이 존재하는지 확인
-   */
   hasState(key: string): boolean {
     return this.stateService.has(key);
   }
 
-  /**
-   * State 값 삭제
-   */
   deleteState(key: string): boolean {
     return this.stateService.delete(key);
   }
 
-  /**
-   * 모든 State 조회
-   */
   getAllStates(): Record<string, any> {
     return this.stateService.getAll();
   }
 
-  /**
-   * State 값 업데이트
-   */
   updateState(key: string, updater: (current: any) => any): void {
     this.stateService.update(key, updater);
   }
 
-  /**
-   * State 값 증가
-   */
   incrementState(key: string, amount: number = 1): number {
     return this.stateService.increment(key, amount);
   }
 
-  /**
-   * State 값 감소
-   */
   decrementState(key: string, amount: number = 1): number {
     return this.stateService.decrement(key, amount);
   }
 
-  /**
-   * 배열에 값 추가
-   */
   pushToState(key: string, value: any): void {
     this.stateService.push(key, value);
   }
 
-  /**
-   * 배열에서 값 제거
-   */
   removeFromState(key: string, value: any): void {
     this.stateService.remove(key, value);
   }
 
-  /**
-   * 객체에 속성 추가/업데이트
-   */
   setStateProperty(key: string, property: string, value: any): void {
     this.stateService.setProperty(key, property, value);
   }
 
-  /**
-   * 객체에서 속성 제거
-   */
   removeStateProperty(key: string, property: string): void {
     this.stateService.removeProperty(key, property);
   }
 
-  /**
-   * State 변경 리스너 등록
-   */
   subscribeToState(key: string, callback: (value: any) => void): () => void {
     return this.stateService.subscribe(key, callback);
   }
 
-  /**
-   * State 개수 조회
-   */
   getStateCount(): number {
     return this.stateService.size();
   }
 
-  /**
-   * 특정 패턴과 일치하는 키들 조회
-   */
   getStateKeys(pattern?: string): string[] {
     return this.stateService.getKeys(pattern);
   }
 
-  /**
-   * State 백업
-   */
   backupState(): string {
     return this.stateService.backup();
   }
 
-  /**
-   * State 복원
-   */
   restoreState(backup: string): void {
     this.stateService.restore(backup);
   }
 
-  /**
-   * 모든 State 삭제
-   */
   clearAllStates(): void {
     this.stateService.clear();
   }

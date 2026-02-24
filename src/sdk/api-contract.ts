@@ -8,18 +8,21 @@ import type { PlaidIdvField } from './generated/models/PlaidIdvField';
 import type { LiquidIdvField } from './generated/models/LiquidIdvField';
 import type { Country } from './generated/models/Country';
 
-/** Union response for /v1/idv/us/kyc/get, /v1/idv/jp/kyc/get, etc. (generated SDK returns a map). */
-export type GetKycUnionResp = Record<string, string>;
+// ── Generic (country-agnostic) ──
 
-export type GetKycUsBody = {
+export type IdvStartBody = {
   user_id: string;
-  fields?: PlaidIdvField[];
+  callback_url: string;
+  email: string;
+  country: Country;
 };
 
-export type GetKycJpBody = {
+export type IdvKycGetBody = {
   user_id: string;
-  fields?: LiquidIdvField[];
+  country: Country;
 };
+
+// ── US (Plaid) ──
 
 export type IdvUsStartBody = {
   user_id: string;
@@ -27,16 +30,98 @@ export type IdvUsStartBody = {
   callback_url: string;
 };
 
+export type GetKycUsBody = {
+  user_id: string;
+  fields?: PlaidIdvField[];
+};
+
+export type PutKycUsBody = {
+  user_id: string;
+  idv_session_id: string;
+};
+
+export type IdvUsCookieStartBody = {
+  user_id: string;
+  email: string;
+  callback_url: string;
+};
+
+export type PlaidSessionTokenBody = {
+  user_id: string;
+  idv_session_id?: string;
+};
+
+// ── UK (Plaid) ──
+
+export type IdvUkStartBody = {
+  user_id: string;
+  email: string;
+  callback_url: string;
+};
+
+export type GetKycUkBody = {
+  user_id: string;
+  fields?: PlaidIdvField[];
+};
+
+export type PutKycUkBody = {
+  user_id: string;
+  idv_session_id: string;
+};
+
+export type IdvUkCookieStartBody = {
+  user_id: string;
+  email: string;
+  callback_url: string;
+};
+
+// ── CA (Plaid) ──
+
+export type IdvCaStartBody = {
+  user_id: string;
+  email: string;
+  callback_url: string;
+};
+
+export type GetKycCaBody = {
+  user_id: string;
+  fields?: PlaidIdvField[];
+};
+
+export type PutKycCaBody = {
+  user_id: string;
+  idv_session_id: string;
+};
+
+export type IdvCaCookieStartBody = {
+  user_id: string;
+  email: string;
+  callback_url: string;
+};
+
+// ── JP (Liquid) ──
+
 export type IdvJpStartBody = {
   user_id: string;
   callback_url: string;
 };
 
-export type IdvStartBody = {
+export type GetKycJpBody = {
+  user_id: string;
+  fields?: LiquidIdvField[];
+};
+
+export type PutKycJpBody = {
+  user_id: string;
+};
+
+export type IdvJpCookieStartBody = {
   user_id: string;
   callback_url: string;
-  email: string;
-  country: Country;
+};
+
+export type LiquidSessionTokenBody = {
+  user_id: string;
 };
 
 // ── CN (TomoIdv) ──
@@ -65,4 +150,11 @@ export type IdvCnMockTokenBody = {
 
 export type IdvCnMockResultBody = {
   user_id: string;
+};
+
+// ── Login Ticket ──
+
+export type LoginTicketBody = {
+  login_ticket?: string;
+  biz_token?: string;
 };
