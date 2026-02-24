@@ -50,20 +50,74 @@ let AppService = class AppService {
         });
         return tokenResponse;
     }
-    async getKycUS(body) {
-        return this.idvServerClient.getKycUS(this.requireAccessToken(), body);
+    async idvStart(body) {
+        return this.idvServerClient.idvStart(this.requireAccessToken(), body);
     }
-    async getKycJP(body) {
-        return this.idvServerClient.getKycJP(this.requireAccessToken(), body);
-    }
-    async idvStartJP(body) {
-        return this.idvServerClient.idvStartJP(this.requireAccessToken(), body);
+    async idvKycGet(body) {
+        return this.idvServerClient.idvKycGet(this.requireAccessToken(), body);
     }
     async idvStartUS(body) {
         return this.idvServerClient.idvStartUS(this.requireAccessToken(), body);
     }
-    async idvStart(body) {
-        return this.idvServerClient.idvStart(this.requireAccessToken(), body);
+    async getKycUS(body) {
+        return this.idvServerClient.getKycUS(this.requireAccessToken(), body);
+    }
+    async putKycUS(body) {
+        return this.idvServerClient.putKycUS(body);
+    }
+    async idvCookieStartUS(body) {
+        return this.idvServerClient.idvCookieStartUS(body);
+    }
+    async healthUS() {
+        return this.idvServerClient.healthUS();
+    }
+    async idvStartUK(body) {
+        return this.idvServerClient.idvStartUK(this.requireAccessToken(), body);
+    }
+    async getKycUK(body) {
+        return this.idvServerClient.getKycUK(this.requireAccessToken(), body);
+    }
+    async putKycUK(body) {
+        return this.idvServerClient.putKycUK(body);
+    }
+    async idvCookieStartUK(body) {
+        return this.idvServerClient.idvCookieStartUK(body);
+    }
+    async healthUK() {
+        return this.idvServerClient.healthUK();
+    }
+    async idvStartCA(body) {
+        return this.idvServerClient.idvStartCA(this.requireAccessToken(), body);
+    }
+    async getKycCA(body) {
+        return this.idvServerClient.getKycCA(this.requireAccessToken(), body);
+    }
+    async putKycCA(body) {
+        return this.idvServerClient.putKycCA(body);
+    }
+    async idvCookieStartCA(body) {
+        return this.idvServerClient.idvCookieStartCA(body);
+    }
+    async healthCA() {
+        return this.idvServerClient.healthCA();
+    }
+    async idvStartJP(body) {
+        return this.idvServerClient.idvStartJP(this.requireAccessToken(), body);
+    }
+    async getKycJP(body) {
+        return this.idvServerClient.getKycJP(this.requireAccessToken(), body);
+    }
+    async putKycJP(body) {
+        return this.idvServerClient.putKycJP(body);
+    }
+    async idvCookieStartJP(body) {
+        return this.idvServerClient.idvCookieStartJP(body);
+    }
+    async notificationJP(body) {
+        return this.idvServerClient.notificationJP(body);
+    }
+    async healthJP() {
+        return this.idvServerClient.healthJP();
     }
     async idvStartCN(body) {
         return this.idvServerClient.idvStartCN(this.requireAccessToken(), body);
@@ -74,6 +128,12 @@ let AppService = class AppService {
     async idvResultCN(body) {
         return this.idvServerClient.idvResultCN(this.requireAccessToken(), body);
     }
+    async idvResultWebCN() {
+        return this.idvServerClient.idvResultWebCN();
+    }
+    async healthCN() {
+        return this.idvServerClient.healthCN();
+    }
     async idvMockStartCN(body) {
         return this.idvServerClient.idvMockStartCN(this.requireAccessToken(), body);
     }
@@ -82,6 +142,15 @@ let AppService = class AppService {
     }
     async idvMockResultCN(body) {
         return this.idvServerClient.idvMockResultCN(this.requireAccessToken(), body);
+    }
+    async plaidTokenSession(body) {
+        return this.idvServerClient.plaidTokenSession(body);
+    }
+    async liquidTokenSession(body) {
+        return this.idvServerClient.liquidTokenSession(body);
+    }
+    async loginTicket(body) {
+        return this.idvServerClient.loginTicket(body);
     }
     requireAccessToken() {
         const accessToken = this.getState('access_token');

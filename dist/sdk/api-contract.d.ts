@@ -1,16 +1,70 @@
 import type { PlaidIdvField } from './generated/models/PlaidIdvField';
 import type { LiquidIdvField } from './generated/models/LiquidIdvField';
 import type { Country } from './generated/models/Country';
-export type GetKycUnionResp = Record<string, string>;
+export type IdvStartBody = {
+    user_id: string;
+    callback_url: string;
+    email: string;
+    country: Country;
+};
+export type IdvKycGetBody = {
+    user_id: string;
+    country: Country;
+};
+export type IdvUsStartBody = {
+    user_id: string;
+    email: string;
+    callback_url: string;
+};
 export type GetKycUsBody = {
     user_id: string;
     fields?: PlaidIdvField[];
 };
-export type GetKycJpBody = {
+export type PutKycUsBody = {
     user_id: string;
-    fields?: LiquidIdvField[];
+    idv_session_id: string;
 };
-export type IdvUsStartBody = {
+export type IdvUsCookieStartBody = {
+    user_id: string;
+    email: string;
+    callback_url: string;
+};
+export type PlaidSessionTokenBody = {
+    user_id: string;
+    idv_session_id?: string;
+};
+export type IdvUkStartBody = {
+    user_id: string;
+    email: string;
+    callback_url: string;
+};
+export type GetKycUkBody = {
+    user_id: string;
+    fields?: PlaidIdvField[];
+};
+export type PutKycUkBody = {
+    user_id: string;
+    idv_session_id: string;
+};
+export type IdvUkCookieStartBody = {
+    user_id: string;
+    email: string;
+    callback_url: string;
+};
+export type IdvCaStartBody = {
+    user_id: string;
+    email: string;
+    callback_url: string;
+};
+export type GetKycCaBody = {
+    user_id: string;
+    fields?: PlaidIdvField[];
+};
+export type PutKycCaBody = {
+    user_id: string;
+    idv_session_id: string;
+};
+export type IdvCaCookieStartBody = {
     user_id: string;
     email: string;
     callback_url: string;
@@ -19,11 +73,19 @@ export type IdvJpStartBody = {
     user_id: string;
     callback_url: string;
 };
-export type IdvStartBody = {
+export type GetKycJpBody = {
+    user_id: string;
+    fields?: LiquidIdvField[];
+};
+export type PutKycJpBody = {
+    user_id: string;
+};
+export type IdvJpCookieStartBody = {
     user_id: string;
     callback_url: string;
-    email: string;
-    country: Country;
+};
+export type LiquidSessionTokenBody = {
+    user_id: string;
 };
 export type IdvCnStartBody = {
     user_id: string;
@@ -44,4 +106,8 @@ export type IdvCnMockTokenBody = {
 };
 export type IdvCnMockResultBody = {
     user_id: string;
+};
+export type LoginTicketBody = {
+    login_ticket?: string;
+    biz_token?: string;
 };
