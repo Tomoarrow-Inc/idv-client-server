@@ -1,4 +1,4 @@
-// Case converter (customer ↔ SDK wire format)
+// Case converter (customer <-> SDK wire format)
 export { toSnakeCaseKeys, toCamelCaseKeys } from './case-converter';
 
 // Auth utilities (tomo-idv-node)
@@ -14,31 +14,57 @@ export { IdvServerClient } from './idv-client';
 
 // Request body types (wire format, same as controller / idv-server)
 export type {
-  GetKycUsBody,
-  GetKycJpBody,
-  IdvUsStartBody,
-  IdvJpStartBody,
+  // Generic
   IdvStartBody,
+  IdvKycGetBody,
+  // US
+  IdvUsStartBody,
+  GetKycUsBody,
+  PutKycUsBody,
+  IdvUsCookieStartBody,
+  PlaidSessionTokenBody,
+  // UK
+  IdvUkStartBody,
+  GetKycUkBody,
+  PutKycUkBody,
+  IdvUkCookieStartBody,
+  // CA
+  IdvCaStartBody,
+  GetKycCaBody,
+  PutKycCaBody,
+  IdvCaCookieStartBody,
+  // JP
+  IdvJpStartBody,
+  GetKycJpBody,
+  PutKycJpBody,
+  IdvJpCookieStartBody,
+  LiquidSessionTokenBody,
+  // CN
   IdvCnStartBody,
   IdvCnTokenBody,
   IdvCnResultBody,
   IdvCnMockStartBody,
   IdvCnMockTokenBody,
   IdvCnMockResultBody,
+  // Login Ticket
+  LoginTicketBody,
 } from './api-contract';
 
 // Response types (generated)
 export type { TokenResponse } from './generated/models/TokenResponse';
-export type { GetKycUnionResp } from './api-contract';
 export type { PlaidStartIdvResp } from './generated/models/PlaidStartIdvResp';
 export type { LiquidIntegratedAppResponse } from './generated/models/LiquidIntegratedAppResponse';
 export type { StartIdvResp } from './generated/models/StartIdvResp';
+export type { GetKycResp } from './generated/models/GetKycResp';
+export type { SessionToken } from './generated/models/SessionToken';
+export type { LoginTicketResponse } from './generated/models/LoginTicketResponse';
+export type { EitherStringValue } from './generated/models/EitherStringValue';
 export type { TomoIdvStartRes } from './generated/models/TomoIdvStartRes';
 export type { TomoIdvIssueTokenRes } from './generated/models/TomoIdvIssueTokenRes';
 export type { TomoIdvMockStartRes } from './generated/models/TomoIdvMockStartRes';
 export type { TomoIdvMockIssueTokenRes } from './generated/models/TomoIdvMockIssueTokenRes';
-export { Country } from './generated/models/Country';
 
-// Field enum types (generated)
+// Enum types (generated)
+export { Country } from './generated/models/Country';
 export { PlaidIdvField } from './generated/models/PlaidIdvField';
 export { LiquidIdvField } from './generated/models/LiquidIdvField';
