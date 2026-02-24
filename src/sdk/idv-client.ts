@@ -41,10 +41,10 @@ import type {
   // CN
   IdvCnStartBody,
   IdvCnTokenBody,
-  IdvCnResultBody,
+  IdvCnKycGetBody,
   IdvCnMockStartBody,
   IdvCnMockTokenBody,
-  IdvCnMockResultBody,
+  IdvCnMockKycGetBody,
   // Login Ticket
   LoginTicketBody,
 } from './api-contract';
@@ -298,7 +298,7 @@ export class IdvServerClient {
     });
   }
 
-  async idvResultCN(accessToken: string, body: IdvCnResultBody): Promise<any> {
+  async idvKycGetCN(accessToken: string, body: IdvCnKycGetBody): Promise<any> {
     return this.api.v1IdvCnKycGetPost({
       authorization: `Bearer ${accessToken}`,
       tomoIdvGetResultReq: {
@@ -334,7 +334,7 @@ export class IdvServerClient {
     });
   }
 
-  async idvMockResultCN(accessToken: string, body: IdvCnMockResultBody): Promise<any> {
+  async idvMockKycGetCN(accessToken: string, body: IdvCnMockKycGetBody): Promise<any> {
     return this.api.v1IdvCnMockKycGetPost({
       authorization: `Bearer ${accessToken}`,
       tomoIdvMockGetResultReq: {

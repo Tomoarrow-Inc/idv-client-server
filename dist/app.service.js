@@ -125,8 +125,8 @@ let AppService = class AppService {
     async idvTokenCN(body) {
         return this.idvServerClient.idvTokenCN(this.requireAccessToken(), body);
     }
-    async idvResultCN(body) {
-        return this.idvServerClient.idvResultCN(this.requireAccessToken(), body);
+    async idvKycGetCN(body) {
+        return this.idvServerClient.idvKycGetCN(this.requireAccessToken(), body);
     }
     async idvResultWebCN() {
         return this.idvServerClient.idvResultWebCN();
@@ -140,8 +140,8 @@ let AppService = class AppService {
     async idvMockTokenCN(body) {
         return this.idvServerClient.idvMockTokenCN(this.requireAccessToken(), body);
     }
-    async idvMockResultCN(body) {
-        return this.idvServerClient.idvMockResultCN(this.requireAccessToken(), body);
+    async idvMockKycGetCN(body) {
+        return this.idvServerClient.idvMockKycGetCN(this.requireAccessToken(), body);
     }
     async plaidTokenSession(body) {
         return this.idvServerClient.plaidTokenSession(body);

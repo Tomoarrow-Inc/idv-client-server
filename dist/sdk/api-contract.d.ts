@@ -94,7 +94,7 @@ export type IdvCnStartBody = {
 export type IdvCnTokenBody = {
     user_id: string;
 };
-export type IdvCnResultBody = {
+export type IdvCnKycGetBody = {
     user_id: string;
 };
 export type IdvCnMockStartBody = {
@@ -104,7 +104,7 @@ export type IdvCnMockStartBody = {
 export type IdvCnMockTokenBody = {
     user_id: string;
 };
-export type IdvCnMockResultBody = {
+export type IdvCnMockKycGetBody = {
     user_id: string;
 };
 export type LoginTicketBody = {

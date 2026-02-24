@@ -196,7 +196,7 @@ class IdvServerClient {
             },
         });
     }
-    async idvResultCN(accessToken, body) {
+    async idvKycGetCN(accessToken, body) {
         return this.api.v1IdvCnKycGetPost({
             authorization: `Bearer ${accessToken}`,
             tomoIdvGetResultReq: {
@@ -227,7 +227,7 @@ class IdvServerClient {
             },
         });
     }
-    async idvMockResultCN(accessToken, body) {
+    async idvMockKycGetCN(accessToken, body) {
         return this.api.v1IdvCnMockKycGetPost({
             authorization: `Bearer ${accessToken}`,
             tomoIdvMockGetResultReq: {

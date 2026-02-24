@@ -1,5 +1,5 @@
 import { AppService } from './app.service';
-import type { IdvStartBody, IdvKycGetBody, IdvUsStartBody, GetKycUsBody, PutKycUsBody, IdvUsCookieStartBody, PlaidSessionTokenBody, IdvUkStartBody, GetKycUkBody, PutKycUkBody, IdvUkCookieStartBody, IdvCaStartBody, GetKycCaBody, PutKycCaBody, IdvCaCookieStartBody, IdvJpStartBody, GetKycJpBody, PutKycJpBody, IdvJpCookieStartBody, LiquidSessionTokenBody, IdvCnStartBody, IdvCnTokenBody, IdvCnResultBody, IdvCnMockStartBody, IdvCnMockTokenBody, IdvCnMockResultBody, LoginTicketBody, TokenResponse } from './sdk';
+import type { IdvStartBody, IdvKycGetBody, IdvUsStartBody, GetKycUsBody, PutKycUsBody, IdvUsCookieStartBody, PlaidSessionTokenBody, IdvUkStartBody, GetKycUkBody, PutKycUkBody, IdvUkCookieStartBody, IdvCaStartBody, GetKycCaBody, PutKycCaBody, IdvCaCookieStartBody, IdvJpStartBody, GetKycJpBody, PutKycJpBody, IdvJpCookieStartBody, LiquidSessionTokenBody, IdvCnStartBody, IdvCnTokenBody, IdvCnKycGetBody, IdvCnMockStartBody, IdvCnMockTokenBody, IdvCnMockKycGetBody, LoginTicketBody, TokenResponse } from './sdk';
 import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
 import type { LiquidIntegratedAppResponse } from './sdk/generated/models/LiquidIntegratedAppResponse';
 import type { StartIdvResp } from './sdk/generated/models/StartIdvResp';
@@ -48,12 +48,12 @@ export declare class AppController {
     healthJP(): Promise<string>;
     idvStartCN(body: IdvCnStartBody): Promise<TomoIdvStartRes>;
     idvTokenCN(body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes>;
-    idvResultCN(body: IdvCnResultBody): Promise<any>;
+    idvKycGetCN(body: IdvCnKycGetBody): Promise<any>;
     idvResultWebCN(): Promise<any>;
     healthCN(): Promise<string>;
     idvMockStartCN(body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes>;
     idvMockTokenCN(body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes>;
-    idvMockResultCN(body: IdvCnMockResultBody): Promise<any>;
+    idvMockKycGetCN(body: IdvCnMockKycGetBody): Promise<any>;
     plaidTokenSession(body: PlaidSessionTokenBody): Promise<SessionToken>;
     liquidTokenSession(body: LiquidSessionTokenBody): Promise<SessionToken>;
     loginTicket(body: LoginTicketBody): Promise<LoginTicketResponse>;

@@ -43,10 +43,10 @@ import type {
   // CN
   IdvCnStartBody,
   IdvCnTokenBody,
-  IdvCnResultBody,
+  IdvCnKycGetBody,
   IdvCnMockStartBody,
   IdvCnMockTokenBody,
-  IdvCnMockResultBody,
+  IdvCnMockKycGetBody,
   // Login Ticket
   LoginTicketBody,
 } from './sdk';
@@ -211,8 +211,8 @@ export class AppService {
     return this.idvServerClient.idvTokenCN(this.requireAccessToken(), body);
   }
 
-  async idvResultCN(body: IdvCnResultBody): Promise<any> {
-    return this.idvServerClient.idvResultCN(this.requireAccessToken(), body);
+  async idvKycGetCN(body: IdvCnKycGetBody): Promise<any> {
+    return this.idvServerClient.idvKycGetCN(this.requireAccessToken(), body);
   }
 
   async idvResultWebCN(): Promise<any> {
@@ -231,8 +231,8 @@ export class AppService {
     return this.idvServerClient.idvMockTokenCN(this.requireAccessToken(), body);
   }
 
-  async idvMockResultCN(body: IdvCnMockResultBody): Promise<any> {
-    return this.idvServerClient.idvMockResultCN(this.requireAccessToken(), body);
+  async idvMockKycGetCN(body: IdvCnMockKycGetBody): Promise<any> {
+    return this.idvServerClient.idvMockKycGetCN(this.requireAccessToken(), body);
   }
 
   // ── Session Tokens ──

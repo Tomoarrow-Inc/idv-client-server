@@ -42,10 +42,10 @@ export type {
   // CN
   IdvCnStartBody,
   IdvCnTokenBody,
-  IdvCnResultBody,
+  IdvCnKycGetBody,
   IdvCnMockStartBody,
   IdvCnMockTokenBody,
-  IdvCnMockResultBody,
+  IdvCnMockKycGetBody,
   // Login Ticket
   LoginTicketBody,
 } from './api-contract';

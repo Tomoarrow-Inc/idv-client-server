@@ -12,7 +12,7 @@ import type { TomoIdvStartRes } from './sdk/generated/models/TomoIdvStartRes';
 import type { TomoIdvIssueTokenRes } from './sdk/generated/models/TomoIdvIssueTokenRes';
 import type { TomoIdvMockStartRes } from './sdk/generated/models/TomoIdvMockStartRes';
 import type { TomoIdvMockIssueTokenRes } from './sdk/generated/models/TomoIdvMockIssueTokenRes';
-import type { IdvStartBody, IdvKycGetBody, IdvUsStartBody, GetKycUsBody, PutKycUsBody, IdvUsCookieStartBody, PlaidSessionTokenBody, IdvUkStartBody, GetKycUkBody, PutKycUkBody, IdvUkCookieStartBody, IdvCaStartBody, GetKycCaBody, PutKycCaBody, IdvCaCookieStartBody, IdvJpStartBody, GetKycJpBody, PutKycJpBody, IdvJpCookieStartBody, LiquidSessionTokenBody, IdvCnStartBody, IdvCnTokenBody, IdvCnResultBody, IdvCnMockStartBody, IdvCnMockTokenBody, IdvCnMockResultBody, LoginTicketBody } from './sdk';
+import type { IdvStartBody, IdvKycGetBody, IdvUsStartBody, GetKycUsBody, PutKycUsBody, IdvUsCookieStartBody, PlaidSessionTokenBody, IdvUkStartBody, GetKycUkBody, PutKycUkBody, IdvUkCookieStartBody, IdvCaStartBody, GetKycCaBody, PutKycCaBody, IdvCaCookieStartBody, IdvJpStartBody, GetKycJpBody, PutKycJpBody, IdvJpCookieStartBody, LiquidSessionTokenBody, IdvCnStartBody, IdvCnTokenBody, IdvCnKycGetBody, IdvCnMockStartBody, IdvCnMockTokenBody, IdvCnMockKycGetBody, LoginTicketBody } from './sdk';
 export declare class AppService {
     private readonly stateService;
     private readonly idvServerClient;
@@ -52,12 +52,12 @@ export declare class AppService {
     healthJP(): Promise<string>;
     idvStartCN(body: IdvCnStartBody): Promise<TomoIdvStartRes>;
     idvTokenCN(body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes>;
-    idvResultCN(body: IdvCnResultBody): Promise<any>;
+    idvKycGetCN(body: IdvCnKycGetBody): Promise<any>;
     idvResultWebCN(): Promise<any>;
     healthCN(): Promise<string>;
     idvMockStartCN(body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes>;
     idvMockTokenCN(body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes>;
-    idvMockResultCN(body: IdvCnMockResultBody): Promise<any>;
+    idvMockKycGetCN(body: IdvCnMockKycGetBody): Promise<any>;
     plaidTokenSession(body: PlaidSessionTokenBody): Promise<SessionToken>;
     liquidTokenSession(body: LiquidSessionTokenBody): Promise<SessionToken>;
     loginTicket(body: LoginTicketBody): Promise<LoginTicketResponse>;

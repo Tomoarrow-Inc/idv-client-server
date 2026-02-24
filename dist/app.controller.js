@@ -242,9 +242,9 @@ let AppController = class AppController {
             return rethrow(e);
         }
     }
-    async idvResultCN(body) {
+    async idvKycGetCN(body) {
         try {
-            return await this.appService.idvResultCN(body);
+            return await this.appService.idvKycGetCN(body);
         }
         catch (e) {
             return rethrow(e);
@@ -282,9 +282,9 @@ let AppController = class AppController {
             return rethrow(e);
         }
     }
-    async idvMockResultCN(body) {
+    async idvMockKycGetCN(body) {
         try {
-            return await this.appService.idvMockResultCN(body);
+            return await this.appService.idvMockKycGetCN(body);
         }
         catch (e) {
             return rethrow(e);
@@ -494,12 +494,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "idvTokenCN", null);
 __decorate([
-    (0, common_1.Post)('/v1/idv/cn/result'),
+    (0, common_1.Post)('/v1/idv/cn/kyc/get'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], AppController.prototype, "idvResultCN", null);
+], AppController.prototype, "idvKycGetCN", null);
 __decorate([
     (0, common_1.Post)('/v1/idv/cn/result/web'),
     __metadata("design:type", Function),
@@ -527,12 +527,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "idvMockTokenCN", null);
 __decorate([
-    (0, common_1.Post)('/v1/idv/cn/mock/result'),
+    (0, common_1.Post)('/v1/idv/cn/mock/kyc/get'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], AppController.prototype, "idvMockResultCN", null);
+], AppController.prototype, "idvMockKycGetCN", null);
 __decorate([
     (0, common_1.Post)('/v1/idv/plaid/token/session'),
     __param(0, (0, common_1.Body)()),

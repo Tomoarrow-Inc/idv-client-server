@@ -30,10 +30,10 @@ import type {
   // CN
   IdvCnStartBody,
   IdvCnTokenBody,
-  IdvCnResultBody,
+  IdvCnKycGetBody,
   IdvCnMockStartBody,
   IdvCnMockTokenBody,
-  IdvCnMockResultBody,
+  IdvCnMockKycGetBody,
   // Login Ticket
   LoginTicketBody,
   TokenResponse,
@@ -238,9 +238,9 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  @Post('/v1/idv/cn/result')
-  async idvResultCN(@Body() body: IdvCnResultBody): Promise<any> {
-    try { return await this.appService.idvResultCN(body); }
+  @Post('/v1/idv/cn/kyc/get')
+  async idvKycGetCN(@Body() body: IdvCnKycGetBody): Promise<any> {
+    try { return await this.appService.idvKycGetCN(body); }
     catch (e) { return rethrow(e); }
   }
 
@@ -270,9 +270,9 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  @Post('/v1/idv/cn/mock/result')
-  async idvMockResultCN(@Body() body: IdvCnMockResultBody): Promise<any> {
-    try { return await this.appService.idvMockResultCN(body); }
+  @Post('/v1/idv/cn/mock/kyc/get')
+  async idvMockKycGetCN(@Body() body: IdvCnMockKycGetBody): Promise<any> {
+    try { return await this.appService.idvMockKycGetCN(body); }
     catch (e) { return rethrow(e); }
   }
 
