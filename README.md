@@ -1,48 +1,86 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# idv-client-server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Tomo Identity Verification (IDV) **BFF (Backend For Frontend)** 서버.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+idv-client(React SPA)와 idv-server(Haskell) 사이에서 OAuth2 인증과 API 프록시 역할을 수행합니다.
 
-## Description
+## 아키텍처
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+```
+idv-client (React SPA)
+    ↓ HTTP POST (snake_case JSON body)
+idv-client-server (NestJS BFF) ← 이 프로젝트
+    ↓ HTTP POST (camelCase, OpenAPI Generated Client)
+idv-server (Haskell backend)
+```
 
-## Project setup
+- OpenAPI spec 기반으로 생성된 TypeScript 클라이언트(`src/sdk/generated/`)를 통해 idv-server와 통신
+- OAuth2 `client_credentials` + `private_key_jwt` (ES256/P-256) 인증 흐름 처리
+- 5개국 IDV 지원: US/UK/CA (Plaid), JP (Liquid), CN (Tencent/TomoIdv)
+
+## 기술 스택
+
+- **NestJS 11** + TypeScript 5.7
+- **pnpm** (패키지 매니저 — npm 사용 금지)
+- **Node.js 20** (Docker Alpine)
+- **Jest 30** + Supertest (테스팅)
+
+## 설치 및 실행
 
 ```bash
 $ pnpm install
-```
 
-## Compile and run the project
-
-```bash
-# development
-$ pnpm run start
-
-# watch mode
+# 개발 모드 (watch)
 $ pnpm run start:dev
 
-# production mode
+# 프로덕션 빌드 및 실행
+$ pnpm run build
 $ pnpm run start:prod
 ```
+
+## API 클라이언트 생성
+
+OpenAPI spec이 변경되면 클라이언트를 재생성해야 합니다:
+
+```bash
+# ci 디렉터리에서 생성 후 복사
+$ pnpm gen
+$ pnpm sync-client
+```
+
+생성된 파일은 `src/sdk/generated/`에 위치하며, 직접 수정하면 안 됩니다.
+
+## 주요 엔드포인트
+
+모든 엔드포인트는 `POST /v1/idv/...` 패턴 (health 제외).
+
+| 카테고리 | 엔드포인트 | 설명 |
+|----------|-----------|------|
+| OAuth2 | `POST /v1/oauth2/token` | 액세스 토큰 발급 (client_credentials) |
+| Generic | `POST /v1/idv/start` | 공통 IDV 시작 (country 필드로 분기) |
+| Generic | `POST /v1/idv/kyc/get` | 공통 KYC 결과 조회 |
+| US/UK/CA | `POST /v1/idv/{country}/start` | 국가별 IDV 시작 |
+| US/UK/CA | `POST /v1/idv/{country}/kyc/get` | 국가별 KYC 조회 |
+| US/UK/CA | `POST /v1/idv/{country}/kyc/put` | 국가별 KYC 저장 |
+| US/UK/CA | `POST /v1/idv/{country}/cookie/start` | 쿠키 기반 IDV 시작 |
+| JP | `POST /v1/idv/jp/notification` | Liquid 웹훅 알림 |
+| CN | `POST /v1/idv/cn/token` | CN 전용 토큰 발급 |
+| CN | `POST /v1/idv/cn/result/web` | CN 웹 결과 조회 |
+| CN Mock | `POST /v1/idv/cn/mock/*` | CN 모의 테스트 |
+| Session | `POST /v1/idv/plaid/token/session` | Plaid 세션 토큰 |
+| Session | `POST /v1/idv/liquid/token/session` | Liquid 세션 토큰 |
+| Login | `POST /v1/idv/login-ticket` | 로그인 티켓 교환 |
+| Health | `GET /v1/idv/{country}/health` | 국가별 헬스체크 |
+
+## 환경 변수
+
+| 변수 | 필수 | 설명 |
+|------|------|------|
+| `IDV_BASE_URL` | O | idv-server 기본 URL (기본값: `http://idv-server-ghci`) |
+| `TOMO_IDV_CLIENT_ID` | O | OAuth2 클라이언트 ID |
+| `TOMO_IDV_SECRET` | O | Base64url 인코딩된 EC P-256 JWK 개인 키 |
+| `PORT` | X | 서버 포트 (기본값: 3000) |
+| `RUN_IDV_INTEGRATION_TESTS` | X | `true` 설정 시 통합 테스트 실행 |
 
 ## Testing
 
@@ -95,42 +133,48 @@ RUN_IDV_INTEGRATION_TESTS=true TOMO_IDV_CLIENT_ID=... TOMO_IDV_SECRET=... IDV_BA
 - `POST /v1/idv/jp/kyc/get` — JP KYC 조회 (토큰 필요)
 - `POST /v1/idv/start` — 공통 IDV 시작 (토큰 필요)
 
-## Deployment
+## Docker
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 빌드 및 실행
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# 단독 빌드
+docker build -t idv-client-server .
+
+# docker-compose (환경별)
+docker compose up client-server-test   # test 환경 (port 8080)
+docker compose up client-server-dev    # dev 환경 (port 8081)
+docker compose up client-server-prod   # prod 환경 (port 8082)
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 환경별 설정 (docker-compose.yaml)
 
-## Resources
+| Service | Port | IDV_BASE_URL |
+|---------|------|-------------|
+| `client-server-test` | 8080:3000 | `https://test.tomopayment.com` |
+| `client-server-dev` | 8081:3000 | `https://dev.tomopayment.com` |
+| `client-server-prod` | 8082:3000 | `https://api.tomopayment.com` |
 
-Check out a few resources that may come in handy when working with NestJS:
+현재 이미지 태그: `tomoadmin/idv-client-server:test-0.0.2.4`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 소스 구조
 
-## Support
+```
+src/
+  main.ts              — NestJS 부트스트랩 (CORS 전체 허용)
+  app.module.ts         — 루트 모듈
+  app.controller.ts     — 모든 HTTP 라우트 (30+ 엔드포인트)
+  app.service.ts        — 비즈니스 로직 (IdvServerClient 호출)
+  state.service.ts      — 인메모리 상태 관리 (토큰 저장 등)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+  idvServer/
+    idvServerClient.ts  — IdvServerClient 재수출
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+  sdk/
+    index.ts            — 배럴 파일 (타입, 클라이언트, 유틸리티 수출)
+    idv-client.ts       — IdvServerClient (generated DefaultApi 래퍼)
+    api-contract.ts     — 요청 바디 타입 정의 (snake_case)
+    tomo-idv-node.ts    — OAuth2 JWT 어설션 생성 (ES256/P-256)
+    case-converter.ts   — snake_case ↔ camelCase 변환 유틸리티
+    generated/          — OpenAPI Generator 산출물 (수동 편집 금지)
+```
