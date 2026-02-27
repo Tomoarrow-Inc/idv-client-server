@@ -107,64 +107,64 @@ import {
 } from '../models/index';
 
 export interface V1IdvCaCookieStartPostRequest {
-    plaidStartIdvRequest?: PlaidStartIdvRequest;
+    PlaidStartIdvRequest?: PlaidStartIdvRequest;
 }
 
 export interface V1IdvCaKycGetPostRequest {
-    authorization?: string;
-    plaidGetKycReq?: PlaidGetKycReq;
+    Authorization?: string;
+    PlaidGetKycReq?: PlaidGetKycReq;
 }
 
 export interface V1IdvCaKycPutPostRequest {
-    plaidPutKycReq?: PlaidPutKycReq;
+    PlaidPutKycReq?: PlaidPutKycReq;
 }
 
 export interface V1IdvCaStartPostRequest {
-    authorization?: string;
-    plaidStartIdvRequest?: PlaidStartIdvRequest;
+    Authorization?: string;
+    PlaidStartIdvRequest?: PlaidStartIdvRequest;
 }
 
 export interface V1IdvCnKycGetPostRequest {
-    authorization?: string;
-    tomoIdvGetResultReq?: TomoIdvGetResultReq;
+    Authorization?: string;
+    TomoIdvGetResultReq?: TomoIdvGetResultReq;
 }
 
 export interface V1IdvCnMockKycGetPostRequest {
-    authorization?: string;
-    tomoIdvMockGetResultReq?: TomoIdvMockGetResultReq;
+    Authorization?: string;
+    TomoIdvMockGetResultReq?: TomoIdvMockGetResultReq;
 }
 
 export interface V1IdvCnMockStartPostRequest {
-    authorization?: string;
-    tomoIdvMockStartReq?: TomoIdvMockStartReq;
+    Authorization?: string;
+    TomoIdvMockStartReq?: TomoIdvMockStartReq;
 }
 
 export interface V1IdvCnMockTokenPostRequest {
-    authorization?: string;
-    tomoIdvMockIssueTokenReq?: TomoIdvMockIssueTokenReq;
+    Authorization?: string;
+    TomoIdvMockIssueTokenReq?: TomoIdvMockIssueTokenReq;
 }
 
 export interface V1IdvCnStartPostRequest {
-    authorization?: string;
-    tomoIdvStartReq?: TomoIdvStartReq;
+    Authorization?: string;
+    TomoIdvStartReq?: TomoIdvStartReq;
 }
 
 export interface V1IdvCnTokenPostRequest {
-    authorization?: string;
-    tomoIdvIssueTokenReq?: TomoIdvIssueTokenReq;
+    Authorization?: string;
+    TomoIdvIssueTokenReq?: TomoIdvIssueTokenReq;
 }
 
 export interface V1IdvJpCookieStartPostRequest {
-    liquidStartIdvRequest?: LiquidStartIdvRequest;
+    LiquidStartIdvRequest?: LiquidStartIdvRequest;
 }
 
 export interface V1IdvJpKycGetPostRequest {
-    authorization?: string;
-    liquidGetKycReq?: LiquidGetKycReq;
+    Authorization?: string;
+    LiquidGetKycReq?: LiquidGetKycReq;
 }
 
 export interface V1IdvJpKycPutPostRequest {
-    liquidPutKycReq?: LiquidPutKycReq;
+    LiquidPutKycReq?: LiquidPutKycReq;
 }
 
 export interface V1IdvJpNotificationPostRequest {
@@ -172,72 +172,72 @@ export interface V1IdvJpNotificationPostRequest {
 }
 
 export interface V1IdvJpStartPostRequest {
-    authorization?: string;
-    liquidStartIdvRequest?: LiquidStartIdvRequest;
+    Authorization?: string;
+    LiquidStartIdvRequest?: LiquidStartIdvRequest;
 }
 
 export interface V1IdvKycGetPostRequest {
-    authorization?: string;
-    getKycReq?: GetKycReq;
+    Authorization?: string;
+    GetKycReq?: GetKycReq;
 }
 
 export interface V1IdvLiquidTokenSessionPostRequest {
-    liquidSessionTokenRequest?: LiquidSessionTokenRequest;
+    LiquidSessionTokenRequest?: LiquidSessionTokenRequest;
 }
 
 export interface V1IdvLoginTicketPostRequest {
-    loginTicketRequest?: LoginTicketRequest;
+    LoginTicketRequest?: LoginTicketRequest;
 }
 
 export interface V1IdvPlaidTokenSessionPostRequest {
-    plaidSessionTokenRequest?: PlaidSessionTokenRequest;
+    PlaidSessionTokenRequest?: PlaidSessionTokenRequest;
 }
 
 export interface V1IdvStartPostRequest {
-    authorization?: string;
-    startIdvReq?: StartIdvReq;
+    Authorization?: string;
+    StartIdvReq?: StartIdvReq;
 }
 
 export interface V1IdvUkCookieStartPostRequest {
-    plaidStartIdvRequest?: PlaidStartIdvRequest;
+    PlaidStartIdvRequest?: PlaidStartIdvRequest;
 }
 
 export interface V1IdvUkKycGetPostRequest {
-    authorization?: string;
-    plaidGetKycReq?: PlaidGetKycReq;
+    Authorization?: string;
+    PlaidGetKycReq?: PlaidGetKycReq;
 }
 
 export interface V1IdvUkKycPutPostRequest {
-    plaidPutKycReq?: PlaidPutKycReq;
+    PlaidPutKycReq?: PlaidPutKycReq;
 }
 
 export interface V1IdvUkStartPostRequest {
-    authorization?: string;
-    plaidStartIdvRequest?: PlaidStartIdvRequest;
+    Authorization?: string;
+    PlaidStartIdvRequest?: PlaidStartIdvRequest;
 }
 
 export interface V1IdvUsCookieStartPostRequest {
-    plaidStartIdvRequest?: PlaidStartIdvRequest;
+    PlaidStartIdvRequest?: PlaidStartIdvRequest;
 }
 
 export interface V1IdvUsKycGetPostRequest {
-    authorization?: string;
-    plaidGetKycReq?: PlaidGetKycReq;
+    Authorization?: string;
+    PlaidGetKycReq?: PlaidGetKycReq;
 }
 
 export interface V1IdvUsKycPutPostRequest {
-    plaidPutKycReq?: PlaidPutKycReq;
+    PlaidPutKycReq?: PlaidPutKycReq;
 }
 
 export interface V1IdvUsStartPostRequest {
-    authorization?: string;
-    plaidStartIdvRequest?: PlaidStartIdvRequest;
+    Authorization?: string;
+    PlaidStartIdvRequest?: PlaidStartIdvRequest;
 }
 
 export interface V1Oauth2TokenPostRequest {
-    clientAssertion: string;
-    clientAssertionType: string;
-    grantType: string;
+    client_assertion: string;
+    client_assertion_type: string;
+    grant_type: string;
     resource?: string;
     scope?: string;
 }
@@ -261,7 +261,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidStartIdvRequestToJSON(requestParameters['plaidStartIdvRequest']),
+            body: PlaidStartIdvRequestToJSON(requestParameters['PlaidStartIdvRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PlaidStartIdvRespFromJSON(jsonValue));
@@ -311,8 +311,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -320,7 +320,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidGetKycReqToJSON(requestParameters['plaidGetKycReq']),
+            body: PlaidGetKycReqToJSON(requestParameters['PlaidGetKycReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
@@ -347,7 +347,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidPutKycReqToJSON(requestParameters['plaidPutKycReq']),
+            body: PlaidPutKycReqToJSON(requestParameters['PlaidPutKycReq']),
         }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
@@ -368,8 +368,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -377,7 +377,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidStartIdvRequestToJSON(requestParameters['plaidStartIdvRequest']),
+            body: PlaidStartIdvRequestToJSON(requestParameters['PlaidStartIdvRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PlaidStartIdvRespFromJSON(jsonValue));
@@ -427,8 +427,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -436,7 +436,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: TomoIdvGetResultReqToJSON(requestParameters['tomoIdvGetResultReq']),
+            body: TomoIdvGetResultReqToJSON(requestParameters['TomoIdvGetResultReq']),
         }, initOverrides);
 
         if (this.isJsonMime(response.headers.get('content-type'))) {
@@ -462,8 +462,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -471,7 +471,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: TomoIdvMockGetResultReqToJSON(requestParameters['tomoIdvMockGetResultReq']),
+            body: TomoIdvMockGetResultReqToJSON(requestParameters['TomoIdvMockGetResultReq']),
         }, initOverrides);
 
         if (this.isJsonMime(response.headers.get('content-type'))) {
@@ -497,8 +497,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -506,7 +506,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: TomoIdvMockStartReqToJSON(requestParameters['tomoIdvMockStartReq']),
+            body: TomoIdvMockStartReqToJSON(requestParameters['TomoIdvMockStartReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => TomoIdvMockStartResFromJSON(jsonValue));
@@ -528,8 +528,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -537,7 +537,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: TomoIdvMockIssueTokenReqToJSON(requestParameters['tomoIdvMockIssueTokenReq']),
+            body: TomoIdvMockIssueTokenReqToJSON(requestParameters['TomoIdvMockIssueTokenReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => TomoIdvMockIssueTokenResFromJSON(jsonValue));
@@ -587,8 +587,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -596,7 +596,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: TomoIdvStartReqToJSON(requestParameters['tomoIdvStartReq']),
+            body: TomoIdvStartReqToJSON(requestParameters['TomoIdvStartReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => TomoIdvStartResFromJSON(jsonValue));
@@ -618,8 +618,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -627,7 +627,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: TomoIdvIssueTokenReqToJSON(requestParameters['tomoIdvIssueTokenReq']),
+            body: TomoIdvIssueTokenReqToJSON(requestParameters['TomoIdvIssueTokenReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => TomoIdvIssueTokenResFromJSON(jsonValue));
@@ -654,7 +654,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: LiquidStartIdvRequestToJSON(requestParameters['liquidStartIdvRequest']),
+            body: LiquidStartIdvRequestToJSON(requestParameters['LiquidStartIdvRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => LiquidIntegratedAppResponseFromJSON(jsonValue));
@@ -704,8 +704,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -713,7 +713,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: LiquidGetKycReqToJSON(requestParameters['liquidGetKycReq']),
+            body: LiquidGetKycReqToJSON(requestParameters['LiquidGetKycReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
@@ -740,7 +740,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: LiquidPutKycReqToJSON(requestParameters['liquidPutKycReq']),
+            body: LiquidPutKycReqToJSON(requestParameters['LiquidPutKycReq']),
         }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
@@ -788,8 +788,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -797,7 +797,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: LiquidStartIdvRequestToJSON(requestParameters['liquidStartIdvRequest']),
+            body: LiquidStartIdvRequestToJSON(requestParameters['LiquidStartIdvRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => LiquidIntegratedAppResponseFromJSON(jsonValue));
@@ -819,8 +819,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -828,7 +828,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: GetKycReqToJSON(requestParameters['getKycReq']),
+            body: GetKycReqToJSON(requestParameters['GetKycReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GetKycRespFromJSON(jsonValue));
@@ -855,7 +855,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: LiquidSessionTokenRequestToJSON(requestParameters['liquidSessionTokenRequest']),
+            body: LiquidSessionTokenRequestToJSON(requestParameters['LiquidSessionTokenRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => SessionTokenFromJSON(jsonValue));
@@ -882,7 +882,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: LoginTicketRequestToJSON(requestParameters['loginTicketRequest']),
+            body: LoginTicketRequestToJSON(requestParameters['LoginTicketRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => LoginTicketResponseFromJSON(jsonValue));
@@ -909,7 +909,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidSessionTokenRequestToJSON(requestParameters['plaidSessionTokenRequest']),
+            body: PlaidSessionTokenRequestToJSON(requestParameters['PlaidSessionTokenRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => SessionTokenFromJSON(jsonValue));
@@ -931,8 +931,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -940,7 +940,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: StartIdvReqToJSON(requestParameters['startIdvReq']),
+            body: StartIdvReqToJSON(requestParameters['StartIdvReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => StartIdvRespFromJSON(jsonValue));
@@ -967,7 +967,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidStartIdvRequestToJSON(requestParameters['plaidStartIdvRequest']),
+            body: PlaidStartIdvRequestToJSON(requestParameters['PlaidStartIdvRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PlaidStartIdvRespFromJSON(jsonValue));
@@ -1017,8 +1017,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -1026,7 +1026,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidGetKycReqToJSON(requestParameters['plaidGetKycReq']),
+            body: PlaidGetKycReqToJSON(requestParameters['PlaidGetKycReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
@@ -1053,7 +1053,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidPutKycReqToJSON(requestParameters['plaidPutKycReq']),
+            body: PlaidPutKycReqToJSON(requestParameters['PlaidPutKycReq']),
         }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
@@ -1074,8 +1074,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -1083,7 +1083,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidStartIdvRequestToJSON(requestParameters['plaidStartIdvRequest']),
+            body: PlaidStartIdvRequestToJSON(requestParameters['PlaidStartIdvRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PlaidStartIdvRespFromJSON(jsonValue));
@@ -1110,7 +1110,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidStartIdvRequestToJSON(requestParameters['plaidStartIdvRequest']),
+            body: PlaidStartIdvRequestToJSON(requestParameters['PlaidStartIdvRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PlaidStartIdvRespFromJSON(jsonValue));
@@ -1160,8 +1160,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -1169,7 +1169,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidGetKycReqToJSON(requestParameters['plaidGetKycReq']),
+            body: PlaidGetKycReqToJSON(requestParameters['PlaidGetKycReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
@@ -1196,7 +1196,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidPutKycReqToJSON(requestParameters['plaidPutKycReq']),
+            body: PlaidPutKycReqToJSON(requestParameters['PlaidPutKycReq']),
         }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
@@ -1217,8 +1217,8 @@ export class DefaultApi extends runtime.BaseAPI {
 
         headerParameters['Content-Type'] = 'application/json;charset=utf-8';
 
-        if (requestParameters['authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['authorization']);
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
         }
 
         const response = await this.request({
@@ -1226,7 +1226,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PlaidStartIdvRequestToJSON(requestParameters['plaidStartIdvRequest']),
+            body: PlaidStartIdvRequestToJSON(requestParameters['PlaidStartIdvRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => PlaidStartIdvRespFromJSON(jsonValue));
@@ -1242,24 +1242,24 @@ export class DefaultApi extends runtime.BaseAPI {
     /**
      */
     async v1Oauth2TokenPostRaw(requestParameters: V1Oauth2TokenPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TokenResponse>> {
-        if (requestParameters['clientAssertion'] == null) {
+        if (requestParameters['client_assertion'] == null) {
             throw new runtime.RequiredError(
-                'clientAssertion',
-                'Required parameter "clientAssertion" was null or undefined when calling v1Oauth2TokenPost().'
+                'client_assertion',
+                'Required parameter "client_assertion" was null or undefined when calling v1Oauth2TokenPost().'
             );
         }
 
-        if (requestParameters['clientAssertionType'] == null) {
+        if (requestParameters['client_assertion_type'] == null) {
             throw new runtime.RequiredError(
-                'clientAssertionType',
-                'Required parameter "clientAssertionType" was null or undefined when calling v1Oauth2TokenPost().'
+                'client_assertion_type',
+                'Required parameter "client_assertion_type" was null or undefined when calling v1Oauth2TokenPost().'
             );
         }
 
-        if (requestParameters['grantType'] == null) {
+        if (requestParameters['grant_type'] == null) {
             throw new runtime.RequiredError(
-                'grantType',
-                'Required parameter "grantType" was null or undefined when calling v1Oauth2TokenPost().'
+                'grant_type',
+                'Required parameter "grant_type" was null or undefined when calling v1Oauth2TokenPost().'
             );
         }
 
@@ -1281,16 +1281,16 @@ export class DefaultApi extends runtime.BaseAPI {
             formParams = new URLSearchParams();
         }
 
-        if (requestParameters['clientAssertion'] != null) {
-            formParams.append('client_assertion', requestParameters['clientAssertion'] as any);
+        if (requestParameters['client_assertion'] != null) {
+            formParams.append('client_assertion', requestParameters['client_assertion'] as any);
         }
 
-        if (requestParameters['clientAssertionType'] != null) {
-            formParams.append('client_assertion_type', requestParameters['clientAssertionType'] as any);
+        if (requestParameters['client_assertion_type'] != null) {
+            formParams.append('client_assertion_type', requestParameters['client_assertion_type'] as any);
         }
 
-        if (requestParameters['grantType'] != null) {
-            formParams.append('grant_type', requestParameters['grantType'] as any);
+        if (requestParameters['grant_type'] != null) {
+            formParams.append('grant_type', requestParameters['grant_type'] as any);
         }
 
         if (requestParameters['resource'] != null) {

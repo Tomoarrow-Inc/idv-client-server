@@ -38,14 +38,14 @@ export interface LiquidGetKycReq {
      * @type {string}
      * @memberof LiquidGetKycReq
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the LiquidGetKycReq interface.
  */
 export function instanceOfLiquidGetKycReq(value: object): value is LiquidGetKycReq {
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -60,7 +60,7 @@ export function LiquidGetKycReqFromJSONTyped(json: any, ignoreDiscriminator: boo
     return {
         
         'fields': json['fields'] == null ? undefined : ((json['fields'] as Array<any>).map(LiquidIdvFieldFromJSON)),
-        'userId': json['user_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -76,7 +76,7 @@ export function LiquidGetKycReqToJSONTyped(value?: LiquidGetKycReq | null, ignor
     return {
         
         'fields': value['fields'] == null ? undefined : ((value['fields'] as Array<any>).map(LiquidIdvFieldToJSON)),
-        'user_id': value['userId'],
+        'user_id': value['user_id'],
     };
 }
 

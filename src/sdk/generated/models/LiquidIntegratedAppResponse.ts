@@ -24,14 +24,14 @@ export interface LiquidIntegratedAppResponse {
      * @type {string}
      * @memberof LiquidIntegratedAppResponse
      */
-    startIdvUri: string;
+    start_idv_uri: string;
 }
 
 /**
  * Check if a given object implements the LiquidIntegratedAppResponse interface.
  */
 export function instanceOfLiquidIntegratedAppResponse(value: object): value is LiquidIntegratedAppResponse {
-    if (!('startIdvUri' in value) || value['startIdvUri'] === undefined) return false;
+    if (!('start_idv_uri' in value) || value['start_idv_uri'] === undefined) return false;
     return true;
 }
 
@@ -45,7 +45,7 @@ export function LiquidIntegratedAppResponseFromJSONTyped(json: any, ignoreDiscri
     }
     return {
         
-        'startIdvUri': json['start_idv_uri'],
+        'start_idv_uri': json['start_idv_uri'],
     };
 }
 
@@ -60,7 +60,7 @@ export function LiquidIntegratedAppResponseToJSONTyped(value?: LiquidIntegratedA
 
     return {
         
-        'start_idv_uri': value['startIdvUri'],
+        'start_idv_uri': value['start_idv_uri'],
     };
 }
 

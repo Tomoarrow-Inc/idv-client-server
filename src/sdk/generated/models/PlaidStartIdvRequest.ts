@@ -24,7 +24,7 @@ export interface PlaidStartIdvRequest {
      * @type {string}
      * @memberof PlaidStartIdvRequest
      */
-    callbackUrl: string;
+    callback_url: string;
     /**
      * 
      * @type {string}
@@ -36,16 +36,16 @@ export interface PlaidStartIdvRequest {
      * @type {string}
      * @memberof PlaidStartIdvRequest
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the PlaidStartIdvRequest interface.
  */
 export function instanceOfPlaidStartIdvRequest(value: object): value is PlaidStartIdvRequest {
-    if (!('callbackUrl' in value) || value['callbackUrl'] === undefined) return false;
+    if (!('callback_url' in value) || value['callback_url'] === undefined) return false;
     if (!('email' in value) || value['email'] === undefined) return false;
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -59,9 +59,9 @@ export function PlaidStartIdvRequestFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-        'callbackUrl': json['callback_url'],
+        'callback_url': json['callback_url'],
         'email': json['email'],
-        'userId': json['user_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -76,9 +76,9 @@ export function PlaidStartIdvRequestToJSONTyped(value?: PlaidStartIdvRequest | n
 
     return {
         
-        'callback_url': value['callbackUrl'],
+        'callback_url': value['callback_url'],
         'email': value['email'],
-        'user_id': value['userId'],
+        'user_id': value['user_id'],
     };
 }
 

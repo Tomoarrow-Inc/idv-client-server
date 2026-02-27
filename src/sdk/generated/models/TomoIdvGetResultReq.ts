@@ -24,14 +24,14 @@ export interface TomoIdvGetResultReq {
      * @type {string}
      * @memberof TomoIdvGetResultReq
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the TomoIdvGetResultReq interface.
  */
 export function instanceOfTomoIdvGetResultReq(value: object): value is TomoIdvGetResultReq {
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -45,7 +45,7 @@ export function TomoIdvGetResultReqFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-        'userId': json['user_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -60,7 +60,7 @@ export function TomoIdvGetResultReqToJSONTyped(value?: TomoIdvGetResultReq | nul
 
     return {
         
-        'user_id': value['userId'],
+        'user_id': value['user_id'],
     };
 }
 

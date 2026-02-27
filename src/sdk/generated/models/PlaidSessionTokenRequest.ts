@@ -24,20 +24,20 @@ export interface PlaidSessionTokenRequest {
      * @type {string}
      * @memberof PlaidSessionTokenRequest
      */
-    idvSessionId?: string;
+    idv_session_id?: string;
     /**
      * 
      * @type {string}
      * @memberof PlaidSessionTokenRequest
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the PlaidSessionTokenRequest interface.
  */
 export function instanceOfPlaidSessionTokenRequest(value: object): value is PlaidSessionTokenRequest {
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -51,8 +51,8 @@ export function PlaidSessionTokenRequestFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
-        'idvSessionId': json['idv_session_id'] == null ? undefined : json['idv_session_id'],
-        'userId': json['user_id'],
+        'idv_session_id': json['idv_session_id'] == null ? undefined : json['idv_session_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -67,8 +67,8 @@ export function PlaidSessionTokenRequestToJSONTyped(value?: PlaidSessionTokenReq
 
     return {
         
-        'idv_session_id': value['idvSessionId'],
-        'user_id': value['userId'],
+        'idv_session_id': value['idv_session_id'],
+        'user_id': value['user_id'],
     };
 }
 

@@ -61,8 +61,7 @@ function createConfiguration(): Configuration {
 
 /**
  * idv-server OpenAPI contract client.
- * Methods accept wire-format body (snake_case) to align with controller and idv-server API.
- * Returns generated types directly (camelCase) — no extra conversion.
+ * Transparent proxy — no field conversion. Body types match generated types (snake_case).
  */
 export class IdvServerClient {
   private readonly api: DefaultApi;
@@ -74,16 +73,16 @@ export class IdvServerClient {
   // ── OAuth2 ──
 
   async issueToken(params: {
-    clientAssertion: string;
-    clientAssertionType: string;
-    grantType: string;
+    client_assertion: string;
+    client_assertion_type: string;
+    grant_type: string;
     resource?: string;
     scope?: string;
   }): Promise<TokenResponse> {
     return this.api.v1Oauth2TokenPost({
-      clientAssertion: params.clientAssertion,
-      clientAssertionType: params.clientAssertionType,
-      grantType: params.grantType,
+      client_assertion: params.client_assertion,
+      client_assertion_type: params.client_assertion_type,
+      grant_type: params.grant_type,
       resource: params.resource,
       scope: params.scope,
     });
@@ -93,23 +92,15 @@ export class IdvServerClient {
 
   async idvStart(accessToken: string, body: IdvStartBody): Promise<StartIdvResp> {
     return this.api.v1IdvStartPost({
-      authorization: `Bearer ${accessToken}`,
-      startIdvReq: {
-        userId: body.user_id,
-        callbackUrl: body.callback_url,
-        email: body.email,
-        country: body.country,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      StartIdvReq: body,
     });
   }
 
   async idvKycGet(accessToken: string, body: IdvKycGetBody): Promise<GetKycResp> {
     return this.api.v1IdvKycGetPost({
-      authorization: `Bearer ${accessToken}`,
-      getKycReq: {
-        userId: body.user_id,
-        country: body.country,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      GetKycReq: body,
     });
   }
 
@@ -117,35 +108,27 @@ export class IdvServerClient {
 
   async idvStartUS(accessToken: string, body: IdvUsStartBody): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvUsStartPost({
-      authorization: `Bearer ${accessToken}`,
-      plaidStartIdvRequest: {
-        userId: body.user_id,
-        email: body.email,
-        callbackUrl: body.callback_url,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      PlaidStartIdvRequest: body,
     });
   }
 
   async getKycUS(accessToken: string, body: GetKycUsBody): Promise<{ [key: string]: string }> {
     return this.api.v1IdvUsKycGetPost({
-      authorization: `Bearer ${accessToken}`,
-      plaidGetKycReq: { userId: body.user_id, fields: body.fields },
+      Authorization: `Bearer ${accessToken}`,
+      PlaidGetKycReq: body,
     });
   }
 
   async putKycUS(body: PutKycUsBody): Promise<void> {
     return this.api.v1IdvUsKycPutPost({
-      plaidPutKycReq: { userId: body.user_id, idvSessionId: body.idv_session_id },
+      PlaidPutKycReq: body,
     });
   }
 
   async idvCookieStartUS(body: IdvUsCookieStartBody): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvUsCookieStartPost({
-      plaidStartIdvRequest: {
-        userId: body.user_id,
-        email: body.email,
-        callbackUrl: body.callback_url,
-      },
+      PlaidStartIdvRequest: body,
     });
   }
 
@@ -157,35 +140,27 @@ export class IdvServerClient {
 
   async idvStartUK(accessToken: string, body: IdvUkStartBody): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvUkStartPost({
-      authorization: `Bearer ${accessToken}`,
-      plaidStartIdvRequest: {
-        userId: body.user_id,
-        email: body.email,
-        callbackUrl: body.callback_url,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      PlaidStartIdvRequest: body,
     });
   }
 
   async getKycUK(accessToken: string, body: GetKycUkBody): Promise<{ [key: string]: string }> {
     return this.api.v1IdvUkKycGetPost({
-      authorization: `Bearer ${accessToken}`,
-      plaidGetKycReq: { userId: body.user_id, fields: body.fields },
+      Authorization: `Bearer ${accessToken}`,
+      PlaidGetKycReq: body,
     });
   }
 
   async putKycUK(body: PutKycUkBody): Promise<void> {
     return this.api.v1IdvUkKycPutPost({
-      plaidPutKycReq: { userId: body.user_id, idvSessionId: body.idv_session_id },
+      PlaidPutKycReq: body,
     });
   }
 
   async idvCookieStartUK(body: IdvUkCookieStartBody): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvUkCookieStartPost({
-      plaidStartIdvRequest: {
-        userId: body.user_id,
-        email: body.email,
-        callbackUrl: body.callback_url,
-      },
+      PlaidStartIdvRequest: body,
     });
   }
 
@@ -197,35 +172,27 @@ export class IdvServerClient {
 
   async idvStartCA(accessToken: string, body: IdvCaStartBody): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvCaStartPost({
-      authorization: `Bearer ${accessToken}`,
-      plaidStartIdvRequest: {
-        userId: body.user_id,
-        email: body.email,
-        callbackUrl: body.callback_url,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      PlaidStartIdvRequest: body,
     });
   }
 
   async getKycCA(accessToken: string, body: GetKycCaBody): Promise<{ [key: string]: string }> {
     return this.api.v1IdvCaKycGetPost({
-      authorization: `Bearer ${accessToken}`,
-      plaidGetKycReq: { userId: body.user_id, fields: body.fields },
+      Authorization: `Bearer ${accessToken}`,
+      PlaidGetKycReq: body,
     });
   }
 
   async putKycCA(body: PutKycCaBody): Promise<void> {
     return this.api.v1IdvCaKycPutPost({
-      plaidPutKycReq: { userId: body.user_id, idvSessionId: body.idv_session_id },
+      PlaidPutKycReq: body,
     });
   }
 
   async idvCookieStartCA(body: IdvCaCookieStartBody): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvCaCookieStartPost({
-      plaidStartIdvRequest: {
-        userId: body.user_id,
-        email: body.email,
-        callbackUrl: body.callback_url,
-      },
+      PlaidStartIdvRequest: body,
     });
   }
 
@@ -237,33 +204,27 @@ export class IdvServerClient {
 
   async idvStartJP(accessToken: string, body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
     return this.api.v1IdvJpStartPost({
-      authorization: `Bearer ${accessToken}`,
-      liquidStartIdvRequest: {
-        userId: body.user_id,
-        callbackUrl: body.callback_url,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      LiquidStartIdvRequest: body,
     });
   }
 
   async getKycJP(accessToken: string, body: GetKycJpBody): Promise<{ [key: string]: string }> {
     return this.api.v1IdvJpKycGetPost({
-      authorization: `Bearer ${accessToken}`,
-      liquidGetKycReq: { userId: body.user_id, fields: body.fields },
+      Authorization: `Bearer ${accessToken}`,
+      LiquidGetKycReq: body,
     });
   }
 
   async putKycJP(body: PutKycJpBody): Promise<void> {
     return this.api.v1IdvJpKycPutPost({
-      liquidPutKycReq: { userId: body.user_id },
+      LiquidPutKycReq: body,
     });
   }
 
   async idvCookieStartJP(body: IdvJpCookieStartBody): Promise<LiquidIntegratedAppResponse> {
     return this.api.v1IdvJpCookieStartPost({
-      liquidStartIdvRequest: {
-        userId: body.user_id,
-        callbackUrl: body.callback_url,
-      },
+      LiquidStartIdvRequest: body,
     });
   }
 
@@ -281,29 +242,22 @@ export class IdvServerClient {
 
   async idvStartCN(accessToken: string, body: IdvCnStartBody): Promise<TomoIdvStartRes> {
     return this.api.v1IdvCnStartPost({
-      authorization: `Bearer ${accessToken}`,
-      tomoIdvStartReq: {
-        userId: body.user_id,
-        redirectUrl: body.redirect_url,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      TomoIdvStartReq: body,
     });
   }
 
   async idvTokenCN(accessToken: string, body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes> {
     return this.api.v1IdvCnTokenPost({
-      authorization: `Bearer ${accessToken}`,
-      tomoIdvIssueTokenReq: {
-        userId: body.user_id,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      TomoIdvIssueTokenReq: body,
     });
   }
 
   async idvKycGetCN(accessToken: string, body: IdvCnKycGetBody): Promise<any> {
     return this.api.v1IdvCnKycGetPost({
-      authorization: `Bearer ${accessToken}`,
-      tomoIdvGetResultReq: {
-        userId: body.user_id,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      TomoIdvGetResultReq: body,
     });
   }
 
@@ -317,29 +271,22 @@ export class IdvServerClient {
 
   async idvMockStartCN(accessToken: string, body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes> {
     return this.api.v1IdvCnMockStartPost({
-      authorization: `Bearer ${accessToken}`,
-      tomoIdvMockStartReq: {
-        userId: body.user_id,
-        redirectUrl: body.redirect_url,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      TomoIdvMockStartReq: body,
     });
   }
 
   async idvMockTokenCN(accessToken: string, body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes> {
     return this.api.v1IdvCnMockTokenPost({
-      authorization: `Bearer ${accessToken}`,
-      tomoIdvMockIssueTokenReq: {
-        userId: body.user_id,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      TomoIdvMockIssueTokenReq: body,
     });
   }
 
   async idvMockKycGetCN(accessToken: string, body: IdvCnMockKycGetBody): Promise<any> {
     return this.api.v1IdvCnMockKycGetPost({
-      authorization: `Bearer ${accessToken}`,
-      tomoIdvMockGetResultReq: {
-        userId: body.user_id,
-      },
+      Authorization: `Bearer ${accessToken}`,
+      TomoIdvMockGetResultReq: body,
     });
   }
 
@@ -347,18 +294,13 @@ export class IdvServerClient {
 
   async plaidTokenSession(body: PlaidSessionTokenBody): Promise<SessionToken> {
     return this.api.v1IdvPlaidTokenSessionPost({
-      plaidSessionTokenRequest: {
-        userId: body.user_id,
-        idvSessionId: body.idv_session_id,
-      },
+      PlaidSessionTokenRequest: body,
     });
   }
 
   async liquidTokenSession(body: LiquidSessionTokenBody): Promise<SessionToken> {
     return this.api.v1IdvLiquidTokenSessionPost({
-      liquidSessionTokenRequest: {
-        userId: body.user_id,
-      },
+      LiquidSessionTokenRequest: body,
     });
   }
 
@@ -366,10 +308,7 @@ export class IdvServerClient {
 
   async loginTicket(body: LoginTicketBody): Promise<LoginTicketResponse> {
     return this.api.v1IdvLoginTicketPost({
-      loginTicketRequest: {
-        loginTicket: body.login_ticket,
-        bizToken: body.biz_token,
-      },
+      LoginTicketRequest: body,
     });
   }
 }

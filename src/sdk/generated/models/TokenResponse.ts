@@ -24,13 +24,13 @@ export interface TokenResponse {
      * @type {string}
      * @memberof TokenResponse
      */
-    accessToken: string;
+    access_token: string;
     /**
      * 
      * @type {number}
      * @memberof TokenResponse
      */
-    expiresIn: number;
+    expires_in: number;
     /**
      * 
      * @type {string}
@@ -42,16 +42,16 @@ export interface TokenResponse {
      * @type {string}
      * @memberof TokenResponse
      */
-    tokenType: string;
+    token_type: string;
 }
 
 /**
  * Check if a given object implements the TokenResponse interface.
  */
 export function instanceOfTokenResponse(value: object): value is TokenResponse {
-    if (!('accessToken' in value) || value['accessToken'] === undefined) return false;
-    if (!('expiresIn' in value) || value['expiresIn'] === undefined) return false;
-    if (!('tokenType' in value) || value['tokenType'] === undefined) return false;
+    if (!('access_token' in value) || value['access_token'] === undefined) return false;
+    if (!('expires_in' in value) || value['expires_in'] === undefined) return false;
+    if (!('token_type' in value) || value['token_type'] === undefined) return false;
     return true;
 }
 
@@ -65,10 +65,10 @@ export function TokenResponseFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-        'accessToken': json['access_token'],
-        'expiresIn': json['expires_in'],
+        'access_token': json['access_token'],
+        'expires_in': json['expires_in'],
         'scope': json['scope'] == null ? undefined : json['scope'],
-        'tokenType': json['token_type'],
+        'token_type': json['token_type'],
     };
 }
 
@@ -83,10 +83,10 @@ export function TokenResponseToJSONTyped(value?: TokenResponse | null, ignoreDis
 
     return {
         
-        'access_token': value['accessToken'],
-        'expires_in': value['expiresIn'],
+        'access_token': value['access_token'],
+        'expires_in': value['expires_in'],
         'scope': value['scope'],
-        'token_type': value['tokenType'],
+        'token_type': value['token_type'],
     };
 }
 

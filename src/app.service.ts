@@ -80,18 +80,18 @@ export class AppService {
     });
 
     const tokenResponse = await this.idvServerClient.issueToken({
-      clientAssertion,
-      clientAssertionType: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-      grantType: 'client_credentials',
+      client_assertion: clientAssertion,
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      grant_type: 'client_credentials',
       scope: 'idv.read',
       resource: `https://api.tomopayment.com/v1/idv`,
     });
 
-    this.setState('access_token', tokenResponse.accessToken);
+    this.setState('access_token', tokenResponse.access_token);
     this.setState('token_info', {
       clientId: TOMO_IDV_CLIENT_ID,
-      tokenType: tokenResponse.tokenType,
-      expiresIn: tokenResponse.expiresIn,
+      tokenType: tokenResponse.token_type,
+      expiresIn: tokenResponse.expires_in,
       scope: tokenResponse.scope ?? null,
       issuedAt: new Date().toISOString(),
     });

@@ -36,49 +36,49 @@ export interface GetKycResp {
      * @type {string}
      * @memberof GetKycResp
      */
-    dateOfBirth: string;
+    date_of_birth: string;
     /**
      * 
      * @type {string}
      * @memberof GetKycResp
      */
-    emailAddress?: string;
+    email_address?: string;
     /**
      * 
      * @type {string}
      * @memberof GetKycResp
      */
-    familyName?: string;
+    family_name?: string;
     /**
      * 
      * @type {string}
      * @memberof GetKycResp
      */
-    fullAddress: string;
+    full_address: string;
     /**
      * 
      * @type {string}
      * @memberof GetKycResp
      */
-    fullName: string;
+    full_name: string;
     /**
      * 
      * @type {string}
      * @memberof GetKycResp
      */
-    givenName?: string;
+    given_name?: string;
     /**
      * 
      * @type {string}
      * @memberof GetKycResp
      */
-    phoneNumber?: string;
+    phone_number?: string;
     /**
      * 
      * @type {string}
      * @memberof GetKycResp
      */
-    postalCode?: string;
+    postal_code?: string;
     /**
      * 
      * @type {string}
@@ -104,9 +104,9 @@ export interface GetKycResp {
  */
 export function instanceOfGetKycResp(value: object): value is GetKycResp {
     if (!('country' in value) || value['country'] === undefined) return false;
-    if (!('dateOfBirth' in value) || value['dateOfBirth'] === undefined) return false;
-    if (!('fullAddress' in value) || value['fullAddress'] === undefined) return false;
-    if (!('fullName' in value) || value['fullName'] === undefined) return false;
+    if (!('date_of_birth' in value) || value['date_of_birth'] === undefined) return false;
+    if (!('full_address' in value) || value['full_address'] === undefined) return false;
+    if (!('full_name' in value) || value['full_name'] === undefined) return false;
     return true;
 }
 
@@ -122,14 +122,14 @@ export function GetKycRespFromJSONTyped(json: any, ignoreDiscriminator: boolean)
         
         'city': json['city'] == null ? undefined : json['city'],
         'country': json['country'],
-        'dateOfBirth': json['date_of_birth'],
-        'emailAddress': json['email_address'] == null ? undefined : json['email_address'],
-        'familyName': json['family_name'] == null ? undefined : json['family_name'],
-        'fullAddress': json['full_address'],
-        'fullName': json['full_name'],
-        'givenName': json['given_name'] == null ? undefined : json['given_name'],
-        'phoneNumber': json['phone_number'] == null ? undefined : json['phone_number'],
-        'postalCode': json['postal_code'] == null ? undefined : json['postal_code'],
+        'date_of_birth': json['date_of_birth'],
+        'email_address': json['email_address'] == null ? undefined : json['email_address'],
+        'family_name': json['family_name'] == null ? undefined : json['family_name'],
+        'full_address': json['full_address'],
+        'full_name': json['full_name'],
+        'given_name': json['given_name'] == null ? undefined : json['given_name'],
+        'phone_number': json['phone_number'] == null ? undefined : json['phone_number'],
+        'postal_code': json['postal_code'] == null ? undefined : json['postal_code'],
         'region': json['region'] == null ? undefined : json['region'],
         'sex': json['sex'] == null ? undefined : json['sex'],
         'street': json['street'] == null ? undefined : json['street'],
@@ -149,14 +149,14 @@ export function GetKycRespToJSONTyped(value?: GetKycResp | null, ignoreDiscrimin
         
         'city': value['city'],
         'country': value['country'],
-        'date_of_birth': value['dateOfBirth'],
-        'email_address': value['emailAddress'],
-        'family_name': value['familyName'],
-        'full_address': value['fullAddress'],
-        'full_name': value['fullName'],
-        'given_name': value['givenName'],
-        'phone_number': value['phoneNumber'],
-        'postal_code': value['postalCode'],
+        'date_of_birth': value['date_of_birth'],
+        'email_address': value['email_address'],
+        'family_name': value['family_name'],
+        'full_address': value['full_address'],
+        'full_name': value['full_name'],
+        'given_name': value['given_name'],
+        'phone_number': value['phone_number'],
+        'postal_code': value['postal_code'],
         'region': value['region'],
         'sex': value['sex'],
         'street': value['street'],

@@ -24,7 +24,7 @@ export interface TomoIdvIssueTokenRes {
      * @type {number}
      * @memberof TomoIdvIssueTokenRes
      */
-    expiresIn: number;
+    expires_in: number;
     /**
      * 
      * @type {string}
@@ -36,16 +36,16 @@ export interface TomoIdvIssueTokenRes {
      * @type {string}
      * @memberof TomoIdvIssueTokenRes
      */
-    sessionToken: string;
+    session_token: string;
 }
 
 /**
  * Check if a given object implements the TomoIdvIssueTokenRes interface.
  */
 export function instanceOfTomoIdvIssueTokenRes(value: object): value is TomoIdvIssueTokenRes {
-    if (!('expiresIn' in value) || value['expiresIn'] === undefined) return false;
+    if (!('expires_in' in value) || value['expires_in'] === undefined) return false;
     if (!('key' in value) || value['key'] === undefined) return false;
-    if (!('sessionToken' in value) || value['sessionToken'] === undefined) return false;
+    if (!('session_token' in value) || value['session_token'] === undefined) return false;
     return true;
 }
 
@@ -59,9 +59,9 @@ export function TomoIdvIssueTokenResFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-        'expiresIn': json['expires_in'],
+        'expires_in': json['expires_in'],
         'key': json['key'],
-        'sessionToken': json['session_token'],
+        'session_token': json['session_token'],
     };
 }
 
@@ -76,9 +76,9 @@ export function TomoIdvIssueTokenResToJSONTyped(value?: TomoIdvIssueTokenRes | n
 
     return {
         
-        'expires_in': value['expiresIn'],
+        'expires_in': value['expires_in'],
         'key': value['key'],
-        'session_token': value['sessionToken'],
+        'session_token': value['session_token'],
     };
 }
 

@@ -38,14 +38,14 @@ export interface PlaidGetKycReq {
      * @type {string}
      * @memberof PlaidGetKycReq
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the PlaidGetKycReq interface.
  */
 export function instanceOfPlaidGetKycReq(value: object): value is PlaidGetKycReq {
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -60,7 +60,7 @@ export function PlaidGetKycReqFromJSONTyped(json: any, ignoreDiscriminator: bool
     return {
         
         'fields': json['fields'] == null ? undefined : ((json['fields'] as Array<any>).map(PlaidIdvFieldFromJSON)),
-        'userId': json['user_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -76,7 +76,7 @@ export function PlaidGetKycReqToJSONTyped(value?: PlaidGetKycReq | null, ignoreD
     return {
         
         'fields': value['fields'] == null ? undefined : ((value['fields'] as Array<any>).map(PlaidIdvFieldToJSON)),
-        'user_id': value['userId'],
+        'user_id': value['user_id'],
     };
 }
 

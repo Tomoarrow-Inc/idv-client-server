@@ -24,21 +24,21 @@ export interface PlaidPutKycReq {
      * @type {string}
      * @memberof PlaidPutKycReq
      */
-    idvSessionId: string;
+    idv_session_id: string;
     /**
      * 
      * @type {string}
      * @memberof PlaidPutKycReq
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the PlaidPutKycReq interface.
  */
 export function instanceOfPlaidPutKycReq(value: object): value is PlaidPutKycReq {
-    if (!('idvSessionId' in value) || value['idvSessionId'] === undefined) return false;
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('idv_session_id' in value) || value['idv_session_id'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -52,8 +52,8 @@ export function PlaidPutKycReqFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-        'idvSessionId': json['idv_session_id'],
-        'userId': json['user_id'],
+        'idv_session_id': json['idv_session_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -68,8 +68,8 @@ export function PlaidPutKycReqToJSONTyped(value?: PlaidPutKycReq | null, ignoreD
 
     return {
         
-        'idv_session_id': value['idvSessionId'],
-        'user_id': value['userId'],
+        'idv_session_id': value['idv_session_id'],
+        'user_id': value['user_id'],
     };
 }
 

@@ -24,14 +24,14 @@ export interface TomoIdvMockIssueTokenReq {
      * @type {string}
      * @memberof TomoIdvMockIssueTokenReq
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the TomoIdvMockIssueTokenReq interface.
  */
 export function instanceOfTomoIdvMockIssueTokenReq(value: object): value is TomoIdvMockIssueTokenReq {
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -45,7 +45,7 @@ export function TomoIdvMockIssueTokenReqFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
-        'userId': json['user_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -60,7 +60,7 @@ export function TomoIdvMockIssueTokenReqToJSONTyped(value?: TomoIdvMockIssueToke
 
     return {
         
-        'user_id': value['userId'],
+        'user_id': value['user_id'],
     };
 }
 

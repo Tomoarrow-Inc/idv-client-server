@@ -24,14 +24,14 @@ export interface TomoIdvIssueTokenReq {
      * @type {string}
      * @memberof TomoIdvIssueTokenReq
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the TomoIdvIssueTokenReq interface.
  */
 export function instanceOfTomoIdvIssueTokenReq(value: object): value is TomoIdvIssueTokenReq {
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -45,7 +45,7 @@ export function TomoIdvIssueTokenReqFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-        'userId': json['user_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -60,7 +60,7 @@ export function TomoIdvIssueTokenReqToJSONTyped(value?: TomoIdvIssueTokenReq | n
 
     return {
         
-        'user_id': value['userId'],
+        'user_id': value['user_id'],
     };
 }
 

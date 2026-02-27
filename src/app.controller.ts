@@ -53,12 +53,13 @@ import type { TomoIdvMockIssueTokenRes } from './sdk/generated/models/TomoIdvMoc
 async function rethrow(error: unknown): Promise<never> {
   if (error instanceof ResponseError) {
     const status = error.response.status || HttpStatus.BAD_GATEWAY;
-    let body: string | undefined;
-    try { body = await error.response.text(); } catch {}
-    throw new HttpException(
-      { statusCode: status, message: body || error.message },
-      status,
-    );
+    let body: string | Record<string, any> = '';
+    try {
+      body = await error.response.json();
+    } catch {
+      try { body = await error.response.text(); } catch { body = error.message; }
+    }
+    throw new HttpException(body, status);
   }
   const msg = error instanceof Error ? error.message : 'Unknown error';
   throw new HttpException(msg, HttpStatus.BAD_GATEWAY);

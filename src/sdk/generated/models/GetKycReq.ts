@@ -38,7 +38,7 @@ export interface GetKycReq {
      * @type {string}
      * @memberof GetKycReq
      */
-    userId: string;
+    user_id: string;
 }
 
 
@@ -48,7 +48,7 @@ export interface GetKycReq {
  */
 export function instanceOfGetKycReq(value: object): value is GetKycReq {
     if (!('country' in value) || value['country'] === undefined) return false;
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -63,7 +63,7 @@ export function GetKycReqFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     return {
         
         'country': CountryFromJSON(json['country']),
-        'userId': json['user_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -79,7 +79,7 @@ export function GetKycReqToJSONTyped(value?: GetKycReq | null, ignoreDiscriminat
     return {
         
         'country': CountryToJSON(value['country']),
-        'user_id': value['userId'],
+        'user_id': value['user_id'],
     };
 }
 

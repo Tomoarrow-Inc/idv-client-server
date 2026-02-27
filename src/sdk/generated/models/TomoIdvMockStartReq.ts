@@ -24,21 +24,21 @@ export interface TomoIdvMockStartReq {
      * @type {string}
      * @memberof TomoIdvMockStartReq
      */
-    redirectUrl: string;
+    redirect_url: string;
     /**
      * 
      * @type {string}
      * @memberof TomoIdvMockStartReq
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the TomoIdvMockStartReq interface.
  */
 export function instanceOfTomoIdvMockStartReq(value: object): value is TomoIdvMockStartReq {
-    if (!('redirectUrl' in value) || value['redirectUrl'] === undefined) return false;
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('redirect_url' in value) || value['redirect_url'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -52,8 +52,8 @@ export function TomoIdvMockStartReqFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-        'redirectUrl': json['redirect_url'],
-        'userId': json['user_id'],
+        'redirect_url': json['redirect_url'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -68,8 +68,8 @@ export function TomoIdvMockStartReqToJSONTyped(value?: TomoIdvMockStartReq | nul
 
     return {
         
-        'redirect_url': value['redirectUrl'],
-        'user_id': value['userId'],
+        'redirect_url': value['redirect_url'],
+        'user_id': value['user_id'],
     };
 }
 

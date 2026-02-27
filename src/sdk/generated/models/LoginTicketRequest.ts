@@ -24,13 +24,13 @@ export interface LoginTicketRequest {
      * @type {string}
      * @memberof LoginTicketRequest
      */
-    bizToken?: string;
+    biz_token?: string;
     /**
      * 
      * @type {string}
      * @memberof LoginTicketRequest
      */
-    loginTicket?: string;
+    login_ticket?: string;
 }
 
 /**
@@ -50,8 +50,8 @@ export function LoginTicketRequestFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-        'bizToken': json['biz_token'] == null ? undefined : json['biz_token'],
-        'loginTicket': json['login_ticket'] == null ? undefined : json['login_ticket'],
+        'biz_token': json['biz_token'] == null ? undefined : json['biz_token'],
+        'login_ticket': json['login_ticket'] == null ? undefined : json['login_ticket'],
     };
 }
 
@@ -66,8 +66,8 @@ export function LoginTicketRequestToJSONTyped(value?: LoginTicketRequest | null,
 
     return {
         
-        'biz_token': value['bizToken'],
-        'login_ticket': value['loginTicket'],
+        'biz_token': value['biz_token'],
+        'login_ticket': value['login_ticket'],
     };
 }
 

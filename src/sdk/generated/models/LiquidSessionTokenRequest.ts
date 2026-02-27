@@ -24,14 +24,14 @@ export interface LiquidSessionTokenRequest {
      * @type {string}
      * @memberof LiquidSessionTokenRequest
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the LiquidSessionTokenRequest interface.
  */
 export function instanceOfLiquidSessionTokenRequest(value: object): value is LiquidSessionTokenRequest {
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -45,7 +45,7 @@ export function LiquidSessionTokenRequestFromJSONTyped(json: any, ignoreDiscrimi
     }
     return {
         
-        'userId': json['user_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -60,7 +60,7 @@ export function LiquidSessionTokenRequestToJSONTyped(value?: LiquidSessionTokenR
 
     return {
         
-        'user_id': value['userId'],
+        'user_id': value['user_id'],
     };
 }
 

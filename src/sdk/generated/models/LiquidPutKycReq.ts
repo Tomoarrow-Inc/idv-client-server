@@ -24,14 +24,14 @@ export interface LiquidPutKycReq {
      * @type {string}
      * @memberof LiquidPutKycReq
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the LiquidPutKycReq interface.
  */
 export function instanceOfLiquidPutKycReq(value: object): value is LiquidPutKycReq {
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -45,7 +45,7 @@ export function LiquidPutKycReqFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'userId': json['user_id'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -60,7 +60,7 @@ export function LiquidPutKycReqToJSONTyped(value?: LiquidPutKycReq | null, ignor
 
     return {
         
-        'user_id': value['userId'],
+        'user_id': value['user_id'],
     };
 }
 

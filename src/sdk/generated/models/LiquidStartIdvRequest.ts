@@ -24,21 +24,21 @@ export interface LiquidStartIdvRequest {
      * @type {string}
      * @memberof LiquidStartIdvRequest
      */
-    callbackUrl: string;
+    callback_url: string;
     /**
      * 
      * @type {string}
      * @memberof LiquidStartIdvRequest
      */
-    userId: string;
+    user_id: string;
 }
 
 /**
  * Check if a given object implements the LiquidStartIdvRequest interface.
  */
 export function instanceOfLiquidStartIdvRequest(value: object): value is LiquidStartIdvRequest {
-    if (!('callbackUrl' in value) || value['callbackUrl'] === undefined) return false;
-    if (!('userId' in value) || value['userId'] === undefined) return false;
+    if (!('callback_url' in value) || value['callback_url'] === undefined) return false;
+    if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
 
@@ -52,8 +52,8 @@ export function LiquidStartIdvRequestFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
         
-        'callbackUrl': json['callback_url'],
-        'userId': json['user_id'],
+        'callback_url': json['callback_url'],
+        'user_id': json['user_id'],
     };
 }
 
@@ -68,8 +68,8 @@ export function LiquidStartIdvRequestToJSONTyped(value?: LiquidStartIdvRequest |
 
     return {
         
-        'callback_url': value['callbackUrl'],
-        'user_id': value['userId'],
+        'callback_url': value['callback_url'],
+        'user_id': value['user_id'],
     };
 }
 

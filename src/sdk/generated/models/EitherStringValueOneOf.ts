@@ -24,14 +24,14 @@ export interface EitherStringValueOneOf {
      * @type {string}
      * @memberof EitherStringValueOneOf
      */
-    left: string;
+    Left: string;
 }
 
 /**
  * Check if a given object implements the EitherStringValueOneOf interface.
  */
 export function instanceOfEitherStringValueOneOf(value: object): value is EitherStringValueOneOf {
-    if (!('left' in value) || value['left'] === undefined) return false;
+    if (!('Left' in value) || value['Left'] === undefined) return false;
     return true;
 }
 
@@ -45,7 +45,7 @@ export function EitherStringValueOneOfFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'left': json['Left'],
+        'Left': json['Left'],
     };
 }
 
@@ -60,7 +60,7 @@ export function EitherStringValueOneOfToJSONTyped(value?: EitherStringValueOneOf
 
     return {
         
-        'Left': value['left'],
+        'Left': value['Left'],
     };
 }
 

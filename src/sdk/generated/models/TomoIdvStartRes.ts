@@ -24,14 +24,14 @@ export interface TomoIdvStartRes {
      * @type {string}
      * @memberof TomoIdvStartRes
      */
-    startIdvUri: string;
+    start_idv_uri: string;
 }
 
 /**
  * Check if a given object implements the TomoIdvStartRes interface.
  */
 export function instanceOfTomoIdvStartRes(value: object): value is TomoIdvStartRes {
-    if (!('startIdvUri' in value) || value['startIdvUri'] === undefined) return false;
+    if (!('start_idv_uri' in value) || value['start_idv_uri'] === undefined) return false;
     return true;
 }
 
@@ -45,7 +45,7 @@ export function TomoIdvStartResFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'startIdvUri': json['start_idv_uri'],
+        'start_idv_uri': json['start_idv_uri'],
     };
 }
 
@@ -60,7 +60,7 @@ export function TomoIdvStartResToJSONTyped(value?: TomoIdvStartRes | null, ignor
 
     return {
         
-        'start_idv_uri': value['startIdvUri'],
+        'start_idv_uri': value['start_idv_uri'],
     };
 }
 
