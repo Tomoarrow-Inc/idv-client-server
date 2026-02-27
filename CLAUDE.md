@@ -2,6 +2,22 @@
 
 Backend For Frontend (BFF) server for idv-client. Handles OAuth2 client-assertion flow and proxies requests to idv-server (Haskell backend).
 
+## 프로젝트 목적
+
+이 프로젝트는 idv-server API가 클라이언트에게 배포됐을 때 **클라이언트 측 기능을 시뮬레이션**하는 모듈이다.
+
+### 핵심 원칙
+
+1. **투명한 메시지 전달**: 클라이언트가 idv-server로부터 받는 응답 메시지를 변환 없이 그대로 전달해야 한다. BFF 레이어에서 필드명 변환(snake_case ↔ camelCase)이나 구조 변경을 하지 않는다.
+2. **투명한 에러 전달**: idv-server로부터 받는 에러 정보(HTTP status code, error body)를 그대로 클라이언트에 전달해야 한다. `rethrow()`가 upstream 에러의 status와 JSON body를 보존한다.
+3. **자동 서버 인증**: 클라이언트측 OAuth2 인증(client_credentials + JWT assertion)을 자동으로 처리한다. 엔드유저들은 인증 과정을 의식하지 않고 이 서버를 통해 idv-server API에 접근한다.
+
+### 설계 귀결
+
+- Generated OpenAPI 클라이언트는 `modelPropertyNaming=original,paramNaming=original` 설정으로 스펙의 snake_case 필드명을 그대로 유지한다.
+- `IdvServerClient`는 transparent proxy로 동작하며, request body를 변환 없이 generated API에 그대로 전달한다.
+- 에러 응답은 `error.response.json()`을 우선 시도하여 구조화된 에러 정보를 보존한다.
+
 ## Tech Stack
 
 - **Framework**: NestJS 11
