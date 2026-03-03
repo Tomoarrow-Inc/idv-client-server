@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social KYC Test Board</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; padding: 20px; max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin-bottom: 4px; }
+    .subtitle { font-size: 0.85rem; color: #888; margin-bottom: 20px; }
+    .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+    .card h2 { font-size: 1.1rem; margin-bottom: 12px; color: #555; }
+    .card h2 .step { background: #1976d2; color: #fff; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-right: 8px; vertical-align: middle; }
+    label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 4px; margin-top: 10px; }
+    input, select { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; font-family: inherit; }
+    input:focus, select:focus { outline: none; border-color: #1976d2; box-shadow: 0 0 0 2px rgba(25,118,210,0.15); }
+    input:read-only { background: #f9f9f9; color: #666; }
+    .row { display: flex; gap: 12px; align-items: flex-end; }
+    .row > * { flex: 1; }
+    button { padding: 8px 18px; border: none; border-radius: 4px; font-size: 0.9rem; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: #1976d2; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #1565c0; }
+    .btn-secondary { background: #e0e0e0; color: #333; }
+    .btn-secondary:hover:not(:disabled) { background: #d0d0d0; }
+    .btn-success { background: #2e7d32; color: #fff; }
+    .btn-success:hover:not(:disabled) { background: #1b5e20; }
+    .btn-danger { background: #c62828; color: #fff; }
+    .btn-danger:hover:not(:disabled) { background: #b71c1c; }
+    .status { font-size: 0.85rem; margin-top: 8px; padding: 6px 10px; border-radius: 4px; display: inline-block; }
+    .status.ok { background: #e8f5e9; color: #2e7d32; }
+    .status.error { background: #ffebee; color: #c62828; }
+    .status.info { background: #e3f2fd; color: #1565c0; }
+    .status.warn { background: #fff3e0; color: #e65100; }
+    pre { background: #263238; color: #eeffff; padding: 12px; border-radius: 4px; font-size: 0.82rem; overflow-x: auto; margin-top: 8px; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow-y: auto; }
+    .actions { margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    a.ext { color: #1976d2; text-decoration: none; font-size: 0.85rem; }
+    a.ext:hover { text-decoration: underline; }
+    .footer { margin-top: 24px; text-align: center; font-size: 0.82rem; color: #999; }
+    .hidden { display: none; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
+    .badge-verified { background: #e8f5e9; color: #2e7d32; }
+    .badge-pending { background: #fff3e0; color: #e65100; }
+    .badge-not_linked { background: #e3f2fd; color: #1565c0; }
+    .badge-denied { background: #ffebee; color: #c62828; }
+    .badge-error { background: #ffebee; color: #c62828; }
+    .user-info { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 6px; }
+    .user-info img { width: 40px; height: 40px; border-radius: 50%; }
+    .user-info .details { font-size: 0.85rem; }
+    .user-info .details .name { font-weight: 600; }
+    .user-info .details .email { color: #666; }
+    .user-info .details .sub { font-family: monospace; font-size: 0.78rem; color: #999; }
+    .divider { border: none; border-top: 1px solid #e0e0e0; margin: 12px 0; }
+    .note { font-size: 0.82rem; color: #888; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Social KYC Test Board</h1>
+  <p class="subtitle">Customer site simulation &mdash; OIDC Social KYC flow</p>
+
+  <!-- Step 0: Google Sign-In -->
+  <div class="card">
+    <h2><span class="step">0</span>Google Sign-In</h2>
+    <p class="note">Sign in with Google to authenticate and get email for login_hint.</p>
+    <div id="googleSignInBtn" style="margin-top: 12px;"></div>
+    <div id="googleUser" class="hidden">
+      <div class="user-info">
+        <img id="googleAvatar" src="" alt="avatar">
+        <div class="details">
+          <div class="name" id="googleName"></div>
+          <div class="email" id="googleEmail"></div>
+          <div class="sub">Subject ID: <span id="googleSub"></span></div>
+        </div>
+      </div>
+      <div class="actions" style="margin-top: 8px;">
+        <button class="btn-secondary" onclick="googleSignOut()">Sign Out</button>
+      </div>
+    </div>
+    <div id="googleError" class="hidden">
+      <div class="status error" id="googleErrorMsg"></div>
+    </div>
+  </div>
+
+  <!-- Step 1: Access Token -->
+  <div class="card">
+    <h2><span class="step">1</span>Access Token</h2>
+    <p class="note">Get OAuth2 access_token (client_credentials + JWT assertion).</p>
+    <div class="actions">
+      <button class="btn-primary" id="btnGetToken" onclick="getToken()">Get Token</button>
+      <span id="tokenStatus" class="status info">Not issued</span>
+    </div>
+    <div id="tokenDetail" class="hidden">
+      <pre id="tokenJson"></pre>
+    </div>
+  </div>
+
+  <!-- Step 2: Start Social KYC -->
+  <div class="card">
+    <h2><span class="step">2</span>Start Social KYC</h2>
+    <p class="note">Start IDV with customer internal user_id. Google email is used as login_hint.</p>
+    <label for="userId">User ID (Customer Internal ID)</label>
+    <input type="text" id="userId" placeholder="Auto-generated UUID (editable)">
+    <label for="email">Email (from Google)</label>
+    <input type="email" id="email" placeholder="Sign in with Google first" readonly>
+    <label for="callbackUrl">Callback URL</label>
+    <input type="text" id="callbackUrl" placeholder="callback_url">
+    <div class="row">
+      <div>
+        <label for="provider">Provider</label>
+        <select id="provider">
+          <option value="google" selected>google</option>
+        </select>
+      </div>
+      <div>
+        <label for="loginHint">Login Hint (optional)</label>
+        <input type="text" id="loginHint" placeholder="user@gmail.com">
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-primary" id="btnStartSocial" onclick="startSocialKyc()">Start Verification</button>
+    </div>
+    <div id="startResult" class="hidden">
+      <div id="startStatus" class="status info"></div>
+      <pre id="startJson"></pre>
+      <div id="authUrlBox" class="hidden" style="margin-top: 10px;">
+        <a id="authUrlLink" href="#" target="_blank" class="ext" style="font-size: 1rem; font-weight: 600;">Open Authorization Page &#8599;</a>
+        <p class="note">This opens the Tomo authorization page (not Google Login).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Authorization -->
+  <div class="card">
+    <h2><span class="step">3</span>Authorization (external)</h2>
+    <p style="font-size: 0.85rem; color: #666;">
+      Click "Open Authorization Page" above to visit the Tomo authorization page.<br>
+      After approval, you will be redirected back to this page (callback_url).
+    </p>
+    <div id="callbackInfo" class="hidden" style="margin-top: 10px;">
+      <div class="status ok">Returned from authorization callback</div>
+      <pre id="callbackParams"></pre>
+    </div>
+  </div>
+
+  <!-- Step 4: KYC Status -->
+  <div class="card">
+    <h2><span class="step">4</span>KYC Status</h2>
+    <p class="note">Check Social KYC status for the user.</p>
+    <label for="statusUserId">User ID</label>
+    <input type="text" id="statusUserId" placeholder="user_id">
+    <div class="actions">
+      <button class="btn-primary" id="btnCheckStatus" onclick="checkKycStatus()">Check Status</button>
+      <button class="btn-secondary" id="btnAutoPoll" onclick="toggleAutoPoll()">Auto-poll: OFF</button>
+      <span id="pollStatus" class="hidden status info">Polling every 3s...</span>
+    </div>
+    <div id="statusResult" class="hidden">
+      <div id="kycStatusBadge" style="margin-top: 8px;"></div>
+      <pre id="statusJson"></pre>
+    </div>
+  </div>
+
+  <hr class="divider" style="margin: 24px 0;">
+
+  <!-- Step 5: Existing KYC Test (optional) -->
+  <div class="card">
+    <h2><span class="step">5</span>Existing KYC Test (optional)</h2>
+    <p class="note">Test existing per-country KYC endpoints (not part of Social KYC flow).</p>
+    <div class="row">
+      <div>
+        <label for="kycCountry">Country</label>
+        <select id="kycCountry">
+          <option value="us" selected>us</option>
+          <option value="uk">uk</option>
+          <option value="ca">ca</option>
+          <option value="jp">jp</option>
+          <option value="cn">cn</option>
+        </select>
+      </div>
+      <div>
+        <label for="kycUserId">User ID</label>
+        <input type="text" id="kycUserId" value="7999752903327968491" placeholder="user_id">
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-primary" onclick="getKycResult()">Get KYC Result</button>
+    </div>
+    <div id="kycResult" class="hidden">
+      <pre id="kycJson"></pre>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="/api-docs" class="ext">Swagger UI (/api-docs) &rarr;</a>
+  </div>
+
+  <script>
+    // ── Helpers ──
+    function generateUUID() {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    }
+
+    // ── State ──
+    let googleProfile = null; // { sub, email, name, picture }
+    let autoPollInterval = null;
+
+    // ── Init ──
+    document.getElementById('callbackUrl').value = window.location.origin + '/test-board';
+    document.getElementById('userId').value = generateUUID();
+    document.getElementById('statusUserId').value = document.getElementById('userId').value;
+
+    // Sync user_id fields
+    document.getElementById('userId').addEventListener('input', function() {
+      document.getElementById('statusUserId').value = this.value;
+    });
+
+    // Check if returned from authorization callback
+    (function checkCallback() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.toString()) {
+        const callbackInfo = document.getElementById('callbackInfo');
+        const callbackParamsEl = document.getElementById('callbackParams');
+        callbackInfo.classList.remove('hidden');
+        const obj = {};
+        params.forEach((v, k) => { obj[k] = v; });
+        callbackParamsEl.textContent = JSON.stringify(obj, null, 2);
+
+        // If we have a stored user_id, auto-fill and trigger status check
+        const storedUserId = sessionStorage.getItem('social_kyc_user_id');
+        if (storedUserId) {
+          document.getElementById('statusUserId').value = storedUserId;
+          document.getElementById('userId').value = storedUserId;
+          // Auto-check status after callback
+          setTimeout(() => checkKycStatus(), 500);
+        }
+      }
+    })();
+
+    // ── Google Sign-In ──
+    async function initGoogleSignIn() {
+      try {
+        const res = await fetch('/test-board/config');
+        const config = await res.json();
+        if (!config.googleClientId) {
+          showGoogleError('GOOGLE_CLIENT_ID not configured on server.');
+          return;
+        }
+        google.accounts.id.initialize({
+          client_id: config.googleClientId,
+          callback: handleGoogleCredentialResponse,
+          auto_select: false,
+        });
+        google.accounts.id.renderButton(
+          document.getElementById('googleSignInBtn'),
+          { theme: 'outline', size: 'large', text: 'signin_with', shape: 'rectangular' }
+        );
+      } catch (e) {
+        showGoogleError('Failed to load Google Sign-In config: ' + e.message);
+      }
+    }
+
+    function handleGoogleCredentialResponse(response) {
+      try {
+        const payload = parseJwt(response.credential);
+        googleProfile = {
+          sub: payload.sub,
+          email: payload.email,
+          name: payload.name,
+          picture: payload.picture,
+        };
+
+        // Display user info
+        document.getElementById('googleAvatar').src = payload.picture || '';
+        document.getElementById('googleName').textContent = payload.name || '';
+        document.getElementById('googleEmail').textContent = payload.email || '';
+        document.getElementById('googleSub').textContent = payload.sub || '';
+        document.getElementById('googleUser').classList.remove('hidden');
+        document.getElementById('googleSignInBtn').classList.add('hidden');
+        document.getElementById('googleError').classList.add('hidden');
+
+        // Auto-fill email and login_hint from Google (userId stays as customer ID)
+        document.getElementById('email').value = payload.email;
+        document.getElementById('loginHint').value = payload.email;
+
+        // If userId is empty, generate a UUID fallback
+        if (!document.getElementById('userId').value) {
+          document.getElementById('userId').value = generateUUID();
+          document.getElementById('statusUserId').value = document.getElementById('userId').value;
+        }
+
+        // Store current userId for callback recovery
+        sessionStorage.setItem('social_kyc_user_id', document.getElementById('userId').value);
+      } catch (e) {
+        showGoogleError('Failed to parse Google ID token: ' + e.message);
+      }
+    }
+
+    function googleSignOut() {
+      googleProfile = null;
+      google.accounts.id.disableAutoSelect();
+      document.getElementById('googleUser').classList.add('hidden');
+      document.getElementById('googleSignInBtn').classList.remove('hidden');
+      // Clear Google-derived fields only
+      document.getElementById('email').value = '';
+      document.getElementById('loginHint').value = '';
+      // Regenerate customer user IDs (not clear)
+      const newId = generateUUID();
+      document.getElementById('userId').value = newId;
+      document.getElementById('statusUserId').value = newId;
+      sessionStorage.setItem('social_kyc_user_id', newId);
+    }
+
+    function showGoogleError(msg) {
+      document.getElementById('googleError').classList.remove('hidden');
+      document.getElementById('googleErrorMsg').textContent = msg;
+    }
+
+    // Decode JWT payload (no verification — frontend only)
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+      );
+      return JSON.parse(jsonPayload);
+    }
+
+    // Wait for GIS library to load, then init
+    function waitForGis() {
+      if (typeof google !== 'undefined' && google.accounts) {
+        initGoogleSignIn();
+      } else {
+        setTimeout(waitForGis, 100);
+      }
+    }
+    waitForGis();
+
+    // ── API Helper ──
+    async function apiCall(url, options = {}) {
+      const res = await fetch(url, options);
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { data = text; }
+      return { ok: res.ok, status: res.status, data };
+    }
+
+    // ── Step 1: Get Token ──
+    async function getToken() {
+      const btn = document.getElementById('btnGetToken');
+      const statusEl = document.getElementById('tokenStatus');
+      const detailEl = document.getElementById('tokenDetail');
+      const jsonEl = document.getElementById('tokenJson');
+
+      btn.disabled = true;
+      statusEl.className = 'status info';
+      statusEl.textContent = 'Requesting...';
+
+      const { ok, status, data } = await apiCall('/v1/oauth2/token', { method: 'POST' });
+
+      btn.disabled = false;
+      detailEl.classList.remove('hidden');
+
+      if (ok) {
+        statusEl.className = 'status ok';
+        const expiresIn = data.expires_in || '?';
+        statusEl.textContent = 'Issued (expires in ' + expiresIn + 's)';
+        jsonEl.textContent = JSON.stringify(data, null, 2);
+      } else {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'Error ' + status;
+        jsonEl.textContent = JSON.stringify(data, null, 2);
+      }
+    }
+
+    // ── Step 2: Start Social KYC ──
+    async function startSocialKyc() {
+      const btn = document.getElementById('btnStartSocial');
+      const resultEl = document.getElementById('startResult');
+      const statusEl = document.getElementById('startStatus');
+      const jsonEl = document.getElementById('startJson');
+      const authUrlBox = document.getElementById('authUrlBox');
+
+      btn.disabled = true;
+      resultEl.classList.remove('hidden');
+      authUrlBox.classList.add('hidden');
+      statusEl.className = 'status info';
+      statusEl.textContent = 'Starting...';
+
+      const body = {
+        user_id: document.getElementById('userId').value,
+        email: document.getElementById('email').value,
+        callback_url: document.getElementById('callbackUrl').value,
+        provider: document.getElementById('provider').value,
+      };
+      const loginHint = document.getElementById('loginHint').value;
+      if (loginHint) body.login_hint = loginHint;
+
+      // Store user_id for callback recovery
+      sessionStorage.setItem('social_kyc_user_id', body.user_id);
+
+      const { ok, status, data } = await apiCall('/v1/idv/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      btn.disabled = false;
+      jsonEl.textContent = JSON.stringify(data, null, 2);
+
+      if (ok) {
+        statusEl.className = 'status ok';
+        statusEl.textContent = 'Started successfully';
+        const authUrl = data.start_idv_uri;
+        if (authUrl) {
+          authUrlBox.classList.remove('hidden');
+          const link = document.getElementById('authUrlLink');
+          link.href = authUrl;
+        }
+      } else {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'Error ' + status;
+      }
+    }
+
+    // ── Step 4: Check KYC Status ──
+    async function checkKycStatus() {
+      const resultEl = document.getElementById('statusResult');
+      const jsonEl = document.getElementById('statusJson');
+      const badgeEl = document.getElementById('kycStatusBadge');
+
+      resultEl.classList.remove('hidden');
+      badgeEl.innerHTML = '<span class="status info">Checking...</span>';
+
+      const userId = document.getElementById('statusUserId').value;
+      const { ok, status, data } = await apiCall('/v1/idv/kyc/status?user_id=' + encodeURIComponent(userId));
+
+      jsonEl.textContent = JSON.stringify(data, null, 2);
+
+      if (ok) {
+        const kycStatus = data.sksStatus || data.status || 'unknown';
+        const badgeClass = 'badge-' + kycStatus;
+        badgeEl.innerHTML = 'Status: <span class="badge ' + badgeClass + '">' + kycStatus + '</span>';
+      } else {
+        badgeEl.innerHTML = '<span class="status error">Error ' + status + '</span>';
+      }
+    }
+
+    // ── Auto-poll toggle ──
+    function toggleAutoPoll() {
+      const btn = document.getElementById('btnAutoPoll');
+      const pollStatus = document.getElementById('pollStatus');
+
+      if (autoPollInterval) {
+        clearInterval(autoPollInterval);
+        autoPollInterval = null;
+        btn.textContent = 'Auto-poll: OFF';
+        pollStatus.classList.add('hidden');
+      } else {
+        autoPollInterval = setInterval(checkKycStatus, 3000);
+        btn.textContent = 'Auto-poll: ON';
+        pollStatus.classList.remove('hidden');
+        checkKycStatus();
+      }
+    }
+
+    // ── Step 5: Get KYC Result ──
+    async function getKycResult() {
+      const resultEl = document.getElementById('kycResult');
+      const jsonEl = document.getElementById('kycJson');
+
+      resultEl.classList.remove('hidden');
+      jsonEl.textContent = 'Loading...';
+
+      const body = {
+        user_id: document.getElementById('kycUserId').value,
+        country: document.getElementById('kycCountry').value,
+      };
+
+      const { ok, status, data } = await apiCall('/v1/idv/kyc/get', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      jsonEl.textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>

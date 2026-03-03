@@ -18,6 +18,74 @@ Backend For Frontend (BFF) server for idv-client. Handles OAuth2 client-assertio
 - `IdvServerClient`는 transparent proxy로 동작하며, request body를 변환 없이 generated API에 그대로 전달한다.
 - 에러 응답은 `error.response.json()`을 우선 시도하여 구조화된 에러 정보를 보존한다.
 
+## 역할 정의 (OIDC Social KYC)
+
+| 컴포넌트 | 역할 | 설명 |
+|---|---|---|
+| test-board.html | **고객사 Frontend** | end user가 도달하는 고객사 웹 페이지 (시뮬레이션) |
+| idv-client-server | **고객사 Backend** | 고객사의 BFF. Tomo API와 통신, OAuth2 인증 처리 |
+| idv-server | **Tomo API Server** | KYC 오케스트레이션, ID vendor 연동, 인가 관리 |
+| idv-app | **Tomo App (Frontend)** | Tomo 측 UI (인가 승인 페이지 등) |
+
+### OIDC Social KYC 플로우
+
+```
+[End User]          [Customer Frontend]    [Customer Backend]       [Tomo API]       [Google]
+ (browser)          (test-board.html)      (idv-client-server)     (idv-server)
+    │                     │                       │                      │               │
+    │ ── A. 사전 인증 ─────────────────────────────────────────────────────────────────────
+    │                     │              POST /v1/oauth2/token ─────────►│               │
+    │                     │              (client_credentials + JWT)      │               │
+    │                     │                       │◄── access_token ─────│               │
+    │                     │                       │                      │               │
+    │ ── B. Google Sign-In ────────────────────────────────────────────────────────────────
+    ├── "Sign in" ──────►│                       │                      │               │
+    │                     ├── Google Identity Services ────────────────────────────────►│
+    │                     │◄── ID Token (sub, email, name) ────────────────────────────│
+    │◄── 사용자 정보 ────│                       │                      │               │
+    │                     │                       │                      │               │
+    │ ── C. Social KYC 시작 ───────────────────────────────────────────────────────────────
+    ├── "인증 시작" ────►│                       │                      │               │
+    │                     ├── { customer_id } ──►│                      │               │
+    │                     │              POST /v1/idv/start ────────────►│               │
+    │                     │              { user_id: <customer_id>,       │               │
+    │                     │                email: <google_email>,        │               │
+    │                     │                login_hint: <google_email>,   │               │
+    │                     │                callback_url: <test-board>,   │               │
+    │                     │                provider: "google" }          │               │
+    │                     │                       │◄── { start_idv_uri } │               │
+    │                     │◄── start_idv_uri ─────│                      │               │
+    │◄── "인가 승인" 버튼│                       │                      │               │
+    │                     │                       │                      │               │
+    │ ── D. 인가 승인 ────────────────────────────────────────────────────────────────────
+    ├── start_idv_uri 방문 ──────────────────────────────────────────►│               │
+    │   (Tomo 인가 페이지: "KYC 인증을 승인하시겠습니까?")              │               │
+    │── 승인 ────────────────────────────────────────────────────────►│               │
+    │                     │                       │◄── redirect ─────────│               │
+    │                     │                       │  (callback_url)      │               │
+    │                     │                       │                      │               │
+    │ ── E. KYC 상태 확인 ────────────────────────────────────────────────────────────────
+    │                     │              GET /v1/idv/kyc/status ────────►│               │
+    │                     │              ?user_id=<customer_id>           │               │
+    │                     │                       │◄── { sksStatus,      │               │
+    │                     │                       │     sksSubjectId,    │               │
+    │                     │                       │     sksFullName,     │               │
+    │                     │                       │     sksCountry, ...} │               │
+    │                     │◄── KYC 결과 ──────────│                      │               │
+    │◄── 결과 표시 ──────│                       │                      │               │
+```
+
+**핵심 포인트:**
+- user_id는 **고객사의 내부 사용자 식별자**이다 (Google sub이 아님)
+- Google subject_id(sub)는 **idv-server가 OAuth callback에서 직접 추출**한다 — 고객사가 전달하지 않음
+- Step D의 `start_idv_uri`는 **Tomo의 인가 페이지** (Google Login 아님)
+- end user는 Google Login을 **한 번만** 한다 (고객사 Frontend에서)
+- Tomo API는 고객사가 client_credentials로 인증된 상태이므로, 고객사가 제출한 user_id를 신뢰한다
+
+### Test Board
+
+`/test-board` — 고객사 Frontend를 시뮬레이션하는 인터랙티브 테스트 페이지. Google Sign-In → Token → Start Social KYC → Authorization → KYC Status 플로우를 브라우저에서 테스트할 수 있다.
+
 ## Tech Stack
 
 - **Framework**: NestJS 11
@@ -28,30 +96,35 @@ Backend For Frontend (BFF) server for idv-client. Handles OAuth2 client-assertio
 
 ## Build & Run
 
-```bash
-pnpm install
+**로컬에 pnpm이 설치되어 있지 않으므로, 모든 pnpm 명령은 Docker 환경에서 실행한다.**
 
-# Development
+```bash
+# Docker를 통한 pnpm 명령 실행 (로컬에 pnpm 미설치)
+docker run --rm -v "$(pwd)":/app -w /app node:20-alpine sh -c "npm install -g pnpm && pnpm <command>"
+
+# Docker Compose 빌드 및 실행
+docker compose build client-server          # 이미지 빌드
+docker compose up client-server-test -d     # test 환경 실행 (port 8080)
+docker compose up client-server-dev -d      # dev 환경 실행 (port 8081)
+
+# 테스트 실행 (Docker 내부)
+docker run --rm -v "$(pwd)":/app -w /app node:20-alpine sh -c "npm install -g pnpm && pnpm install && pnpm test"
+
+# pnpm 명령 참고 (Docker 내에서 실행)
+pnpm install
 pnpm start:dev              # Watch mode with hot reload
 pnpm start:debug            # Debug + watch mode
-
-# Production build
 pnpm build                  # nest build
 pnpm start:prod             # Run compiled output (node dist/main)
-
-# Testing
 pnpm test                   # Unit tests (Jest)
 pnpm test:watch             # Watch mode
 pnpm test:cov               # Coverage report
 pnpm test:e2e               # End-to-end tests
-
-# Linting & formatting
 pnpm lint                   # ESLint with auto-fix
 pnpm format                 # Prettier (src + test)
-
-# API client generation
 pnpm gen                    # Orval + openapi-generator-cli (runs from ci/contracts/)
 pnpm sync-client            # Copy generated client from ci/ to src/sdk/generated/
+pnpm sync-swagger           # Copy OpenAPI spec from ci/ to src/swagger/
 ```
 
 ## Architecture & Data Flow
@@ -81,7 +154,7 @@ idv-server (Haskell backend)
 
 ```
 src/
-  main.ts              — Bootstrap NestJS app, CORS enabled (origin: *)
+  main.ts              — Bootstrap NestJS app, CORS enabled (origin: *), Swagger UI at /api-docs
   app.module.ts         — Root module: providers = [IdvServerClient, AppService, StateService]
   app.controller.ts     — All HTTP routes, delegates to AppService, wraps errors with rethrow()
   app.service.ts        — Business logic, uses IdvServerClient + StateService
@@ -100,6 +173,9 @@ src/
     case-converter.ts   — Generic toSnakeCaseKeys / toCamelCaseKeys utilities
     idv-client.integration.spec.ts — Full OAuth2 integration test (same content as app.controller.spec.ts)
     generated/          — OpenAPI Generator output (DO NOT edit manually)
+
+  swagger/
+    client-server.openapi.json — OpenAPI spec for Swagger UI (copied from ci/contracts/openapi/)
       runtime.ts        — BaseAPI, ResponseError, FetchError, Configuration
       apis/DefaultApi.ts — All endpoint methods (v1Idv*Post, v1Oauth2TokenPost, etc.)
       models/           — TypeScript interfaces for all request/response types
@@ -150,6 +226,9 @@ All routes are on the root controller (`@Controller()`), all are POST except hea
 ### Login Ticket
 - `POST /v1/idv/login-ticket` → Login ticket exchange
 
+### Swagger UI Test Board
+- `GET /api-docs` → Swagger UI (브라우저에서 모든 엔드포인트 테스트 가능)
+
 ## Environment Variables
 
 | Variable | Required | Description |
@@ -160,6 +239,7 @@ All routes are on the root controller (`@Controller()`), all are POST except hea
 | `PORT` | No | Server port (default: 3000, mapped to 4300 in docker-compose) |
 | `RUN_IDV_INTEGRATION_TESTS` | No | Set to `true` to run OAuth2 integration tests |
 | `AS_SIGNING_JWK` | No | AS public JWK for verifying access tokens in tests |
+| `GOOGLE_CLIENT_ID` | Yes (test board) | Google Cloud OAuth 2.0 Client ID for test-board Google Sign-In |
 
 Also accepts `IDV_SERVER` and `IDV_BASEURL` as fallbacks for `IDV_BASE_URL`.
 

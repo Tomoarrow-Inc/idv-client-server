@@ -48,6 +48,8 @@ export type {
   IdvCnMockKycGetBody,
   // Login Ticket
   LoginTicketBody,
+  // Social KYC
+  SocialKycStatusQuery,
 } from './api-contract';
 
 // Response types (generated)
@@ -63,6 +65,7 @@ export type { TomoIdvStartRes } from './generated/models/TomoIdvStartRes';
 export type { TomoIdvIssueTokenRes } from './generated/models/TomoIdvIssueTokenRes';
 export type { TomoIdvMockStartRes } from './generated/models/TomoIdvMockStartRes';
 export type { TomoIdvMockIssueTokenRes } from './generated/models/TomoIdvMockIssueTokenRes';
+export type { SocialKycStatusRes } from './generated/models/SocialKycStatusRes';
 
 // Enum types (generated)
 export { Country } from './generated/models/Country';

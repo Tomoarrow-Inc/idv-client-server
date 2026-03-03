@@ -14,6 +14,7 @@ import type { TomoIdvStartRes } from './sdk/generated/models/TomoIdvStartRes';
 import type { TomoIdvIssueTokenRes } from './sdk/generated/models/TomoIdvIssueTokenRes';
 import type { TomoIdvMockStartRes } from './sdk/generated/models/TomoIdvMockStartRes';
 import type { TomoIdvMockIssueTokenRes } from './sdk/generated/models/TomoIdvMockIssueTokenRes';
+import type { SocialKycStatusRes } from './sdk/generated/models/SocialKycStatusRes';
 import type {
   // Generic
   IdvStartBody,
@@ -107,6 +108,10 @@ export class AppService {
 
   async idvKycGet(body: IdvKycGetBody): Promise<GetKycResp> {
     return this.idvServerClient.idvKycGet(this.requireAccessToken(), body);
+  }
+
+  async socialKycStatus(userId: string): Promise<SocialKycStatusRes> {
+    return this.idvServerClient.socialKycStatus(this.requireAccessToken(), userId);
   }
 
   // ── US (Plaid) ──

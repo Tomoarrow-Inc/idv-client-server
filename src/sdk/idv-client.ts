@@ -12,6 +12,7 @@ import type { TomoIdvStartRes } from './generated/models/TomoIdvStartRes';
 import type { TomoIdvIssueTokenRes } from './generated/models/TomoIdvIssueTokenRes';
 import type { TomoIdvMockStartRes } from './generated/models/TomoIdvMockStartRes';
 import type { TomoIdvMockIssueTokenRes } from './generated/models/TomoIdvMockIssueTokenRes';
+import type { SocialKycStatusRes } from './generated/models/SocialKycStatusRes';
 import type {
   // Generic
   IdvStartBody,
@@ -101,6 +102,13 @@ export class IdvServerClient {
     return this.api.v1IdvKycGetPost({
       Authorization: `Bearer ${accessToken}`,
       GetKycReq: body,
+    });
+  }
+
+  async socialKycStatus(accessToken: string, userId: string): Promise<SocialKycStatusRes> {
+    return this.api.v1IdvKycStatusGet({
+      Authorization: `Bearer ${accessToken}`,
+      user_id: userId,
     });
   }
 

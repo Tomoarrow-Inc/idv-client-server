@@ -14,8 +14,12 @@ export type IdvStartBody = {
   user_id: string;
   callback_url: string;
   email: string;
-  country: Country;
+  country?: Country;
+  provider?: string;
+  login_hint?: string;
 };
+
+export type SocialKycStatusQuery = { user_id: string };
 
 export type IdvKycGetBody = {
   user_id: string;
