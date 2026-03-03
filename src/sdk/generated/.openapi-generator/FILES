@@ -7,6 +7,8 @@ models/EitherStringValueOneOf.ts
 models/EitherStringValueOneOf1.ts
 models/GetKycReq.ts
 models/GetKycResp.ts
+models/GoogleStartReq.ts
+models/GoogleStartResp.ts
 models/LiquidGetKycReq.ts
 models/LiquidIdvField.ts
 models/LiquidIntegratedAppResponse.ts

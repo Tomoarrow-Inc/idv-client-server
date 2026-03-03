@@ -6,6 +6,8 @@ export * from './EitherStringValueOneOf';
 export * from './EitherStringValueOneOf1';
 export * from './GetKycReq';
 export * from './GetKycResp';
+export * from './GoogleStartReq';
+export * from './GoogleStartResp';
 export * from './LiquidGetKycReq';
 export * from './LiquidIdvField';
 export * from './LiquidIntegratedAppResponse';

@@ -13,6 +13,7 @@ import type { TomoIdvIssueTokenRes } from './generated/models/TomoIdvIssueTokenR
 import type { TomoIdvMockStartRes } from './generated/models/TomoIdvMockStartRes';
 import type { TomoIdvMockIssueTokenRes } from './generated/models/TomoIdvMockIssueTokenRes';
 import type { SocialKycStatusRes } from './generated/models/SocialKycStatusRes';
+import type { GoogleStartResp } from './generated/models/GoogleStartResp';
 import type {
   // Generic
   IdvStartBody,
@@ -48,6 +49,8 @@ import type {
   IdvCnMockKycGetBody,
   // Login Ticket
   LoginTicketBody,
+  // Google Social KYC
+  GoogleStartBody,
 } from './api-contract';
 
 function resolveBaseUrl(): string {
@@ -109,6 +112,15 @@ export class IdvServerClient {
     return this.api.v1IdvKycStatusGet({
       Authorization: `Bearer ${accessToken}`,
       user_id: userId,
+    });
+  }
+
+  // ── Google Social KYC ──
+
+  async googleStart(accessToken: string, body: GoogleStartBody): Promise<GoogleStartResp> {
+    return this.api.v1IdvGoogleStartPost({
+      Authorization: `Bearer ${accessToken}`,
+      GoogleStartReq: body,
     });
   }
 

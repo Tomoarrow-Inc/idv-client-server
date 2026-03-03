@@ -18,6 +18,8 @@ import type {
   EitherStringValue,
   GetKycReq,
   GetKycResp,
+  GoogleStartReq,
+  GoogleStartResp,
   LiquidGetKycReq,
   LiquidIntegratedAppResponse,
   LiquidPutKycReq,
@@ -53,6 +55,10 @@ import {
     GetKycReqToJSON,
     GetKycRespFromJSON,
     GetKycRespToJSON,
+    GoogleStartReqFromJSON,
+    GoogleStartReqToJSON,
+    GoogleStartRespFromJSON,
+    GoogleStartRespToJSON,
     LiquidGetKycReqFromJSON,
     LiquidGetKycReqToJSON,
     LiquidIntegratedAppResponseFromJSON,
@@ -161,6 +167,11 @@ export interface V1IdvGoogleCallbackGetRequest {
     code?: string;
     state?: string;
     error?: string;
+}
+
+export interface V1IdvGoogleStartPostRequest {
+    Authorization?: string;
+    GoogleStartReq?: GoogleStartReq;
 }
 
 export interface V1IdvJpCookieStartPostRequest {
@@ -687,6 +698,37 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async v1IdvGoogleCallbackGet(requestParameters: V1IdvGoogleCallbackGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.v1IdvGoogleCallbackGetRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     */
+    async v1IdvGoogleStartPostRaw(requestParameters: V1IdvGoogleStartPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoogleStartResp>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
+        }
+
+        const response = await this.request({
+            path: `/v1/idv/google/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: GoogleStartReqToJSON(requestParameters['GoogleStartReq']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GoogleStartRespFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async v1IdvGoogleStartPost(requestParameters: V1IdvGoogleStartPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoogleStartResp> {
+        const response = await this.v1IdvGoogleStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

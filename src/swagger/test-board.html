@@ -96,25 +96,19 @@
     </div>
   </div>
 
-  <!-- Step 2: Start Social KYC -->
+  <!-- Step 2: Start Social KYC (Google) -->
   <div class="card">
-    <h2><span class="step">2</span>Start Social KYC</h2>
-    <p class="note">Start IDV with customer internal user_id. Google email is used as login_hint.</p>
-    <label for="userId">User ID (Customer Internal ID)</label>
-    <input type="text" id="userId" placeholder="Auto-generated UUID (editable)">
-    <label for="email">Email (from Google)</label>
-    <input type="email" id="email" placeholder="Sign in with Google first" readonly>
+    <h2><span class="step">2</span>Start Social KYC (Google)</h2>
+    <p class="note">POST /v1/idv/google/start — Google email is used as login_hint. Returns authorization_url.</p>
     <label for="callbackUrl">Callback URL</label>
     <input type="text" id="callbackUrl" placeholder="callback_url">
     <div class="row">
       <div>
-        <label for="provider">Provider</label>
-        <select id="provider">
-          <option value="google" selected>google</option>
-        </select>
+        <label for="country">Country (optional)</label>
+        <input type="text" id="country" placeholder="e.g. us, jp, cn">
       </div>
       <div>
-        <label for="loginHint">Login Hint (optional)</label>
+        <label for="loginHint">Login Hint (from Google email)</label>
         <input type="text" id="loginHint" placeholder="user@gmail.com">
       </div>
     </div>
@@ -196,28 +190,12 @@
   </div>
 
   <script>
-    // ── Helpers ──
-    function generateUUID() {
-      if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0;
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-      });
-    }
-
     // ── State ──
     let googleProfile = null; // { sub, email, name, picture }
     let autoPollInterval = null;
 
     // ── Init ──
     document.getElementById('callbackUrl').value = window.location.origin + '/test-board';
-    document.getElementById('userId').value = generateUUID();
-    document.getElementById('statusUserId').value = document.getElementById('userId').value;
-
-    // Sync user_id fields
-    document.getElementById('userId').addEventListener('input', function() {
-      document.getElementById('statusUserId').value = this.value;
-    });
 
     // Check if returned from authorization callback
     (function checkCallback() {
@@ -230,12 +208,9 @@
         params.forEach((v, k) => { obj[k] = v; });
         callbackParamsEl.textContent = JSON.stringify(obj, null, 2);
 
-        // If we have a stored user_id, auto-fill and trigger status check
-        const storedUserId = sessionStorage.getItem('social_kyc_user_id');
-        if (storedUserId) {
-          document.getElementById('statusUserId').value = storedUserId;
-          document.getElementById('userId').value = storedUserId;
-          // Auto-check status after callback
+        // Auto-check status after callback if user_id is set
+        const statusUserId = document.getElementById('statusUserId').value;
+        if (statusUserId) {
           setTimeout(() => checkKycStatus(), 500);
         }
       }
@@ -283,18 +258,8 @@
         document.getElementById('googleSignInBtn').classList.add('hidden');
         document.getElementById('googleError').classList.add('hidden');
 
-        // Auto-fill email and login_hint from Google (userId stays as customer ID)
-        document.getElementById('email').value = payload.email;
+        // Auto-fill login_hint from Google email
         document.getElementById('loginHint').value = payload.email;
-
-        // If userId is empty, generate a UUID fallback
-        if (!document.getElementById('userId').value) {
-          document.getElementById('userId').value = generateUUID();
-          document.getElementById('statusUserId').value = document.getElementById('userId').value;
-        }
-
-        // Store current userId for callback recovery
-        sessionStorage.setItem('social_kyc_user_id', document.getElementById('userId').value);
       } catch (e) {
         showGoogleError('Failed to parse Google ID token: ' + e.message);
       }
@@ -305,14 +270,7 @@
       google.accounts.id.disableAutoSelect();
       document.getElementById('googleUser').classList.add('hidden');
       document.getElementById('googleSignInBtn').classList.remove('hidden');
-      // Clear Google-derived fields only
-      document.getElementById('email').value = '';
       document.getElementById('loginHint').value = '';
-      // Regenerate customer user IDs (not clear)
-      const newId = generateUUID();
-      document.getElementById('userId').value = newId;
-      document.getElementById('statusUserId').value = newId;
-      sessionStorage.setItem('social_kyc_user_id', newId);
     }
 
     function showGoogleError(msg) {
@@ -392,18 +350,14 @@
       statusEl.textContent = 'Starting...';
 
       const body = {
-        user_id: document.getElementById('userId').value,
-        email: document.getElementById('email').value,
         callback_url: document.getElementById('callbackUrl').value,
-        provider: document.getElementById('provider').value,
       };
+      const country = document.getElementById('country').value;
+      if (country) body.country = country;
       const loginHint = document.getElementById('loginHint').value;
       if (loginHint) body.login_hint = loginHint;
 
-      // Store user_id for callback recovery
-      sessionStorage.setItem('social_kyc_user_id', body.user_id);
-
-      const { ok, status, data } = await apiCall('/v1/idv/start', {
+      const { ok, status, data } = await apiCall('/v1/idv/google/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -415,7 +369,7 @@
       if (ok) {
         statusEl.className = 'status ok';
         statusEl.textContent = 'Started successfully';
-        const authUrl = data.start_idv_uri;
+        const authUrl = data.authorization_url;
         if (authUrl) {
           authUrlBox.classList.remove('hidden');
           const link = document.getElementById('authUrlLink');

@@ -86,9 +86,9 @@ function injectSwaggerExamples(doc: any): void {
 
   // ── LoginTicket: 비워둠 (외부 플로우에서 획득) ──
 
-  // ── Social KYC ──
-  setExample('StartIdvReq', 'provider', 'google');
-  setExample('StartIdvReq', 'login_hint', '');
+  // ── Google Social KYC ──
+  setExample('GoogleStartReq', 'callback_url', CALLBACK_URL);
+  setExample('GoogleStartReq', 'login_hint', '');
 }
 
 async function bootstrap() {

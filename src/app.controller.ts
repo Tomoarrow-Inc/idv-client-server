@@ -37,8 +37,11 @@ import type {
   // Login Ticket
   LoginTicketBody,
   TokenResponse,
+  // Google Social KYC
+  GoogleStartBody,
 } from './sdk';
 import type { SocialKycStatusRes } from './sdk/generated/models/SocialKycStatusRes';
+import type { GoogleStartResp } from './sdk/generated/models/GoogleStartResp';
 import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
 import type { LiquidIntegratedAppResponse } from './sdk/generated/models/LiquidIntegratedAppResponse';
 import type { StartIdvResp } from './sdk/generated/models/StartIdvResp';
@@ -95,6 +98,14 @@ export class AppController {
   @Get('/v1/idv/kyc/status')
   async socialKycStatus(@Query('user_id') userId: string): Promise<SocialKycStatusRes> {
     try { return await this.appService.socialKycStatus(userId); }
+    catch (e) { return rethrow(e); }
+  }
+
+  // ── Google Social KYC ──
+
+  @Post('/v1/idv/google/start')
+  async googleStart(@Body() body: GoogleStartBody): Promise<GoogleStartResp> {
+    try { return await this.appService.googleStart(body); }
     catch (e) { return rethrow(e); }
   }
 

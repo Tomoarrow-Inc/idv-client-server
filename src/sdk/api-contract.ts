@@ -15,11 +15,17 @@ export type IdvStartBody = {
   callback_url: string;
   email: string;
   country?: Country;
-  provider?: string;
-  login_hint?: string;
 };
 
 export type SocialKycStatusQuery = { user_id: string };
+
+// ── Google Social KYC ──
+
+export type GoogleStartBody = {
+  callback_url: string;
+  country?: string;
+  login_hint?: string;
+};
 
 export type IdvKycGetBody = {
   user_id: string;

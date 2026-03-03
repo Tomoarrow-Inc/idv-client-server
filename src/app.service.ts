@@ -15,6 +15,7 @@ import type { TomoIdvIssueTokenRes } from './sdk/generated/models/TomoIdvIssueTo
 import type { TomoIdvMockStartRes } from './sdk/generated/models/TomoIdvMockStartRes';
 import type { TomoIdvMockIssueTokenRes } from './sdk/generated/models/TomoIdvMockIssueTokenRes';
 import type { SocialKycStatusRes } from './sdk/generated/models/SocialKycStatusRes';
+import type { GoogleStartResp } from './sdk/generated/models/GoogleStartResp';
 import type {
   // Generic
   IdvStartBody,
@@ -50,6 +51,8 @@ import type {
   IdvCnMockKycGetBody,
   // Login Ticket
   LoginTicketBody,
+  // Google Social KYC
+  GoogleStartBody,
 } from './sdk';
 
 type SafeFetchResult<T> =
@@ -112,6 +115,12 @@ export class AppService {
 
   async socialKycStatus(userId: string): Promise<SocialKycStatusRes> {
     return this.idvServerClient.socialKycStatus(this.requireAccessToken(), userId);
+  }
+
+  // ── Google Social KYC ──
+
+  async googleStart(body: GoogleStartBody): Promise<GoogleStartResp> {
+    return this.idvServerClient.googleStart(this.requireAccessToken(), body);
   }
 
   // ── US (Plaid) ──
