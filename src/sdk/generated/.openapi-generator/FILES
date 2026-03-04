@@ -24,7 +24,6 @@ models/PlaidSessionTokenRequest.ts
 models/PlaidStartIdvRequest.ts
 models/PlaidStartIdvResp.ts
 models/SessionToken.ts
-models/SocialKycStatusRes.ts
 models/StartIdvReq.ts
 models/StartIdvResp.ts
 models/TokenResponse.ts

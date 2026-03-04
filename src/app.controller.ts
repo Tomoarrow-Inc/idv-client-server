@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ResponseError } from './sdk/generated/runtime';
 import type {
@@ -40,7 +40,6 @@ import type {
   // Google Social KYC
   GoogleStartBody,
 } from './sdk';
-import type { SocialKycStatusRes } from './sdk/generated/models/SocialKycStatusRes';
 import type { GoogleStartResp } from './sdk/generated/models/GoogleStartResp';
 import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
 import type { LiquidIntegratedAppResponse } from './sdk/generated/models/LiquidIntegratedAppResponse';
@@ -92,12 +91,6 @@ export class AppController {
   @Post('/v1/idv/kyc/get')
   async idvKycGet(@Body() body: IdvKycGetBody): Promise<GetKycResp> {
     try { return await this.appService.idvKycGet(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Get('/v1/idv/kyc/status')
-  async socialKycStatus(@Query('user_id') userId: string): Promise<SocialKycStatusRes> {
-    try { return await this.appService.socialKycStatus(userId); }
     catch (e) { return rethrow(e); }
   }
 

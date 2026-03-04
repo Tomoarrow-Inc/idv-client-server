@@ -33,7 +33,6 @@ import type {
   PlaidStartIdvRequest,
   PlaidStartIdvResp,
   SessionToken,
-  SocialKycStatusRes,
   StartIdvReq,
   StartIdvResp,
   TokenResponse,
@@ -85,8 +84,6 @@ import {
     PlaidStartIdvRespToJSON,
     SessionTokenFromJSON,
     SessionTokenToJSON,
-    SocialKycStatusResFromJSON,
-    SocialKycStatusResToJSON,
     StartIdvReqFromJSON,
     StartIdvReqToJSON,
     StartIdvRespFromJSON,
@@ -199,11 +196,6 @@ export interface V1IdvJpStartPostRequest {
 export interface V1IdvKycGetPostRequest {
     Authorization?: string;
     GetKycReq?: GetKycReq;
-}
-
-export interface V1IdvKycStatusGetRequest {
-    Authorization?: string;
-    user_id?: string;
 }
 
 export interface V1IdvLiquidTokenSessionPostRequest {
@@ -929,38 +921,6 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async v1IdvKycGetPost(requestParameters: V1IdvKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetKycResp> {
         const response = await this.v1IdvKycGetPostRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
-    async v1IdvKycStatusGetRaw(requestParameters: V1IdvKycStatusGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SocialKycStatusRes>> {
-        const queryParameters: any = {};
-
-        if (requestParameters['user_id'] != null) {
-            queryParameters['user_id'] = requestParameters['user_id'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (requestParameters['Authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['Authorization']);
-        }
-
-        const response = await this.request({
-            path: `/v1/idv/kyc/status`,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => SocialKycStatusResFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async v1IdvKycStatusGet(requestParameters: V1IdvKycStatusGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SocialKycStatusRes> {
-        const response = await this.v1IdvKycStatusGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

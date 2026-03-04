@@ -23,7 +23,6 @@ export * from './PlaidSessionTokenRequest';
 export * from './PlaidStartIdvRequest';
 export * from './PlaidStartIdvResp';
 export * from './SessionToken';
-export * from './SocialKycStatusRes';
 export * from './StartIdvReq';
 export * from './StartIdvResp';
 export * from './TokenResponse';

@@ -17,8 +17,6 @@ export type IdvStartBody = {
   country?: Country;
 };
 
-export type SocialKycStatusQuery = { user_id: string };
-
 // ── Google Social KYC ──
 
 export type GoogleStartBody = {

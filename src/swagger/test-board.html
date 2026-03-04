@@ -138,28 +138,11 @@
     </div>
   </div>
 
-  <!-- Step 4: KYC Status -->
-  <div class="card">
-    <h2><span class="step">4</span>KYC Status</h2>
-    <p class="note">Check Social KYC status for the user.</p>
-    <label for="statusUserId">User ID</label>
-    <input type="text" id="statusUserId" placeholder="user_id">
-    <div class="actions">
-      <button class="btn-primary" id="btnCheckStatus" onclick="checkKycStatus()">Check Status</button>
-      <button class="btn-secondary" id="btnAutoPoll" onclick="toggleAutoPoll()">Auto-poll: OFF</button>
-      <span id="pollStatus" class="hidden status info">Polling every 3s...</span>
-    </div>
-    <div id="statusResult" class="hidden">
-      <div id="kycStatusBadge" style="margin-top: 8px;"></div>
-      <pre id="statusJson"></pre>
-    </div>
-  </div>
-
   <hr class="divider" style="margin: 24px 0;">
 
-  <!-- Step 5: Existing KYC Test (optional) -->
+  <!-- Step 4: Existing KYC Test (optional) -->
   <div class="card">
-    <h2><span class="step">5</span>Existing KYC Test (optional)</h2>
+    <h2><span class="step">4</span>Existing KYC Test (optional)</h2>
     <p class="note">Test existing per-country KYC endpoints (not part of Social KYC flow).</p>
     <div class="row">
       <div>
@@ -192,8 +175,6 @@
   <script>
     // ── State ──
     let googleProfile = null; // { sub, email, name, picture }
-    let autoPollInterval = null;
-
     // ── Init ──
     document.getElementById('callbackUrl').value = window.location.origin + '/test-board';
 
@@ -208,11 +189,6 @@
         params.forEach((v, k) => { obj[k] = v; });
         callbackParamsEl.textContent = JSON.stringify(obj, null, 2);
 
-        // Auto-check status after callback if user_id is set
-        const statusUserId = document.getElementById('statusUserId').value;
-        if (statusUserId) {
-          setTimeout(() => checkKycStatus(), 500);
-        }
       }
     })();
 
@@ -381,48 +357,7 @@
       }
     }
 
-    // ── Step 4: Check KYC Status ──
-    async function checkKycStatus() {
-      const resultEl = document.getElementById('statusResult');
-      const jsonEl = document.getElementById('statusJson');
-      const badgeEl = document.getElementById('kycStatusBadge');
-
-      resultEl.classList.remove('hidden');
-      badgeEl.innerHTML = '<span class="status info">Checking...</span>';
-
-      const userId = document.getElementById('statusUserId').value;
-      const { ok, status, data } = await apiCall('/v1/idv/kyc/status?user_id=' + encodeURIComponent(userId));
-
-      jsonEl.textContent = JSON.stringify(data, null, 2);
-
-      if (ok) {
-        const kycStatus = data.sksStatus || data.status || 'unknown';
-        const badgeClass = 'badge-' + kycStatus;
-        badgeEl.innerHTML = 'Status: <span class="badge ' + badgeClass + '">' + kycStatus + '</span>';
-      } else {
-        badgeEl.innerHTML = '<span class="status error">Error ' + status + '</span>';
-      }
-    }
-
-    // ── Auto-poll toggle ──
-    function toggleAutoPoll() {
-      const btn = document.getElementById('btnAutoPoll');
-      const pollStatus = document.getElementById('pollStatus');
-
-      if (autoPollInterval) {
-        clearInterval(autoPollInterval);
-        autoPollInterval = null;
-        btn.textContent = 'Auto-poll: OFF';
-        pollStatus.classList.add('hidden');
-      } else {
-        autoPollInterval = setInterval(checkKycStatus, 3000);
-        btn.textContent = 'Auto-poll: ON';
-        pollStatus.classList.remove('hidden');
-        checkKycStatus();
-      }
-    }
-
-    // ── Step 5: Get KYC Result ──
+    // ── Step 4: Get KYC Result ──
     async function getKycResult() {
       const resultEl = document.getElementById('kycResult');
       const jsonEl = document.getElementById('kycJson');
