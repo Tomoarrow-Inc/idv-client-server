@@ -64,13 +64,14 @@ Backend For Frontend (BFF) server for idv-client. Handles OAuth2 client-assertio
     │                     │                       │◄── redirect ─────────│               │
     │                     │                       │  (callback_url)      │               │
     │                     │                       │                      │               │
-    │ ── E. KYC 상태 확인 ────────────────────────────────────────────────────────────────
-    │                     │              GET /v1/idv/kyc/status ────────►│               │
-    │                     │              ?user_id=<customer_id>           │               │
-    │                     │                       │◄── { sksStatus,      │               │
-    │                     │                       │     sksSubjectId,    │               │
-    │                     │                       │     sksFullName,     │               │
-    │                     │                       │     sksCountry, ...} │               │
+    │ ── E. KYC 결과 조회 ────────────────────────────────────────────────────────────────
+    │                     │              POST /v1/idv/kyc/get ─────────►│               │
+    │                     │              { user_id: <customer_id>,       │               │
+    │                     │                country: "us" }               │               │
+    │                     │                       │◄── { country,        │               │
+    │                     │                       │     full_name,       │               │
+    │                     │                       │     date_of_birth,   │               │
+    │                     │                       │     full_address }   │               │
     │                     │◄── KYC 결과 ──────────│                      │               │
     │◄── 결과 표시 ──────│                       │                      │               │
 ```
@@ -274,81 +275,31 @@ Also accepts `IDV_SERVER` and `IDV_BASEURL` as fallbacks for `IDV_BASE_URL`.
 | `client-server-dev` | 8081:3000 | `https://dev.tomopayment.com` |
 | `client-server-prod` | 8082:3000 | `https://api.tomopayment.com` |
 
-## 완료 보고 체계 (Completion Reporting)
+## Teams 액션 가이드
 
-### 개요
+master agent가 Teams를 통해 작업을 위임할 때 적용되는 프로토콜.
 
-작업 완료 후 superproject의 master agent가 후속 작업(커밋, 계약 재생성, 통합 테스트 등)을 진행할 수 있도록 **구조화된 완료 보고**를 작성한다.
+### 작업 수신
 
-### 핵심 원칙: 요청 파일이 완료 상태의 유일한 진실 공급원 (Single Source of Truth)
+1. **TaskGet**으로 할당된 task의 description 확인
+2. `agent/share/idv-client-server/`에 참고 문서가 있으면 읽기
+3. **TaskUpdate**: status → `in_progress`
 
-**요청 파일의 상태가 작업 완료 여부를 결정한다.** 보고서 파일의 존재만으로는 완료를 판단하지 않는다.
+### 작업 중
 
-| 요청 파일 상태 | 보고서 존재 | 의미 |
-|---|---|---|
-| `social-kyc-update.md` (원본) | 무관 | **작업 미완료** — 착수 또는 재작업 필요 |
-| `done-social-kyc-update.md` (done- 접두사) | 있음 | **작업 완료** — 보고서 참조 |
-| 파일 없음 | 있음 | **이전 작업** — master가 이미 처리 완료 |
-| 파일 없음 | 없음 | 관련 작업 없음 |
+- 차단 요인·질문 → **SendMessage**로 master에게 전달
+- 주요 이정표 → SendMessage로 상태 공유 (선택)
 
-### 작업 시작 시 (세션 초기화)
+### 작업 완료
 
-1. `agent/share/idv-client-server/` 디렉토리를 확인하여 수신된 요청을 읽는다
-2. `done-` 접두사가 **없는** 파일만 미완료 작업으로 취급한다
-3. **기존 보고서가 있더라도** 요청 파일에 `done-` 접두사가 없으면 미완료로 간주한다
+1. **TaskUpdate**: status → `completed`
+2. **SendMessage**: master에게 완료 요약 (변경 파일, 빌드/테스트 결과, 후속 작업)
+3. **TaskList**: 다음 task 확인 → 있으면 수행
 
-### 작업 완료 시 (보고서 작성)
+### 작업 실패
 
-완료 시 아래 두 가지를 **반드시 함께** 수행한다:
-
-**Step 1**: 요청 파일에 `done-` 접두사 추가 (완료 표시)
-```bash
-mv agent/share/idv-client-server/social-kyc-update.md \
-   agent/share/idv-client-server/done-social-kyc-update.md
-```
-
-**Step 2**: 보고서를 `agent/share/super-project/`에 작성
-- 파일명: `report-idv-client-server-<요청파일명>.md`
-- 예: `report-idv-client-server-social-kyc-update.md`
-
-### 보고서 템플릿
-
-```markdown
----
-source: agent/share/idv-client-server/<요청파일명>.md
-status: COMPLETED | PARTIAL | FAILED
-completed_at: YYYY-MM-DDTHH:MM:SS+09:00
-branch: <현재 브랜치>
-commit: <최신 커밋 해시 또는 "uncommitted">
----
-
-# [STATUS] <작업 제목>
-
-## 요청 원문
-> <요청 파일의 핵심 내용 1-2줄 요약>
-
-## 수행 내역
-- [ 변경된 파일과 변경 내용 ]
-
-## 미완료/주의사항
-- <있으면 기재, 없으면 "없음">
-
-## 후속 작업 (master agent용)
-- <커밋, 계약 재생성, 서브모듈 참조 업데이트 등 master가 해야 할 일>
-```
-
-### 보고서 상태값
-
-| status | 의미 | master 행동 |
-|---|---|---|
-| `COMPLETED` | 모든 항목 완료 | 후속 작업 진행 |
-| `PARTIAL` | 일부만 완료 (사유 기재) | 미완료 항목 확인 후 판단 |
-| `FAILED` | 작업 실패 (사유 기재) | 원인 분석 후 재요청 또는 대안 |
-
-### 이전 보고서 처리
-
-- **같은 요청에 대한 이전 보고서가 있으면**: 덮어쓴다 (최신 보고서만 유효)
-- **master agent가 보고서를 처리한 후**: `done-report-...md`로 변경하거나 삭제
+1. **TaskUpdate**: status를 `in_progress` 유지 (completed 금지)
+2. **SendMessage**: 실패 원인·차단 요인을 master에게 전달
 
 ## Important Conventions
 
