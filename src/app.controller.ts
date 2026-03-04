@@ -58,9 +58,10 @@ async function rethrow(error: unknown): Promise<never> {
     const status = error.response.status || HttpStatus.BAD_GATEWAY;
     let body: string | Record<string, any> = '';
     try {
-      body = await error.response.json();
+      const text = await error.response.text();
+      try { body = JSON.parse(text); } catch { body = text; }
     } catch {
-      try { body = await error.response.text(); } catch { body = error.message; }
+      body = error.message;
     }
     throw new HttpException(body, status);
   }
