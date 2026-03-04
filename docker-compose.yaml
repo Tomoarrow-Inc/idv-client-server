@@ -1,13 +1,13 @@
 
 services:
   client-server:
-    image: tomoadmin/idv-client-server:test-0.0.2.4
+    image: tomoadmin/idv-client-server:test-0.0.2.5
     build: 
       context: ./
       target: development
 
   client-server-test:
-    image: tomoadmin/idv-client-server:test-0.0.2.4
+    image: tomoadmin/idv-client-server:test-0.0.2.5
 
     ports:
       - "8080:3000"
@@ -20,7 +20,7 @@ services:
 
 
   client-server-dev:
-    image: tomoadmin/idv-client-server:test-0.0.2.4
+    image: tomoadmin/idv-client-server:test-0.0.2.5
 
     ports:
       - "8081:3000"
@@ -33,7 +33,7 @@ services:
 
 
   client-server-prod:
-    image: tomoadmin/idv-client-server:test-0.0.2.4
+    image: tomoadmin/idv-client-server:test-0.0.2.5
 
     ports:
       - "8082:3000"
