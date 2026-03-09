@@ -140,7 +140,7 @@
   <!-- Step 2: Start Social KYC -->
   <div class="card">
     <h2><span class="step">2</span>Start Social KYC</h2>
-    <p class="note" id="socialKycNote">POST /v1/idv/google/start — Google email is used as login_hint. Returns authorization_url.</p>
+    <p class="note" id="socialKycNote">POST /v1/idv/social/google/start — Google email is used as login_hint. Returns authorization_url.</p>
     <label for="callbackUrl">Callback URL</label>
     <input type="text" id="callbackUrl" placeholder="callback_url">
     <div class="row">
@@ -182,9 +182,26 @@
 
   <hr class="divider" style="margin: 24px 0;">
 
-  <!-- Step 4: Existing KYC Test (optional) -->
+  <!-- Step 4: Social Result -->
   <div class="card">
-    <h2><span class="step">4</span>Existing KYC Test (optional)</h2>
+    <h2><span class="step">4</span>Social KYC Result</h2>
+    <p class="note">POST /v1/idv/social/result — Query KYC result by user_id (Social KYC flow).</p>
+    <label for="socialResultUserId">User ID</label>
+    <input type="text" id="socialResultUserId" placeholder="user_id">
+    <div class="actions">
+      <button class="btn-primary" onclick="getSocialResult()">Get Social Result</button>
+    </div>
+    <div id="socialResult" class="hidden">
+      <div id="socialResultStatus" class="status info"></div>
+      <pre id="socialResultJson"></pre>
+    </div>
+  </div>
+
+  <hr class="divider" style="margin: 24px 0;">
+
+  <!-- Step 5: Existing KYC Test (optional) -->
+  <div class="card">
+    <h2><span class="step">5</span>Existing KYC Test (optional)</h2>
     <p class="note">Test existing per-country KYC endpoints (not part of Social KYC flow).</p>
     <div class="row">
       <div>
@@ -422,7 +439,7 @@
 
       if (provider === 'wechat') {
         loginHintRow.classList.add('hidden');
-        noteEl.textContent = 'POST /v1/idv/wechat/start — WeChat QR code login. Returns authorization_url.';
+        noteEl.textContent = 'POST /v1/idv/social/wechat/start — WeChat QR code login. Returns authorization_url.';
         googleSignInCard.classList.add('hidden');
         wechatLoginCard.classList.remove('hidden');
         if (!wechatProfile) {
@@ -430,7 +447,7 @@
         }
       } else {
         loginHintRow.classList.remove('hidden');
-        noteEl.textContent = 'POST /v1/idv/google/start — Google email is used as login_hint. Returns authorization_url.';
+        noteEl.textContent = 'POST /v1/idv/social/google/start — Google email is used as login_hint. Returns authorization_url.';
         googleSignInCard.classList.remove('hidden');
         wechatLoginCard.classList.add('hidden');
       }
@@ -492,8 +509,8 @@
       }
 
       const endpoint = provider === 'google'
-        ? '/v1/idv/google/start'
-        : '/v1/idv/wechat/start';
+        ? '/v1/idv/social/google/start'
+        : '/v1/idv/social/wechat/start';
 
       const { ok, status, data } = await apiCall(endpoint, {
         method: 'POST',
@@ -519,7 +536,39 @@
       }
     }
 
-    // ── Step 4: Get KYC Result ──
+    // ── Step 4: Get Social Result ──
+    async function getSocialResult() {
+      const resultEl = document.getElementById('socialResult');
+      const statusEl = document.getElementById('socialResultStatus');
+      const jsonEl = document.getElementById('socialResultJson');
+
+      resultEl.classList.remove('hidden');
+      statusEl.className = 'status info';
+      statusEl.textContent = 'Loading...';
+      jsonEl.textContent = '';
+
+      const body = {
+        user_id: document.getElementById('socialResultUserId').value,
+      };
+
+      const { ok, status, data } = await apiCall('/v1/idv/social/result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      jsonEl.textContent = JSON.stringify(data, null, 2);
+
+      if (ok) {
+        statusEl.className = 'status ok';
+        statusEl.textContent = 'Result retrieved';
+      } else {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'Error ' + status;
+      }
+    }
+
+    // ── Step 5: Get KYC Result ──
     async function getKycResult() {
       const resultEl = document.getElementById('kycResult');
       const jsonEl = document.getElementById('kycJson');

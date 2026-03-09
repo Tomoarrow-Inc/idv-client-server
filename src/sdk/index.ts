@@ -53,6 +53,8 @@ export type {
   // WeChat Social KYC
   WeChatStartBody,
   WeChatStartResp,
+  // Social Result
+  SocialResultBody,
 } from './api-contract';
 
 // Response types (generated)

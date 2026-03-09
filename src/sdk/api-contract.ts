@@ -36,6 +36,12 @@ export type WeChatStartResp = {
   authorization_url: string;
 };
 
+// ── Social Result ──
+
+export type SocialResultBody = {
+  user_id: string;
+};
+
 export type IdvKycGetBody = {
   user_id: string;
   country: Country;

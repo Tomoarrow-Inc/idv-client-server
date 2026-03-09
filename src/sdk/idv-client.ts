@@ -53,6 +53,8 @@ import type {
   // WeChat Social KYC
   WeChatStartBody,
   WeChatStartResp,
+  // Social Result
+  SocialResultBody,
 } from './api-contract';
 
 function resolveBaseUrl(): string {
@@ -112,11 +114,18 @@ export class IdvServerClient {
 
   // ── Google Social KYC ──
 
+  /** TODO: OpenAPI contract-distribute 후 generated method로 교체 */
   async googleStart(accessToken: string, body: GoogleStartBody): Promise<GoogleStartResp> {
-    return this.api.v1IdvGoogleStartPost({
-      Authorization: `Bearer ${accessToken}`,
-      GoogleStartReq: body,
+    const response = await (this.api as any).request({
+      path: '/v1/idv/social/google/start',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
     });
+    return await response.json();
   }
 
   // ── WeChat Social KYC ──
@@ -124,7 +133,23 @@ export class IdvServerClient {
   /** TODO: OpenAPI contract-distribute 후 generated method로 교체 */
   async wechatStart(accessToken: string, body: WeChatStartBody): Promise<WeChatStartResp> {
     const response = await (this.api as any).request({
-      path: '/v1/idv/wechat/start',
+      path: '/v1/idv/social/wechat/start',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+    return await response.json();
+  }
+
+  // ── Social Result ──
+
+  /** TODO: OpenAPI contract-distribute 후 generated method로 교체 */
+  async socialResult(accessToken: string, body: SocialResultBody): Promise<GetKycResp> {
+    const response = await (this.api as any).request({
+      path: '/v1/idv/social/result',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=utf-8',
