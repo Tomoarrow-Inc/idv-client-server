@@ -167,13 +167,15 @@ export class AppService {
     if (code) params.set('code', code);
     if (state) params.set('state', state);
     if (error) params.set('error', error);
-    const response = await fetch(
-      `${baseUrl}/v1/idv/social/wechat-mock/callback?${params.toString()}`,
-      { redirect: 'manual' },
-    );
+    const url = `${baseUrl}/v1/idv/social/wechat-mock/callback?${params.toString()}`;
+    const response = await fetch(url, { redirect: 'manual' });
     const location = response.headers.get('location');
     if (location) return location;
-    throw new Error('No redirect location from mock callback');
+    // 302가 아닌 경우 상세 에러 정보 포함
+    const body = await response.text().catch(() => '');
+    throw new Error(
+      `Mock callback failed: status=${response.status}, url=${url}, body=${body.slice(0, 500)}`
+    );
   }
 
   // ── Social Result ──

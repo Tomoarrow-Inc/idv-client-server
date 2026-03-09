@@ -147,7 +147,8 @@ export class AppController {
       const location = await this.appService.wechatMockCallback(code, state, error);
       res.redirect(302, location);
     } catch (e) {
-      res.status(502).send('Mock callback proxy error');
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      res.status(502).send(`Mock callback proxy error: ${msg}`);
     }
   }
 
