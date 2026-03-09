@@ -114,9 +114,60 @@ async function bootstrap() {
     res.sendFile(join(__dirname, 'swagger', 'test-board.html'));
   });
 
-  // Test Board config (provides GOOGLE_CLIENT_ID to frontend)
+  // Test Board config (provides GOOGLE_CLIENT_ID and WECHAT_CLIENT_APP_ID to frontend)
   expressApp.get('/test-board/config', (_req, res) => {
-    res.json({ googleClientId: process.env.GOOGLE_CLIENT_ID || '' });
+    res.json({
+      googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+      wechatAppId: process.env.WECHAT_CLIENT_APP_ID || '',
+    });
+  });
+
+  // WeChat Login callback — exchanges code for access_token + userinfo, redirects back to test-board
+  // Environment variables required:
+  //   WECHAT_CLIENT_APP_ID     — WeChat Open Platform AppID (for client-side QR login)
+  //   WECHAT_CLIENT_APP_SECRET — WeChat Open Platform AppSecret (for server-side code exchange)
+  expressApp.get('/wechat/login/callback', async (req, res) => {
+    const { code } = req.query;
+
+    if (!code) {
+      return res.redirect('/test-board?wechat_error=no_code');
+    }
+
+    try {
+      const appId = process.env.WECHAT_CLIENT_APP_ID || '';
+      const appSecret = process.env.WECHAT_CLIENT_APP_SECRET || '';
+
+      // Step 1: Exchange code for access_token
+      const tokenUrl = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appId}&secret=${appSecret}&code=${code}&grant_type=authorization_code`;
+      const tokenRes = await fetch(tokenUrl);
+      const tokenData = await tokenRes.json();
+
+      if (tokenData.errcode) {
+        return res.redirect(`/test-board?wechat_error=${encodeURIComponent(tokenData.errmsg || 'token_exchange_failed')}`);
+      }
+
+      // Step 2: Get user info
+      const userInfoUrl = `https://api.weixin.qq.com/sns/userinfo?access_token=${tokenData.access_token}&openid=${tokenData.openid}`;
+      const userRes = await fetch(userInfoUrl);
+      const userData = await userRes.json();
+
+      if (userData.errcode) {
+        return res.redirect(`/test-board?wechat_error=${encodeURIComponent(userData.errmsg || 'userinfo_failed')}`);
+      }
+
+      // Redirect back to test-board with user info as query params
+      const params = new URLSearchParams({
+        wechat_login: 'success',
+        wechat_unionid: userData.unionid || '',
+        wechat_openid: userData.openid || '',
+        wechat_nickname: userData.nickname || '',
+        wechat_headimgurl: userData.headimgurl || '',
+      });
+
+      res.redirect(`/test-board?${params.toString()}`);
+    } catch (e: any) {
+      res.redirect(`/test-board?wechat_error=${encodeURIComponent(e.message || 'unknown_error')}`);
+    }
   });
 
   await app.listen(process.env.PORT ?? 3000);
