@@ -125,6 +125,38 @@
     </div>
   </div>
 
+  <!-- Step 0: WeChat Mock Login (hidden by default) -->
+  <div class="card hidden" id="wechatMockLoginCard">
+    <h2><span class="step">0</span>WeChat Mock Login</h2>
+    <p class="note">Mock 사용자로 로그인합니다. 실제 WeChat 계정이 필요하지 않습니다.</p>
+    <div id="wechatMockUserPreview" style="margin-top: 12px;">
+      <div class="user-info" style="background: #fff3e0;">
+        <div style="width: 40px; height: 40px; border-radius: 50%; background: #07C160; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;">M</div>
+        <div class="details">
+          <div class="name">Mock WeChat User</div>
+          <div class="sub">UnionID: <span style="font-family: monospace;">mock-wechat-unionid-12345</span></div>
+          <div class="sub">OpenID: <span style="font-family: monospace;">mock-wechat-openid-12345</span></div>
+        </div>
+      </div>
+      <div class="actions" style="margin-top: 12px;">
+        <button class="btn-primary" style="background: #07C160;" onclick="wechatMockLogin()">Mock Login</button>
+      </div>
+    </div>
+    <div id="wechatMockUser" class="hidden">
+      <div class="user-info">
+        <div style="width: 40px; height: 40px; border-radius: 50%; background: #07C160; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;">M</div>
+        <div class="details">
+          <div class="name">Mock WeChat User <span class="badge badge-verified">MOCK</span></div>
+          <div class="sub">UnionID: <span style="font-family: monospace;">mock-wechat-unionid-12345</span></div>
+          <div class="sub">OpenID: <span style="font-family: monospace;">mock-wechat-openid-12345</span></div>
+        </div>
+      </div>
+      <div class="actions" style="margin-top: 8px;">
+        <button class="btn-secondary" onclick="wechatMockSignOut()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Step 1: Access Token -->
   <div class="card">
     <h2><span class="step">1</span>Access Token</h2>
@@ -401,6 +433,24 @@
       document.getElementById('wechatErrorMsg').textContent = msg;
     }
 
+    // ── WeChat Mock Login ──
+    function wechatMockLogin() {
+      wechatProfile = {
+        unionid: 'mock-wechat-unionid-12345',
+        openid: 'mock-wechat-openid-12345',
+        nickname: 'Mock WeChat User',
+        headimgurl: '',
+      };
+      document.getElementById('wechatMockUserPreview').classList.add('hidden');
+      document.getElementById('wechatMockUser').classList.remove('hidden');
+    }
+
+    function wechatMockSignOut() {
+      wechatProfile = null;
+      document.getElementById('wechatMockUser').classList.add('hidden');
+      document.getElementById('wechatMockUserPreview').classList.remove('hidden');
+    }
+
     // Decode JWT payload (no verification — frontend only)
     function parseJwt(token) {
       const base64Url = token.split('.')[1];
@@ -437,12 +487,14 @@
       const noteEl = document.getElementById('socialKycNote');
       const googleSignInCard = document.getElementById('googleSignInCard');
       const wechatLoginCard = document.getElementById('wechatLoginCard');
+      const wechatMockLoginCard = document.getElementById('wechatMockLoginCard');
 
       if (provider === 'wechat') {
         loginHintRow.classList.add('hidden');
         noteEl.textContent = 'POST /v1/idv/social/wechat/start — WeChat QR code login. Returns authorization_url.';
         googleSignInCard.classList.add('hidden');
         wechatLoginCard.classList.remove('hidden');
+        wechatMockLoginCard.classList.add('hidden');
         if (!wechatProfile) {
           initWeChatLogin(); // Initialize QR code when WeChat is first selected
         }
@@ -451,11 +503,13 @@
         noteEl.textContent = 'POST /v1/idv/social/wechat-mock/start — Mock WeChat flow (no real WeChat login needed). Returns authorization_url.';
         googleSignInCard.classList.add('hidden');
         wechatLoginCard.classList.add('hidden');
+        wechatMockLoginCard.classList.remove('hidden');
       } else {
         loginHintRow.classList.remove('hidden');
         noteEl.textContent = 'POST /v1/idv/social/google/start — Google email is used as login_hint. Returns authorization_url.';
         googleSignInCard.classList.remove('hidden');
         wechatLoginCard.classList.add('hidden');
+        wechatMockLoginCard.classList.add('hidden');
       }
     }
 
