@@ -123,7 +123,7 @@ export class IdvServerClient {
         'Content-Type': 'application/json;charset=utf-8',
         'Authorization': `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(body),
+      body: body,
     });
     return await response.json();
   }
@@ -139,7 +139,7 @@ export class IdvServerClient {
         'Content-Type': 'application/json;charset=utf-8',
         'Authorization': `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(body),
+      body: body,
     });
     return await response.json();
   }
@@ -155,7 +155,7 @@ export class IdvServerClient {
         'Content-Type': 'application/json;charset=utf-8',
         'Authorization': `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(body),
+      body: body,
     });
     return await response.json();
   }
@@ -171,7 +171,7 @@ export class IdvServerClient {
         'Content-Type': 'application/json;charset=utf-8',
         'Authorization': `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(body),
+      body: body,
     });
     return await response.json();
   }
