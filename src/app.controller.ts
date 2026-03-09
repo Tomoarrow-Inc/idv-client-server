@@ -1,4 +1,5 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Query, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { AppService } from './app.service';
 import { ResponseError } from './sdk/generated/runtime';
 import type {
@@ -122,6 +123,32 @@ export class AppController {
   async wechatMockStart(@Body() body: WeChatStartBody): Promise<WeChatStartResp> {
     try { return await this.appService.wechatMockStart(body); }
     catch (e) { return rethrow(e); }
+  }
+
+  @Get('/v1/idv/social/wechat-mock/login')
+  async wechatMockLogin(@Query('state') state: string, @Res() res: Response) {
+    try {
+      const html = await this.appService.wechatMockLoginPage(state);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(html);
+    } catch (e) {
+      res.status(502).send('Mock login page proxy error');
+    }
+  }
+
+  @Get('/v1/idv/social/wechat-mock/callback')
+  async wechatMockCallback(
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Query('error') error: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const location = await this.appService.wechatMockCallback(code, state, error);
+      res.redirect(302, location);
+    } catch (e) {
+      res.status(502).send('Mock callback proxy error');
+    }
   }
 
   // ── Social Result ──

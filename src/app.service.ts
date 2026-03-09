@@ -132,7 +132,48 @@ export class AppService {
   // ── WeChat Mock Social KYC ──
 
   async wechatMockStart(body: WeChatStartBody): Promise<WeChatStartResp> {
-    return this.idvServerClient.wechatMockStart(this.requireAccessToken(), body);
+    const result = await this.idvServerClient.wechatMockStart(this.requireAccessToken(), body);
+    // authorization_url을 BFF 상대경로로 변환 (Docker 내부 호스트명 → 브라우저 접근 가능)
+    if (result.authorization_url) {
+      try {
+        const url = new URL(result.authorization_url);
+        result.authorization_url = url.pathname + url.search;
+      } catch { /* URL 파싱 실패 시 원본 유지 */ }
+    }
+    return result;
+  }
+
+  async wechatMockLoginPage(state: string): Promise<string> {
+    const baseUrl = this.resolveBaseUrl();
+    const response = await fetch(
+      `${baseUrl}/v1/idv/social/wechat-mock/login?state=${encodeURIComponent(state)}`,
+    );
+    let html = await response.text();
+    // HTML 내 callback URL도 BFF 상대경로로 변환
+    html = html.replace(
+      /href='[^']*\/v1\/idv\/social\/wechat-mock\/callback/g,
+      "href='/v1/idv/social/wechat-mock/callback",
+    );
+    html = html.replace(
+      /location\.href='[^']*\/v1\/idv\/social\/wechat-mock\/callback/g,
+      "location.href='/v1/idv/social/wechat-mock/callback",
+    );
+    return html;
+  }
+
+  async wechatMockCallback(code: string, state: string, error?: string): Promise<string> {
+    const baseUrl = this.resolveBaseUrl();
+    const params = new URLSearchParams();
+    if (code) params.set('code', code);
+    if (state) params.set('state', state);
+    if (error) params.set('error', error);
+    const response = await fetch(
+      `${baseUrl}/v1/idv/social/wechat-mock/callback?${params.toString()}`,
+      { redirect: 'manual' },
+    );
+    const location = response.headers.get('location');
+    if (location) return location;
+    throw new Error('No redirect location from mock callback');
   }
 
   // ── Social Result ──
