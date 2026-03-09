@@ -54,6 +54,8 @@
     .user-info .details .sub { font-family: monospace; font-size: 0.78rem; color: #999; }
     .divider { border: none; border-top: 1px solid #e0e0e0; margin: 12px 0; }
     .note { font-size: 0.82rem; color: #888; margin-top: 6px; }
+    .provider-select { display: flex; gap: 20px; margin: 8px 0; }
+    .provider-select label { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -96,10 +98,15 @@
     </div>
   </div>
 
-  <!-- Step 2: Start Social KYC (Google) -->
+  <!-- Step 2: Start Social KYC -->
   <div class="card">
-    <h2><span class="step">2</span>Start Social KYC (Google)</h2>
-    <p class="note">POST /v1/idv/google/start — Google email is used as login_hint. Returns authorization_url.</p>
+    <h2><span class="step">2</span>Start Social KYC</h2>
+    <p class="note" id="socialKycNote">POST /v1/idv/google/start — Google email is used as login_hint. Returns authorization_url.</p>
+    <label>Provider</label>
+    <div class="provider-select">
+      <label><input type="radio" name="socialProvider" value="google" checked onchange="onProviderChange()"> Google</label>
+      <label><input type="radio" name="socialProvider" value="wechat" onchange="onProviderChange()"> WeChat</label>
+    </div>
     <label for="callbackUrl">Callback URL</label>
     <input type="text" id="callbackUrl" placeholder="callback_url">
     <div class="row">
@@ -107,7 +114,7 @@
         <label for="country">Country (optional)</label>
         <input type="text" id="country" placeholder="e.g. us, jp, cn">
       </div>
-      <div>
+      <div id="loginHintRow">
         <label for="loginHint">Login Hint (from Google email)</label>
         <input type="text" id="loginHint" placeholder="user@gmail.com">
       </div>
@@ -130,7 +137,8 @@
     <h2><span class="step">3</span>Authorization (external)</h2>
     <p style="font-size: 0.85rem; color: #666;">
       Click "Open Authorization Page" above to visit the Tomo authorization page.<br>
-      After approval, you will be redirected back to this page (callback_url).
+      After approval, you will be redirected back to this page (callback_url).<br>
+      <span style="color: #999;">Google: Redirects to Google Login page. WeChat: Shows a QR code for WeChat app scanning (desktop) or opens WeChat directly (mobile).</span>
     </p>
     <div id="callbackInfo" class="hidden" style="margin-top: 10px;">
       <div class="status ok">Returned from authorization callback</div>
@@ -283,6 +291,20 @@
       return { ok: res.ok, status: res.status, data };
     }
 
+    // ── Provider Selection ──
+    function onProviderChange() {
+      const provider = document.querySelector('input[name="socialProvider"]:checked').value;
+      const loginHintRow = document.getElementById('loginHintRow');
+      const noteEl = document.getElementById('socialKycNote');
+      if (provider === 'wechat') {
+        loginHintRow.classList.add('hidden');
+        noteEl.textContent = 'POST /v1/idv/wechat/start — WeChat QR code login. Returns authorization_url.';
+      } else {
+        loginHintRow.classList.remove('hidden');
+        noteEl.textContent = 'POST /v1/idv/google/start — Google email is used as login_hint. Returns authorization_url.';
+      }
+    }
+
     // ── Step 1: Get Token ──
     async function getToken() {
       const btn = document.getElementById('btnGetToken');
@@ -325,15 +347,24 @@
       statusEl.className = 'status info';
       statusEl.textContent = 'Starting...';
 
+      const provider = document.querySelector('input[name="socialProvider"]:checked').value;
+
       const body = {
         callback_url: document.getElementById('callbackUrl').value,
       };
       const country = document.getElementById('country').value;
       if (country) body.country = country;
-      const loginHint = document.getElementById('loginHint').value;
-      if (loginHint) body.login_hint = loginHint;
 
-      const { ok, status, data } = await apiCall('/v1/idv/google/start', {
+      if (provider === 'google') {
+        const loginHint = document.getElementById('loginHint').value;
+        if (loginHint) body.login_hint = loginHint;
+      }
+
+      const endpoint = provider === 'google'
+        ? '/v1/idv/google/start'
+        : '/v1/idv/wechat/start';
+
+      const { ok, status, data } = await apiCall(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
