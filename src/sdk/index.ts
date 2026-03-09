@@ -50,6 +50,9 @@ export type {
   LoginTicketBody,
   // Google Social KYC
   GoogleStartBody,
+  // WeChat Social KYC
+  WeChatStartBody,
+  WeChatStartResp,
 } from './api-contract';
 
 // Response types (generated)

@@ -25,6 +25,17 @@ export type GoogleStartBody = {
   login_hint?: string;
 };
 
+// ── WeChat Social KYC ──
+
+export type WeChatStartBody = {
+  callback_url: string;
+  country?: string;
+};
+
+export type WeChatStartResp = {
+  authorization_url: string;
+};
+
 export type IdvKycGetBody = {
   user_id: string;
   country: Country;

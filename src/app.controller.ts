@@ -39,6 +39,9 @@ import type {
   TokenResponse,
   // Google Social KYC
   GoogleStartBody,
+  // WeChat Social KYC
+  WeChatStartBody,
+  WeChatStartResp,
 } from './sdk';
 import type { GoogleStartResp } from './sdk/generated/models/GoogleStartResp';
 import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
@@ -100,6 +103,14 @@ export class AppController {
   @Post('/v1/idv/google/start')
   async googleStart(@Body() body: GoogleStartBody): Promise<GoogleStartResp> {
     try { return await this.appService.googleStart(body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  // ── WeChat Social KYC ──
+
+  @Post('/v1/idv/wechat/start')
+  async wechatStart(@Body() body: WeChatStartBody): Promise<WeChatStartResp> {
+    try { return await this.appService.wechatStart(body); }
     catch (e) { return rethrow(e); }
   }
 

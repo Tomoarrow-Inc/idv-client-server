@@ -50,6 +50,9 @@ import type {
   LoginTicketBody,
   // Google Social KYC
   GoogleStartBody,
+  // WeChat Social KYC
+  WeChatStartBody,
+  WeChatStartResp,
 } from './api-contract';
 
 function resolveBaseUrl(): string {
@@ -114,6 +117,22 @@ export class IdvServerClient {
       Authorization: `Bearer ${accessToken}`,
       GoogleStartReq: body,
     });
+  }
+
+  // ── WeChat Social KYC ──
+
+  /** TODO: OpenAPI contract-distribute 후 generated method로 교체 */
+  async wechatStart(accessToken: string, body: WeChatStartBody): Promise<WeChatStartResp> {
+    const response = await (this.api as any).request({
+      path: '/v1/idv/wechat/start',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+    return await response.json();
   }
 
   // ── US (Plaid) ──

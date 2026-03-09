@@ -52,6 +52,9 @@ import type {
   LoginTicketBody,
   // Google Social KYC
   GoogleStartBody,
+  // WeChat Social KYC
+  WeChatStartBody,
+  WeChatStartResp,
 } from './sdk';
 
 type SafeFetchResult<T> =
@@ -116,6 +119,12 @@ export class AppService {
 
   async googleStart(body: GoogleStartBody): Promise<GoogleStartResp> {
     return this.idvServerClient.googleStart(this.requireAccessToken(), body);
+  }
+
+  // ── WeChat Social KYC ──
+
+  async wechatStart(body: WeChatStartBody): Promise<WeChatStartResp> {
+    return this.idvServerClient.wechatStart(this.requireAccessToken(), body);
   }
 
   // ── US (Plaid) ──
