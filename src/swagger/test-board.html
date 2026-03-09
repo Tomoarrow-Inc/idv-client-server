@@ -69,6 +69,7 @@
     <div class="provider-select">
       <label><input type="radio" name="socialProvider" value="google" checked onchange="onProviderChange()"> Google</label>
       <label><input type="radio" name="socialProvider" value="wechat" onchange="onProviderChange()"> WeChat</label>
+      <label><input type="radio" name="socialProvider" value="wechat-mock" onchange="onProviderChange()"> WeChat (Mock)</label>
     </div>
   </div>
 
@@ -445,6 +446,11 @@
         if (!wechatProfile) {
           initWeChatLogin(); // Initialize QR code when WeChat is first selected
         }
+      } else if (provider === 'wechat-mock') {
+        loginHintRow.classList.add('hidden');
+        noteEl.textContent = 'POST /v1/idv/social/wechat-mock/start — Mock WeChat flow (no real WeChat login needed). Returns authorization_url.';
+        googleSignInCard.classList.add('hidden');
+        wechatLoginCard.classList.add('hidden');
       } else {
         loginHintRow.classList.remove('hidden');
         noteEl.textContent = 'POST /v1/idv/social/google/start — Google email is used as login_hint. Returns authorization_url.';
@@ -508,9 +514,10 @@
         if (loginHint) body.login_hint = loginHint;
       }
 
-      const endpoint = provider === 'google'
-        ? '/v1/idv/social/google/start'
-        : '/v1/idv/social/wechat/start';
+      let endpoint;
+      if (provider === 'google') endpoint = '/v1/idv/social/google/start';
+      else if (provider === 'wechat-mock') endpoint = '/v1/idv/social/wechat-mock/start';
+      else endpoint = '/v1/idv/social/wechat/start';
 
       const { ok, status, data } = await apiCall(endpoint, {
         method: 'POST',

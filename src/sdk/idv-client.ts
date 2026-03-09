@@ -144,6 +144,22 @@ export class IdvServerClient {
     return await response.json();
   }
 
+  // ── WeChat Mock Social KYC ──
+
+  /** TODO: OpenAPI contract-distribute 후 generated method로 교체 */
+  async wechatMockStart(accessToken: string, body: WeChatStartBody): Promise<WeChatStartResp> {
+    const response = await (this.api as any).request({
+      path: '/v1/idv/social/wechat-mock/start',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+    return await response.json();
+  }
+
   // ── Social Result ──
 
   /** TODO: OpenAPI contract-distribute 후 generated method로 교체 */

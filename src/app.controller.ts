@@ -116,6 +116,14 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
+  // ── WeChat Mock Social KYC ──
+
+  @Post('/v1/idv/social/wechat-mock/start')
+  async wechatMockStart(@Body() body: WeChatStartBody): Promise<WeChatStartResp> {
+    try { return await this.appService.wechatMockStart(body); }
+    catch (e) { return rethrow(e); }
+  }
+
   // ── Social Result ──
 
   @Post('/v1/idv/social/result')

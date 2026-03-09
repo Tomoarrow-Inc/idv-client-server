@@ -129,6 +129,12 @@ export class AppService {
     return this.idvServerClient.wechatStart(this.requireAccessToken(), body);
   }
 
+  // ── WeChat Mock Social KYC ──
+
+  async wechatMockStart(body: WeChatStartBody): Promise<WeChatStartResp> {
+    return this.idvServerClient.wechatMockStart(this.requireAccessToken(), body);
+  }
+
   // ── Social Result ──
 
   async socialResult(body: SocialResultBody): Promise<GetKycResp> {
