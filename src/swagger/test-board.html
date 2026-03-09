@@ -94,15 +94,29 @@
     </div>
   </div>
 
-  <!-- Step 0: WeChat Info (hidden by default) -->
+  <!-- Step 0: WeChat Login (hidden by default) -->
   <div class="card hidden" id="wechatInfoCard">
     <h2><span class="step">0</span>WeChat Login</h2>
-    <p class="note">WeChat uses server-side QR code authentication. No client-side sign-in needed.</p>
-    <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">
-      1. Get Access Token (Step 1)<br>
-      2. Start Verification (Step 2) — you'll get a WeChat QR code authorization URL<br>
-      3. Scan the QR code with WeChat app to authenticate
-    </p>
+    <p class="note">Simulates a B2C app where the user is already logged in via WeChat. In production, this login happens on the customer's own platform.</p>
+    <div id="wechatLoginBtn" style="margin-top: 12px;">
+      <button style="background: #07C160; color: #fff; border: none; border-radius: 4px; padding: 10px 24px; font-size: 0.95rem; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='#06AD56'" onmouseout="this.style.background='#07C160'" onclick="wechatMockLogin()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05a6.127 6.127 0 0 1-.253-1.736c0-3.678 3.39-6.672 7.572-6.672.26 0 .514.022.769.04C16.697 4.49 13.145 2.188 8.691 2.188zm-3.11 4.044c.64 0 1.156.518 1.156 1.158 0 .64-.517 1.157-1.157 1.157-.639 0-1.157-.518-1.157-1.157 0-.64.518-1.158 1.157-1.158zm5.994 0c.64 0 1.157.518 1.157 1.158 0 .64-.518 1.157-1.157 1.157-.64 0-1.157-.518-1.157-1.157 0-.64.517-1.158 1.157-1.158zm4.847 3.108c-3.685 0-6.672 2.583-6.672 5.77 0 3.186 2.987 5.77 6.672 5.77a8.33 8.33 0 0 0 2.338-.336.72.72 0 0 1 .59.08l1.563.916a.268.268 0 0 0 .138.045c.132 0 .24-.108.24-.243 0-.06-.024-.118-.04-.175l-.32-1.218a.488.488 0 0 1 .175-.547C22.886 17.641 24 15.867 24 13.89v-.78c-.005-2.907-2.992-5.77-6.578-5.77zm-2.498 3.463c.525 0 .95.426.95.95 0 .525-.425.95-.95.95a.95.95 0 0 1-.95-.95c0-.524.425-.95.95-.95zm4.994 0c.524 0 .95.426.95.95 0 .525-.426.95-.95.95a.95.95 0 0 1-.95-.95c0-.524.425-.95.95-.95z"/></svg>
+        WeChat Login (Mock)
+      </button>
+    </div>
+    <div id="wechatUser" class="hidden">
+      <div class="user-info">
+        <div style="width: 40px; height: 40px; border-radius: 50%; background: #07C160; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 0.9rem; flex-shrink: 0;">W</div>
+        <div class="details">
+          <div class="name" id="wechatNickname"></div>
+          <div class="sub">UnionID: <span id="wechatUnionid"></span></div>
+          <div class="sub">OpenID: <span id="wechatOpenid"></span></div>
+        </div>
+      </div>
+      <div class="actions" style="margin-top: 8px;">
+        <button class="btn-secondary" onclick="wechatSignOut()">Sign Out</button>
+      </div>
+    </div>
   </div>
 
   <!-- Step 1: Access Token -->
@@ -198,6 +212,7 @@
   <script>
     // ── State ──
     let googleProfile = null; // { sub, email, name, picture }
+    let wechatProfile = null; // { unionid, openid, nickname, headimgurl }
     // ── Init ──
     document.getElementById('callbackUrl').value = window.location.origin + '/test-board';
 
@@ -275,6 +290,28 @@
     function showGoogleError(msg) {
       document.getElementById('googleError').classList.remove('hidden');
       document.getElementById('googleErrorMsg').textContent = msg;
+    }
+
+    // ── WeChat Mock Login ──
+    function wechatMockLogin() {
+      wechatProfile = {
+        unionid: 'o6_mock_unionid_test_12345',
+        openid: 'oABC_mock_openid_test_67890',
+        nickname: '测试用户',
+        headimgurl: '',
+      };
+
+      document.getElementById('wechatNickname').textContent = wechatProfile.nickname;
+      document.getElementById('wechatUnionid').textContent = wechatProfile.unionid;
+      document.getElementById('wechatOpenid').textContent = wechatProfile.openid;
+      document.getElementById('wechatUser').classList.remove('hidden');
+      document.getElementById('wechatLoginBtn').classList.add('hidden');
+    }
+
+    function wechatSignOut() {
+      wechatProfile = null;
+      document.getElementById('wechatUser').classList.add('hidden');
+      document.getElementById('wechatLoginBtn').classList.remove('hidden');
     }
 
     // Decode JWT payload (no verification — frontend only)
