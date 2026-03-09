@@ -62,8 +62,17 @@
   <h1>Social KYC Test Board</h1>
   <p class="subtitle">Customer site simulation &mdash; OIDC Social KYC flow</p>
 
+  <!-- Provider Selection -->
+  <div class="card" style="border-left: 4px solid #1976d2;">
+    <h2>Select Provider</h2>
+    <div class="provider-select">
+      <label><input type="radio" name="socialProvider" value="google" checked onchange="onProviderChange()"> Google</label>
+      <label><input type="radio" name="socialProvider" value="wechat" onchange="onProviderChange()"> WeChat</label>
+    </div>
+  </div>
+
   <!-- Step 0: Google Sign-In -->
-  <div class="card">
+  <div class="card" id="googleSignInCard">
     <h2><span class="step">0</span>Google Sign-In</h2>
     <p class="note">Sign in with Google to authenticate and get email for login_hint.</p>
     <div id="googleSignInBtn" style="margin-top: 12px;"></div>
@@ -85,6 +94,17 @@
     </div>
   </div>
 
+  <!-- Step 0: WeChat Info (hidden by default) -->
+  <div class="card hidden" id="wechatInfoCard">
+    <h2><span class="step">0</span>WeChat Login</h2>
+    <p class="note">WeChat uses server-side QR code authentication. No client-side sign-in needed.</p>
+    <p style="font-size: 0.85rem; color: #666; margin-top: 8px;">
+      1. Get Access Token (Step 1)<br>
+      2. Start Verification (Step 2) — you'll get a WeChat QR code authorization URL<br>
+      3. Scan the QR code with WeChat app to authenticate
+    </p>
+  </div>
+
   <!-- Step 1: Access Token -->
   <div class="card">
     <h2><span class="step">1</span>Access Token</h2>
@@ -102,11 +122,6 @@
   <div class="card">
     <h2><span class="step">2</span>Start Social KYC</h2>
     <p class="note" id="socialKycNote">POST /v1/idv/google/start — Google email is used as login_hint. Returns authorization_url.</p>
-    <label>Provider</label>
-    <div class="provider-select">
-      <label><input type="radio" name="socialProvider" value="google" checked onchange="onProviderChange()"> Google</label>
-      <label><input type="radio" name="socialProvider" value="wechat" onchange="onProviderChange()"> WeChat</label>
-    </div>
     <label for="callbackUrl">Callback URL</label>
     <input type="text" id="callbackUrl" placeholder="callback_url">
     <div class="row">
@@ -296,12 +311,19 @@
       const provider = document.querySelector('input[name="socialProvider"]:checked').value;
       const loginHintRow = document.getElementById('loginHintRow');
       const noteEl = document.getElementById('socialKycNote');
+      const googleSignInCard = document.getElementById('googleSignInCard');
+      const wechatInfoCard = document.getElementById('wechatInfoCard');
+
       if (provider === 'wechat') {
         loginHintRow.classList.add('hidden');
         noteEl.textContent = 'POST /v1/idv/wechat/start — WeChat QR code login. Returns authorization_url.';
+        googleSignInCard.classList.add('hidden');
+        wechatInfoCard.classList.remove('hidden');
       } else {
         loginHintRow.classList.remove('hidden');
         noteEl.textContent = 'POST /v1/idv/google/start — Google email is used as login_hint. Returns authorization_url.';
+        googleSignInCard.classList.remove('hidden');
+        wechatInfoCard.classList.add('hidden');
       }
     }
 
