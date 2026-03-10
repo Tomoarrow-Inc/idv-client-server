@@ -26,8 +26,11 @@ models/PlaidStartIdvResp.ts
 models/SessionToken.ts
 models/StartIdvReq.ts
 models/StartIdvResp.ts
+models/TencentGetKycReq.ts
+models/TencentGetKycResp.ts
+models/TencentGetUnionResultResp.ts
+models/TencentIdvField.ts
 models/TokenResponse.ts
-models/TomoIdvGetResultReq.ts
 models/TomoIdvIssueTokenReq.ts
 models/TomoIdvIssueTokenRes.ts
 models/TomoIdvMockGetResultReq.ts

@@ -35,8 +35,9 @@ import type {
   SessionToken,
   StartIdvReq,
   StartIdvResp,
+  TencentGetKycReq,
+  TencentGetUnionResultResp,
   TokenResponse,
-  TomoIdvGetResultReq,
   TomoIdvIssueTokenReq,
   TomoIdvIssueTokenRes,
   TomoIdvMockGetResultReq,
@@ -90,10 +91,12 @@ import {
     StartIdvReqToJSON,
     StartIdvRespFromJSON,
     StartIdvRespToJSON,
+    TencentGetKycReqFromJSON,
+    TencentGetKycReqToJSON,
+    TencentGetUnionResultRespFromJSON,
+    TencentGetUnionResultRespToJSON,
     TokenResponseFromJSON,
     TokenResponseToJSON,
-    TomoIdvGetResultReqFromJSON,
-    TomoIdvGetResultReqToJSON,
     TomoIdvIssueTokenReqFromJSON,
     TomoIdvIssueTokenReqToJSON,
     TomoIdvIssueTokenResFromJSON,
@@ -138,7 +141,7 @@ export interface V1IdvCaStartPostRequest {
 
 export interface V1IdvCnKycGetPostRequest {
     Authorization?: string;
-    TomoIdvGetResultReq?: TomoIdvGetResultReq;
+    TencentGetKycReq?: TencentGetKycReq;
 }
 
 export interface V1IdvCnMockKycGetPostRequest {
@@ -474,7 +477,7 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
-    async v1IdvCnKycGetPostRaw(requestParameters: V1IdvCnKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async v1IdvCnKycGetPostRaw(requestParameters: V1IdvCnKycGetPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TencentGetUnionResultResp>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -490,19 +493,15 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: TomoIdvGetResultReqToJSON(requestParameters['TomoIdvGetResultReq']),
+            body: TencentGetKycReqToJSON(requestParameters['TencentGetKycReq']),
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => TencentGetUnionResultRespFromJSON(jsonValue));
     }
 
     /**
      */
-    async v1IdvCnKycGetPost(requestParameters: V1IdvCnKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async v1IdvCnKycGetPost(requestParameters: V1IdvCnKycGetPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TencentGetUnionResultResp> {
         const response = await this.v1IdvCnKycGetPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
