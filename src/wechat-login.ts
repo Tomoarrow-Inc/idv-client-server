@@ -8,8 +8,8 @@ export interface WeChatLoginProfile {
 }
 
 export const MOCK_WECHAT_LOGIN_PROFILE: WeChatLoginProfile = {
-  unionid: 'mock-wechat-unionid-12345',
-  openid: 'mock-wechat-openid-12345',
+  unionid: '100000000000012345',
+  openid: '200000000000012345',
   nickname: 'Mock WeChat User',
   headimgurl: '',
 };
@@ -92,8 +92,8 @@ export function renderWechatMockClientLoginHtml(paths: {
     '    <h1>WeChat Login</h1>',
     '    <p>This page mirrors the customer-service WeChat login callback flow without requiring a real WeChat App ID or App Secret.</p>',
     "    <div class='panel'>",
-    "      <div class='row'><span class='label'>UnionID</span><span class='value'>mock-wechat-unionid-12345</span></div>",
-    "      <div class='row'><span class='label'>OpenID</span><span class='value'>mock-wechat-openid-12345</span></div>",
+    "      <div class='row'><span class='label'>UnionID</span><span class='value'>100000000000012345</span></div>",
+    "      <div class='row'><span class='label'>OpenID</span><span class='value'>200000000000012345</span></div>",
     "      <div class='row'><span class='label'>Nickname</span><span class='value'>Mock WeChat User</span></div>",
     '    </div>',
     "    <div class='actions'>",
