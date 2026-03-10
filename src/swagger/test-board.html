@@ -778,17 +778,39 @@
       <!-- US APIs -->
       <div class="direct-section-title"><span class="country-label country-us">US</span> Plaid IDV</div>
 
-      <div class="api-card" id="card-us-start">
+      <div class="api-card" id="card-us-start-verified">
         <div class="api-card-header">
           <span class="endpoint"><span class="method">POST</span>/v1/idv/us/start</span>
-          <span class="api-badge api-badge-idle" id="badge-us-start">NOT TESTED</span>
+          <span class="api-badge api-badge-idle" id="badge-us-start-verified">NOT TESTED</span>
         </div>
-        <textarea class="json-editor" id="body-us-start"></textarea>
+        <p class="note">Verified user (hardcoded user_id)</p>
+        <textarea class="json-editor" id="body-us-start-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('us-start')">Send</button>
+          <button class="btn-primary" onclick="sendDirect('us-start-verified')">Send</button>
         </div>
-        <div id="result-us-start" class="hidden">
-          <pre id="json-us-start"></pre>
+        <div id="result-us-start-verified" class="hidden">
+          <div id="authlink-us-start-verified" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-us-start-verified"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-us-start-new">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/us/start</span>
+          <span class="api-badge api-badge-idle" id="badge-us-start-new">NOT TESTED</span>
+        </div>
+        <p class="note">New user (random user_id)</p>
+        <textarea class="json-editor" id="body-us-start-new"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('us-start-new')">Send</button>
+        </div>
+        <div id="result-us-start-new" class="hidden">
+          <div id="authlink-us-start-new" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-us-start-new"></pre>
         </div>
       </div>
 
@@ -809,17 +831,39 @@
       <!-- JP APIs -->
       <div class="direct-section-title"><span class="country-label country-jp">JP</span> Liquid eKYC</div>
 
-      <div class="api-card" id="card-jp-start">
+      <div class="api-card" id="card-jp-start-verified">
         <div class="api-card-header">
           <span class="endpoint"><span class="method">POST</span>/v1/idv/jp/start</span>
-          <span class="api-badge api-badge-idle" id="badge-jp-start">NOT TESTED</span>
+          <span class="api-badge api-badge-idle" id="badge-jp-start-verified">NOT TESTED</span>
         </div>
-        <textarea class="json-editor" id="body-jp-start"></textarea>
+        <p class="note">Verified user (hardcoded user_id)</p>
+        <textarea class="json-editor" id="body-jp-start-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('jp-start')">Send</button>
+          <button class="btn-primary" onclick="sendDirect('jp-start-verified')">Send</button>
         </div>
-        <div id="result-jp-start" class="hidden">
-          <pre id="json-jp-start"></pre>
+        <div id="result-jp-start-verified" class="hidden">
+          <div id="authlink-jp-start-verified" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-jp-start-verified"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-jp-start-new">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/jp/start</span>
+          <span class="api-badge api-badge-idle" id="badge-jp-start-new">NOT TESTED</span>
+        </div>
+        <p class="note">New user (random user_id)</p>
+        <textarea class="json-editor" id="body-jp-start-new"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('jp-start-new')">Send</button>
+        </div>
+        <div id="result-jp-start-new" class="hidden">
+          <div id="authlink-jp-start-new" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-jp-start-new"></pre>
         </div>
       </div>
 
@@ -840,17 +884,21 @@
       <!-- CN APIs -->
       <div class="direct-section-title"><span class="country-label country-cn">CN</span> Tencent IDV</div>
 
-      <div class="api-card" id="card-cn-start">
+      <div class="api-card" id="card-cn-start-new">
         <div class="api-card-header">
           <span class="endpoint"><span class="method">POST</span>/v1/idv/cn/start</span>
-          <span class="api-badge api-badge-idle" id="badge-cn-start">NOT TESTED</span>
+          <span class="api-badge api-badge-idle" id="badge-cn-start-new">NOT TESTED</span>
         </div>
-        <textarea class="json-editor" id="body-cn-start"></textarea>
+        <p class="note">New user (random user_id)</p>
+        <textarea class="json-editor" id="body-cn-start-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('cn-start')">Send</button>
+          <button class="btn-primary" onclick="sendDirect('cn-start-new')">Send</button>
         </div>
-        <div id="result-cn-start" class="hidden">
-          <pre id="json-cn-start"></pre>
+        <div id="result-cn-start-new" class="hidden">
+          <div id="authlink-cn-start-new" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-cn-start-new"></pre>
         </div>
       </div>
 
@@ -868,34 +916,180 @@
         </div>
       </div>
 
-      <!-- Generic APIs -->
-      <div class="direct-section-title"><span class="country-label country-generic">Generic</span> Country-Agnostic</div>
+      <!-- Generic /v1/idv/start -->
+      <div class="direct-section-title"><span class="country-label country-generic">Generic</span> /v1/idv/start</div>
 
-      <div class="api-card" id="card-generic-start">
+      <div class="api-card" id="card-generic-start-none-verified">
         <div class="api-card-header">
           <span class="endpoint"><span class="method">POST</span>/v1/idv/start</span>
-          <span class="api-badge api-badge-idle" id="badge-generic-start">NOT TESTED</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-start-none-verified">NOT TESTED</span>
         </div>
-        <textarea class="json-editor" id="body-generic-start"></textarea>
+        <p class="note">No country — verified user</p>
+        <textarea class="json-editor" id="body-generic-start-none-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start')">Send</button>
+          <button class="btn-primary" onclick="sendDirect('generic-start-none-verified')">Send</button>
         </div>
-        <div id="result-generic-start" class="hidden">
-          <pre id="json-generic-start"></pre>
+        <div id="result-generic-start-none-verified" class="hidden">
+          <div id="authlink-generic-start-none-verified" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-generic-start-none-verified"></pre>
         </div>
       </div>
 
-      <div class="api-card" id="card-generic-kyc-get">
+      <div class="api-card" id="card-generic-start-none-new">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/start</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-start-none-new">NOT TESTED</span>
+        </div>
+        <p class="note">No country — new user (random)</p>
+        <textarea class="json-editor" id="body-generic-start-none-new"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-start-none-new')">Send</button>
+        </div>
+        <div id="result-generic-start-none-new" class="hidden">
+          <div id="authlink-generic-start-none-new" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-generic-start-none-new"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-generic-start-us-verified">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/start</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-start-us-verified">NOT TESTED</span>
+        </div>
+        <p class="note"><span class="country-label country-us">US</span> verified user</p>
+        <textarea class="json-editor" id="body-generic-start-us-verified"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-start-us-verified')">Send</button>
+        </div>
+        <div id="result-generic-start-us-verified" class="hidden">
+          <div id="authlink-generic-start-us-verified" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-generic-start-us-verified"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-generic-start-us-new">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/start</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-start-us-new">NOT TESTED</span>
+        </div>
+        <p class="note"><span class="country-label country-us">US</span> new user (random)</p>
+        <textarea class="json-editor" id="body-generic-start-us-new"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-start-us-new')">Send</button>
+        </div>
+        <div id="result-generic-start-us-new" class="hidden">
+          <div id="authlink-generic-start-us-new" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-generic-start-us-new"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-generic-start-jp-verified">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/start</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-start-jp-verified">NOT TESTED</span>
+        </div>
+        <p class="note"><span class="country-label country-jp">JP</span> verified user</p>
+        <textarea class="json-editor" id="body-generic-start-jp-verified"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-start-jp-verified')">Send</button>
+        </div>
+        <div id="result-generic-start-jp-verified" class="hidden">
+          <div id="authlink-generic-start-jp-verified" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-generic-start-jp-verified"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-generic-start-jp-new">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/start</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-start-jp-new">NOT TESTED</span>
+        </div>
+        <p class="note"><span class="country-label country-jp">JP</span> new user (random)</p>
+        <textarea class="json-editor" id="body-generic-start-jp-new"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-start-jp-new')">Send</button>
+        </div>
+        <div id="result-generic-start-jp-new" class="hidden">
+          <div id="authlink-generic-start-jp-new" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-generic-start-jp-new"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-generic-start-cn-new">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/start</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-start-cn-new">NOT TESTED</span>
+        </div>
+        <p class="note"><span class="country-label country-cn">CN</span> new user (random)</p>
+        <textarea class="json-editor" id="body-generic-start-cn-new"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-start-cn-new')">Send</button>
+        </div>
+        <div id="result-generic-start-cn-new" class="hidden">
+          <div id="authlink-generic-start-cn-new" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-generic-start-cn-new"></pre>
+        </div>
+      </div>
+
+      <!-- Generic /v1/idv/kyc/get -->
+      <div class="direct-section-title"><span class="country-label country-generic">Generic</span> /v1/idv/kyc/get</div>
+
+      <div class="api-card" id="card-generic-kyc-get-us">
         <div class="api-card-header">
           <span class="endpoint"><span class="method">POST</span>/v1/idv/kyc/get</span>
-          <span class="api-badge api-badge-idle" id="badge-generic-kyc-get">NOT TESTED</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-kyc-get-us">NOT TESTED</span>
         </div>
-        <textarea class="json-editor" id="body-generic-kyc-get"></textarea>
+        <p class="note"><span class="country-label country-us">US</span></p>
+        <textarea class="json-editor" id="body-generic-kyc-get-us"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-kyc-get')">Send</button>
+          <button class="btn-primary" onclick="sendDirect('generic-kyc-get-us')">Send</button>
         </div>
-        <div id="result-generic-kyc-get" class="hidden">
-          <pre id="json-generic-kyc-get"></pre>
+        <div id="result-generic-kyc-get-us" class="hidden">
+          <pre id="json-generic-kyc-get-us"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-generic-kyc-get-jp">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/kyc/get</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-kyc-get-jp">NOT TESTED</span>
+        </div>
+        <p class="note"><span class="country-label country-jp">JP</span></p>
+        <textarea class="json-editor" id="body-generic-kyc-get-jp"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-kyc-get-jp')">Send</button>
+        </div>
+        <div id="result-generic-kyc-get-jp" class="hidden">
+          <pre id="json-generic-kyc-get-jp"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-generic-kyc-get-cn">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/kyc/get</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-kyc-get-cn">NOT TESTED</span>
+        </div>
+        <p class="note"><span class="country-label country-cn">CN</span></p>
+        <textarea class="json-editor" id="body-generic-kyc-get-cn"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-kyc-get-cn')">Send</button>
+        </div>
+        <div id="result-generic-kyc-get-cn" class="hidden">
+          <pre id="json-generic-kyc-get-cn"></pre>
         </div>
       </div>
 
@@ -1407,15 +1601,38 @@
       // ══════════════════════════════════════
       // KYC Direct — per-card API blocks
       // ══════════════════════════════════════
+      function randomUserId() {
+        // 19자리 숫자 난수 (7999752903327968491과 동일한 형식)
+        let id = '';
+        for (let i = 0; i < 28; i++) id += Math.floor(Math.random() * 10);
+        if (id[0] === '0') id = String(Math.floor(Math.random() * 9) + 1) + id.slice(1);
+        return id;
+      }
+
       const DIRECT_CARDS = {
-        'us-start':        { endpoint: '/v1/idv/us/start',    body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
-        'us-kyc-get':      { endpoint: '/v1/idv/us/kyc/get',  body: () => ({ user_id: '7999752903327968491' }) },
-        'jp-start':        { endpoint: '/v1/idv/jp/start',    body: () => ({ user_id: '7999752903327968498', callback_url: window.location.origin + '/test-board' }) },
-        'jp-kyc-get':      { endpoint: '/v1/idv/jp/kyc/get',  body: () => ({ user_id: '7999752903327968498' }) },
-        'cn-start':        { endpoint: '/v1/idv/cn/start',    body: () => ({ user_id: '799975290332796849300000000000007', redirect_url: window.location.origin + '/test-board' }) },
-        'cn-kyc-get':      { endpoint: '/v1/idv/cn/kyc/get',  body: () => ({ user_id: '799975290332796849300000000000007' }) },
-        'generic-start':   { endpoint: '/v1/idv/start',       body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
-        'generic-kyc-get': { endpoint: '/v1/idv/kyc/get',     body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
+        // ── US ──
+        'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'us-kyc-get':        { endpoint: '/v1/idv/us/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
+        // ── JP ──
+        'jp-start-verified': { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
+        'jp-start-new':      { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'jp-kyc-get':        { endpoint: '/v1/idv/jp/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
+        // ── CN (start: new only) ──
+        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), redirect_url: window.location.origin + '/test-board' }) },
+        'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044' }) },
+        // ── Generic /v1/idv/start ──
+        'generic-start-none-verified': { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'generic-start-none-new':      { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'generic-start-us-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'generic-start-us-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'generic-start-jp-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'generic-start-cn-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        // ── Generic /v1/idv/kyc/get ──
+        'generic-kyc-get-us': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
+        'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
+        'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
       };
 
       // Initialize all card textareas with default bodies
@@ -1432,8 +1649,10 @@
         const jsonEl = document.getElementById('json-' + id);
         const badgeEl = document.getElementById('badge-' + id);
         const cardEl = document.getElementById('card-' + id);
+        const authLinkEl = document.getElementById('authlink-' + id);
 
         resultEl.classList.remove('hidden');
+        if (authLinkEl) authLinkEl.classList.add('hidden');
         jsonEl.textContent = 'Requesting...';
         badgeEl.className = 'api-badge api-badge-idle';
         badgeEl.textContent = 'LOADING';
@@ -1462,6 +1681,14 @@
           badgeEl.textContent = 'OK ' + status;
           cardEl.classList.remove('api-error');
           cardEl.classList.add('api-success');
+
+          // Show "Open Authorization Page" link if start_idv_uri is present
+          const authUrl = data && (data.start_idv_uri || data.authorization_url);
+          if (authUrl && authLinkEl) {
+            const linkEl = authLinkEl.querySelector('a');
+            linkEl.href = authUrl;
+            authLinkEl.classList.remove('hidden');
+          }
         } else {
           badgeEl.className = 'api-badge api-badge-fail';
           badgeEl.textContent = 'ERR ' + status;
