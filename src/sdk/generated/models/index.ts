@@ -36,3 +36,5 @@ export * from './TomoIdvMockStartReq';
 export * from './TomoIdvMockStartRes';
 export * from './TomoIdvStartReq';
 export * from './TomoIdvStartRes';
+export * from './WeChatStartReq';
+export * from './WeChatStartResp';

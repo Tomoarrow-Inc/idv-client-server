@@ -3,6 +3,13 @@ import { AppModule } from './app.module';
 import * as swaggerUi from 'swagger-ui-express';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import {
+  buildWechatLoginErrorRedirectPath,
+  buildWechatLoginSuccessRedirectPath,
+  buildWechatMockClientLoginCallbackPath,
+  MOCK_WECHAT_LOGIN_PROFILE,
+  renderWechatMockClientLoginHtml,
+} from './wechat-login';
 
 /**
  * Swagger UI "Try it out" 기본값 주입.
@@ -29,9 +36,17 @@ function injectSwaggerExamples(doc: any): void {
 
   // ── OAuth2 (BFF가 자동 생성하므로 참고용) ──
   setExample('TokenRequestForm', 'grant_type', 'client_credentials');
-  setExample('TokenRequestForm', 'client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
+  setExample(
+    'TokenRequestForm',
+    'client_assertion_type',
+    'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+  );
   setExample('TokenRequestForm', 'scope', 'idv.read');
-  setExample('TokenRequestForm', 'resource', 'https://api.tomopayment.com/v1/idv');
+  setExample(
+    'TokenRequestForm',
+    'resource',
+    'https://api.tomopayment.com/v1/idv',
+  );
   // client_assertion: 비워둠 (BFF가 내부 생성)
 
   // ── Generic (country-agnostic) ──
@@ -91,18 +106,24 @@ function injectSwaggerExamples(doc: any): void {
   setExample('GoogleStartReq', 'login_hint', '');
 }
 
-async function bootstrap() {
+// 문제점: 기존 bootstrap은 실제 WeChat callback만 구성되어 있어 mock Step 0이 브라우저 내부 상태 변경에 머물렀고,
+// app id/app secret 없이 실제와 같은 login -> callback -> test-board 구조를 검증할 수 없었다.
+// 개선 함수: bootstrap
+async function bootstrapOld() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: '*',          // 모든 도메인 허용
-    methods: '*',         // 모든 HTTP 메서드 허용
-    allowedHeaders: '*',  // 모든 헤더 허용
+    origin: '*', // 모든 도메인 허용
+    methods: '*', // 모든 HTTP 메서드 허용
+    allowedHeaders: '*', // 모든 헤더 허용
   });
 
   // Swagger UI Test Board
   const swaggerDoc = JSON.parse(
-    readFileSync(join(__dirname, 'swagger', 'client-server.openapi.json'), 'utf-8'),
+    readFileSync(
+      join(__dirname, 'swagger', 'client-server.openapi.json'),
+      'utf-8',
+    ),
   );
   swaggerDoc.servers = [{ url: '/', description: 'Current server' }];
   injectSwaggerExamples(swaggerDoc);
@@ -143,7 +164,9 @@ async function bootstrap() {
       const tokenData = await tokenRes.json();
 
       if (tokenData.errcode) {
-        return res.redirect(`/test-board?wechat_error=${encodeURIComponent(tokenData.errmsg || 'token_exchange_failed')}`);
+        return res.redirect(
+          `/test-board?wechat_error=${encodeURIComponent(tokenData.errmsg || 'token_exchange_failed')}`,
+        );
       }
 
       // Step 2: Get user info
@@ -152,7 +175,9 @@ async function bootstrap() {
       const userData = await userRes.json();
 
       if (userData.errcode) {
-        return res.redirect(`/test-board?wechat_error=${encodeURIComponent(userData.errmsg || 'userinfo_failed')}`);
+        return res.redirect(
+          `/test-board?wechat_error=${encodeURIComponent(userData.errmsg || 'userinfo_failed')}`,
+        );
       }
 
       // Redirect back to test-board with user info as query params
@@ -166,10 +191,143 @@ async function bootstrap() {
 
       res.redirect(`/test-board?${params.toString()}`);
     } catch (e: any) {
-      res.redirect(`/test-board?wechat_error=${encodeURIComponent(e.message || 'unknown_error')}`);
+      res.redirect(
+        `/test-board?wechat_error=${encodeURIComponent(e.message || 'unknown_error')}`,
+      );
     }
   });
 
   await app.listen(process.env.PORT ?? 3000);
 }
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: '*',
+    methods: '*',
+    allowedHeaders: '*',
+  });
+
+  const swaggerDoc = JSON.parse(
+    readFileSync(
+      join(__dirname, 'swagger', 'client-server.openapi.json'),
+      'utf-8',
+    ),
+  );
+  swaggerDoc.servers = [{ url: '/', description: 'Current server' }];
+  injectSwaggerExamples(swaggerDoc);
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+
+  expressApp.get('/test-board', (_req, res) => {
+    res.sendFile(join(__dirname, 'swagger', 'test-board.html'));
+  });
+
+  expressApp.get('/test-board/config', (_req, res) => {
+    res.json({
+      googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+      wechatAppId: process.env.WECHAT_CLIENT_APP_ID || '',
+    });
+  });
+
+  expressApp.get('/wechat/login/callback', async (req, res) => {
+    const code = typeof req.query.code === 'string' ? req.query.code : '';
+
+    if (!code) {
+      return res.redirect(
+        buildWechatLoginErrorRedirectPath('wechat', 'no_code'),
+      );
+    }
+
+    try {
+      const appId = process.env.WECHAT_CLIENT_APP_ID || '';
+      const appSecret = process.env.WECHAT_CLIENT_APP_SECRET || '';
+
+      const tokenUrl = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appId}&secret=${appSecret}&code=${code}&grant_type=authorization_code`;
+      const tokenRes = await fetch(tokenUrl);
+      const tokenData = await tokenRes.json();
+
+      if (tokenData.errcode) {
+        return res.redirect(
+          buildWechatLoginErrorRedirectPath(
+            'wechat',
+            tokenData.errmsg || 'token_exchange_failed',
+          ),
+        );
+      }
+
+      const userInfoUrl = `https://api.weixin.qq.com/sns/userinfo?access_token=${tokenData.access_token}&openid=${tokenData.openid}`;
+      const userRes = await fetch(userInfoUrl);
+      const userData = await userRes.json();
+
+      if (userData.errcode) {
+        return res.redirect(
+          buildWechatLoginErrorRedirectPath(
+            'wechat',
+            userData.errmsg || 'userinfo_failed',
+          ),
+        );
+      }
+
+      res.redirect(
+        buildWechatLoginSuccessRedirectPath('wechat', {
+          unionid: userData.unionid || '',
+          openid: userData.openid || '',
+          nickname: userData.nickname || '',
+          headimgurl: userData.headimgurl || '',
+        }),
+      );
+    } catch (e: any) {
+      res.redirect(
+        buildWechatLoginErrorRedirectPath(
+          'wechat',
+          e.message || 'unknown_error',
+        ),
+      );
+    }
+  });
+
+  expressApp.get('/wechat-mock/login', (req, res) => {
+    const state = typeof req.query.state === 'string' ? req.query.state : '';
+    const approvePath = buildWechatMockClientLoginCallbackPath(
+      '/wechat-mock/login/callback',
+      state,
+    );
+    const denyPath = buildWechatMockClientLoginCallbackPath(
+      '/wechat-mock/login/callback',
+      state,
+      'access_denied',
+    );
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(renderWechatMockClientLoginHtml({ approvePath, denyPath }));
+  });
+
+  expressApp.get('/wechat-mock/login/callback', (req, res) => {
+    const code = typeof req.query.code === 'string' ? req.query.code : '';
+    const error = typeof req.query.error === 'string' ? req.query.error : '';
+
+    if (error) {
+      return res.redirect(
+        buildWechatLoginErrorRedirectPath('wechat-mock', error),
+      );
+    }
+
+    if (!code) {
+      return res.redirect(
+        buildWechatLoginErrorRedirectPath('wechat-mock', 'no_code'),
+      );
+    }
+
+    return res.redirect(
+      buildWechatLoginSuccessRedirectPath(
+        'wechat-mock',
+        MOCK_WECHAT_LOGIN_PROFILE,
+      ),
+    );
+  });
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+
 bootstrap();

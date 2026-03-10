@@ -46,6 +46,8 @@ import type {
   TomoIdvMockStartRes,
   TomoIdvStartReq,
   TomoIdvStartRes,
+  WeChatStartReq,
+  WeChatStartResp,
 } from '../models/index';
 import {
     EitherStringValueFromJSON,
@@ -110,6 +112,10 @@ import {
     TomoIdvStartReqToJSON,
     TomoIdvStartResFromJSON,
     TomoIdvStartResToJSON,
+    WeChatStartReqFromJSON,
+    WeChatStartReqToJSON,
+    WeChatStartRespFromJSON,
+    WeChatStartRespToJSON,
 } from '../models/index';
 
 export interface V1IdvCaCookieStartPostRequest {
@@ -160,17 +166,6 @@ export interface V1IdvCnTokenPostRequest {
     TomoIdvIssueTokenReq?: TomoIdvIssueTokenReq;
 }
 
-export interface V1IdvGoogleCallbackGetRequest {
-    code?: string;
-    state?: string;
-    error?: string;
-}
-
-export interface V1IdvGoogleStartPostRequest {
-    Authorization?: string;
-    GoogleStartReq?: GoogleStartReq;
-}
-
 export interface V1IdvJpCookieStartPostRequest {
     LiquidStartIdvRequest?: LiquidStartIdvRequest;
 }
@@ -208,6 +203,48 @@ export interface V1IdvLoginTicketPostRequest {
 
 export interface V1IdvPlaidTokenSessionPostRequest {
     PlaidSessionTokenRequest?: PlaidSessionTokenRequest;
+}
+
+export interface V1IdvSocialGoogleCallbackGetRequest {
+    code?: string;
+    state?: string;
+    error?: string;
+}
+
+export interface V1IdvSocialGoogleStartPostRequest {
+    Authorization?: string;
+    GoogleStartReq?: GoogleStartReq;
+}
+
+export interface V1IdvSocialResultPostRequest {
+    Authorization?: string;
+    GetKycReq?: GetKycReq;
+}
+
+export interface V1IdvSocialWechatCallbackGetRequest {
+    code?: string;
+    state?: string;
+    error?: string;
+}
+
+export interface V1IdvSocialWechatMockCallbackGetRequest {
+    code?: string;
+    state?: string;
+    error?: string;
+}
+
+export interface V1IdvSocialWechatMockLoginGetRequest {
+    state?: string;
+}
+
+export interface V1IdvSocialWechatMockStartPostRequest {
+    Authorization?: string;
+    WeChatStartReq?: WeChatStartReq;
+}
+
+export interface V1IdvSocialWechatStartPostRequest {
+    Authorization?: string;
+    WeChatStartReq?: WeChatStartReq;
 }
 
 export interface V1IdvStartPostRequest {
@@ -659,72 +696,6 @@ export class DefaultApi extends runtime.BaseAPI {
 
     /**
      */
-    async v1IdvGoogleCallbackGetRaw(requestParameters: V1IdvGoogleCallbackGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        const queryParameters: any = {};
-
-        if (requestParameters['code'] != null) {
-            queryParameters['code'] = requestParameters['code'];
-        }
-
-        if (requestParameters['state'] != null) {
-            queryParameters['state'] = requestParameters['state'];
-        }
-
-        if (requestParameters['error'] != null) {
-            queryParameters['error'] = requestParameters['error'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/v1/idv/google/callback`,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    async v1IdvGoogleCallbackGet(requestParameters: V1IdvGoogleCallbackGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.v1IdvGoogleCallbackGetRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     */
-    async v1IdvGoogleStartPostRaw(requestParameters: V1IdvGoogleStartPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoogleStartResp>> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-
-        if (requestParameters['Authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['Authorization']);
-        }
-
-        const response = await this.request({
-            path: `/v1/idv/google/start`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: GoogleStartReqToJSON(requestParameters['GoogleStartReq']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => GoogleStartRespFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async v1IdvGoogleStartPost(requestParameters: V1IdvGoogleStartPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoogleStartResp> {
-        const response = await this.v1IdvGoogleStartPostRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     */
     async v1IdvJpCookieStartPostRaw(requestParameters: V1IdvJpCookieStartPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<LiquidIntegratedAppResponse>> {
         const queryParameters: any = {};
 
@@ -1002,6 +973,267 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async v1IdvPlaidTokenSessionPost(requestParameters: V1IdvPlaidTokenSessionPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SessionToken> {
         const response = await this.v1IdvPlaidTokenSessionPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async v1IdvSocialGoogleCallbackGetRaw(requestParameters: V1IdvSocialGoogleCallbackGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['code'] != null) {
+            queryParameters['code'] = requestParameters['code'];
+        }
+
+        if (requestParameters['state'] != null) {
+            queryParameters['state'] = requestParameters['state'];
+        }
+
+        if (requestParameters['error'] != null) {
+            queryParameters['error'] = requestParameters['error'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/v1/idv/social/google/callback`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async v1IdvSocialGoogleCallbackGet(requestParameters: V1IdvSocialGoogleCallbackGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.v1IdvSocialGoogleCallbackGetRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     */
+    async v1IdvSocialGoogleStartPostRaw(requestParameters: V1IdvSocialGoogleStartPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoogleStartResp>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
+        }
+
+        const response = await this.request({
+            path: `/v1/idv/social/google/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: GoogleStartReqToJSON(requestParameters['GoogleStartReq']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GoogleStartRespFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async v1IdvSocialGoogleStartPost(requestParameters: V1IdvSocialGoogleStartPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoogleStartResp> {
+        const response = await this.v1IdvSocialGoogleStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async v1IdvSocialResultPostRaw(requestParameters: V1IdvSocialResultPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetKycResp>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
+        }
+
+        const response = await this.request({
+            path: `/v1/idv/social/result`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: GetKycReqToJSON(requestParameters['GetKycReq']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => GetKycRespFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async v1IdvSocialResultPost(requestParameters: V1IdvSocialResultPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GetKycResp> {
+        const response = await this.v1IdvSocialResultPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatCallbackGetRaw(requestParameters: V1IdvSocialWechatCallbackGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['code'] != null) {
+            queryParameters['code'] = requestParameters['code'];
+        }
+
+        if (requestParameters['state'] != null) {
+            queryParameters['state'] = requestParameters['state'];
+        }
+
+        if (requestParameters['error'] != null) {
+            queryParameters['error'] = requestParameters['error'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/v1/idv/social/wechat/callback`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatCallbackGet(requestParameters: V1IdvSocialWechatCallbackGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.v1IdvSocialWechatCallbackGetRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatMockCallbackGetRaw(requestParameters: V1IdvSocialWechatMockCallbackGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['code'] != null) {
+            queryParameters['code'] = requestParameters['code'];
+        }
+
+        if (requestParameters['state'] != null) {
+            queryParameters['state'] = requestParameters['state'];
+        }
+
+        if (requestParameters['error'] != null) {
+            queryParameters['error'] = requestParameters['error'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/v1/idv/social/wechat-mock/callback`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatMockCallbackGet(requestParameters: V1IdvSocialWechatMockCallbackGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.v1IdvSocialWechatMockCallbackGetRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatMockLoginGetRaw(requestParameters: V1IdvSocialWechatMockLoginGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const queryParameters: any = {};
+
+        if (requestParameters['state'] != null) {
+            queryParameters['state'] = requestParameters['state'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/v1/idv/social/wechat-mock/login`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatMockLoginGet(requestParameters: V1IdvSocialWechatMockLoginGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.v1IdvSocialWechatMockLoginGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatMockStartPostRaw(requestParameters: V1IdvSocialWechatMockStartPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WeChatStartResp>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
+        }
+
+        const response = await this.request({
+            path: `/v1/idv/social/wechat-mock/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: WeChatStartReqToJSON(requestParameters['WeChatStartReq']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WeChatStartRespFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatMockStartPost(requestParameters: V1IdvSocialWechatMockStartPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WeChatStartResp> {
+        const response = await this.v1IdvSocialWechatMockStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatStartPostRaw(requestParameters: V1IdvSocialWechatStartPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WeChatStartResp>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
+        }
+
+        const response = await this.request({
+            path: `/v1/idv/social/wechat/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: WeChatStartReqToJSON(requestParameters['WeChatStartReq']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WeChatStartRespFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async v1IdvSocialWechatStartPost(requestParameters: V1IdvSocialWechatStartPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WeChatStartResp> {
+        const response = await this.v1IdvSocialWechatStartPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

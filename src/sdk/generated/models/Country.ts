@@ -22,6 +22,7 @@ export const Country = {
     Uk: 'uk',
     Ca: 'ca',
     Jp: 'jp',
+    Cn: 'cn',
     Unknown: 'unknown'
 } as const;
 export type Country = typeof Country[keyof typeof Country];

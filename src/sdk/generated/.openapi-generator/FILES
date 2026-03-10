@@ -37,5 +37,7 @@ models/TomoIdvMockStartReq.ts
 models/TomoIdvMockStartRes.ts
 models/TomoIdvStartReq.ts
 models/TomoIdvStartRes.ts
+models/WeChatStartReq.ts
+models/WeChatStartResp.ts
 models/index.ts
 runtime.ts

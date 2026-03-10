@@ -30,6 +30,7 @@ export type GoogleStartBody = {
 export type WeChatStartBody = {
   callback_url: string;
   country?: string;
+  login_hint?: string;
 };
 
 export type WeChatStartResp = {
