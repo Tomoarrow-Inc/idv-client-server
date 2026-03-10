@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Social KYC Test Board</title>
+    <title>KYC Test Board</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
     <style>
@@ -267,13 +267,138 @@
         font-size: 0.9rem;
         cursor: pointer;
       }
+      /* ── Tab Navigation ── */
+      .tab-nav {
+        display: flex;
+        gap: 0;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e0e0e0;
+      }
+      .tab-btn {
+        padding: 10px 24px;
+        border: none;
+        background: none;
+        font-size: 0.95rem;
+        font-family: inherit;
+        cursor: pointer;
+        color: #888;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .tab-btn:hover {
+        color: #333;
+      }
+      .tab-btn.active {
+        color: #1976d2;
+        border-bottom-color: #1976d2;
+        font-weight: 600;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      /* ── KYC Direct ── */
+      .api-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-left: 4px solid #bdbdbd;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+        transition: border-color 0.2s;
+      }
+      .api-card.api-success {
+        border-left-color: #2e7d32;
+      }
+      .api-card.api-error {
+        border-left-color: #c62828;
+      }
+      .api-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .api-card-header .endpoint {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.88rem;
+      }
+      .api-card-header .endpoint .method {
+        font-weight: 700;
+        color: #1976d2;
+        margin-right: 6px;
+      }
+      .api-card-header .api-badge {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 2px 10px;
+        border-radius: 10px;
+        text-transform: uppercase;
+      }
+      .api-badge-idle { background: #f5f5f5; color: #999; }
+      .api-badge-ok { background: #e8f5e9; color: #2e7d32; }
+      .api-badge-fail { background: #ffebee; color: #c62828; }
+      .country-label {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 1px 8px;
+        border-radius: 4px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+      .country-us { background: #e3f2fd; color: #1565c0; }
+      .country-jp { background: #fce4ec; color: #c62828; }
+      .country-cn { background: #fff3e0; color: #e65100; }
+      .country-generic { background: #f3e5f5; color: #6a1b9a; }
+      textarea.json-editor {
+        width: 100%;
+        min-height: 100px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 0.8rem;
+        resize: vertical;
+        line-height: 1.4;
+        background: #fafafa;
+      }
+      textarea.json-editor:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+      }
+      .api-card .actions { margin-top: 10px; }
+      .direct-section-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #555;
+        margin: 20px 0 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .direct-section-title:first-child { margin-top: 0; }
     </style>
   </head>
   <body>
-    <h1>Social KYC Test Board</h1>
+    <h1>KYC Test Board</h1>
     <p class="subtitle">
-      Customer site simulation &mdash; OIDC Social KYC flow
+      Customer site simulation &mdash; IDV API testing
     </p>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('social')">Social KYC</button>
+      <button class="tab-btn" onclick="switchTab('direct')">KYC Direct</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: Social KYC (existing)                  -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="tab-content active" id="tab-social">
 
     <!-- Provider Selection -->
     <div class="card" style="border-left: 4px solid #1976d2">
@@ -625,6 +750,156 @@
         <pre id="kycJson"></pre>
       </div>
     </div>
+
+    </div><!-- end tab-social -->
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: KYC Direct                             -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="tab-content" id="tab-direct">
+
+      <!-- Direct: Access Token -->
+      <div class="card">
+        <h2><span class="step">0</span>Access Token</h2>
+        <p class="note">
+          Get OAuth2 access_token (client_credentials + JWT assertion). Required before calling any API below.
+        </p>
+        <div class="actions">
+          <button class="btn-primary" id="btnGetTokenDirect" onclick="getToken()">
+            Get Token
+          </button>
+          <span id="tokenStatusDirect" class="status info">Not issued</span>
+        </div>
+        <div id="tokenDetailDirect" class="hidden">
+          <pre id="tokenJsonDirect"></pre>
+        </div>
+      </div>
+
+      <!-- US APIs -->
+      <div class="direct-section-title"><span class="country-label country-us">US</span> Plaid IDV</div>
+
+      <div class="api-card" id="card-us-start">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/us/start</span>
+          <span class="api-badge api-badge-idle" id="badge-us-start">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-us-start"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('us-start')">Send</button>
+        </div>
+        <div id="result-us-start" class="hidden">
+          <pre id="json-us-start"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-us-kyc-get">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/us/kyc/get</span>
+          <span class="api-badge api-badge-idle" id="badge-us-kyc-get">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-us-kyc-get"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('us-kyc-get')">Send</button>
+        </div>
+        <div id="result-us-kyc-get" class="hidden">
+          <pre id="json-us-kyc-get"></pre>
+        </div>
+      </div>
+
+      <!-- JP APIs -->
+      <div class="direct-section-title"><span class="country-label country-jp">JP</span> Liquid eKYC</div>
+
+      <div class="api-card" id="card-jp-start">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/jp/start</span>
+          <span class="api-badge api-badge-idle" id="badge-jp-start">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-jp-start"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('jp-start')">Send</button>
+        </div>
+        <div id="result-jp-start" class="hidden">
+          <pre id="json-jp-start"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-jp-kyc-get">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/jp/kyc/get</span>
+          <span class="api-badge api-badge-idle" id="badge-jp-kyc-get">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-jp-kyc-get"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('jp-kyc-get')">Send</button>
+        </div>
+        <div id="result-jp-kyc-get" class="hidden">
+          <pre id="json-jp-kyc-get"></pre>
+        </div>
+      </div>
+
+      <!-- CN APIs -->
+      <div class="direct-section-title"><span class="country-label country-cn">CN</span> Tencent IDV</div>
+
+      <div class="api-card" id="card-cn-start">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/cn/start</span>
+          <span class="api-badge api-badge-idle" id="badge-cn-start">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-cn-start"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('cn-start')">Send</button>
+        </div>
+        <div id="result-cn-start" class="hidden">
+          <pre id="json-cn-start"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-cn-kyc-get">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/cn/kyc/get</span>
+          <span class="api-badge api-badge-idle" id="badge-cn-kyc-get">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-cn-kyc-get"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('cn-kyc-get')">Send</button>
+        </div>
+        <div id="result-cn-kyc-get" class="hidden">
+          <pre id="json-cn-kyc-get"></pre>
+        </div>
+      </div>
+
+      <!-- Generic APIs -->
+      <div class="direct-section-title"><span class="country-label country-generic">Generic</span> Country-Agnostic</div>
+
+      <div class="api-card" id="card-generic-start">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/start</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-start">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-generic-start"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-start')">Send</button>
+        </div>
+        <div id="result-generic-start" class="hidden">
+          <pre id="json-generic-start"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-generic-kyc-get">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/kyc/get</span>
+          <span class="api-badge api-badge-idle" id="badge-generic-kyc-get">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-generic-kyc-get"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendDirect('generic-kyc-get')">Send</button>
+        </div>
+        <div id="result-generic-kyc-get" class="hidden">
+          <pre id="json-generic-kyc-get"></pre>
+        </div>
+      </div>
+
+    </div><!-- end tab-direct -->
 
     <div class="footer">
       <a href="/api-docs" class="ext">Swagger UI (/api-docs) &rarr;</a>
@@ -1118,6 +1393,108 @@
 
         jsonEl.textContent = JSON.stringify(data, null, 2);
       }
+
+      // ══════════════════════════════════════
+      // Tab Navigation
+      // ══════════════════════════════════════
+      function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.querySelector('.tab-btn[onclick*="' + tab + '"]').classList.add('active');
+      }
+
+      // ══════════════════════════════════════
+      // KYC Direct — per-card API blocks
+      // ══════════════════════════════════════
+      const DIRECT_CARDS = {
+        'us-start':        { endpoint: '/v1/idv/us/start',    body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'us-kyc-get':      { endpoint: '/v1/idv/us/kyc/get',  body: () => ({ user_id: '7999752903327968491' }) },
+        'jp-start':        { endpoint: '/v1/idv/jp/start',    body: () => ({ user_id: '7999752903327968498', callback_url: window.location.origin + '/test-board' }) },
+        'jp-kyc-get':      { endpoint: '/v1/idv/jp/kyc/get',  body: () => ({ user_id: '7999752903327968498' }) },
+        'cn-start':        { endpoint: '/v1/idv/cn/start',    body: () => ({ user_id: '799975290332796849300000000000007', redirect_url: window.location.origin + '/test-board' }) },
+        'cn-kyc-get':      { endpoint: '/v1/idv/cn/kyc/get',  body: () => ({ user_id: '799975290332796849300000000000007' }) },
+        'generic-start':   { endpoint: '/v1/idv/start',       body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
+        'generic-kyc-get': { endpoint: '/v1/idv/kyc/get',     body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
+      };
+
+      // Initialize all card textareas with default bodies
+      Object.keys(DIRECT_CARDS).forEach(id => {
+        const el = document.getElementById('body-' + id);
+        if (el) el.value = JSON.stringify(DIRECT_CARDS[id].body(), null, 2);
+      });
+
+      async function sendDirect(id) {
+        const cfg = DIRECT_CARDS[id];
+        if (!cfg) return;
+        const bodyText = document.getElementById('body-' + id).value;
+        const resultEl = document.getElementById('result-' + id);
+        const jsonEl = document.getElementById('json-' + id);
+        const badgeEl = document.getElementById('badge-' + id);
+        const cardEl = document.getElementById('card-' + id);
+
+        resultEl.classList.remove('hidden');
+        jsonEl.textContent = 'Requesting...';
+        badgeEl.className = 'api-badge api-badge-idle';
+        badgeEl.textContent = 'LOADING';
+        cardEl.classList.remove('api-success', 'api-error');
+
+        let parsedBody;
+        try {
+          parsedBody = JSON.parse(bodyText);
+        } catch (e) {
+          jsonEl.textContent = 'Invalid JSON: ' + e.message;
+          badgeEl.className = 'api-badge api-badge-fail';
+          badgeEl.textContent = 'JSON ERROR';
+          cardEl.classList.add('api-error');
+          return;
+        }
+
+        const { ok, status, data } = await apiCall(cfg.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsedBody),
+        });
+
+        jsonEl.textContent = JSON.stringify(data, null, 2);
+        if (ok) {
+          badgeEl.className = 'api-badge api-badge-ok';
+          badgeEl.textContent = 'OK ' + status;
+          cardEl.classList.remove('api-error');
+          cardEl.classList.add('api-success');
+        } else {
+          badgeEl.className = 'api-badge api-badge-fail';
+          badgeEl.textContent = 'ERR ' + status;
+          cardEl.classList.remove('api-success');
+          cardEl.classList.add('api-error');
+        }
+      }
+
+      // Sync token status between tabs
+      const origGetToken = getToken;
+      getToken = async function() {
+        const allBtns = [document.getElementById('btnGetToken'), document.getElementById('btnGetTokenDirect')].filter(Boolean);
+        const allStatus = [document.getElementById('tokenStatus'), document.getElementById('tokenStatusDirect')].filter(Boolean);
+        const allDetail = [document.getElementById('tokenDetail'), document.getElementById('tokenDetailDirect')].filter(Boolean);
+        const allJson = [document.getElementById('tokenJson'), document.getElementById('tokenJsonDirect')].filter(Boolean);
+
+        allBtns.forEach(b => b.disabled = true);
+        allStatus.forEach(s => { s.className = 'status info'; s.textContent = 'Requesting...'; });
+
+        const { ok, status, data } = await apiCall('/v1/oauth2/token', { method: 'POST' });
+
+        allBtns.forEach(b => b.disabled = false);
+        allDetail.forEach(d => d.classList.remove('hidden'));
+
+        if (ok) {
+          const expiresIn = data.expires_in || '?';
+          allStatus.forEach(s => { s.className = 'status ok'; s.textContent = 'Issued (expires in ' + expiresIn + 's)'; });
+          allJson.forEach(j => { j.textContent = JSON.stringify(data, null, 2); });
+        } else {
+          allStatus.forEach(s => { s.className = 'status error'; s.textContent = 'Error ' + status; });
+          allJson.forEach(j => { j.textContent = JSON.stringify(data, null, 2); });
+        }
+      };
     </script>
   </body>
 </html>
