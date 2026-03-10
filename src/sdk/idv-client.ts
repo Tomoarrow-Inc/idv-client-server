@@ -329,7 +329,7 @@ export class IdvServerClient {
   async idvKycGetCN(accessToken: string, body: IdvCnKycGetBody): Promise<any> {
     return this.api.v1IdvCnKycGetPost({
       Authorization: `Bearer ${accessToken}`,
-      TomoIdvGetResultReq: body,
+      TencentGetKycReq: body,
     });
   }
 
