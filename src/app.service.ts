@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion } from './sdk/tomo-idv-node';
 import { IdvServerClient } from './idvServer/idvServerClient';
@@ -253,18 +253,22 @@ export class AppService {
   // ── JP (Liquid) ──
 
   async idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.idvStartJP(this.requireAccessToken(), body);
   }
 
   async getKycJP(body: GetKycJpBody): Promise<{ [key: string]: string }> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.getKycJP(this.requireAccessToken(), body);
   }
 
   async putKycJP(body: PutKycJpBody): Promise<void> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.putKycJP(body);
   }
 
   async idvCookieStartJP(body: IdvJpCookieStartBody): Promise<LiquidIntegratedAppResponse> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.idvCookieStartJP(body);
   }
 
@@ -317,6 +321,7 @@ export class AppService {
   }
 
   async liquidTokenSession(body: LiquidSessionTokenBody): Promise<SessionToken> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.liquidTokenSession(body);
   }
 
@@ -327,6 +332,24 @@ export class AppService {
   }
 
   // ── Helpers ──
+
+  /**
+   * Liquid (JP) provider requires user_id to be numeric only (digits).
+   * Throws 400 immediately if user_id contains non-digit characters.
+   */
+  private requireNumericUserId(userId: string): void {
+    if (!/^\d+$/.test(userId)) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'JP IDV (Liquid) requires a numeric user_id. ' +
+            `Received: "${userId}"`,
+          error: 'Bad Request',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 
   private requireAccessToken(): string {
     const accessToken = this.getState('access_token');
