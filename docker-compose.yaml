@@ -17,6 +17,7 @@ services:
 
     environment:
       - IDV_BASE_URL=https://test.tomopayment.com
+      - IDV_APP_URL=https://app-test.tomopayment.com
 
 
   client-server-dev:
@@ -30,6 +31,7 @@ services:
 
     environment:
       - IDV_BASE_URL=https://dev.tomopayment.com
+      - IDV_APP_URL=https://app-dev.tomopayment.com
 
 
   client-server-prod:
@@ -43,3 +45,4 @@ services:
 
     environment:
       - IDV_BASE_URL=https://api.tomopayment.com
+      - IDV_APP_URL=https://app.tomopayment.com

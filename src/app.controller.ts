@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { AppService } from './app.service';
 import { ResponseError } from './sdk/generated/runtime';
@@ -45,6 +45,9 @@ import type {
   WeChatStartResp,
   // Social Result
   SocialResultBody,
+  // Old API
+  OldSessionBody,
+  OldStoreKycBody,
 } from './sdk';
 import type { GoogleStartResp } from './sdk/generated/models/GoogleStartResp';
 import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
@@ -365,6 +368,108 @@ export class AppController {
   @Post('/v1/idv/login-ticket')
   async loginTicket(@Body() body: LoginTicketBody): Promise<LoginTicketResponse> {
     try { return await this.appService.loginTicket(body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  // ── Old API (Internal — legacy endpoints from old-api.openapi.json) ──
+
+  @Post('/v1/verify/session')
+  async oldVerifySession(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldVerifySession(body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  // US
+  @Post('/v1/us/generate_link_token')
+  async oldUsGenerateLinkToken(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldGenerateLinkToken('us', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/us/results')
+  async oldUsResults(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldGetResults('us', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/us/store')
+  async oldUsStore(@Body() body: OldStoreKycBody) {
+    try { return await this.appService.oldStoreKyc('us', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/us/verify/kyc')
+  async oldUsVerifyKyc(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldVerifyKyc('us', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  // UK
+  @Post('/v1/uk/generate_link_token')
+  async oldUkGenerateLinkToken(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldGenerateLinkToken('uk', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/uk/results')
+  async oldUkResults(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldGetResults('uk', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/uk/store')
+  async oldUkStore(@Body() body: OldStoreKycBody) {
+    try { return await this.appService.oldStoreKyc('uk', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/uk/verify/kyc')
+  async oldUkVerifyKyc(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldVerifyKyc('uk', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  // CA
+  @Post('/v1/ca/generate_link_token')
+  async oldCaGenerateLinkToken(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldGenerateLinkToken('ca', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/ca/results')
+  async oldCaResults(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldGetResults('ca', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/ca/store')
+  async oldCaStore(@Body() body: OldStoreKycBody) {
+    try { return await this.appService.oldStoreKyc('ca', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/ca/verify/kyc')
+  async oldCaVerifyKyc(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldVerifyKyc('ca', body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  // JP
+  @Get('/v1/jp/applicants/:session_id/id_document_ic_information')
+  async oldJpIcInfo(@Param('session_id') sessionId: string) {
+    try { return await this.appService.oldJpGetIcInfo(sessionId); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/jp/store')
+  async oldJpStore(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldJpStore(body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  @Post('/v1/jp/verify/kyc')
+  async oldJpVerifyKyc(@Body() body: OldSessionBody) {
+    try { return await this.appService.oldJpVerifyKyc(body); }
     catch (e) { return rethrow(e); }
   }
 }

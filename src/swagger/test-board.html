@@ -372,6 +372,31 @@
         box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
       }
       .api-card .actions { margin-top: 10px; }
+      /* Internal tab — compact endpoint rows */
+      .int-endpoint {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .int-endpoint:last-child { border-bottom: none; }
+      .int-endpoint.api-success { background: #f1f8e9; border-radius: 4px; padding-left: 8px; padding-right: 8px; }
+      .int-endpoint.api-error { background: #fef0f0; border-radius: 4px; padding-left: 8px; padding-right: 8px; }
+      .int-ep-info { display: flex; align-items: center; gap: 8px; min-width: 0; }
+      .int-ep-method {
+        font-size: 0.7rem; font-weight: 700; color: #fff; background: #1976d2;
+        padding: 2px 6px; border-radius: 3px; flex-shrink: 0;
+      }
+      .int-ep-method-get { background: #2e7d32; }
+      .int-ep-path { font-family: monospace; font-size: 0.78rem; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .int-ep-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+      .int-test-btn { padding: 4px 12px !important; font-size: 0.76rem !important; min-width: auto !important; }
+      .int-ep-badge { min-width: 44px; text-align: center; font-size: 0.7rem; }
+      .int-result { margin: 0 0 4px; }
+      .int-result pre {
+        margin: 4px 0 8px; font-size: 0.76rem; padding: 8px; max-height: 200px;
+      }
       /* Section card (numbered provider group) */
       .section-card {
         background: #fff;
@@ -432,6 +457,7 @@
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('social')">Social KYC</button>
       <button class="tab-btn" onclick="switchTab('direct')">KYC Direct</button>
+      <button class="tab-btn" onclick="switchTab('internal')">Internal</button>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -1187,6 +1213,155 @@
 
     </div><!-- end tab-direct -->
 
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: Internal (old API — legacy endpoints)  -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="tab-content" id="tab-internal">
+
+      <!-- 0. Login -->
+      <div class="section-card">
+        <h2><span class="substep">0</span> Login</h2>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
+          <button class="btn" onclick="loginWithTomoIDV()">Login with TomoIDV</button>
+          <button class="btn" id="btn-start-idv" onclick="startIDV()" disabled style="background: #7b1fa2;">Start IDV</button>
+          <button class="btn" onclick="disconnectWebhook()" style="background: #c62828;">Disconnect</button>
+          <span id="internal-sse-status" style="font-size: 0.82rem; color: #888;">Disconnected</span>
+        </div>
+        <div id="internal-session-banner" style="display: none; margin-top: 8px; padding: 10px 14px; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <strong style="font-size: 0.85rem;">Session ID</strong>
+            <button onclick="copySessionId()" style="padding: 2px 8px; font-size: 0.72rem; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer;">Copy</button>
+          </div>
+          <code id="internal-session-id-display" style="font-size: 0.82rem; word-break: break-all; user-select: all;"></code>
+        </div>
+        <div id="internal-sse-log" style="margin-top: 8px; max-height: 150px; overflow-y: auto; font-size: 0.78rem; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 4px; padding: 8px; display: none;">
+          <pre id="internal-sse-messages" style="white-space: pre-wrap;"></pre>
+        </div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 1. Session -->
+      <div class="section-card">
+        <h2><span class="substep">1</span> Verify Session</h2>
+        <div class="int-endpoint" id="int-row-verify-session">
+          <div class="int-ep-info">
+            <span class="int-ep-method">POST</span>
+            <span class="int-ep-path">/v1/verify/session</span>
+          </div>
+          <div class="int-ep-actions">
+            <button class="btn int-test-btn" onclick="testInternal('verify-session')" disabled>Test</button>
+            <span class="api-badge api-badge-idle int-ep-badge" id="badge-int-verify-session">—</span>
+          </div>
+        </div>
+        <div class="int-result hidden" id="result-int-verify-session"><pre id="json-int-verify-session"></pre></div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 2. Plaid US -->
+      <div class="section-card">
+        <h2><span class="substep">2</span> Plaid US</h2>
+        <div class="int-endpoint" id="int-row-us-generate-link-token">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/us/generate_link_token</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('us-generate-link-token')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-us-generate-link-token">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-us-generate-link-token"><pre id="json-int-us-generate-link-token"></pre></div>
+        <div class="int-endpoint" id="int-row-us-results">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/us/results</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('us-results')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-us-results">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-us-results"><pre id="json-int-us-results"></pre></div>
+        <div class="int-endpoint" id="int-row-us-store">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/us/store</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('us-store')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-us-store">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-us-store"><pre id="json-int-us-store"></pre></div>
+        <div class="int-endpoint" id="int-row-us-verify-kyc">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/us/verify/kyc</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('us-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-us-verify-kyc">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-us-verify-kyc"><pre id="json-int-us-verify-kyc"></pre></div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 3. Plaid UK -->
+      <div class="section-card">
+        <h2><span class="substep">3</span> Plaid UK</h2>
+        <div class="int-endpoint" id="int-row-uk-generate-link-token">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/uk/generate_link_token</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('uk-generate-link-token')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-uk-generate-link-token">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-uk-generate-link-token"><pre id="json-int-uk-generate-link-token"></pre></div>
+        <div class="int-endpoint" id="int-row-uk-results">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/uk/results</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('uk-results')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-uk-results">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-uk-results"><pre id="json-int-uk-results"></pre></div>
+        <div class="int-endpoint" id="int-row-uk-store">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/uk/store</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('uk-store')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-uk-store">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-uk-store"><pre id="json-int-uk-store"></pre></div>
+        <div class="int-endpoint" id="int-row-uk-verify-kyc">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/uk/verify/kyc</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('uk-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-uk-verify-kyc">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-uk-verify-kyc"><pre id="json-int-uk-verify-kyc"></pre></div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 4. Plaid CA -->
+      <div class="section-card">
+        <h2><span class="substep">4</span> Plaid CA</h2>
+        <div class="int-endpoint" id="int-row-ca-generate-link-token">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/ca/generate_link_token</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('ca-generate-link-token')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-ca-generate-link-token">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-ca-generate-link-token"><pre id="json-int-ca-generate-link-token"></pre></div>
+        <div class="int-endpoint" id="int-row-ca-results">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/ca/results</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('ca-results')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-ca-results">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-ca-results"><pre id="json-int-ca-results"></pre></div>
+        <div class="int-endpoint" id="int-row-ca-store">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/ca/store</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('ca-store')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-ca-store">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-ca-store"><pre id="json-int-ca-store"></pre></div>
+        <div class="int-endpoint" id="int-row-ca-verify-kyc">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/ca/verify/kyc</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('ca-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-ca-verify-kyc">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-ca-verify-kyc"><pre id="json-int-ca-verify-kyc"></pre></div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 5. Liquid JP -->
+      <div class="section-card">
+        <h2><span class="substep">5</span> Liquid JP</h2>
+        <div class="int-endpoint" id="int-row-jp-ic-info">
+          <div class="int-ep-info"><span class="int-ep-method int-ep-method-get">GET</span><span class="int-ep-path">/v1/jp/applicants/{session_id}/id_document_ic_information</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('jp-ic-info')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-ic-info">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-jp-ic-info"><pre id="json-int-jp-ic-info"></pre></div>
+        <div class="int-endpoint" id="int-row-jp-store">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/jp/store</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('jp-store')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-store">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-jp-store"><pre id="json-int-jp-store"></pre></div>
+        <div class="int-endpoint" id="int-row-jp-verify-kyc">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/jp/verify/kyc</span></div>
+          <div class="int-ep-actions"><button class="btn int-test-btn" onclick="testInternal('jp-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-verify-kyc">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-jp-verify-kyc"><pre id="json-int-jp-verify-kyc"></pre></div>
+      </div>
+
+    </div><!-- end tab-internal -->
+
     <div class="footer">
       <a href="/api-docs" class="ext">Swagger UI (/api-docs) &rarr;</a>
     </div>
@@ -1199,6 +1374,29 @@
       // ── Init ──
       document.getElementById('callbackUrl').value =
         window.location.origin + '/test-board';
+
+      // ── Internal tab: load URLs from server config ──
+      let internalIdvServerUrl = '';
+      let internalIdvAppUrl = '';
+
+      function resolvePublicUrl(url) {
+        try {
+          const hostname = new URL(url).hostname;
+          if (!hostname.includes('.') && hostname !== 'localhost') {
+            return 'http://localhost';
+          }
+          return url;
+        } catch { return url; }
+      }
+
+      (async function initInternalUrls() {
+        try {
+          const res = await fetch('/test-board/config');
+          const config = await res.json();
+          if (config.idvServerUrl) internalIdvServerUrl = resolvePublicUrl(config.idvServerUrl);
+          if (config.idvAppUrl) internalIdvAppUrl = config.idvAppUrl;
+        } catch (e) { /* Config not available */ }
+      })();
 
       // Check if returned from WeChat login callback (Step 0)
       (function checkWechatCallback() {
@@ -1787,6 +1985,200 @@
           cardEl.classList.remove('api-success');
           cardEl.classList.add('api-error');
         }
+      }
+
+      // ══════════════════════════════════════
+      // Internal — button-based API testing
+      // ══════════════════════════════════════
+      const INTERNAL_APIS = {
+        'verify-session':         { endpoint: '/v1/verify/session',         method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'us-generate-link-token': { endpoint: '/v1/us/generate_link_token', method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'us-results':             { endpoint: '/v1/us/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'us-store':               { endpoint: '/v1/us/store',               method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'us-verify-kyc':          { endpoint: '/v1/us/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'uk-generate-link-token': { endpoint: '/v1/uk/generate_link_token', method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'uk-results':             { endpoint: '/v1/uk/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'uk-store':               { endpoint: '/v1/uk/store',               method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'uk-verify-kyc':          { endpoint: '/v1/uk/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'ca-generate-link-token': { endpoint: '/v1/ca/generate_link_token', method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'ca-results':             { endpoint: '/v1/ca/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'ca-store':               { endpoint: '/v1/ca/store',               method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'ca-verify-kyc':          { endpoint: '/v1/ca/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'jp-ic-info':             { endpoint: null, method: 'GET', body: null },
+        'jp-store':               { endpoint: '/v1/jp/store',               method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'jp-verify-kyc':          { endpoint: '/v1/jp/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
+      };
+
+      async function testInternal(id) {
+        const cfg = INTERNAL_APIS[id];
+        if (!cfg || !internalSessionId) return;
+
+        const badgeEl = document.getElementById('badge-int-' + id);
+        const rowEl = document.getElementById('int-row-' + id);
+        const resultEl = document.getElementById('result-int-' + id);
+        const jsonEl = document.getElementById('json-int-' + id);
+
+        badgeEl.className = 'api-badge api-badge-idle int-ep-badge';
+        badgeEl.textContent = '...';
+        if (rowEl) rowEl.classList.remove('api-success', 'api-error');
+        resultEl.classList.remove('hidden');
+        jsonEl.textContent = 'Requesting...';
+
+        let endpoint = cfg.endpoint;
+        let fetchOpts;
+        if (id === 'jp-ic-info') {
+          endpoint = '/v1/jp/applicants/' + encodeURIComponent(internalSessionId) + '/id_document_ic_information';
+          fetchOpts = { method: 'GET' };
+        } else {
+          fetchOpts = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cfg.body(internalSessionId)),
+          };
+        }
+
+        const { ok, status, data } = await apiCall(endpoint, fetchOpts);
+
+        jsonEl.textContent = JSON.stringify(data, null, 2);
+        if (ok) {
+          badgeEl.className = 'api-badge api-badge-ok int-ep-badge'; badgeEl.textContent = status;
+          if (rowEl) { rowEl.classList.remove('api-error'); rowEl.classList.add('api-success'); }
+        } else {
+          badgeEl.className = 'api-badge api-badge-fail int-ep-badge'; badgeEl.textContent = status;
+          if (rowEl) { rowEl.classList.remove('api-success'); rowEl.classList.add('api-error'); }
+        }
+      }
+
+      // ── Webhook SSE + Login Popup ──
+      let sseConnection = null;
+      let loginPopup = null;
+      let internalSessionId = null;
+      let popupCheckInterval = null;
+
+      function loginWithTomoIDV() {
+        if (sseConnection) sseConnection.close();
+        if (loginPopup && !loginPopup.closed) loginPopup.close();
+
+        const baseUrl = internalIdvServerUrl.replace(/\/+$/, '');
+        if (!baseUrl) { alert('IDV Server URL이 설정되지 않았습니다. /test-board/config를 확인하세요.'); return; }
+
+        const statusEl = document.getElementById('internal-sse-status');
+        const logEl = document.getElementById('internal-sse-log');
+        const msgEl = document.getElementById('internal-sse-messages');
+        logEl.style.display = 'block';
+
+        statusEl.textContent = 'Connecting...';
+        statusEl.style.color = '#e65100';
+
+        sseConnection = new EventSource(baseUrl + '/v1/webhook/session');
+
+        sseConnection.onopen = () => {
+          statusEl.textContent = 'Connected — waiting for login...';
+          statusEl.style.color = '#2e7d32';
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] SSE connected\n';
+        };
+
+        // Named event: 'connection' — parse JSON, extract conn_id from .data
+        sseConnection.addEventListener('connection', (event) => {
+          const webhookEvent = JSON.parse(event.data);
+          const connId = webhookEvent.data;
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] connection: conn_id=' + connId + '\n';
+          logEl.scrollTop = logEl.scrollHeight;
+          openLoginPopup(connId);
+        });
+
+        // Named event: 'session.opened' — parse JSON, extract session_id from .data
+        sseConnection.addEventListener('session.opened', (event) => {
+          const webhookEvent = JSON.parse(event.data);
+          const sessionId = webhookEvent.data;
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] session.opened: session_id=' + sessionId + '\n';
+          logEl.scrollTop = logEl.scrollHeight;
+          setInternalSessionId(sessionId);
+          statusEl.textContent = 'Session acquired';
+          statusEl.style.color = '#2e7d32';
+        });
+
+        // Catch-all for other/unnamed events
+        sseConnection.onmessage = (event) => {
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] ' + event.data + '\n';
+          logEl.scrollTop = logEl.scrollHeight;
+        };
+
+        sseConnection.onerror = () => {
+          statusEl.textContent = 'Error / Disconnected';
+          statusEl.style.color = '#c62828';
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] SSE error or disconnected\n';
+        };
+      }
+
+      function openLoginPopup(connId) {
+        const appUrl = internalIdvAppUrl.replace(/\/+$/, '');
+        const url = appUrl + '/auth/tomo-idv?conn_id=' + encodeURIComponent(connId);
+        const w = 500, h = 600;
+        const left = (screen.width - w) / 2;
+        const top = (screen.height - h) / 2;
+        loginPopup = window.open(url, 'TomoIDV', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes');
+        if (!loginPopup) {
+          alert('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
+          return;
+        }
+        // Monitor popup close
+        if (popupCheckInterval) clearInterval(popupCheckInterval);
+        popupCheckInterval = setInterval(() => {
+          try {
+            if (loginPopup && loginPopup.closed) {
+              clearInterval(popupCheckInterval);
+              popupCheckInterval = null;
+              const msgEl = document.getElementById('internal-sse-messages');
+              msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] Login popup closed\n';
+            }
+          } catch (e) { /* COOP may block access */ }
+        }, 2000);
+      }
+
+      function startIDV() {
+        if (!internalSessionId) return;
+        const appUrl = internalIdvAppUrl.replace(/\/+$/, '');
+        const url = appUrl + '/idv?sessionId=' + encodeURIComponent(internalSessionId);
+        const w = 500, h = 600;
+        const left = (screen.width - w) / 2;
+        const top = (screen.height - h) / 2;
+        window.open(url, 'TomoIDV_Verify', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes');
+      }
+
+      function disconnectWebhook() {
+        if (sseConnection) { sseConnection.close(); sseConnection = null; }
+        if (loginPopup && !loginPopup.closed) loginPopup.close();
+        if (popupCheckInterval) { clearInterval(popupCheckInterval); popupCheckInterval = null; }
+        const statusEl = document.getElementById('internal-sse-status');
+        statusEl.textContent = 'Disconnected';
+        statusEl.style.color = '#888';
+        const msgEl = document.getElementById('internal-sse-messages');
+        msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] SSE disconnected\n';
+      }
+
+      function setInternalSessionId(sid) {
+        internalSessionId = sid;
+
+        // Show banner
+        document.getElementById('internal-session-banner').style.display = 'block';
+        document.getElementById('internal-session-id-display').textContent = sid;
+
+        // Enable Start IDV button
+        document.getElementById('btn-start-idv').disabled = false;
+
+        // Enable all Test buttons
+        document.querySelectorAll('.int-test-btn').forEach(btn => { btn.disabled = false; });
+      }
+
+      function copySessionId() {
+        if (!internalSessionId) return;
+        navigator.clipboard.writeText(internalSessionId).then(() => {
+          const btn = event.target;
+          const orig = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = orig; }, 1500);
+        });
       }
 
       // Sync token status between tabs

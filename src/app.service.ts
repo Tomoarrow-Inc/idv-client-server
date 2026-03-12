@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion } from './sdk/tomo-idv-node';
 import { IdvServerClient } from './idvServer/idvServerClient';
+import { IdvOldClient } from './sdk/idv-old-client';
 import type { TokenResponse } from './sdk/generated/models/TokenResponse';
 import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
 import type { LiquidIntegratedAppResponse } from './sdk/generated/models/LiquidIntegratedAppResponse';
@@ -57,6 +58,12 @@ import type {
   WeChatStartResp,
   // Social Result
   SocialResultBody,
+  // Old API
+  OldSessionBody,
+  OldStoreKycBody,
+  OldIsVerifiedResp,
+  OldVerifiedResp,
+  OldPlaidKycHashResp,
 } from './sdk';
 
 type SafeFetchResult<T> =
@@ -70,7 +77,8 @@ const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
 export class AppService {
   constructor(
     private readonly stateService: StateService,
-    private readonly idvServerClient: IdvServerClient
+    private readonly idvServerClient: IdvServerClient,
+    private readonly idvOldClient: IdvOldClient,
   ) {}
 
   getHello(): string {
@@ -329,6 +337,40 @@ export class AppService {
 
   async loginTicket(body: LoginTicketBody): Promise<LoginTicketResponse> {
     return this.idvServerClient.loginTicket(body);
+  }
+
+  // ── Old API (Internal) ──
+
+  async oldVerifySession(body: OldSessionBody): Promise<OldVerifiedResp> {
+    return this.idvOldClient.verifySession(body);
+  }
+
+  async oldGenerateLinkToken(country: string, body: OldSessionBody): Promise<any> {
+    return this.idvOldClient.generateLinkToken(country, body);
+  }
+
+  async oldGetResults(country: string, body: OldSessionBody): Promise<OldPlaidKycHashResp> {
+    return this.idvOldClient.getResults(country, body);
+  }
+
+  async oldStoreKyc(country: string, body: OldStoreKycBody): Promise<void> {
+    return this.idvOldClient.storeKyc(country, body);
+  }
+
+  async oldVerifyKyc(country: string, body: OldSessionBody): Promise<OldIsVerifiedResp> {
+    return this.idvOldClient.verifyKyc(country, body);
+  }
+
+  async oldJpGetIcInfo(sessionId: string): Promise<any> {
+    return this.idvOldClient.jpGetIcInfo(sessionId);
+  }
+
+  async oldJpStore(body: OldSessionBody): Promise<void> {
+    return this.idvOldClient.jpStore(body);
+  }
+
+  async oldJpVerifyKyc(body: OldSessionBody): Promise<OldIsVerifiedResp> {
+    return this.idvOldClient.jpVerifyKyc(body);
   }
 
   // ── Helpers ──

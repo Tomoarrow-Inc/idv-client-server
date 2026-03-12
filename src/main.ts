@@ -140,6 +140,8 @@ async function bootstrapOld() {
     res.json({
       googleClientId: process.env.GOOGLE_CLIENT_ID || '',
       wechatAppId: process.env.WECHAT_CLIENT_APP_ID || '',
+      idvServerUrl: process.env.IDV_BASE_URL || '',
+      idvAppUrl: process.env.IDV_APP_URL || '',
     });
   });
 
@@ -228,6 +230,8 @@ async function bootstrap() {
     res.json({
       googleClientId: process.env.GOOGLE_CLIENT_ID || '',
       wechatAppId: process.env.WECHAT_CLIENT_APP_ID || '',
+      idvServerUrl: process.env.IDV_BASE_URL || '',
+      idvAppUrl: process.env.IDV_APP_URL || '',
     });
   });
 

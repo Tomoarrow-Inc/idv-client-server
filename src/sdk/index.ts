@@ -12,6 +12,9 @@ export {
 // idv-server contract client
 export { IdvServerClient } from './idv-client';
 
+// Old API contract client (idv-client /internal page legacy endpoints)
+export { IdvOldClient } from './idv-old-client';
+
 // Request body types (wire format, same as controller / idv-server)
 export type {
   // Generic
@@ -76,3 +79,12 @@ export type { GoogleStartResp } from './generated/models/GoogleStartResp';
 export { Country } from './generated/models/Country';
 export { PlaidIdvField } from './generated/models/PlaidIdvField';
 export { LiquidIdvField } from './generated/models/LiquidIdvField';
+
+// Old API request/response types (wire format, from old-api.openapi.json)
+export type {
+  OldSessionBody,
+  OldStoreKycBody,
+  OldIsVerifiedResp,
+  OldVerifiedResp,
+  OldPlaidKycHashResp,
+} from './api-contract-old';
