@@ -47,7 +47,6 @@ import type {
   SocialResultBody,
   // Old API
   OldSessionBody,
-  OldStoreKycBody,
 } from './sdk';
 import type { GoogleStartResp } from './sdk/generated/models/GoogleStartResp';
 import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
@@ -392,12 +391,6 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  @Post('/v1/us/store')
-  async oldUsStore(@Body() body: OldStoreKycBody) {
-    try { return await this.appService.oldStoreKyc('us', body); }
-    catch (e) { return rethrow(e); }
-  }
-
   @Post('/v1/us/verify/kyc')
   async oldUsVerifyKyc(@Body() body: OldSessionBody) {
     try { return await this.appService.oldVerifyKyc('us', body); }
@@ -414,12 +407,6 @@ export class AppController {
   @Post('/v1/uk/results')
   async oldUkResults(@Body() body: OldSessionBody) {
     try { return await this.appService.oldGetResults('uk', body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/uk/store')
-  async oldUkStore(@Body() body: OldStoreKycBody) {
-    try { return await this.appService.oldStoreKyc('uk', body); }
     catch (e) { return rethrow(e); }
   }
 
@@ -442,12 +429,6 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  @Post('/v1/ca/store')
-  async oldCaStore(@Body() body: OldStoreKycBody) {
-    try { return await this.appService.oldStoreKyc('ca', body); }
-    catch (e) { return rethrow(e); }
-  }
-
   @Post('/v1/ca/verify/kyc')
   async oldCaVerifyKyc(@Body() body: OldSessionBody) {
     try { return await this.appService.oldVerifyKyc('ca', body); }
@@ -458,12 +439,6 @@ export class AppController {
   @Get('/v1/jp/applicants/:session_id/id_document_ic_information')
   async oldJpIcInfo(@Param('session_id') sessionId: string) {
     try { return await this.appService.oldJpGetIcInfo(sessionId); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/jp/store')
-  async oldJpStore(@Body() body: OldSessionBody) {
-    try { return await this.appService.oldJpStore(body); }
     catch (e) { return rethrow(e); }
   }
 

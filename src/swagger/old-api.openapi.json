@@ -18,21 +18,6 @@
                 ],
                 "type": "object"
             },
-            "StoreKycReq": {
-                "properties": {
-                    "session_id": {
-                        "type": "string"
-                    },
-                    "idv_session_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "session_id",
-                    "idv_session_id"
-                ],
-                "type": "object"
-            },
             "PlaidKycHashResp": {
                 "properties": {
                     "address": {
@@ -194,30 +179,6 @@
                 }
             }
         },
-        "/v1/us/store": {
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreKycReq"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json;charset=utf-8": {}
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body`"
-                    }
-                }
-            }
-        },
         "/v1/us/verify/kyc": {
             "post": {
                 "requestBody": {
@@ -293,30 +254,6 @@
                                     "$ref": "#/components/schemas/PlaidKycHashResp"
                                 }
                             }
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body`"
-                    }
-                }
-            }
-        },
-        "/v1/uk/store": {
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreKycReq"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json;charset=utf-8": {}
                         },
                         "description": ""
                     },
@@ -410,30 +347,6 @@
                 }
             }
         },
-        "/v1/ca/store": {
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreKycReq"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json;charset=utf-8": {}
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body`"
-                    }
-                }
-            }
-        },
         "/v1/ca/verify/kyc": {
             "post": {
                 "requestBody": {
@@ -487,30 +400,6 @@
                     },
                     "404": {
                         "description": "`session_id` not found"
-                    }
-                }
-            }
-        },
-        "/v1/jp/store": {
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Session"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json;charset=utf-8": {}
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body`"
                     }
                 }
             }

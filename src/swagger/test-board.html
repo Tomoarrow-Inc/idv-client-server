@@ -1325,11 +1325,6 @@
           <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('jp-ic-info')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-ic-info">—</span></div>
         </div>
         <div class="int-result hidden" id="result-int-jp-ic-info"><pre id="json-int-jp-ic-info"></pre></div>
-        <div class="int-endpoint" id="int-row-jp-store">
-          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/jp/store</span></div>
-          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('jp-store')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-store">—</span></div>
-        </div>
-        <div class="int-result hidden" id="result-int-jp-store"><pre id="json-int-jp-store"></pre></div>
         <div class="int-endpoint" id="int-row-jp-verify-kyc">
           <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/jp/verify/kyc</span></div>
           <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('jp-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-verify-kyc">—</span></div>
@@ -1976,7 +1971,6 @@
         'ca-results':             { endpoint: '/v1/ca/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
         'ca-verify-kyc':          { endpoint: '/v1/ca/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
         'jp-ic-info':             { endpoint: null, method: 'GET', body: null },
-        'jp-store':               { endpoint: '/v1/jp/store',               method: 'POST', body: (sid) => ({ session_id: sid }) },
         'jp-verify-kyc':          { endpoint: '/v1/jp/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
       };
 

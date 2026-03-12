@@ -83,7 +83,6 @@ export { LiquidIdvField } from './generated/models/LiquidIdvField';
 // Old API request/response types (wire format, from old-api.openapi.json)
 export type {
   OldSessionBody,
-  OldStoreKycBody,
   OldIsVerifiedResp,
   OldVerifiedResp,
   OldPlaidKycHashResp,

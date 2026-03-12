@@ -60,7 +60,6 @@ import type {
   SocialResultBody,
   // Old API
   OldSessionBody,
-  OldStoreKycBody,
   OldIsVerifiedResp,
   OldVerifiedResp,
   OldPlaidKycHashResp,
@@ -353,20 +352,12 @@ export class AppService {
     return this.idvOldClient.getResults(country, body);
   }
 
-  async oldStoreKyc(country: string, body: OldStoreKycBody): Promise<void> {
-    return this.idvOldClient.storeKyc(country, body);
-  }
-
   async oldVerifyKyc(country: string, body: OldSessionBody): Promise<OldIsVerifiedResp> {
     return this.idvOldClient.verifyKyc(country, body);
   }
 
   async oldJpGetIcInfo(sessionId: string): Promise<any> {
     return this.idvOldClient.jpGetIcInfo(sessionId);
-  }
-
-  async oldJpStore(body: OldSessionBody): Promise<void> {
-    return this.idvOldClient.jpStore(body);
   }
 
   async oldJpVerifyKyc(body: OldSessionBody): Promise<OldIsVerifiedResp> {

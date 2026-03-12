@@ -11,7 +11,6 @@ import { Configuration } from './generated/runtime';
 import { DefaultApi } from './generated/apis/DefaultApi';
 import type {
   OldSessionBody,
-  OldStoreKycBody,
   OldIsVerifiedResp,
   OldVerifiedResp,
   OldPlaidKycHashResp,
@@ -69,10 +68,6 @@ export class IdvOldClient {
     return this.post(`/v1/${country}/results`, body);
   }
 
-  async storeKyc(country: string, body: OldStoreKycBody): Promise<void> {
-    return this.post(`/v1/${country}/store`, body);
-  }
-
   async verifyKyc(country: string, body: OldSessionBody): Promise<OldIsVerifiedResp> {
     return this.post(`/v1/${country}/verify/kyc`, body);
   }
@@ -81,10 +76,6 @@ export class IdvOldClient {
 
   async jpGetIcInfo(sessionId: string): Promise<any> {
     return this.get(`/v1/jp/applicants/${encodeURIComponent(sessionId)}/id_document_ic_information`);
-  }
-
-  async jpStore(body: OldSessionBody): Promise<void> {
-    return this.post('/v1/jp/store', body);
   }
 
   async jpVerifyKyc(body: OldSessionBody): Promise<OldIsVerifiedResp> {
