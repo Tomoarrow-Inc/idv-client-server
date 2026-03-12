@@ -33,6 +33,7 @@ import type {
   PlaidStartIdvRequest,
   PlaidStartIdvResp,
   SessionToken,
+  SocialResultReq,
   StartIdvReq,
   StartIdvResp,
   TencentGetKycReq,
@@ -87,6 +88,8 @@ import {
     PlaidStartIdvRespToJSON,
     SessionTokenFromJSON,
     SessionTokenToJSON,
+    SocialResultReqFromJSON,
+    SocialResultReqToJSON,
     StartIdvReqFromJSON,
     StartIdvReqToJSON,
     StartIdvRespFromJSON,
@@ -221,7 +224,7 @@ export interface V1IdvSocialGoogleStartPostRequest {
 
 export interface V1IdvSocialResultPostRequest {
     Authorization?: string;
-    GetKycReq?: GetKycReq;
+    SocialResultReq?: SocialResultReq;
 }
 
 export interface V1IdvSocialWechatCallbackGetRequest {
@@ -1059,7 +1062,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: GetKycReqToJSON(requestParameters['GetKycReq']),
+            body: SocialResultReqToJSON(requestParameters['SocialResultReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GetKycRespFromJSON(jsonValue));

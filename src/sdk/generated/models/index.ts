@@ -23,6 +23,7 @@ export * from './PlaidSessionTokenRequest';
 export * from './PlaidStartIdvRequest';
 export * from './PlaidStartIdvResp';
 export * from './SessionToken';
+export * from './SocialResultReq';
 export * from './StartIdvReq';
 export * from './StartIdvResp';
 export * from './TencentGetKycReq';
