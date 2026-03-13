@@ -300,7 +300,7 @@
       .tab-content.active {
         display: block;
       }
-      /* ── KYC Direct ── */
+      /* ── Custom KYC ── */
       .api-card {
         background: #fff;
         border: 1px solid #e0e0e0;
@@ -456,7 +456,7 @@
     <!-- Tab Navigation -->
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('social')">Social KYC</button>
-      <button class="tab-btn" onclick="switchTab('direct')">KYC Direct</button>
+      <button class="tab-btn" onclick="switchTab('custom')">Custom KYC</button>
       <button class="tab-btn" onclick="switchTab('old-api')">Old API</button>
     </div>
 
@@ -819,9 +819,9 @@
     </div><!-- end tab-social -->
 
     <!-- ═══════════════════════════════════════════ -->
-    <!-- TAB: KYC Direct                             -->
+    <!-- TAB: Custom KYC                               -->
     <!-- ═══════════════════════════════════════════ -->
-    <div class="tab-content" id="tab-direct">
+    <div class="tab-content" id="tab-custom">
 
       <!-- Step 0: Access Token -->
       <div class="card" style="border-left: 4px solid #1976d2">
@@ -861,7 +861,7 @@
         <p class="note">기존 인증 완료 유저로 재테스트</p>
         <textarea class="json-editor" id="body-us-start-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('us-start-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('us-start-verified')">Send</button>
         </div>
         <div id="result-us-start-verified" class="hidden">
           <div id="authlink-us-start-verified" class="hidden" style="margin-bottom:8px">
@@ -879,7 +879,7 @@
         <p class="note">신규 유저 (난수 user_id)</p>
         <textarea class="json-editor" id="body-us-start-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('us-start-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('us-start-new')">Send</button>
         </div>
         <div id="result-us-start-new" class="hidden">
           <div id="authlink-us-start-new" class="hidden" style="margin-bottom:8px">
@@ -900,7 +900,7 @@
         </div>
         <textarea class="json-editor" id="body-us-kyc-get"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('us-kyc-get')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('us-kyc-get')">Send</button>
         </div>
         <div id="result-us-kyc-get" class="hidden">
           <pre id="json-us-kyc-get"></pre>
@@ -928,7 +928,7 @@
         <p class="note">기존 인증 완료 유저로 재테스트</p>
         <textarea class="json-editor" id="body-jp-start-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('jp-start-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('jp-start-verified')">Send</button>
         </div>
         <div id="result-jp-start-verified" class="hidden">
           <div id="authlink-jp-start-verified" class="hidden" style="margin-bottom:8px">
@@ -946,7 +946,7 @@
         <p class="note">신규 유저 (난수 user_id)</p>
         <textarea class="json-editor" id="body-jp-start-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('jp-start-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('jp-start-new')">Send</button>
         </div>
         <div id="result-jp-start-new" class="hidden">
           <div id="authlink-jp-start-new" class="hidden" style="margin-bottom:8px">
@@ -967,7 +967,7 @@
         </div>
         <textarea class="json-editor" id="body-jp-kyc-get"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('jp-kyc-get')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('jp-kyc-get')">Send</button>
         </div>
         <div id="result-jp-kyc-get" class="hidden">
           <pre id="json-jp-kyc-get"></pre>
@@ -995,7 +995,7 @@
         <p class="note">신규 유저 (난수 user_id)</p>
         <textarea class="json-editor" id="body-cn-start-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('cn-start-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('cn-start-new')">Send</button>
         </div>
         <div id="result-cn-start-new" class="hidden">
           <div id="authlink-cn-start-new" class="hidden" style="margin-bottom:8px">
@@ -1016,7 +1016,7 @@
         </div>
         <textarea class="json-editor" id="body-cn-kyc-get"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('cn-kyc-get')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('cn-kyc-get')">Send</button>
         </div>
         <div id="result-cn-kyc-get" class="hidden">
           <pre id="json-cn-kyc-get"></pre>
@@ -1043,7 +1043,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-none-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-none-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-none-verified')">Send</button>
         </div>
         <div id="result-generic-start-none-verified" class="hidden">
           <div id="authlink-generic-start-none-verified" class="hidden" style="margin-bottom:8px">
@@ -1060,7 +1060,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-none-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-none-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-none-new')">Send</button>
         </div>
         <div id="result-generic-start-none-new" class="hidden">
           <div id="authlink-generic-start-none-new" class="hidden" style="margin-bottom:8px">
@@ -1080,7 +1080,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-us-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-us-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-us-verified')">Send</button>
         </div>
         <div id="result-generic-start-us-verified" class="hidden">
           <div id="authlink-generic-start-us-verified" class="hidden" style="margin-bottom:8px">
@@ -1097,7 +1097,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-us-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-us-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-us-new')">Send</button>
         </div>
         <div id="result-generic-start-us-new" class="hidden">
           <div id="authlink-generic-start-us-new" class="hidden" style="margin-bottom:8px">
@@ -1117,7 +1117,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-jp-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-jp-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-jp-verified')">Send</button>
         </div>
         <div id="result-generic-start-jp-verified" class="hidden">
           <div id="authlink-generic-start-jp-verified" class="hidden" style="margin-bottom:8px">
@@ -1134,7 +1134,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-jp-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-jp-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-jp-new')">Send</button>
         </div>
         <div id="result-generic-start-jp-new" class="hidden">
           <div id="authlink-generic-start-jp-new" class="hidden" style="margin-bottom:8px">
@@ -1155,7 +1155,7 @@
         <p class="note">신규 유저 (난수 user_id)</p>
         <textarea class="json-editor" id="body-generic-start-cn-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-cn-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-cn-new')">Send</button>
         </div>
         <div id="result-generic-start-cn-new" class="hidden">
           <div id="authlink-generic-start-cn-new" class="hidden" style="margin-bottom:8px">
@@ -1176,7 +1176,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-kyc-get-us"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-kyc-get-us')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-kyc-get-us')">Send</button>
         </div>
         <div id="result-generic-kyc-get-us" class="hidden">
           <pre id="json-generic-kyc-get-us"></pre>
@@ -1190,7 +1190,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-kyc-get-jp"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-kyc-get-jp')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-kyc-get-jp')">Send</button>
         </div>
         <div id="result-generic-kyc-get-jp" class="hidden">
           <pre id="json-generic-kyc-get-jp"></pre>
@@ -1204,14 +1204,14 @@
         </div>
         <textarea class="json-editor" id="body-generic-kyc-get-cn"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-kyc-get-cn')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-kyc-get-cn')">Send</button>
         </div>
         <div id="result-generic-kyc-get-cn" class="hidden">
           <pre id="json-generic-kyc-get-cn"></pre>
         </div>
       </div>
 
-    </div><!-- end tab-direct -->
+    </div><!-- end tab-custom -->
 
     <!-- ═══════════════════════════════════════════ -->
     <!-- TAB: Old API (old API — legacy endpoints)  -->
@@ -1861,7 +1861,7 @@
       }
 
       // ══════════════════════════════════════
-      // KYC Direct — per-card API blocks
+      // Custom KYC — per-card API blocks
       // ══════════════════════════════════════
       function randomUserId() {
         // 19자리 숫자 난수 (7999752903327968491과 동일한 형식)
@@ -1871,7 +1871,7 @@
         return id;
       }
 
-      const DIRECT_CARDS = {
+      const CUSTOM_CARDS = {
         // ── US ──
         'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
         'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
@@ -1898,13 +1898,13 @@
       };
 
       // Initialize all card textareas with default bodies
-      Object.keys(DIRECT_CARDS).forEach(id => {
+      Object.keys(CUSTOM_CARDS).forEach(id => {
         const el = document.getElementById('body-' + id);
-        if (el) el.value = JSON.stringify(DIRECT_CARDS[id].body(), null, 2);
+        if (el) el.value = JSON.stringify(CUSTOM_CARDS[id].body(), null, 2);
       });
 
-      async function sendDirect(id) {
-        const cfg = DIRECT_CARDS[id];
+      async function sendCustom(id) {
+        const cfg = CUSTOM_CARDS[id];
         if (!cfg) return;
         const bodyText = document.getElementById('body-' + id).value;
         const resultEl = document.getElementById('result-' + id);
