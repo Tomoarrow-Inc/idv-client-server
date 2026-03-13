@@ -33,6 +33,7 @@ import type {
   PlaidStartIdvRequest,
   PlaidStartIdvResp,
   SessionToken,
+  SocialResultReq,
   StartIdvReq,
   StartIdvResp,
   TencentGetKycReq,
@@ -87,6 +88,8 @@ import {
     PlaidStartIdvRespToJSON,
     SessionTokenFromJSON,
     SessionTokenToJSON,
+    SocialResultReqFromJSON,
+    SocialResultReqToJSON,
     StartIdvReqFromJSON,
     StartIdvReqToJSON,
     StartIdvRespFromJSON,
@@ -137,6 +140,10 @@ export interface V1IdvCaKycPutPostRequest {
 export interface V1IdvCaStartPostRequest {
     Authorization?: string;
     PlaidStartIdvRequest?: PlaidStartIdvRequest;
+}
+
+export interface V1IdvCnCookieStartPostRequest {
+    TomoIdvStartReq?: TomoIdvStartReq;
 }
 
 export interface V1IdvCnKycGetPostRequest {
@@ -221,7 +228,7 @@ export interface V1IdvSocialGoogleStartPostRequest {
 
 export interface V1IdvSocialResultPostRequest {
     Authorization?: string;
-    GetKycReq?: GetKycReq;
+    SocialResultReq?: SocialResultReq;
 }
 
 export interface V1IdvSocialWechatCallbackGetRequest {
@@ -444,6 +451,33 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async v1IdvCaStartPost(requestParameters: V1IdvCaStartPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PlaidStartIdvResp> {
         const response = await this.v1IdvCaStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     */
+    async v1IdvCnCookieStartPostRaw(requestParameters: V1IdvCnCookieStartPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TomoIdvStartRes>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        const response = await this.request({
+            path: `/v1/idv/cn/cookie/start`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: TomoIdvStartReqToJSON(requestParameters['TomoIdvStartReq']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => TomoIdvStartResFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async v1IdvCnCookieStartPost(requestParameters: V1IdvCnCookieStartPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TomoIdvStartRes> {
+        const response = await this.v1IdvCnCookieStartPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1059,7 +1093,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: GetKycReqToJSON(requestParameters['GetKycReq']),
+            body: SocialResultReqToJSON(requestParameters['SocialResultReq']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GetKycRespFromJSON(jsonValue));
