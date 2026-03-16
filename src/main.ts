@@ -25,7 +25,6 @@ function injectSwaggerExamples(doc: any): void {
   const USER_ID_JP = '7999752903327968498';
   const USER_ID_CN = '799975290332796849300000000000007';
   const CALLBACK_URL = 'https://example.com/callback';
-  const REDIRECT_URL = 'https://example.com/redirect';
   const EMAIL = 'test@example.com';
 
   const setExample = (schemaName: string, field: string, value: any) => {
@@ -85,7 +84,7 @@ function injectSwaggerExamples(doc: any): void {
 
   // ── CN (TomoIdv) ──
   setExample('TomoIdvStartReq', 'user_id', USER_ID_CN);
-  setExample('TomoIdvStartReq', 'redirect_url', REDIRECT_URL);
+  setExample('TomoIdvStartReq', 'callback_url', CALLBACK_URL);
 
   setExample('TomoIdvIssueTokenReq', 'user_id', USER_ID_CN);
 
@@ -93,7 +92,7 @@ function injectSwaggerExamples(doc: any): void {
 
   // ── CN Mock ──
   setExample('TomoIdvMockStartReq', 'user_id', USER_ID_CN);
-  setExample('TomoIdvMockStartReq', 'redirect_url', REDIRECT_URL);
+  setExample('TomoIdvMockStartReq', 'callback_url', CALLBACK_URL);
 
   setExample('TomoIdvMockIssueTokenReq', 'user_id', USER_ID_CN);
 
