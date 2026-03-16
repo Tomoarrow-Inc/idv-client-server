@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion } from './sdk/tomo-idv-node';
 import { IdvServerClient } from './idvServer/idvServerClient';
+import { IdvOldClient } from './sdk/idv-old-client';
 import type { TokenResponse } from './sdk/generated/models/TokenResponse';
 import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
 import type { LiquidIntegratedAppResponse } from './sdk/generated/models/LiquidIntegratedAppResponse';
@@ -57,6 +58,11 @@ import type {
   WeChatStartResp,
   // Social Result
   SocialResultBody,
+  // Old API
+  OldSessionBody,
+  OldIsVerifiedResp,
+  OldVerifiedResp,
+  OldPlaidKycHashResp,
 } from './sdk';
 
 type SafeFetchResult<T> =
@@ -70,7 +76,8 @@ const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
 export class AppService {
   constructor(
     private readonly stateService: StateService,
-    private readonly idvServerClient: IdvServerClient
+    private readonly idvServerClient: IdvServerClient,
+    private readonly idvOldClient: IdvOldClient,
   ) {}
 
   getHello(): string {
@@ -253,18 +260,22 @@ export class AppService {
   // ── JP (Liquid) ──
 
   async idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.idvStartJP(this.requireAccessToken(), body);
   }
 
   async getKycJP(body: GetKycJpBody): Promise<{ [key: string]: string }> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.getKycJP(this.requireAccessToken(), body);
   }
 
   async putKycJP(body: PutKycJpBody): Promise<void> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.putKycJP(body);
   }
 
   async idvCookieStartJP(body: IdvJpCookieStartBody): Promise<LiquidIntegratedAppResponse> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.idvCookieStartJP(body);
   }
 
@@ -317,6 +328,7 @@ export class AppService {
   }
 
   async liquidTokenSession(body: LiquidSessionTokenBody): Promise<SessionToken> {
+    this.requireNumericUserId(body.user_id);
     return this.idvServerClient.liquidTokenSession(body);
   }
 
@@ -326,7 +338,51 @@ export class AppService {
     return this.idvServerClient.loginTicket(body);
   }
 
+  // ── Old API (Internal) ──
+
+  async oldVerifySession(body: OldSessionBody): Promise<OldVerifiedResp> {
+    return this.idvOldClient.verifySession(body);
+  }
+
+  async oldGenerateLinkToken(country: string, body: OldSessionBody): Promise<any> {
+    return this.idvOldClient.generateLinkToken(country, body);
+  }
+
+  async oldGetResults(country: string, body: OldSessionBody): Promise<OldPlaidKycHashResp> {
+    return this.idvOldClient.getResults(country, body);
+  }
+
+  async oldVerifyKyc(country: string, body: OldSessionBody): Promise<OldIsVerifiedResp> {
+    return this.idvOldClient.verifyKyc(country, body);
+  }
+
+  async oldJpGetIcInfo(sessionId: string): Promise<any> {
+    return this.idvOldClient.jpGetIcInfo(sessionId);
+  }
+
+  async oldJpVerifyKyc(body: OldSessionBody): Promise<OldIsVerifiedResp> {
+    return this.idvOldClient.jpVerifyKyc(body);
+  }
+
   // ── Helpers ──
+
+  /**
+   * Liquid (JP) provider requires user_id to be numeric only (digits).
+   * Throws 400 immediately if user_id contains non-digit characters.
+   */
+  private requireNumericUserId(userId: string): void {
+    if (!/^\d+$/.test(userId)) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'JP IDV (Liquid) requires a numeric user_id. ' +
+            `Received: "${userId}"`,
+          error: 'Bad Request',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 
   private requireAccessToken(): string {
     const accessToken = this.getState('access_token');

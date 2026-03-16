@@ -300,7 +300,7 @@
       .tab-content.active {
         display: block;
       }
-      /* ── KYC Direct ── */
+      /* ── Custom KYC ── */
       .api-card {
         background: #fff;
         border: 1px solid #e0e0e0;
@@ -372,6 +372,31 @@
         box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
       }
       .api-card .actions { margin-top: 10px; }
+      /* Old API tab — compact endpoint rows */
+      .int-endpoint {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .int-endpoint:last-child { border-bottom: none; }
+      .int-endpoint.api-success { background: #f1f8e9; border-radius: 4px; padding-left: 8px; padding-right: 8px; }
+      .int-endpoint.api-error { background: #fef0f0; border-radius: 4px; padding-left: 8px; padding-right: 8px; }
+      .int-ep-info { display: flex; align-items: center; gap: 8px; min-width: 0; }
+      .int-ep-method {
+        font-size: 0.7rem; font-weight: 700; color: #fff; background: #1976d2;
+        padding: 2px 6px; border-radius: 3px; flex-shrink: 0;
+      }
+      .int-ep-method-get { background: #2e7d32; }
+      .int-ep-path { font-family: monospace; font-size: 0.78rem; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .int-ep-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+      .int-test-btn { padding: 4px 12px !important; font-size: 0.76rem !important; min-width: auto !important; }
+      .int-ep-badge { min-width: 44px; text-align: center; font-size: 0.7rem; }
+      .int-result { margin: 0 0 4px; }
+      .int-result pre {
+        margin: 4px 0 8px; font-size: 0.76rem; padding: 8px; max-height: 200px;
+      }
       /* Section card (numbered provider group) */
       .section-card {
         background: #fff;
@@ -431,7 +456,8 @@
     <!-- Tab Navigation -->
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('social')">Social KYC</button>
-      <button class="tab-btn" onclick="switchTab('direct')">KYC Direct</button>
+      <button class="tab-btn" onclick="switchTab('custom')">Custom KYC</button>
+      <button class="tab-btn" onclick="switchTab('old-api')">Old API</button>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -793,9 +819,9 @@
     </div><!-- end tab-social -->
 
     <!-- ═══════════════════════════════════════════ -->
-    <!-- TAB: KYC Direct                             -->
+    <!-- TAB: Custom KYC                               -->
     <!-- ═══════════════════════════════════════════ -->
-    <div class="tab-content" id="tab-direct">
+    <div class="tab-content" id="tab-custom">
 
       <!-- Step 0: Access Token -->
       <div class="card" style="border-left: 4px solid #1976d2">
@@ -835,7 +861,7 @@
         <p class="note">기존 인증 완료 유저로 재테스트</p>
         <textarea class="json-editor" id="body-us-start-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('us-start-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('us-start-verified')">Send</button>
         </div>
         <div id="result-us-start-verified" class="hidden">
           <div id="authlink-us-start-verified" class="hidden" style="margin-bottom:8px">
@@ -853,7 +879,7 @@
         <p class="note">신규 유저 (난수 user_id)</p>
         <textarea class="json-editor" id="body-us-start-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('us-start-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('us-start-new')">Send</button>
         </div>
         <div id="result-us-start-new" class="hidden">
           <div id="authlink-us-start-new" class="hidden" style="margin-bottom:8px">
@@ -874,7 +900,7 @@
         </div>
         <textarea class="json-editor" id="body-us-kyc-get"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('us-kyc-get')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('us-kyc-get')">Send</button>
         </div>
         <div id="result-us-kyc-get" class="hidden">
           <pre id="json-us-kyc-get"></pre>
@@ -902,7 +928,7 @@
         <p class="note">기존 인증 완료 유저로 재테스트</p>
         <textarea class="json-editor" id="body-jp-start-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('jp-start-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('jp-start-verified')">Send</button>
         </div>
         <div id="result-jp-start-verified" class="hidden">
           <div id="authlink-jp-start-verified" class="hidden" style="margin-bottom:8px">
@@ -920,7 +946,7 @@
         <p class="note">신규 유저 (난수 user_id)</p>
         <textarea class="json-editor" id="body-jp-start-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('jp-start-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('jp-start-new')">Send</button>
         </div>
         <div id="result-jp-start-new" class="hidden">
           <div id="authlink-jp-start-new" class="hidden" style="margin-bottom:8px">
@@ -941,7 +967,7 @@
         </div>
         <textarea class="json-editor" id="body-jp-kyc-get"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('jp-kyc-get')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('jp-kyc-get')">Send</button>
         </div>
         <div id="result-jp-kyc-get" class="hidden">
           <pre id="json-jp-kyc-get"></pre>
@@ -954,22 +980,40 @@
       <hr class="section-divider">
       <div class="section-card">
         <h2><span class="step">3</span>Tencent IDV <span class="country-label country-cn">CN</span></h2>
-        <p class="note">Tencent Cloud 기반 중국 eKYC. start 시 redirect_url로 인증 페이지로 이동합니다. 인증 완료 유저도 동일하게 start_idv_uri를 반환하므로 신규 유저 케이스만 제공합니다.</p>
+        <p class="note">Tencent Cloud 기반 중국 eKYC. start 시 callback_url로 인증 페이지로 이동합니다.</p>
       </div>
 
       <!-- 3-1: cn/start -->
       <p class="substep-title"><span class="substep">3-1</span> POST /v1/idv/cn/start &mdash; IDV 시작</p>
       <p class="note" style="margin-bottom:8px">Tencent eKYC 인증 세션을 생성합니다.</p>
 
+      <div class="api-card" id="card-cn-start-verified">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case A</span> Verified user</span>
+          <span class="api-badge api-badge-idle" id="badge-cn-start-verified">NOT TESTED</span>
+        </div>
+        <p class="note">기존 인증 완료 유저로 재테스트</p>
+        <textarea class="json-editor" id="body-cn-start-verified"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('cn-start-verified')">Send</button>
+        </div>
+        <div id="result-cn-start-verified" class="hidden">
+          <div id="authlink-cn-start-verified" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-cn-start-verified"></pre>
+        </div>
+      </div>
+
       <div class="api-card" id="card-cn-start-new">
         <div class="api-card-header">
-          <span class="endpoint"><span class="method">POST</span>/v1/idv/cn/start</span>
+          <span class="endpoint"><span class="case-label">Case B</span> New user</span>
           <span class="api-badge api-badge-idle" id="badge-cn-start-new">NOT TESTED</span>
         </div>
         <p class="note">신규 유저 (난수 user_id)</p>
         <textarea class="json-editor" id="body-cn-start-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('cn-start-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('cn-start-new')">Send</button>
         </div>
         <div id="result-cn-start-new" class="hidden">
           <div id="authlink-cn-start-new" class="hidden" style="margin-bottom:8px">
@@ -990,7 +1034,7 @@
         </div>
         <textarea class="json-editor" id="body-cn-kyc-get"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('cn-kyc-get')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('cn-kyc-get')">Send</button>
         </div>
         <div id="result-cn-kyc-get" class="hidden">
           <pre id="json-cn-kyc-get"></pre>
@@ -1017,7 +1061,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-none-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-none-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-none-verified')">Send</button>
         </div>
         <div id="result-generic-start-none-verified" class="hidden">
           <div id="authlink-generic-start-none-verified" class="hidden" style="margin-bottom:8px">
@@ -1034,7 +1078,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-none-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-none-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-none-new')">Send</button>
         </div>
         <div id="result-generic-start-none-new" class="hidden">
           <div id="authlink-generic-start-none-new" class="hidden" style="margin-bottom:8px">
@@ -1054,7 +1098,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-us-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-us-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-us-verified')">Send</button>
         </div>
         <div id="result-generic-start-us-verified" class="hidden">
           <div id="authlink-generic-start-us-verified" class="hidden" style="margin-bottom:8px">
@@ -1071,7 +1115,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-us-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-us-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-us-new')">Send</button>
         </div>
         <div id="result-generic-start-us-new" class="hidden">
           <div id="authlink-generic-start-us-new" class="hidden" style="margin-bottom:8px">
@@ -1091,7 +1135,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-jp-verified"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-jp-verified')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-jp-verified')">Send</button>
         </div>
         <div id="result-generic-start-jp-verified" class="hidden">
           <div id="authlink-generic-start-jp-verified" class="hidden" style="margin-bottom:8px">
@@ -1108,7 +1152,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-start-jp-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-jp-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-jp-new')">Send</button>
         </div>
         <div id="result-generic-start-jp-new" class="hidden">
           <div id="authlink-generic-start-jp-new" class="hidden" style="margin-bottom:8px">
@@ -1129,7 +1173,7 @@
         <p class="note">신규 유저 (난수 user_id)</p>
         <textarea class="json-editor" id="body-generic-start-cn-new"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-start-cn-new')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-start-cn-new')">Send</button>
         </div>
         <div id="result-generic-start-cn-new" class="hidden">
           <div id="authlink-generic-start-cn-new" class="hidden" style="margin-bottom:8px">
@@ -1150,7 +1194,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-kyc-get-us"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-kyc-get-us')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-kyc-get-us')">Send</button>
         </div>
         <div id="result-generic-kyc-get-us" class="hidden">
           <pre id="json-generic-kyc-get-us"></pre>
@@ -1164,7 +1208,7 @@
         </div>
         <textarea class="json-editor" id="body-generic-kyc-get-jp"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-kyc-get-jp')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-kyc-get-jp')">Send</button>
         </div>
         <div id="result-generic-kyc-get-jp" class="hidden">
           <pre id="json-generic-kyc-get-jp"></pre>
@@ -1178,14 +1222,135 @@
         </div>
         <textarea class="json-editor" id="body-generic-kyc-get-cn"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendDirect('generic-kyc-get-cn')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('generic-kyc-get-cn')">Send</button>
         </div>
         <div id="result-generic-kyc-get-cn" class="hidden">
           <pre id="json-generic-kyc-get-cn"></pre>
         </div>
       </div>
 
-    </div><!-- end tab-direct -->
+    </div><!-- end tab-custom -->
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TAB: Old API (old API — legacy endpoints)  -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="tab-content" id="tab-old-api">
+
+      <!-- 0. Authentication -->
+      <div class="section-card">
+        <h2><span class="substep">0</span> Authentication</h2>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
+          <button class="btn-primary" onclick="loginWithTomoIDV()">Login with TomoIDV</button>
+          <span id="oldapi-sse-status" style="font-size: 0.82rem; color: #888;">Disconnected</span>
+        </div>
+        <div id="oldapi-session-banner" style="display: none; margin-top: 8px; padding: 10px 14px; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <strong style="font-size: 0.85rem;">Session ID</strong>
+            <button onclick="copySessionId()" style="padding: 2px 8px; font-size: 0.72rem; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer;">Copy</button>
+          </div>
+          <code id="oldapi-session-id-display" style="font-size: 0.82rem; word-break: break-all; user-select: all;"></code>
+        </div>
+        <div id="oldapi-sse-log" style="margin-top: 8px; max-height: 150px; overflow-y: auto; font-size: 0.78rem; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 4px; padding: 8px; display: none;">
+          <pre id="oldapi-sse-messages" style="white-space: pre-wrap;"></pre>
+        </div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 1. Identity Verification (Optional) -->
+      <div class="section-card">
+        <h2><span class="substep">1</span> Identity Verification <span style="font-size: 0.75rem; color: #999; font-weight: normal;">(Optional)</span></h2>
+        <p style="font-size: 0.82rem; color: #666; margin-bottom: 10px;">idv-app 본인인증 화면을 팝업으로 실행합니다. 아래 API Test만 사용할 경우 생략 가능합니다.</p>
+        <button class="btn-primary" id="btn-start-idv" onclick="startIDV()" disabled style="background: #7b1fa2;">Start IDV</button>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 2. Verify Session -->
+      <div class="section-card">
+        <h2><span class="substep">2</span> Verify Session</h2>
+        <div class="int-endpoint" id="int-row-verify-session">
+          <div class="int-ep-info">
+            <span class="int-ep-method">POST</span>
+            <span class="int-ep-path">/v1/verify/session</span>
+          </div>
+          <div class="int-ep-actions">
+            <button class="btn-primary int-test-btn" onclick="testOldApi('verify-session')" disabled>Test</button>
+            <span class="api-badge api-badge-idle int-ep-badge" id="badge-int-verify-session">—</span>
+          </div>
+        </div>
+        <div class="int-result hidden" id="result-int-verify-session"><pre id="json-int-verify-session"></pre></div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 3. Plaid US -->
+      <div class="section-card">
+        <h2><span class="substep">3</span> Plaid US</h2>
+        <div class="int-endpoint" id="int-row-us-results">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/us/results</span></div>
+          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('us-results')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-us-results">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-us-results"><pre id="json-int-us-results"></pre></div>
+        <div class="int-endpoint" id="int-row-us-verify-kyc">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/us/verify/kyc</span></div>
+          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('us-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-us-verify-kyc">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-us-verify-kyc"><pre id="json-int-us-verify-kyc"></pre></div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 4. Plaid UK -->
+      <div class="section-card">
+        <h2><span class="substep">4</span> Plaid UK</h2>
+        <div class="int-endpoint" id="int-row-uk-results">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/uk/results</span></div>
+          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('uk-results')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-uk-results">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-uk-results"><pre id="json-int-uk-results"></pre></div>
+        <div class="int-endpoint" id="int-row-uk-verify-kyc">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/uk/verify/kyc</span></div>
+          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('uk-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-uk-verify-kyc">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-uk-verify-kyc"><pre id="json-int-uk-verify-kyc"></pre></div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 5. Plaid CA -->
+      <div class="section-card">
+        <h2><span class="substep">5</span> Plaid CA</h2>
+        <div class="int-endpoint" id="int-row-ca-results">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/ca/results</span></div>
+          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('ca-results')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-ca-results">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-ca-results"><pre id="json-int-ca-results"></pre></div>
+        <div class="int-endpoint" id="int-row-ca-verify-kyc">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/ca/verify/kyc</span></div>
+          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('ca-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-ca-verify-kyc">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-ca-verify-kyc"><pre id="json-int-ca-verify-kyc"></pre></div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- 6. Liquid JP -->
+      <div class="section-card">
+        <h2><span class="substep">6</span> Liquid JP</h2>
+        <div class="int-endpoint" id="int-row-jp-ic-info">
+          <div class="int-ep-info"><span class="int-ep-method int-ep-method-get">GET</span><span class="int-ep-path">/v1/jp/applicants/{session_id}/id_document_ic_information</span></div>
+          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('jp-ic-info')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-ic-info">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-jp-ic-info"><pre id="json-int-jp-ic-info"></pre></div>
+        <div class="int-endpoint" id="int-row-jp-verify-kyc">
+          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/jp/verify/kyc</span></div>
+          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('jp-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-verify-kyc">—</span></div>
+        </div>
+        <div class="int-result hidden" id="result-int-jp-verify-kyc"><pre id="json-int-jp-verify-kyc"></pre></div>
+      </div>
+
+    </div><!-- end tab-old-api -->
 
     <div class="footer">
       <a href="/api-docs" class="ext">Swagger UI (/api-docs) &rarr;</a>
@@ -1199,6 +1364,29 @@
       // ── Init ──
       document.getElementById('callbackUrl').value =
         window.location.origin + '/test-board';
+
+      // ── Old API tab: load URLs from server config ──
+      let oldApiServerUrl = '';
+      let oldApiAppUrl = '';
+
+      function resolvePublicUrl(url) {
+        try {
+          const hostname = new URL(url).hostname;
+          if (!hostname.includes('.') && hostname !== 'localhost') {
+            return 'http://localhost';
+          }
+          return url;
+        } catch { return url; }
+      }
+
+      (async function initOldApiUrls() {
+        try {
+          const res = await fetch('/test-board/config');
+          const config = await res.json();
+          if (config.idvServerUrl) oldApiServerUrl = resolvePublicUrl(config.idvServerUrl);
+          if (config.idvAppUrl) oldApiAppUrl = config.idvAppUrl;
+        } catch (e) { /* Config not available */ }
+      })();
 
       // Check if returned from WeChat login callback (Step 0)
       (function checkWechatCallback() {
@@ -1691,7 +1879,7 @@
       }
 
       // ══════════════════════════════════════
-      // KYC Direct — per-card API blocks
+      // Custom KYC — per-card API blocks
       // ══════════════════════════════════════
       function randomUserId() {
         // 19자리 숫자 난수 (7999752903327968491과 동일한 형식)
@@ -1701,7 +1889,7 @@
         return id;
       }
 
-      const DIRECT_CARDS = {
+      const CUSTOM_CARDS = {
         // ── US ──
         'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
         'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
@@ -1710,9 +1898,10 @@
         'jp-start-verified': { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
         'jp-start-new':      { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'jp-kyc-get':        { endpoint: '/v1/idv/jp/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
-        // ── CN (start: new only) ──
-        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), redirect_url: window.location.origin + '/test-board' }) },
-        'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044' }) },
+        // ── CN ──
+        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
+        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
         // ── Generic /v1/idv/start ──
         'generic-start-none-verified': { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
         'generic-start-none-new':      { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
@@ -1724,17 +1913,17 @@
         // ── Generic /v1/idv/kyc/get ──
         'generic-kyc-get-us': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
         'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
-        'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
+        'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'cn' }) },
       };
 
       // Initialize all card textareas with default bodies
-      Object.keys(DIRECT_CARDS).forEach(id => {
+      Object.keys(CUSTOM_CARDS).forEach(id => {
         const el = document.getElementById('body-' + id);
-        if (el) el.value = JSON.stringify(DIRECT_CARDS[id].body(), null, 2);
+        if (el) el.value = JSON.stringify(CUSTOM_CARDS[id].body(), null, 2);
       });
 
-      async function sendDirect(id) {
-        const cfg = DIRECT_CARDS[id];
+      async function sendCustom(id) {
+        const cfg = CUSTOM_CARDS[id];
         if (!cfg) return;
         const bodyText = document.getElementById('body-' + id).value;
         const resultEl = document.getElementById('result-' + id);
@@ -1787,6 +1976,193 @@
           cardEl.classList.remove('api-success');
           cardEl.classList.add('api-error');
         }
+      }
+
+      // ══════════════════════════════════════
+      // Old API — button-based API testing
+      // ══════════════════════════════════════
+      const INTERNAL_APIS = {
+        'verify-session':         { endpoint: '/v1/verify/session',         method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'us-results':             { endpoint: '/v1/us/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'us-verify-kyc':          { endpoint: '/v1/us/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'uk-results':             { endpoint: '/v1/uk/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'uk-verify-kyc':          { endpoint: '/v1/uk/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'ca-results':             { endpoint: '/v1/ca/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'ca-verify-kyc':          { endpoint: '/v1/ca/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
+        'jp-ic-info':             { endpoint: null, method: 'GET', body: null },
+        'jp-verify-kyc':          { endpoint: '/v1/jp/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
+      };
+
+      async function testOldApi(id) {
+        const cfg = INTERNAL_APIS[id];
+        if (!cfg || !oldApiSessionId) return;
+
+        const badgeEl = document.getElementById('badge-int-' + id);
+        const rowEl = document.getElementById('int-row-' + id);
+        const resultEl = document.getElementById('result-int-' + id);
+        const jsonEl = document.getElementById('json-int-' + id);
+
+        badgeEl.className = 'api-badge api-badge-idle int-ep-badge';
+        badgeEl.textContent = '...';
+        if (rowEl) rowEl.classList.remove('api-success', 'api-error');
+        resultEl.classList.remove('hidden');
+        jsonEl.textContent = 'Requesting...';
+
+        let endpoint = cfg.endpoint;
+        let fetchOpts;
+        if (id === 'jp-ic-info') {
+          endpoint = '/v1/jp/applicants/' + encodeURIComponent(oldApiSessionId) + '/id_document_ic_information';
+          fetchOpts = { method: 'GET' };
+        } else {
+          fetchOpts = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cfg.body(oldApiSessionId)),
+          };
+        }
+
+        const { ok, status, data } = await apiCall(endpoint, fetchOpts);
+
+        jsonEl.textContent = JSON.stringify(data, null, 2);
+        if (ok) {
+          badgeEl.className = 'api-badge api-badge-ok int-ep-badge'; badgeEl.textContent = status;
+          if (rowEl) { rowEl.classList.remove('api-error'); rowEl.classList.add('api-success'); }
+        } else {
+          badgeEl.className = 'api-badge api-badge-fail int-ep-badge'; badgeEl.textContent = status;
+          if (rowEl) { rowEl.classList.remove('api-success'); rowEl.classList.add('api-error'); }
+        }
+      }
+
+      // ── Webhook SSE + Login Popup ──
+      let sseConnection = null;
+      let loginPopup = null;
+      let oldApiSessionId = null;
+      let popupCheckInterval = null;
+
+      function loginWithTomoIDV() {
+        if (sseConnection) sseConnection.close();
+        if (loginPopup && !loginPopup.closed) loginPopup.close();
+
+        const baseUrl = oldApiServerUrl.replace(/\/+$/, '');
+        if (!baseUrl) { alert('IDV Server URL이 설정되지 않았습니다. /test-board/config를 확인하세요.'); return; }
+
+        const statusEl = document.getElementById('oldapi-sse-status');
+        const logEl = document.getElementById('oldapi-sse-log');
+        const msgEl = document.getElementById('oldapi-sse-messages');
+        logEl.style.display = 'block';
+
+        statusEl.textContent = 'Connecting...';
+        statusEl.style.color = '#e65100';
+
+        sseConnection = new EventSource(baseUrl + '/v1/webhook/session');
+
+        sseConnection.onopen = () => {
+          statusEl.textContent = 'Connected — waiting for login...';
+          statusEl.style.color = '#2e7d32';
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] SSE connected\n';
+        };
+
+        // Named event: 'connection' — parse JSON, extract conn_id from .data
+        sseConnection.addEventListener('connection', (event) => {
+          const webhookEvent = JSON.parse(event.data);
+          const connId = webhookEvent.data;
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] connection: conn_id=' + connId + '\n';
+          logEl.scrollTop = logEl.scrollHeight;
+          openLoginPopup(connId);
+        });
+
+        // Named event: 'session.opened' — parse JSON, extract session_id from .data
+        sseConnection.addEventListener('session.opened', (event) => {
+          const webhookEvent = JSON.parse(event.data);
+          const sessionId = webhookEvent.data;
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] session.opened: session_id=' + sessionId + '\n';
+          logEl.scrollTop = logEl.scrollHeight;
+          setOldApiSessionId(sessionId);
+          statusEl.textContent = 'Session acquired';
+          statusEl.style.color = '#2e7d32';
+        });
+
+        // Catch-all for other/unnamed events
+        sseConnection.onmessage = (event) => {
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] ' + event.data + '\n';
+          logEl.scrollTop = logEl.scrollHeight;
+        };
+
+        sseConnection.onerror = () => {
+          statusEl.textContent = 'Error / Disconnected';
+          statusEl.style.color = '#c62828';
+          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] SSE error or disconnected\n';
+        };
+      }
+
+      function openLoginPopup(connId) {
+        const appUrl = oldApiAppUrl.replace(/\/+$/, '');
+        const url = appUrl + '/auth/tomo-idv?conn_id=' + encodeURIComponent(connId);
+        const w = 500, h = 600;
+        const left = window.screenX + (window.outerWidth - w) / 2;
+        const top = window.screenY + (window.outerHeight - h) / 2;
+        loginPopup = window.open(url, 'TomoIDV', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes');
+        if (!loginPopup) {
+          alert('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
+          return;
+        }
+        // Monitor popup close
+        if (popupCheckInterval) clearInterval(popupCheckInterval);
+        popupCheckInterval = setInterval(() => {
+          try {
+            if (loginPopup && loginPopup.closed) {
+              clearInterval(popupCheckInterval);
+              popupCheckInterval = null;
+              const msgEl = document.getElementById('oldapi-sse-messages');
+              msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] Login popup closed\n';
+            }
+          } catch (e) { /* COOP may block access */ }
+        }, 2000);
+      }
+
+      function startIDV() {
+        if (!oldApiSessionId) return;
+        const appUrl = oldApiAppUrl.replace(/\/+$/, '');
+        const url = appUrl + '/idv/old?sessionId=' + encodeURIComponent(oldApiSessionId);
+        const w = 500, h = 600;
+        const left = window.screenX + (window.outerWidth - w) / 2;
+        const top = window.screenY + (window.outerHeight - h) / 2;
+        window.open(url, 'TomoIDV_Verify', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes');
+      }
+
+      function disconnectWebhook() {
+        if (sseConnection) { sseConnection.close(); sseConnection = null; }
+        if (loginPopup && !loginPopup.closed) loginPopup.close();
+        if (popupCheckInterval) { clearInterval(popupCheckInterval); popupCheckInterval = null; }
+        const statusEl = document.getElementById('oldapi-sse-status');
+        statusEl.textContent = 'Disconnected';
+        statusEl.style.color = '#888';
+        const msgEl = document.getElementById('oldapi-sse-messages');
+        msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] SSE disconnected\n';
+      }
+
+      function setOldApiSessionId(sid) {
+        oldApiSessionId = sid;
+
+        // Show banner
+        document.getElementById('oldapi-session-banner').style.display = 'block';
+        document.getElementById('oldapi-session-id-display').textContent = sid;
+
+        // Enable Start IDV button
+        document.getElementById('btn-start-idv').disabled = false;
+
+        // Enable all Test buttons
+        document.querySelectorAll('.int-test-btn').forEach(btn => { btn.disabled = false; });
+      }
+
+      function copySessionId() {
+        if (!oldApiSessionId) return;
+        navigator.clipboard.writeText(oldApiSessionId).then(() => {
+          const btn = event.target;
+          const orig = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = orig; }, 1500);
+        });
       }
 
       // Sync token status between tabs

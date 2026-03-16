@@ -154,7 +154,7 @@ export type LiquidSessionTokenBody = {
 
 export type IdvCnStartBody = {
   user_id: string;
-  redirect_url: string;
+  callback_url: string;
 };
 
 export type IdvCnTokenBody = {
@@ -167,7 +167,7 @@ export type IdvCnKycGetBody = {
 
 export type IdvCnMockStartBody = {
   user_id: string;
-  redirect_url: string;
+  callback_url: string;
 };
 
 export type IdvCnMockTokenBody = {
