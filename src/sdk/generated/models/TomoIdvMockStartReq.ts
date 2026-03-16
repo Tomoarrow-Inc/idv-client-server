@@ -24,7 +24,7 @@ export interface TomoIdvMockStartReq {
      * @type {string}
      * @memberof TomoIdvMockStartReq
      */
-    redirect_url: string;
+    callback_url: string;
     /**
      * 
      * @type {string}
@@ -37,7 +37,7 @@ export interface TomoIdvMockStartReq {
  * Check if a given object implements the TomoIdvMockStartReq interface.
  */
 export function instanceOfTomoIdvMockStartReq(value: object): value is TomoIdvMockStartReq {
-    if (!('redirect_url' in value) || value['redirect_url'] === undefined) return false;
+    if (!('callback_url' in value) || value['callback_url'] === undefined) return false;
     if (!('user_id' in value) || value['user_id'] === undefined) return false;
     return true;
 }
@@ -52,7 +52,7 @@ export function TomoIdvMockStartReqFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-        'redirect_url': json['redirect_url'],
+        'callback_url': json['callback_url'],
         'user_id': json['user_id'],
     };
 }
@@ -68,7 +68,7 @@ export function TomoIdvMockStartReqToJSONTyped(value?: TomoIdvMockStartReq | nul
 
     return {
         
-        'redirect_url': value['redirect_url'],
+        'callback_url': value['callback_url'],
         'user_id': value['user_id'],
     };
 }
