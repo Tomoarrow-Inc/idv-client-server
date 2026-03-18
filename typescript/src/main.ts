@@ -132,7 +132,10 @@ async function bootstrapOld() {
 
   // Test Board (Social KYC interactive test page)
   expressApp.get('/test-board', (_req, res) => {
-    res.sendFile(join(__dirname, '..', '..', 'test-board', 'test-board.html'));
+    res.sendFile(
+      process.env.TEST_BOARD_PATH ||
+        join(__dirname, '..', '..', 'test-board', 'test-board.html'),
+    );
   });
 
   // Test Board config (provides GOOGLE_CLIENT_ID and WECHAT_CLIENT_APP_ID to frontend)
@@ -223,7 +226,10 @@ async function bootstrap() {
   expressApp.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
   expressApp.get('/test-board', (_req, res) => {
-    res.sendFile(join(__dirname, '..', '..', 'test-board', 'test-board.html'));
+    res.sendFile(
+      process.env.TEST_BOARD_PATH ||
+        join(__dirname, '..', '..', 'test-board', 'test-board.html'),
+    );
   });
 
   expressApp.get('/test-board/config', (_req, res) => {

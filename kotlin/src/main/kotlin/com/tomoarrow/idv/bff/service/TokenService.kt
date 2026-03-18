@@ -45,7 +45,7 @@ class TokenService(
 
         val accessToken = tokenResponse.accessToken ?: ""
         val tokenType = tokenResponse.tokenType ?: "Bearer"
-        val expiresIn = tokenResponse.expiresIn ?: 0L
+        val expiresIn = (tokenResponse.expiresIn ?: 0).toLong()
 
         stateService.set("access_token", accessToken)
         stateService.set("token_info", mapOf(
