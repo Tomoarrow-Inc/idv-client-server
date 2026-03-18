@@ -4,11 +4,12 @@ RUN npm install -g pnpm
 
 WORKDIR /home/app
 
-COPY package.json pnpm-lock.yaml ./
+COPY typescript/package.json typescript/pnpm-lock.yaml ./
 
 RUN pnpm install
 
-COPY . .
+COPY typescript/ .
+COPY test-board/ /home/app/test-board/
 
 RUN pnpm build
 
@@ -29,7 +30,8 @@ COPY --from=development /home/app/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install --prod
 
 COPY --from=development /home/app/dist ./dist
+COPY --from=development /home/app/test-board ./test-board
 
 EXPOSE 3000
 
-CMD ["pnpm", "start:prod"] 
+CMD ["pnpm", "start:prod"]

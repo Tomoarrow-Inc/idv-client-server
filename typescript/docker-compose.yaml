@@ -2,8 +2,9 @@
 services:
   client-server:
     image: tomoadmin/idv-client-server:test-0.0.2.5
-    build: 
-      context: ./
+    build:
+      context: ../
+      dockerfile: typescript/Dockerfile
       target: development
 
   client-server-test:
