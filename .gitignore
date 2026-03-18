@@ -14,6 +14,11 @@ kotlin/*.iml
 kotlin/*.ipr
 kotlin/*.iws
 
+# ===== Root-level legacy artifacts =====
+/node_modules/
+/dist/
+/.pnpm-store/
+
 # ===== Shared =====
 
 # Logs
