@@ -1,0 +1,17 @@
+server:
+  port: 3000
+
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  application:
+    name: idv-bff-kotlin
+
+app:
+  idv-base-url: ${IDV_BASE_URL:http://localhost}
+  tomo-idv-client-id: ${TOMO_IDV_CLIENT_ID:}
+  tomo-idv-secret: ${TOMO_IDV_SECRET:}
+  google-client-id: ${GOOGLE_CLIENT_ID:}
+  idv-app-url: ${IDV_APP_URL:}
+  wechat-app-id: ${WECHAT_CLIENT_APP_ID:}
+  test-board-path: ${TEST_BOARD_PATH:../../test-board/test-board.html}

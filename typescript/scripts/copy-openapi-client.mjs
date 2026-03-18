@@ -1,7 +1,7 @@
 /**
  * Copy OpenAPI-generated client from ci into idv-client-server/src/sdk/generated/.
- * Run from idv-client-server root: node scripts/copy-openapi-client.mjs
- * Or from ci after gen: node ../idv-client-server/scripts/copy-openapi-client.mjs
+ * Run from idv-client-server/typescript root: node scripts/copy-openapi-client.mjs
+ * Or from ci after gen: node ../idv-client-server/typescript/scripts/copy-openapi-client.mjs
  */
 import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const source = join(__dirname, '..', '..', 'ci', 'contracts', 'openapi-generator', 'generated', 'idv-client-server');
+const source = join(__dirname, '..', '..', '..', 'ci', 'contracts', 'openapi-generator', 'generated', 'idv-client-server');
 const dest = join(__dirname, '..', 'src', 'sdk', 'generated');
 
 if (!existsSync(source)) {
