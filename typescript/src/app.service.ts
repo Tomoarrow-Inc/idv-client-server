@@ -50,14 +50,6 @@ import type {
   // Social Result
   SocialResultBody,
 } from './api-contract';
-import type {
-  // Old API
-  OldSessionBody,
-  OldStoreKycBody,
-  OldIsVerifiedResp,
-  OldVerifiedResp,
-  OldPlaidKycHashResp,
-} from './api-contract-old';
 
 type SafeFetchResult<T> =
   | { ok: true; data: T }
@@ -427,40 +419,6 @@ export class AppService {
     return this.api.v1IdvLoginTicketPost({
       LoginTicketRequest: body,
     });
-  }
-
-  // ── Old API (Internal) ──
-
-  async oldVerifySession(body: OldSessionBody): Promise<OldVerifiedResp> {
-    return this.apiPost('/v1/verify/session', body);
-  }
-
-  async oldGenerateLinkToken(country: string, body: OldSessionBody): Promise<any> {
-    return this.apiPost(`/v1/${country}/generate_link_token`, body);
-  }
-
-  async oldGetResults(country: string, body: OldSessionBody): Promise<OldPlaidKycHashResp> {
-    return this.apiPost(`/v1/${country}/results`, body);
-  }
-
-  async oldStoreKyc(country: string, body: OldStoreKycBody): Promise<void> {
-    return this.apiPost(`/v1/${country}/store`, body);
-  }
-
-  async oldVerifyKyc(country: string, body: OldSessionBody): Promise<OldIsVerifiedResp> {
-    return this.apiPost(`/v1/${country}/verify/kyc`, body);
-  }
-
-  async oldJpGetIcInfo(sessionId: string): Promise<any> {
-    return this.apiGet(`/v1/jp/applicants/${encodeURIComponent(sessionId)}/id_document_ic_information`);
-  }
-
-  async oldJpStore(body: OldSessionBody): Promise<void> {
-    return this.apiPost('/v1/jp/store', body);
-  }
-
-  async oldJpVerifyKyc(body: OldSessionBody): Promise<OldIsVerifiedResp> {
-    return this.apiPost('/v1/jp/verify/kyc', body);
   }
 
   // ── Helpers ──
