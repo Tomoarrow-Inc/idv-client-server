@@ -1,13 +1,10 @@
-// Case converter (customer <-> SDK wire format)
-export { toSnakeCaseKeys, toCamelCaseKeys } from './case-converter';
-
-// Auth utilities (tomo-idv-node)
+// Auth utilities (tomo-idv-client-node)
 export {
   createClientAssertion,
   buildTokenRequest,
   type ClientAssertionOptions,
   type BodyOptions,
-} from './tomo-idv-node';
+} from 'tomo-idv-client-node';
 
 // idv-server contract client
 export { IdvServerClient } from './idv-client';

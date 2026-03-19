@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
-import { createClientAssertion } from './sdk/tomo-idv-node';
-import { IdvServerClient } from './idvServer/idvServerClient';
+import { createClientAssertion } from 'tomo-idv-client-node';
+import { IdvServerClient } from './sdk/idv-client';
 import type { TokenResponse } from './sdk/generated/models/TokenResponse';
 import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
 import type { LiquidIntegratedAppResponse } from './sdk/generated/models/LiquidIntegratedAppResponse';

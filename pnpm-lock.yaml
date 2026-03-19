@@ -26,6 +26,9 @@ importers:
       swagger-ui-express:
         specifier: ^5.0.1
         version: 5.0.1(express@5.1.0)
+      tomo-idv-client-node:
+        specifier: file:../tomo-idv-client-node
+        version: file:../tomo-idv-client-node
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0
@@ -2775,6 +2778,10 @@ packages:
   token-types@6.1.1:
     resolution: {integrity: sha512-kh9LVIWH5CnL63Ipf0jhlBIy0UsrMj/NJDfpsy1SqOXlLKEVyXXYrnFxFT1yOOYVGBSApeVnjPw/sBz5BfEjAQ==}
     engines: {node: '>=14.16'}
+
+  tomo-idv-client-node@file:../tomo-idv-client-node:
+    resolution: {directory: ../tomo-idv-client-node, type: directory}
+    engines: {node: '>=18.0.0'}
 
   tree-kill@1.2.2:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
@@ -6095,6 +6102,8 @@ snapshots:
       '@borewit/text-codec': 0.1.1
       '@tokenizer/token': 0.3.0
       ieee754: 1.2.1
+
+  tomo-idv-client-node@file:../tomo-idv-client-node: {}
 
   tree-kill@1.2.2: {}
 
