@@ -1,12 +1,11 @@
-import { IdvServerClient } from './idv-client';
-import { Configuration, createClientAssertion } from 'tomo-idv-client-node';
+import { DefaultApi, Configuration, createClientAssertion } from 'tomo-idv-client-node';
 
 const shouldRun = process.env.RUN_IDV_INTEGRATION_TESTS === 'true';
 const describeIf = shouldRun ? describe : describe.skip;
 
 const REQUIRED_ENV = ['TOMO_IDV_CLIENT_ID', 'TOMO_IDV_SECRET', 'IDV_BASE_URL'] as const;
 
-describeIf('IdvServerClient → real idv-server (integration)', () => {
+describeIf('DefaultApi -> real idv-server (integration)', () => {
   const clientId = process.env.TOMO_IDV_CLIENT_ID as string;
   const secret = process.env.TOMO_IDV_SECRET as string;
   const baseUrl = (process.env.IDV_BASE_URL ?? 'http://idv-server-ghci').replace(/\/$/, '');
@@ -18,7 +17,7 @@ describeIf('IdvServerClient → real idv-server (integration)', () => {
     }
   };
 
-  const client = new IdvServerClient(new Configuration({ basePath: baseUrl }));
+  const api = new DefaultApi(new Configuration({ basePath: baseUrl }));
 
   const issueToken = async () => {
     const assertion = createClientAssertion({
@@ -27,10 +26,10 @@ describeIf('IdvServerClient → real idv-server (integration)', () => {
       base_url: baseUrl,
     });
 
-    const token = await client.issueToken({
-      clientAssertion: assertion,
-      clientAssertionType: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-      grantType: 'client_credentials',
+    const token = await api.v1Oauth2TokenPost({
+      client_assertion: assertion,
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      grant_type: 'client_credentials',
       scope: 'idv.read',
       resource: 'https://api.tomopayment.com/v1/idv',
     });
@@ -56,10 +55,13 @@ describeIf('IdvServerClient → real idv-server (integration)', () => {
     const accessToken = await issueToken();
     const userId = uniqueUserId('sdk-us-start');
 
-    const resp = await client.idvStartUS(accessToken, {
-      user_id: userId,
-      email: 'sdk-user@example.com',
-      callback_url: 'idvexpo://verify',
+    const resp = await api.v1IdvUsStartPost({
+      Authorization: `Bearer ${accessToken}`,
+      PlaidStartIdvRequest: {
+        user_id: userId,
+        email: 'sdk-user@example.com',
+        callback_url: 'idvexpo://verify',
+      },
     });
 
     const uri = (resp as any).start_idv_uri ?? (resp as any).startIdvUri;

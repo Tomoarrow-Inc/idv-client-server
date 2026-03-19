@@ -3,6 +3,12 @@ import type { Response } from 'express';
 import { AppService } from './app.service';
 import { ResponseError } from 'tomo-idv-client-node';
 import type {
+  TokenResponse, GoogleStartResp, PlaidStartIdvResp, LiquidIntegratedAppResponse,
+  StartIdvResp, GetKycResp, SessionToken, LoginTicketResponse,
+  EitherStringValue, TomoIdvStartRes, TomoIdvIssueTokenRes,
+  TomoIdvMockStartRes, TomoIdvMockIssueTokenRes,
+} from 'tomo-idv-client-node';
+import type {
   // Generic
   IdvStartBody,
   IdvKycGetBody,
@@ -37,7 +43,6 @@ import type {
   IdvCnMockKycGetBody,
   // Login Ticket
   LoginTicketBody,
-  TokenResponse,
   // Google Social KYC
   GoogleStartBody,
   // WeChat Social KYC
@@ -45,16 +50,12 @@ import type {
   WeChatStartResp,
   // Social Result
   SocialResultBody,
+} from './api-contract';
+import type {
   // Old API
   OldSessionBody,
   OldStoreKycBody,
-} from './sdk';
-import type {
-  GoogleStartResp, PlaidStartIdvResp, LiquidIntegratedAppResponse,
-  StartIdvResp, GetKycResp, SessionToken, LoginTicketResponse,
-  EitherStringValue, TomoIdvStartRes, TomoIdvIssueTokenRes,
-  TomoIdvMockStartRes, TomoIdvMockIssueTokenRes,
-} from 'tomo-idv-client-node';
+} from './api-contract-old';
 
 async function rethrow(error: unknown): Promise<never> {
   if (error instanceof ResponseError) {

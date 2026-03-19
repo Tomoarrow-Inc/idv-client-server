@@ -2,22 +2,21 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { IdvServerClient } from './sdk/idv-client';
+import { DefaultApi } from 'tomo-idv-client-node';
 import { StateService } from './state.service';
-import type { WeChatStartBody, WeChatStartResp } from './sdk';
+import type { WeChatStartBody, WeChatStartResp } from './api-contract';
 
 describe('WeChat Social eKYC', () => {
   let controller: AppController;
   let service: AppService;
-  let idvClient: jest.Mocked<IdvServerClient>;
+  let mockApi: jest.Mocked<DefaultApi>;
   let stateService: jest.Mocked<StateService>;
   const originalFetch = global.fetch;
 
   beforeEach(async () => {
-    const mockIdvClient = {
-      wechatStart: jest.fn(),
-      wechatMockStart: jest.fn(),
-    };
+    mockApi = {
+      request: jest.fn(),
+    } as any;
 
     const mockStateService = {
       get: jest.fn(),
@@ -46,14 +45,14 @@ describe('WeChat Social eKYC', () => {
       controllers: [AppController],
       providers: [
         AppService,
-        { provide: IdvServerClient, useValue: mockIdvClient },
+        { provide: DefaultApi, useValue: mockApi },
         { provide: StateService, useValue: mockStateService },
       ],
     }).compile();
 
     controller = module.get<AppController>(AppController);
     service = module.get<AppService>(AppService);
-    idvClient = module.get(IdvServerClient);
+    mockApi = module.get(DefaultApi);
     stateService = module.get(StateService);
   });
 
@@ -77,7 +76,9 @@ describe('WeChat Social eKYC', () => {
       };
 
       stateService.get.mockReturnValue('mock-access-token');
-      idvClient.wechatStart.mockResolvedValue(expected);
+      mockApi.request = jest.fn().mockResolvedValue({
+        json: jest.fn().mockResolvedValue(expected),
+      });
 
       const result = await controller.wechatStart(body);
       expect(result).toEqual(expected);
@@ -113,7 +114,7 @@ describe('WeChat Social eKYC', () => {
   // ── AppService wechatStart ──
 
   describe('AppService wechatStart', () => {
-    it('should delegate to idvServerClient.wechatStart with access token', async () => {
+    it('should call api.request for wechat/start with access token', async () => {
       const body: WeChatStartBody = {
         callback_url: 'https://example.com/callback',
         country: 'cn',
@@ -123,13 +124,21 @@ describe('WeChat Social eKYC', () => {
       };
 
       stateService.get.mockReturnValue('test-token-123');
-      idvClient.wechatStart.mockResolvedValue(expected);
+      mockApi.request = jest.fn().mockResolvedValue({
+        json: jest.fn().mockResolvedValue(expected),
+      });
 
       const result = await service.wechatStart(body);
       expect(result).toEqual(expected);
-      expect(idvClient.wechatStart).toHaveBeenCalledWith(
-        'test-token-123',
-        body,
+      expect(mockApi.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: '/v1/idv/social/wechat/start',
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Authorization': 'Bearer test-token-123',
+          }),
+          body,
+        }),
       );
     });
 
@@ -144,7 +153,7 @@ describe('WeChat Social eKYC', () => {
       );
     });
 
-    it('should pass access token from stateService as first argument', async () => {
+    it('should pass access token from stateService in Authorization header', async () => {
       const body: WeChatStartBody = {
         callback_url: 'https://example.com/callback',
       };
@@ -153,12 +162,17 @@ describe('WeChat Social eKYC', () => {
       };
 
       stateService.get.mockReturnValue('bearer-token-xyz');
-      idvClient.wechatStart.mockResolvedValue(expected);
+      mockApi.request = jest.fn().mockResolvedValue({
+        json: jest.fn().mockResolvedValue(expected),
+      });
 
       await service.wechatStart(body);
-      expect(idvClient.wechatStart).toHaveBeenCalledWith(
-        'bearer-token-xyz',
-        body,
+      expect(mockApi.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Authorization': 'Bearer bearer-token-xyz',
+          }),
+        }),
       );
       expect(stateService.get).toHaveBeenCalledWith('access_token');
     });
@@ -171,22 +185,30 @@ describe('WeChat Social eKYC', () => {
         country: 'us',
         login_hint: 'user@example.com',
       };
-      const expected: WeChatStartResp = {
+      const mockResp: WeChatStartResp = {
         authorization_url:
           'http://idv-server-ghci/v1/idv/social/wechat-mock/login?state=mock-state',
       };
 
       stateService.get.mockReturnValue('mock-token');
-      idvClient.wechatMockStart.mockResolvedValue(expected);
+      mockApi.request = jest.fn().mockResolvedValue({
+        json: jest.fn().mockResolvedValue(mockResp),
+      });
 
       const result = await service.wechatMockStart(body);
 
       expect(result).toEqual({
         authorization_url: '/v1/idv/social/wechat-mock/login?state=mock-state',
       });
-      expect(idvClient.wechatMockStart).toHaveBeenCalledWith(
-        'mock-token',
-        body,
+      expect(mockApi.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: '/v1/idv/social/wechat-mock/start',
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Authorization': 'Bearer mock-token',
+          }),
+          body,
+        }),
       );
     });
   });
@@ -251,11 +273,18 @@ describe('WeChat Social eKYC', () => {
       const expected: WeChatStartResp = {
         authorization_url: 'https://open.weixin.qq.com/...',
       };
-      idvClient.wechatStart.mockResolvedValue(expected);
+      mockApi.request = jest.fn().mockResolvedValue({
+        json: jest.fn().mockResolvedValue(expected),
+      });
 
       const result = await controller.wechatStart(body);
       expect(result).toEqual(expected);
-      expect(idvClient.wechatStart).toHaveBeenCalledWith('token', body);
+      expect(mockApi.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: '/v1/idv/social/wechat/start',
+          body,
+        }),
+      );
     });
 
     it('accepts minimal body with callback_url only', async () => {
@@ -265,11 +294,18 @@ describe('WeChat Social eKYC', () => {
       const expected: WeChatStartResp = {
         authorization_url: 'https://open.weixin.qq.com/...',
       };
-      idvClient.wechatStart.mockResolvedValue(expected);
+      mockApi.request = jest.fn().mockResolvedValue({
+        json: jest.fn().mockResolvedValue(expected),
+      });
 
       const result = await controller.wechatStart(body);
       expect(result).toEqual(expected);
-      expect(idvClient.wechatStart).toHaveBeenCalledWith('token', body);
+      expect(mockApi.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: '/v1/idv/social/wechat/start',
+          body,
+        }),
+      );
     });
 
     it('accepts body with country field', async () => {
@@ -280,11 +316,18 @@ describe('WeChat Social eKYC', () => {
       const expected: WeChatStartResp = {
         authorization_url: 'https://open.weixin.qq.com/...',
       };
-      idvClient.wechatStart.mockResolvedValue(expected);
+      mockApi.request = jest.fn().mockResolvedValue({
+        json: jest.fn().mockResolvedValue(expected),
+      });
 
       const result = await controller.wechatStart(body);
       expect(result).toEqual(expected);
-      expect(idvClient.wechatStart).toHaveBeenCalledWith('token', body);
+      expect(mockApi.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: '/v1/idv/social/wechat/start',
+          body,
+        }),
+      );
     });
   });
 });

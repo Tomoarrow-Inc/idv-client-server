@@ -1,8 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
-import { createClientAssertion } from 'tomo-idv-client-node';
-import { IdvServerClient } from './sdk/idv-client';
-import { IdvOldClient } from './sdk/idv-old-client';
+import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import type {
   TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
   StartIdvResp, GetKycResp, SessionToken, LoginTicketResponse,
@@ -51,13 +49,15 @@ import type {
   WeChatStartResp,
   // Social Result
   SocialResultBody,
+} from './api-contract';
+import type {
   // Old API
   OldSessionBody,
   OldStoreKycBody,
   OldIsVerifiedResp,
   OldVerifiedResp,
   OldPlaidKycHashResp,
-} from './sdk';
+} from './api-contract-old';
 
 type SafeFetchResult<T> =
   | { ok: true; data: T }
@@ -70,12 +70,32 @@ const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
 export class AppService {
   constructor(
     private readonly stateService: StateService,
-    private readonly idvServerClient: IdvServerClient,
-    private readonly idvOldClient: IdvOldClient,
+    private readonly api: DefaultApi,
   ) {}
 
   getHello(): string {
     return 'Hello World!';
+  }
+
+  // ── Manual request helpers (for endpoints not in generated API) ──
+
+  private bearerToken(): string {
+    return `Bearer ${this.requireAccessToken()}`;
+  }
+
+  private async apiPost<T>(path: string, body?: unknown, accessToken?: string): Promise<T> {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json;charset=utf-8' };
+    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+    const response = await (this.api as any).request({ path, method: 'POST', headers, body });
+    return await response.json();
+  }
+
+  private async apiGet<T>(path: string): Promise<T> {
+    const response = await (this.api as any).request({
+      path, method: 'GET',
+      headers: { 'Content-Type': 'application/json;charset=utf-8' },
+    });
+    return await response.json();
   }
 
   // ── OAuth2 ──
@@ -88,7 +108,7 @@ export class AppService {
       base_url: baseUrl,
     });
 
-    const tokenResponse = await this.idvServerClient.issueToken({
+    const tokenResponse = await this.api.v1Oauth2TokenPost({
       client_assertion: clientAssertion,
       client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
       grant_type: 'client_credentials',
@@ -111,30 +131,41 @@ export class AppService {
   // ── Generic (country-agnostic) ──
 
   async idvStart(body: IdvStartBody): Promise<StartIdvResp> {
-    return this.idvServerClient.idvStart(this.requireAccessToken(), body);
+    return this.api.v1IdvStartPost({
+      Authorization: this.bearerToken(),
+      StartIdvReq: body,
+    });
   }
 
   async idvKycGet(body: IdvKycGetBody): Promise<GetKycResp> {
-    return this.idvServerClient.idvKycGet(this.requireAccessToken(), body);
+    return this.api.v1IdvKycGetPost({
+      Authorization: this.bearerToken(),
+      GetKycReq: body,
+    });
   }
 
   // ── Google Social KYC ──
 
   async googleStart(body: GoogleStartBody): Promise<GoogleStartResp> {
-    return this.idvServerClient.googleStart(this.requireAccessToken(), body);
+    return this.api.v1IdvGoogleStartPost({
+      Authorization: this.bearerToken(),
+      GoogleStartReq: body,
+    });
   }
 
   // ── WeChat Social KYC ──
 
   async wechatStart(body: WeChatStartBody): Promise<WeChatStartResp> {
-    return this.idvServerClient.wechatStart(this.requireAccessToken(), body);
+    return this.apiPost('/v1/idv/social/wechat/start', body, this.requireAccessToken());
   }
 
   // ── WeChat Mock Social KYC ──
 
   async wechatMockStart(body: WeChatStartBody): Promise<WeChatStartResp> {
-    const result = await this.idvServerClient.wechatMockStart(this.requireAccessToken(), body);
-    // authorization_url을 BFF 상대경로로 변환 (Docker 내부 호스트명 → 브라우저 접근 가능)
+    const result = await this.apiPost<WeChatStartResp>(
+      '/v1/idv/social/wechat-mock/start', body, this.requireAccessToken(),
+    );
+    // authorization_url을 BFF 상대경로로 변환 (Docker 내부 호스트명 -> 브라우저 접근 가능)
     if (result.authorization_url) {
       try {
         const url = new URL(result.authorization_url);
@@ -173,197 +204,263 @@ export class AppService {
     const location = response.headers.get('location');
     if (location) return location;
     // 302가 아닌 경우 상세 에러 정보 포함
-    const body = await response.text().catch(() => '');
+    const respBody = await response.text().catch(() => '');
     throw new Error(
-      `Mock callback failed: status=${response.status}, url=${url}, body=${body.slice(0, 500)}`
+      `Mock callback failed: status=${response.status}, url=${url}, body=${respBody.slice(0, 500)}`
     );
   }
 
   // ── Social Result ──
 
   async socialResult(body: SocialResultBody): Promise<GetKycResp> {
-    return this.idvServerClient.socialResult(this.requireAccessToken(), body);
+    return this.apiPost('/v1/idv/social/result', body, this.requireAccessToken());
   }
 
   // ── US (Plaid) ──
 
   async idvStartUS(body: IdvUsStartBody): Promise<PlaidStartIdvResp> {
-    return this.idvServerClient.idvStartUS(this.requireAccessToken(), body);
+    return this.api.v1IdvUsStartPost({
+      Authorization: this.bearerToken(),
+      PlaidStartIdvRequest: body,
+    });
   }
 
   async getKycUS(body: GetKycUsBody): Promise<{ [key: string]: string }> {
-    return this.idvServerClient.getKycUS(this.requireAccessToken(), body);
+    return this.api.v1IdvUsKycGetPost({
+      Authorization: this.bearerToken(),
+      PlaidGetKycReq: body,
+    });
   }
 
   async putKycUS(body: PutKycUsBody): Promise<void> {
-    return this.idvServerClient.putKycUS(body);
+    return this.api.v1IdvUsKycPutPost({
+      PlaidPutKycReq: body,
+    });
   }
 
   async idvCookieStartUS(body: IdvUsCookieStartBody): Promise<PlaidStartIdvResp> {
-    return this.idvServerClient.idvCookieStartUS(body);
+    return this.api.v1IdvUsCookieStartPost({
+      PlaidStartIdvRequest: body,
+    });
   }
 
   async healthUS(): Promise<string> {
-    return this.idvServerClient.healthUS();
+    return this.api.v1IdvUsHealthGet();
   }
 
   // ── UK (Plaid) ──
 
   async idvStartUK(body: IdvUkStartBody): Promise<PlaidStartIdvResp> {
-    return this.idvServerClient.idvStartUK(this.requireAccessToken(), body);
+    return this.api.v1IdvUkStartPost({
+      Authorization: this.bearerToken(),
+      PlaidStartIdvRequest: body,
+    });
   }
 
   async getKycUK(body: GetKycUkBody): Promise<{ [key: string]: string }> {
-    return this.idvServerClient.getKycUK(this.requireAccessToken(), body);
+    return this.api.v1IdvUkKycGetPost({
+      Authorization: this.bearerToken(),
+      PlaidGetKycReq: body,
+    });
   }
 
   async putKycUK(body: PutKycUkBody): Promise<void> {
-    return this.idvServerClient.putKycUK(body);
+    return this.api.v1IdvUkKycPutPost({
+      PlaidPutKycReq: body,
+    });
   }
 
   async idvCookieStartUK(body: IdvUkCookieStartBody): Promise<PlaidStartIdvResp> {
-    return this.idvServerClient.idvCookieStartUK(body);
+    return this.api.v1IdvUkCookieStartPost({
+      PlaidStartIdvRequest: body,
+    });
   }
 
   async healthUK(): Promise<string> {
-    return this.idvServerClient.healthUK();
+    return this.api.v1IdvUkHealthGet();
   }
 
   // ── CA (Plaid) ──
 
   async idvStartCA(body: IdvCaStartBody): Promise<PlaidStartIdvResp> {
-    return this.idvServerClient.idvStartCA(this.requireAccessToken(), body);
+    return this.api.v1IdvCaStartPost({
+      Authorization: this.bearerToken(),
+      PlaidStartIdvRequest: body,
+    });
   }
 
   async getKycCA(body: GetKycCaBody): Promise<{ [key: string]: string }> {
-    return this.idvServerClient.getKycCA(this.requireAccessToken(), body);
+    return this.api.v1IdvCaKycGetPost({
+      Authorization: this.bearerToken(),
+      PlaidGetKycReq: body,
+    });
   }
 
   async putKycCA(body: PutKycCaBody): Promise<void> {
-    return this.idvServerClient.putKycCA(body);
+    return this.api.v1IdvCaKycPutPost({
+      PlaidPutKycReq: body,
+    });
   }
 
   async idvCookieStartCA(body: IdvCaCookieStartBody): Promise<PlaidStartIdvResp> {
-    return this.idvServerClient.idvCookieStartCA(body);
+    return this.api.v1IdvCaCookieStartPost({
+      PlaidStartIdvRequest: body,
+    });
   }
 
   async healthCA(): Promise<string> {
-    return this.idvServerClient.healthCA();
+    return this.api.v1IdvCaHealthGet();
   }
 
   // ── JP (Liquid) ──
 
   async idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
     this.requireNumericUserId(body.user_id);
-    return this.idvServerClient.idvStartJP(this.requireAccessToken(), body);
+    return this.api.v1IdvJpStartPost({
+      Authorization: this.bearerToken(),
+      LiquidStartIdvRequest: body,
+    });
   }
 
   async getKycJP(body: GetKycJpBody): Promise<{ [key: string]: string }> {
     this.requireNumericUserId(body.user_id);
-    return this.idvServerClient.getKycJP(this.requireAccessToken(), body);
+    return this.api.v1IdvJpKycGetPost({
+      Authorization: this.bearerToken(),
+      LiquidGetKycReq: body,
+    });
   }
 
   async putKycJP(body: PutKycJpBody): Promise<void> {
     this.requireNumericUserId(body.user_id);
-    return this.idvServerClient.putKycJP(body);
+    return this.api.v1IdvJpKycPutPost({
+      LiquidPutKycReq: body,
+    });
   }
 
   async idvCookieStartJP(body: IdvJpCookieStartBody): Promise<LiquidIntegratedAppResponse> {
     this.requireNumericUserId(body.user_id);
-    return this.idvServerClient.idvCookieStartJP(body);
+    return this.api.v1IdvJpCookieStartPost({
+      LiquidStartIdvRequest: body,
+    });
   }
 
   async notificationJP(body: any): Promise<EitherStringValue> {
-    return this.idvServerClient.notificationJP(body);
+    return this.api.v1IdvJpNotificationPost({
+      body,
+    });
   }
 
   async healthJP(): Promise<string> {
-    return this.idvServerClient.healthJP();
+    return this.api.v1IdvJpHealthGet();
   }
 
   // ── CN (TomoIdv) ──
 
   async idvStartCN(body: IdvCnStartBody): Promise<TomoIdvStartRes> {
-    return this.idvServerClient.idvStartCN(this.requireAccessToken(), body);
+    return this.api.v1IdvCnStartPost({
+      Authorization: this.bearerToken(),
+      TomoIdvStartReq: body,
+    });
   }
 
   async idvTokenCN(body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes> {
-    return this.idvServerClient.idvTokenCN(this.requireAccessToken(), body);
+    return this.api.v1IdvCnTokenPost({
+      Authorization: this.bearerToken(),
+      TomoIdvIssueTokenReq: body,
+    });
   }
 
   async idvKycGetCN(body: IdvCnKycGetBody): Promise<any> {
-    return this.idvServerClient.idvKycGetCN(this.requireAccessToken(), body);
+    return this.api.v1IdvCnKycGetPost({
+      Authorization: this.bearerToken(),
+      TomoIdvGetResultReq: body,
+    });
   }
 
   async idvResultWebCN(): Promise<any> {
-    return this.idvServerClient.idvResultWebCN();
+    return this.api.v1IdvCnResultWebPost();
   }
 
   async healthCN(): Promise<string> {
-    return this.idvServerClient.healthCN();
+    return this.api.v1IdvCnHealthGet();
   }
 
   async idvMockStartCN(body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes> {
-    return this.idvServerClient.idvMockStartCN(this.requireAccessToken(), body);
+    return this.api.v1IdvCnMockStartPost({
+      Authorization: this.bearerToken(),
+      TomoIdvMockStartReq: body,
+    });
   }
 
   async idvMockTokenCN(body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes> {
-    return this.idvServerClient.idvMockTokenCN(this.requireAccessToken(), body);
+    return this.api.v1IdvCnMockTokenPost({
+      Authorization: this.bearerToken(),
+      TomoIdvMockIssueTokenReq: body,
+    });
   }
 
   async idvMockKycGetCN(body: IdvCnMockKycGetBody): Promise<any> {
-    return this.idvServerClient.idvMockKycGetCN(this.requireAccessToken(), body);
+    return this.api.v1IdvCnMockKycGetPost({
+      Authorization: this.bearerToken(),
+      TomoIdvMockGetResultReq: body,
+    });
   }
 
   // ── Session Tokens ──
 
   async plaidTokenSession(body: PlaidSessionTokenBody): Promise<SessionToken> {
-    return this.idvServerClient.plaidTokenSession(body);
+    return this.api.v1IdvPlaidTokenSessionPost({
+      PlaidSessionTokenRequest: body,
+    });
   }
 
   async liquidTokenSession(body: LiquidSessionTokenBody): Promise<SessionToken> {
     this.requireNumericUserId(body.user_id);
-    return this.idvServerClient.liquidTokenSession(body);
+    return this.api.v1IdvLiquidTokenSessionPost({
+      LiquidSessionTokenRequest: body,
+    });
   }
 
   // ── Login Ticket ──
 
   async loginTicket(body: LoginTicketBody): Promise<LoginTicketResponse> {
-    return this.idvServerClient.loginTicket(body);
+    return this.api.v1IdvLoginTicketPost({
+      LoginTicketRequest: body,
+    });
   }
 
   // ── Old API (Internal) ──
 
   async oldVerifySession(body: OldSessionBody): Promise<OldVerifiedResp> {
-    return this.idvOldClient.verifySession(body);
+    return this.apiPost('/v1/verify/session', body);
   }
 
   async oldGenerateLinkToken(country: string, body: OldSessionBody): Promise<any> {
-    return this.idvOldClient.generateLinkToken(country, body);
+    return this.apiPost(`/v1/${country}/generate_link_token`, body);
   }
 
   async oldGetResults(country: string, body: OldSessionBody): Promise<OldPlaidKycHashResp> {
-    return this.idvOldClient.getResults(country, body);
+    return this.apiPost(`/v1/${country}/results`, body);
   }
 
   async oldStoreKyc(country: string, body: OldStoreKycBody): Promise<void> {
-    return this.idvOldClient.storeKyc(country, body);
+    return this.apiPost(`/v1/${country}/store`, body);
   }
 
   async oldVerifyKyc(country: string, body: OldSessionBody): Promise<OldIsVerifiedResp> {
-    return this.idvOldClient.verifyKyc(country, body);
+    return this.apiPost(`/v1/${country}/verify/kyc`, body);
   }
 
   async oldJpGetIcInfo(sessionId: string): Promise<any> {
-    return this.idvOldClient.jpGetIcInfo(sessionId);
+    return this.apiGet(`/v1/jp/applicants/${encodeURIComponent(sessionId)}/id_document_ic_information`);
   }
 
   async oldJpStore(body: OldSessionBody): Promise<void> {
-    return this.idvOldClient.jpStore(body);
+    return this.apiPost('/v1/jp/store', body);
   }
 
   async oldJpVerifyKyc(body: OldSessionBody): Promise<OldIsVerifiedResp> {
-    return this.idvOldClient.jpVerifyKyc(body);
+    return this.apiPost('/v1/jp/verify/kyc', body);
   }
 
   // ── Helpers ──
