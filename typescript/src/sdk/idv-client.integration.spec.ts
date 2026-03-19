@@ -1,5 +1,5 @@
 import { IdvServerClient } from './idv-client';
-import { Configuration } from './generated/runtime';
+import { Configuration } from 'tomo-idv-client-node';
 import { createClientAssertion } from './tomo-idv-node';
 
 const shouldRun = process.env.RUN_IDV_INTEGRATION_TESTS === 'true';

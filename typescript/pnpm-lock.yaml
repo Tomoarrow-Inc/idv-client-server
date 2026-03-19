@@ -27,7 +27,7 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(express@5.1.0)
       tomo-idv-client-node:
-        specifier: file:../tomo-idv-client-node
+        specifier: file:../../tomo-idv-client-node
         version: file:../tomo-idv-client-node
     devDependencies:
       '@eslint/eslintrc':

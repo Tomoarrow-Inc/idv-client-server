@@ -1,18 +1,10 @@
-import { DefaultApi } from './generated/apis/DefaultApi';
-import { Configuration } from './generated/runtime';
-import type { TokenResponse } from './generated/models/TokenResponse';
-import type { PlaidStartIdvResp } from './generated/models/PlaidStartIdvResp';
-import type { LiquidIntegratedAppResponse } from './generated/models/LiquidIntegratedAppResponse';
-import type { StartIdvResp } from './generated/models/StartIdvResp';
-import type { GetKycResp } from './generated/models/GetKycResp';
-import type { SessionToken } from './generated/models/SessionToken';
-import type { LoginTicketResponse } from './generated/models/LoginTicketResponse';
-import type { EitherStringValue } from './generated/models/EitherStringValue';
-import type { TomoIdvStartRes } from './generated/models/TomoIdvStartRes';
-import type { TomoIdvIssueTokenRes } from './generated/models/TomoIdvIssueTokenRes';
-import type { TomoIdvMockStartRes } from './generated/models/TomoIdvMockStartRes';
-import type { TomoIdvMockIssueTokenRes } from './generated/models/TomoIdvMockIssueTokenRes';
-import type { GoogleStartResp } from './generated/models/GoogleStartResp';
+import { DefaultApi, Configuration } from 'tomo-idv-client-node';
+import type {
+  TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
+  StartIdvResp, GetKycResp, SessionToken, LoginTicketResponse,
+  EitherStringValue, TomoIdvStartRes, TomoIdvIssueTokenRes,
+  TomoIdvMockStartRes, TomoIdvMockIssueTokenRes, GoogleStartResp,
+} from 'tomo-idv-client-node';
 import type {
   // Generic
   IdvStartBody,
@@ -329,7 +321,7 @@ export class IdvServerClient {
   async idvKycGetCN(accessToken: string, body: IdvCnKycGetBody): Promise<any> {
     return this.api.v1IdvCnKycGetPost({
       Authorization: `Bearer ${accessToken}`,
-      TencentGetKycReq: body,
+      TomoIdvGetResultReq: body,
     });
   }
 

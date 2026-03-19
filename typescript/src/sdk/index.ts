@@ -60,25 +60,16 @@ export type {
   SocialResultBody,
 } from './api-contract';
 
-// Response types (generated)
-export type { TokenResponse } from './generated/models/TokenResponse';
-export type { PlaidStartIdvResp } from './generated/models/PlaidStartIdvResp';
-export type { LiquidIntegratedAppResponse } from './generated/models/LiquidIntegratedAppResponse';
-export type { StartIdvResp } from './generated/models/StartIdvResp';
-export type { GetKycResp } from './generated/models/GetKycResp';
-export type { SessionToken } from './generated/models/SessionToken';
-export type { LoginTicketResponse } from './generated/models/LoginTicketResponse';
-export type { EitherStringValue } from './generated/models/EitherStringValue';
-export type { TomoIdvStartRes } from './generated/models/TomoIdvStartRes';
-export type { TomoIdvIssueTokenRes } from './generated/models/TomoIdvIssueTokenRes';
-export type { TomoIdvMockStartRes } from './generated/models/TomoIdvMockStartRes';
-export type { TomoIdvMockIssueTokenRes } from './generated/models/TomoIdvMockIssueTokenRes';
-export type { GoogleStartResp } from './generated/models/GoogleStartResp';
+// Response types (from tomo-idv-client-node SDK)
+export type {
+  TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
+  StartIdvResp, GetKycResp, SessionToken, LoginTicketResponse,
+  EitherStringValue, TomoIdvStartRes, TomoIdvIssueTokenRes,
+  TomoIdvMockStartRes, TomoIdvMockIssueTokenRes, GoogleStartResp,
+} from 'tomo-idv-client-node';
 
-// Enum types (generated)
-export { Country } from './generated/models/Country';
-export { PlaidIdvField } from './generated/models/PlaidIdvField';
-export { LiquidIdvField } from './generated/models/LiquidIdvField';
+// Enum types (from tomo-idv-client-node SDK)
+export { Country, PlaidIdvField, LiquidIdvField } from 'tomo-idv-client-node';
 
 // Old API request/response types (wire format, from old-api.openapi.json)
 export type {

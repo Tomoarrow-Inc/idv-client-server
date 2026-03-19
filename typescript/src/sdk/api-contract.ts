@@ -4,9 +4,9 @@
  * Aligned with OpenAPI generated models (Source of Truth).
  */
 
-import type { PlaidIdvField } from './generated/models/PlaidIdvField';
-import type { LiquidIdvField } from './generated/models/LiquidIdvField';
-import type { Country } from './generated/models/Country';
+import type { PlaidIdvField } from 'tomo-idv-client-node';
+import type { LiquidIdvField } from 'tomo-idv-client-node';
+import type { Country } from 'tomo-idv-client-node';
 
 // ── Generic (country-agnostic) ──
 

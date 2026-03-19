@@ -7,8 +7,7 @@
  *       when openapi-generator-cli is run against old-api.openapi.json.
  */
 
-import { Configuration } from './generated/runtime';
-import { DefaultApi } from './generated/apis/DefaultApi';
+import { Configuration, DefaultApi } from 'tomo-idv-client-node';
 import type {
   OldSessionBody,
   OldStoreKycBody,

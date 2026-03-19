@@ -3,19 +3,12 @@ import { StateService } from './state.service';
 import { createClientAssertion } from './sdk/tomo-idv-node';
 import { IdvServerClient } from './idvServer/idvServerClient';
 import { IdvOldClient } from './sdk/idv-old-client';
-import type { TokenResponse } from './sdk/generated/models/TokenResponse';
-import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
-import type { LiquidIntegratedAppResponse } from './sdk/generated/models/LiquidIntegratedAppResponse';
-import type { StartIdvResp } from './sdk/generated/models/StartIdvResp';
-import type { GetKycResp } from './sdk/generated/models/GetKycResp';
-import type { SessionToken } from './sdk/generated/models/SessionToken';
-import type { LoginTicketResponse } from './sdk/generated/models/LoginTicketResponse';
-import type { EitherStringValue } from './sdk/generated/models/EitherStringValue';
-import type { TomoIdvStartRes } from './sdk/generated/models/TomoIdvStartRes';
-import type { TomoIdvIssueTokenRes } from './sdk/generated/models/TomoIdvIssueTokenRes';
-import type { TomoIdvMockStartRes } from './sdk/generated/models/TomoIdvMockStartRes';
-import type { TomoIdvMockIssueTokenRes } from './sdk/generated/models/TomoIdvMockIssueTokenRes';
-import type { GoogleStartResp } from './sdk/generated/models/GoogleStartResp';
+import type {
+  TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
+  StartIdvResp, GetKycResp, SessionToken, LoginTicketResponse,
+  EitherStringValue, TomoIdvStartRes, TomoIdvIssueTokenRes,
+  TomoIdvMockStartRes, TomoIdvMockIssueTokenRes, GoogleStartResp,
+} from 'tomo-idv-client-node';
 import type {
   // Generic
   IdvStartBody,

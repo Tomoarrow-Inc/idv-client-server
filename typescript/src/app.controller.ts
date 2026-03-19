@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { AppService } from './app.service';
-import { ResponseError } from './sdk/generated/runtime';
+import { ResponseError } from 'tomo-idv-client-node';
 import type {
   // Generic
   IdvStartBody,
@@ -49,18 +49,12 @@ import type {
   OldSessionBody,
   OldStoreKycBody,
 } from './sdk';
-import type { GoogleStartResp } from './sdk/generated/models/GoogleStartResp';
-import type { PlaidStartIdvResp } from './sdk/generated/models/PlaidStartIdvResp';
-import type { LiquidIntegratedAppResponse } from './sdk/generated/models/LiquidIntegratedAppResponse';
-import type { StartIdvResp } from './sdk/generated/models/StartIdvResp';
-import type { GetKycResp } from './sdk/generated/models/GetKycResp';
-import type { SessionToken } from './sdk/generated/models/SessionToken';
-import type { LoginTicketResponse } from './sdk/generated/models/LoginTicketResponse';
-import type { EitherStringValue } from './sdk/generated/models/EitherStringValue';
-import type { TomoIdvStartRes } from './sdk/generated/models/TomoIdvStartRes';
-import type { TomoIdvIssueTokenRes } from './sdk/generated/models/TomoIdvIssueTokenRes';
-import type { TomoIdvMockStartRes } from './sdk/generated/models/TomoIdvMockStartRes';
-import type { TomoIdvMockIssueTokenRes } from './sdk/generated/models/TomoIdvMockIssueTokenRes';
+import type {
+  GoogleStartResp, PlaidStartIdvResp, LiquidIntegratedAppResponse,
+  StartIdvResp, GetKycResp, SessionToken, LoginTicketResponse,
+  EitherStringValue, TomoIdvStartRes, TomoIdvIssueTokenRes,
+  TomoIdvMockStartRes, TomoIdvMockIssueTokenRes,
+} from 'tomo-idv-client-node';
 
 async function rethrow(error: unknown): Promise<never> {
   if (error instanceof ResponseError) {
