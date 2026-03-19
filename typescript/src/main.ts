@@ -3,13 +3,115 @@ import { AppModule } from './app.module';
 import * as swaggerUi from 'swagger-ui-express';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import {
-  buildWechatLoginErrorRedirectPath,
-  buildWechatLoginSuccessRedirectPath,
-  buildWechatMockClientLoginCallbackPath,
-  MOCK_WECHAT_LOGIN_PROFILE,
-  renderWechatMockClientLoginHtml,
-} from './wechat-login';
+// ── WeChat Login helpers (inlined from wechat-login.ts) ──
+
+type WeChatLoginProvider = 'wechat' | 'wechat-mock';
+
+interface WeChatLoginProfile {
+  unionid: string;
+  openid: string;
+  nickname: string;
+  headimgurl: string;
+}
+
+const MOCK_WECHAT_LOGIN_PROFILE: WeChatLoginProfile = {
+  unionid: '100000000000012345',
+  openid: '200000000000012345',
+  nickname: 'Mock WeChat User',
+  headimgurl: '',
+};
+
+function buildWechatLoginSuccessRedirectPath(
+  provider: WeChatLoginProvider,
+  profile: WeChatLoginProfile,
+): string {
+  const params = new URLSearchParams({
+    wechat_login: 'success',
+    wechat_provider: provider,
+    wechat_unionid: profile.unionid,
+    wechat_openid: profile.openid,
+    wechat_nickname: profile.nickname,
+    wechat_headimgurl: profile.headimgurl,
+  });
+  return `/test-board?${params.toString()}`;
+}
+
+function buildWechatLoginErrorRedirectPath(
+  provider: WeChatLoginProvider,
+  reason: string,
+): string {
+  const params = new URLSearchParams({
+    wechat_error: reason,
+    wechat_provider: provider,
+  });
+  return `/test-board?${params.toString()}`;
+}
+
+function buildWechatMockClientLoginCallbackPath(
+  basePath: string,
+  state?: string,
+  error?: string,
+): string {
+  const params = new URLSearchParams();
+  if (error) {
+    params.set('error', error);
+  } else {
+    params.set('code', 'mock-wechat-login-code');
+  }
+  if (state) {
+    params.set('state', state);
+  }
+  const suffix = params.toString();
+  return suffix ? `${basePath}?${suffix}` : basePath;
+}
+
+function renderWechatMockClientLoginHtml(paths: {
+  approvePath: string;
+  denyPath: string;
+}): string {
+  return [
+    '<!DOCTYPE html>',
+    "<html lang='en'>",
+    '<head>',
+    "  <meta charset='utf-8'/>",
+    "  <meta name='viewport' content='width=device-width, initial-scale=1'/>",
+    '  <title>WeChat Mock Login</title>',
+    '  <style>',
+    '    * { margin: 0; padding: 0; box-sizing: border-box; }',
+    "    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f3f4f6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; color: #1f2937; }",
+    '    .card { width: 100%; max-width: 420px; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12); border: 1px solid #e5e7eb; }',
+    '    .badge { display: inline-block; background: #ecfccb; color: #3f6212; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 999px; margin-bottom: 16px; }',
+    '    h1 { font-size: 24px; margin-bottom: 8px; }',
+    '    p { color: #6b7280; font-size: 14px; line-height: 1.5; margin-bottom: 20px; }',
+    '    .panel { background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 20px; }',
+    '    .row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 6px 0; }',
+    '    .label { color: #6b7280; }',
+    "    .value { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; color: #111827; text-align: right; }",
+    '    .actions { display: flex; gap: 10px; }',
+    '    button { flex: 1; border: 0; border-radius: 10px; padding: 14px 16px; font-size: 15px; font-weight: 600; cursor: pointer; }',
+    '    .approve { background: #07c160; color: #fff; }',
+    '    .deny { background: #e5e7eb; color: #111827; }',
+    '  </style>',
+    '</head>',
+    '<body>',
+    "  <div class='card'>",
+    "    <span class='badge'>MOCK CLIENT LOGIN</span>",
+    '    <h1>WeChat Login</h1>',
+    '    <p>This page mirrors the customer-service WeChat login callback flow without requiring a real WeChat App ID or App Secret.</p>',
+    "    <div class='panel'>",
+    "      <div class='row'><span class='label'>UnionID</span><span class='value'>100000000000012345</span></div>",
+    "      <div class='row'><span class='label'>OpenID</span><span class='value'>200000000000012345</span></div>",
+    "      <div class='row'><span class='label'>Nickname</span><span class='value'>Mock WeChat User</span></div>",
+    '    </div>',
+    "    <div class='actions'>",
+    `      <button class='approve' onclick="window.location.href='${paths.approvePath}'">Login</button>`,
+    `      <button class='deny' onclick="window.location.href='${paths.denyPath}'">Deny</button>`,
+    '    </div>',
+    '  </div>',
+    '</body>',
+    '</html>',
+  ].join('');
+}
 
 /**
  * Swagger UI "Try it out" 기본값 주입.
@@ -104,105 +206,6 @@ function injectSwaggerExamples(doc: any): void {
   // ── Google Social KYC ──
   setExample('GoogleStartReq', 'callback_url', CALLBACK_URL);
   setExample('GoogleStartReq', 'login_hint', '');
-}
-
-// 문제점: 기존 bootstrap은 실제 WeChat callback만 구성되어 있어 mock Step 0이 브라우저 내부 상태 변경에 머물렀고,
-// app id/app secret 없이 실제와 같은 login -> callback -> test-board 구조를 검증할 수 없었다.
-// 개선 함수: bootstrap
-async function bootstrapOld() {
-  const app = await NestFactory.create(AppModule);
-
-  app.enableCors({
-    origin: '*', // 모든 도메인 허용
-    methods: '*', // 모든 HTTP 메서드 허용
-    allowedHeaders: '*', // 모든 헤더 허용
-  });
-
-  // Swagger UI Test Board
-  const swaggerDoc = JSON.parse(
-    readFileSync(
-      join(__dirname, 'swagger', 'client-server.openapi.json'),
-      'utf-8',
-    ),
-  );
-  swaggerDoc.servers = [{ url: '/', description: 'Current server' }];
-  injectSwaggerExamples(swaggerDoc);
-  const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
-
-  // Test Board (Social KYC interactive test page)
-  expressApp.get('/test-board', (_req, res) => {
-    res.sendFile(
-      process.env.TEST_BOARD_PATH ||
-        join(__dirname, '..', '..', 'test-board', 'test-board.html'),
-    );
-  });
-
-  // Test Board config (provides GOOGLE_CLIENT_ID and WECHAT_CLIENT_APP_ID to frontend)
-  expressApp.get('/test-board/config', (_req, res) => {
-    res.json({
-      googleClientId: process.env.GOOGLE_CLIENT_ID || '',
-      wechatAppId: process.env.WECHAT_CLIENT_APP_ID || '',
-      idvServerUrl: process.env.IDV_BASE_URL || '',
-      idvAppUrl: process.env.IDV_APP_URL || '',
-    });
-  });
-
-  // WeChat Login callback — exchanges code for access_token + userinfo, redirects back to test-board
-  // Environment variables required:
-  //   WECHAT_CLIENT_APP_ID     — WeChat Open Platform AppID (for client-side QR login)
-  //   WECHAT_CLIENT_APP_SECRET — WeChat Open Platform AppSecret (for server-side code exchange)
-  expressApp.get('/wechat/login/callback', async (req, res) => {
-    const { code } = req.query;
-
-    if (!code) {
-      return res.redirect('/test-board?wechat_error=no_code');
-    }
-
-    try {
-      const appId = process.env.WECHAT_CLIENT_APP_ID || '';
-      const appSecret = process.env.WECHAT_CLIENT_APP_SECRET || '';
-
-      // Step 1: Exchange code for access_token
-      const tokenUrl = `https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appId}&secret=${appSecret}&code=${code}&grant_type=authorization_code`;
-      const tokenRes = await fetch(tokenUrl);
-      const tokenData = await tokenRes.json();
-
-      if (tokenData.errcode) {
-        return res.redirect(
-          `/test-board?wechat_error=${encodeURIComponent(tokenData.errmsg || 'token_exchange_failed')}`,
-        );
-      }
-
-      // Step 2: Get user info
-      const userInfoUrl = `https://api.weixin.qq.com/sns/userinfo?access_token=${tokenData.access_token}&openid=${tokenData.openid}`;
-      const userRes = await fetch(userInfoUrl);
-      const userData = await userRes.json();
-
-      if (userData.errcode) {
-        return res.redirect(
-          `/test-board?wechat_error=${encodeURIComponent(userData.errmsg || 'userinfo_failed')}`,
-        );
-      }
-
-      // Redirect back to test-board with user info as query params
-      const params = new URLSearchParams({
-        wechat_login: 'success',
-        wechat_unionid: userData.unionid || '',
-        wechat_openid: userData.openid || '',
-        wechat_nickname: userData.nickname || '',
-        wechat_headimgurl: userData.headimgurl || '',
-      });
-
-      res.redirect(`/test-board?${params.toString()}`);
-    } catch (e: any) {
-      res.redirect(
-        `/test-board?wechat_error=${encodeURIComponent(e.message || 'unknown_error')}`,
-      );
-    }
-  });
-
-  await app.listen(process.env.PORT ?? 3000);
 }
 
 async function bootstrap() {
