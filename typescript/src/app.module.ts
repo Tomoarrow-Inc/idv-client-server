@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { StateService } from './state.service';
-import { IdvServerClient } from './idvServer/idvServerClient';
+import { IdvServerClient } from './sdk/idv-client';
 import { IdvOldClient } from './sdk/idv-old-client';
 
 @Module({

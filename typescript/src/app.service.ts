@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
-import { createClientAssertion } from './sdk/tomo-idv-node';
-import { IdvServerClient } from './idvServer/idvServerClient';
+import { createClientAssertion } from 'tomo-idv-client-node';
+import { IdvServerClient } from './sdk/idv-client';
 import { IdvOldClient } from './sdk/idv-old-client';
 import type {
   TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { IdvServerClient } from './idvServer/idvServerClient';
+import { IdvServerClient } from './sdk/idv-client';
 import { StateService } from './state.service';
 import type { WeChatStartBody, WeChatStartResp } from './sdk';
 
