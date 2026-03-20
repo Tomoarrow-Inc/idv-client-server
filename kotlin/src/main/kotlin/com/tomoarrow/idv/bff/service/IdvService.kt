@@ -1,7 +1,13 @@
 package com.tomoarrow.idv.bff.service
 
-import com.tomoarrow.idv.client.apis.DefaultApi
-import com.tomoarrow.idv.client.models.*
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.tomoarrow.idv.bff.config.AppProperties
+import com.tomoarrow.idv.client.generated.apis.DefaultApi
+import com.tomoarrow.idv.client.generated.models.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.springframework.stereotype.Service
 
 /**
@@ -11,8 +17,13 @@ import org.springframework.stereotype.Service
 @Service
 class IdvService(
     private val api: DefaultApi,
-    private val tokenService: TokenService
+    private val tokenService: TokenService,
+    private val appProperties: AppProperties
 ) {
+    private val httpClient = OkHttpClient()
+    private val objectMapper = ObjectMapper()
+    private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
+
     // ===== Generic (country-agnostic) =====
 
     suspend fun idvStart(authorization: String, startIdvReq: StartIdvReq): StartIdvResp {
@@ -33,14 +44,6 @@ class IdvService(
         return api.v1IdvUsKycGetPost(authorization = authorization, plaidGetKycReq = req)
     }
 
-    suspend fun kycUsPut(req: PlaidPutKycReq) {
-        api.v1IdvUsKycPutPost(plaidPutKycReq = req)
-    }
-
-    suspend fun idvUsCookieStart(req: PlaidStartIdvRequest): PlaidStartIdvResp {
-        return api.v1IdvUsCookieStartPost(plaidStartIdvRequest = req)
-    }
-
     suspend fun idvUsHealth(): String {
         return api.v1IdvUsHealthGet()
     }
@@ -53,14 +56,6 @@ class IdvService(
 
     suspend fun kycUkGet(authorization: String, req: PlaidGetKycReq): Map<String, String> {
         return api.v1IdvUkKycGetPost(authorization = authorization, plaidGetKycReq = req)
-    }
-
-    suspend fun kycUkPut(req: PlaidPutKycReq) {
-        api.v1IdvUkKycPutPost(plaidPutKycReq = req)
-    }
-
-    suspend fun idvUkCookieStart(req: PlaidStartIdvRequest): PlaidStartIdvResp {
-        return api.v1IdvUkCookieStartPost(plaidStartIdvRequest = req)
     }
 
     suspend fun idvUkHealth(): String {
@@ -77,14 +72,6 @@ class IdvService(
         return api.v1IdvCaKycGetPost(authorization = authorization, plaidGetKycReq = req)
     }
 
-    suspend fun kycCaPut(req: PlaidPutKycReq) {
-        api.v1IdvCaKycPutPost(plaidPutKycReq = req)
-    }
-
-    suspend fun idvCaCookieStart(req: PlaidStartIdvRequest): PlaidStartIdvResp {
-        return api.v1IdvCaCookieStartPost(plaidStartIdvRequest = req)
-    }
-
     suspend fun idvCaHealth(): String {
         return api.v1IdvCaHealthGet()
     }
@@ -99,18 +86,6 @@ class IdvService(
         return api.v1IdvJpKycGetPost(authorization = authorization, liquidGetKycReq = req)
     }
 
-    suspend fun kycJpPut(req: LiquidPutKycReq) {
-        api.v1IdvJpKycPutPost(liquidPutKycReq = req)
-    }
-
-    suspend fun idvJpCookieStart(req: LiquidStartIdvRequest): LiquidIntegratedAppResponse {
-        return api.v1IdvJpCookieStartPost(liquidStartIdvRequest = req)
-    }
-
-    suspend fun idvJpNotification(body: Any?): EitherStringValue {
-        return api.v1IdvJpNotificationPost(body = body)
-    }
-
     suspend fun idvJpHealth(): String {
         return api.v1IdvJpHealthGet()
     }
@@ -121,53 +96,64 @@ class IdvService(
         return api.v1IdvCnStartPost(authorization = authorization, tomoIdvStartReq = req)
     }
 
-    suspend fun idvCnToken(authorization: String, req: TomoIdvIssueTokenReq): TomoIdvIssueTokenRes {
-        return api.v1IdvCnTokenPost(authorization = authorization, tomoIdvIssueTokenReq = req)
-    }
-
-    suspend fun kycCnGet(authorization: String, req: TomoIdvGetResultReq): Any {
-        return api.v1IdvCnKycGetPost(authorization = authorization, tomoIdvGetResultReq = req)
-    }
-
-    suspend fun idvCnResultWeb(): Any {
-        return api.v1IdvCnResultWebPost()
+    suspend fun kycCnGet(authorization: String, req: TencentGetKycReq): TencentGetUnionResultResp {
+        return api.v1IdvCnKycGetPost(authorization = authorization, tencentGetKycReq = req)
     }
 
     suspend fun idvCnHealth(): String {
         return api.v1IdvCnHealthGet()
     }
 
-    suspend fun idvCnMockStart(authorization: String, req: TomoIdvMockStartReq): TomoIdvMockStartRes {
-        return api.v1IdvCnMockStartPost(authorization = authorization, tomoIdvMockStartReq = req)
+    // CN Mock — raw HTTP (SDK no longer provides these methods)
+
+    suspend fun idvCnMockStart(authorization: String, body: Map<String, Any>): Any {
+        return rawPost("/v1/idv/cn/mock/start", body, authorization)
     }
 
-    suspend fun idvCnMockToken(authorization: String, req: TomoIdvMockIssueTokenReq): TomoIdvMockIssueTokenRes {
-        return api.v1IdvCnMockTokenPost(authorization = authorization, tomoIdvMockIssueTokenReq = req)
+    suspend fun idvCnMockToken(authorization: String, body: Map<String, Any>): Any {
+        return rawPost("/v1/idv/cn/mock/token", body, authorization)
     }
 
-    suspend fun idvCnMockKycGet(authorization: String, req: TomoIdvMockGetResultReq): Any {
-        return api.v1IdvCnMockKycGetPost(authorization = authorization, tomoIdvMockGetResultReq = req)
+    suspend fun idvCnMockKycGet(authorization: String, body: Map<String, Any>): Any {
+        return rawPost("/v1/idv/cn/mock/kyc/get", body, authorization)
     }
 
-    // ===== Session Tokens =====
-
-    suspend fun plaidSessionToken(req: PlaidSessionTokenRequest): SessionToken {
-        return api.v1IdvPlaidTokenSessionPost(plaidSessionTokenRequest = req)
-    }
-
-    suspend fun liquidSessionToken(req: LiquidSessionTokenRequest): SessionToken {
-        return api.v1IdvLiquidTokenSessionPost(liquidSessionTokenRequest = req)
-    }
-
-    // ===== Login Ticket =====
-
-    suspend fun loginTicket(req: LoginTicketRequest): LoginTicketResponse {
-        return api.v1IdvLoginTicketPost(loginTicketRequest = req)
-    }
-
-    // ===== Google (Social KYC) =====
+    // ===== Social KYC =====
 
     suspend fun googleStart(authorization: String, req: GoogleStartReq): GoogleStartResp {
-        return api.v1IdvGoogleStartPost(authorization = authorization, googleStartReq = req)
+        return api.v1IdvSocialGoogleStartPost(authorization = authorization, googleStartReq = req)
+    }
+
+    suspend fun wechatStart(authorization: String, req: WeChatStartReq): WeChatStartResp {
+        return api.v1IdvSocialWechatStartPost(authorization = authorization, weChatStartReq = req)
+    }
+
+    suspend fun socialResult(authorization: String, req: SocialResultReq): GetKycResp {
+        return api.v1IdvSocialResultPost(authorization = authorization, socialResultReq = req)
+    }
+
+    // ===== Raw HTTP helper =====
+
+    private fun rawPost(path: String, body: Any, authorization: String): Any {
+        val url = "${appProperties.idvBaseUrl.trimEnd('/')}$path"
+        val jsonBody = objectMapper.writeValueAsString(body).toRequestBody(jsonMediaType)
+        val request = Request.Builder()
+            .url(url)
+            .post(jsonBody)
+            .addHeader("Authorization", authorization)
+            .addHeader("Content-Type", "application/json")
+            .build()
+
+        httpClient.newCall(request).execute().use { response ->
+            val responseBody = response.body?.string() ?: ""
+            if (!response.isSuccessful) {
+                throw RuntimeException("Upstream error ${response.code}: $responseBody")
+            }
+            return try {
+                objectMapper.readValue(responseBody, Map::class.java)
+            } catch (_: Exception) {
+                responseBody
+            }
+        }
     }
 }

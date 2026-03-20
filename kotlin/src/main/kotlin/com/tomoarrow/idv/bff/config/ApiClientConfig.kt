@@ -1,6 +1,6 @@
 package com.tomoarrow.idv.bff.config
 
-import com.tomoarrow.idv.client.apis.DefaultApi
+import com.tomoarrow.idv.client.generated.apis.DefaultApi
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

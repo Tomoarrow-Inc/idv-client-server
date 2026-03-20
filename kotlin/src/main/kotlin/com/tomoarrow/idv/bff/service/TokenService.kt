@@ -2,7 +2,7 @@ package com.tomoarrow.idv.bff.service
 
 import com.tomoarrow.idv.bff.auth.JwtAssertionBuilder
 import com.tomoarrow.idv.bff.config.AppProperties
-import com.tomoarrow.idv.client.apis.DefaultApi
+import com.tomoarrow.idv.client.generated.apis.DefaultApi
 import org.springframework.stereotype.Service
 
 /**

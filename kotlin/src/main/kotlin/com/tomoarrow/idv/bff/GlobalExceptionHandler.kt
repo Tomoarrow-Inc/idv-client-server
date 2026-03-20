@@ -1,7 +1,7 @@
 package com.tomoarrow.idv.bff
 
-import com.tomoarrow.idv.client.infrastructure.ClientException
-import com.tomoarrow.idv.client.infrastructure.ServerException
+import com.tomoarrow.idv.client.generated.infrastructure.ClientException
+import com.tomoarrow.idv.client.generated.infrastructure.ServerException
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
