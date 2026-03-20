@@ -10,6 +10,11 @@ export type OldSessionBody = {
   session_id: string;
 };
 
+export type OldStoreKycBody = {
+  session_id: string;
+  idv_session_id: string;
+};
+
 // ── Response types ──
 
 export type OldIsVerifiedResp = {

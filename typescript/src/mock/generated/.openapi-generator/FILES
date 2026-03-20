@@ -1,0 +1,13 @@
+.openapi-generator-ignore
+apis/DefaultApi.ts
+apis/index.ts
+index.ts
+models/TomoIdvMockGetResultReq.ts
+models/TomoIdvMockIssueTokenReq.ts
+models/TomoIdvMockIssueTokenRes.ts
+models/TomoIdvMockStartReq.ts
+models/TomoIdvMockStartRes.ts
+models/WeChatStartReq.ts
+models/WeChatStartResp.ts
+models/index.ts
+runtime.ts
