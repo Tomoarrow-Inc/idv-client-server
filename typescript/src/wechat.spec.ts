@@ -4,7 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DefaultApi } from 'tomo-idv-client-node';
 import { StateService } from './state.service';
-import type { WeChatStartBody, WeChatStartResp } from './api-contract';
+import type { WeChatStartReq, WeChatStartResp } from 'tomo-idv-client-node';
 
 describe('WeChat Social eKYC', () => {
   let controller: AppController;
@@ -66,7 +66,7 @@ describe('WeChat Social eKYC', () => {
 
   describe('AppController wechatStart', () => {
     it('should return authorization_url on success', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
         country: 'cn',
       };
@@ -85,7 +85,7 @@ describe('WeChat Social eKYC', () => {
     });
 
     it('should throw HttpException when no access token', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
       };
       stateService.get.mockReturnValue(undefined);
@@ -94,7 +94,7 @@ describe('WeChat Social eKYC', () => {
     });
 
     it('should preserve error message about missing token', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
       };
       stateService.get.mockReturnValue(undefined);
@@ -115,7 +115,7 @@ describe('WeChat Social eKYC', () => {
 
   describe('AppService wechatStart', () => {
     it('should call api.request for wechat/start with access token', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
         country: 'cn',
       };
@@ -143,7 +143,7 @@ describe('WeChat Social eKYC', () => {
     });
 
     it('should throw Error when access token is missing', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
       };
       stateService.get.mockReturnValue(undefined);
@@ -154,7 +154,7 @@ describe('WeChat Social eKYC', () => {
     });
 
     it('should pass access token from stateService in Authorization header', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
       };
       const expected: WeChatStartResp = {
@@ -180,7 +180,7 @@ describe('WeChat Social eKYC', () => {
 
   describe('AppService wechatMockStart', () => {
     it('rewrites idv-server mock authorization_url to a browser-safe relative path', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
         country: 'us',
         login_hint: 'user@example.com',
@@ -255,9 +255,9 @@ describe('WeChat Social eKYC', () => {
     });
   });
 
-  // ── WeChatStartBody type validation ──
+  // ── WeChatStartReq type validation ──
 
-  describe('WeChatStartBody variants', () => {
+  describe('WeChatStartReq variants', () => {
     beforeEach(() => {
       stateService.get.mockReturnValue('token');
     });
@@ -265,7 +265,7 @@ describe('WeChat Social eKYC', () => {
     // login_hint is forwarded as-is so customer services can pass a Plaid email fallback
     // while keeping the same public request shape as the Google social start flow.
     it('accepts body with login_hint field', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
         country: 'us',
         login_hint: 'user@example.com',
@@ -288,7 +288,7 @@ describe('WeChat Social eKYC', () => {
     });
 
     it('accepts minimal body with callback_url only', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
       };
       const expected: WeChatStartResp = {
@@ -309,7 +309,7 @@ describe('WeChat Social eKYC', () => {
     });
 
     it('accepts body with country field', async () => {
-      const body: WeChatStartBody = {
+      const body: WeChatStartReq = {
         callback_url: 'https://example.com/callback',
         country: 'cn',
       };

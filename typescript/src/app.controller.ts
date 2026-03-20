@@ -6,37 +6,24 @@ import type {
   TokenResponse, GoogleStartResp, PlaidStartIdvResp, LiquidIntegratedAppResponse,
   StartIdvResp, GetKycResp,
   TomoIdvStartRes,
-} from 'tomo-idv-client-node';
-import type {
-  // Generic
-  IdvStartBody,
-  IdvKycGetBody,
-  // US
-  IdvUsStartBody,
-  GetKycUsBody,
-  // UK
-  IdvUkStartBody,
-  GetKycUkBody,
-  // CA
-  IdvCaStartBody,
-  GetKycCaBody,
-  // JP
-  IdvJpStartBody,
-  GetKycJpBody,
-  // CN
-  IdvCnStartBody,
-  IdvCnKycGetBody,
-  IdvCnMockStartBody,
-  IdvCnMockTokenBody,
-  IdvCnMockKycGetBody,
-  // Google Social KYC
-  GoogleStartBody,
-  // WeChat Social KYC
-  WeChatStartBody,
+  // Request body types (replacing api-contract.ts)
+  StartIdvReq,
+  GetKycReq,
+  PlaidStartIdvRequest,
+  PlaidGetKycReq,
+  LiquidStartIdvRequest,
+  LiquidGetKycReq,
+  TomoIdvStartReq,
+  TencentGetKycReq,
+  GoogleStartReq,
+  WeChatStartReq,
   WeChatStartResp,
-  // Social Result
-  SocialResultBody,
-} from './api-contract';
+  SocialResultReq,
+} from 'tomo-idv-client-node';
+
+/** CN mock endpoint request types (not in SDK — mock endpoints use raw apiPost) */
+type CnMockStartBody = { user_id: string; redirect_url: string };
+type CnMockUserIdBody = { user_id: string };
 async function rethrow(error: unknown): Promise<never> {
   if (error instanceof ResponseError) {
     const status = error.response.status || HttpStatus.BAD_GATEWAY;
@@ -68,13 +55,13 @@ export class AppController {
   // ── Generic (country-agnostic) ──
 
   @Post('/v1/idv/start')
-  async idvStart(@Body() body: IdvStartBody): Promise<StartIdvResp> {
+  async idvStart(@Body() body: StartIdvReq): Promise<StartIdvResp> {
     try { return await this.appService.idvStart(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/kyc/get')
-  async idvKycGet(@Body() body: IdvKycGetBody): Promise<GetKycResp> {
+  async idvKycGet(@Body() body: GetKycReq): Promise<GetKycResp> {
     try { return await this.appService.idvKycGet(body); }
     catch (e) { return rethrow(e); }
   }
@@ -82,7 +69,7 @@ export class AppController {
   // ── Google Social KYC ──
 
   @Post('/v1/idv/social/google/start')
-  async googleStart(@Body() body: GoogleStartBody): Promise<GoogleStartResp> {
+  async googleStart(@Body() body: GoogleStartReq): Promise<GoogleStartResp> {
     try { return await this.appService.googleStart(body); }
     catch (e) { return rethrow(e); }
   }
@@ -90,7 +77,7 @@ export class AppController {
   // ── WeChat Social KYC ──
 
   @Post('/v1/idv/social/wechat/start')
-  async wechatStart(@Body() body: WeChatStartBody): Promise<WeChatStartResp> {
+  async wechatStart(@Body() body: WeChatStartReq): Promise<WeChatStartResp> {
     try { return await this.appService.wechatStart(body); }
     catch (e) { return rethrow(e); }
   }
@@ -98,7 +85,7 @@ export class AppController {
   // ── WeChat Mock Social KYC ──
 
   @Post('/v1/idv/social/wechat-mock/start')
-  async wechatMockStart(@Body() body: WeChatStartBody): Promise<WeChatStartResp> {
+  async wechatMockStart(@Body() body: WeChatStartReq): Promise<WeChatStartResp> {
     try { return await this.appService.wechatMockStart(body); }
     catch (e) { return rethrow(e); }
   }
@@ -133,7 +120,7 @@ export class AppController {
   // ── Social Result ──
 
   @Post('/v1/idv/social/result')
-  async socialResult(@Body() body: SocialResultBody): Promise<GetKycResp> {
+  async socialResult(@Body() body: SocialResultReq): Promise<GetKycResp> {
     try { return await this.appService.socialResult(body); }
     catch (e) { return rethrow(e); }
   }
@@ -141,13 +128,13 @@ export class AppController {
   // ── US (Plaid) ──
 
   @Post('/v1/idv/us/start')
-  async idvStartUS(@Body() body: IdvUsStartBody): Promise<PlaidStartIdvResp> {
+  async idvStartUS(@Body() body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
     try { return await this.appService.idvStartUS(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/us/kyc/get')
-  async getKycUS(@Body() body: GetKycUsBody): Promise<{ [key: string]: string }> {
+  async getKycUS(@Body() body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
     try { return await this.appService.getKycUS(body); }
     catch (e) { return rethrow(e); }
   }
@@ -161,13 +148,13 @@ export class AppController {
   // ── UK (Plaid) ──
 
   @Post('/v1/idv/uk/start')
-  async idvStartUK(@Body() body: IdvUkStartBody): Promise<PlaidStartIdvResp> {
+  async idvStartUK(@Body() body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
     try { return await this.appService.idvStartUK(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/uk/kyc/get')
-  async getKycUK(@Body() body: GetKycUkBody): Promise<{ [key: string]: string }> {
+  async getKycUK(@Body() body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
     try { return await this.appService.getKycUK(body); }
     catch (e) { return rethrow(e); }
   }
@@ -181,13 +168,13 @@ export class AppController {
   // ── CA (Plaid) ──
 
   @Post('/v1/idv/ca/start')
-  async idvStartCA(@Body() body: IdvCaStartBody): Promise<PlaidStartIdvResp> {
+  async idvStartCA(@Body() body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
     try { return await this.appService.idvStartCA(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/ca/kyc/get')
-  async getKycCA(@Body() body: GetKycCaBody): Promise<{ [key: string]: string }> {
+  async getKycCA(@Body() body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
     try { return await this.appService.getKycCA(body); }
     catch (e) { return rethrow(e); }
   }
@@ -201,13 +188,13 @@ export class AppController {
   // ── JP (Liquid) ──
 
   @Post('/v1/idv/jp/start')
-  async idvStartJP(@Body() body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
+  async idvStartJP(@Body() body: LiquidStartIdvRequest): Promise<LiquidIntegratedAppResponse> {
     try { return await this.appService.idvStartJP(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/jp/kyc/get')
-  async getKycJP(@Body() body: GetKycJpBody): Promise<{ [key: string]: string }> {
+  async getKycJP(@Body() body: LiquidGetKycReq): Promise<{ [key: string]: string }> {
     try { return await this.appService.getKycJP(body); }
     catch (e) { return rethrow(e); }
   }
@@ -221,13 +208,13 @@ export class AppController {
   // ── CN (TomoIdv) ──
 
   @Post('/v1/idv/cn/start')
-  async idvStartCN(@Body() body: IdvCnStartBody): Promise<TomoIdvStartRes> {
+  async idvStartCN(@Body() body: TomoIdvStartReq): Promise<TomoIdvStartRes> {
     try { return await this.appService.idvStartCN(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/cn/kyc/get')
-  async idvKycGetCN(@Body() body: IdvCnKycGetBody): Promise<any> {
+  async idvKycGetCN(@Body() body: TencentGetKycReq): Promise<any> {
     try { return await this.appService.idvKycGetCN(body); }
     catch (e) { return rethrow(e); }
   }
@@ -241,19 +228,19 @@ export class AppController {
   // ── CN Mock ──
 
   @Post('/v1/idv/cn/mock/start')
-  async idvMockStartCN(@Body() body: IdvCnMockStartBody): Promise<any> {
+  async idvMockStartCN(@Body() body: CnMockStartBody): Promise<any> {
     try { return await this.appService.idvMockStartCN(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/cn/mock/token')
-  async idvMockTokenCN(@Body() body: IdvCnMockTokenBody): Promise<any> {
+  async idvMockTokenCN(@Body() body: CnMockUserIdBody): Promise<any> {
     try { return await this.appService.idvMockTokenCN(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/cn/mock/kyc/get')
-  async idvMockKycGetCN(@Body() body: IdvCnMockKycGetBody): Promise<any> {
+  async idvMockKycGetCN(@Body() body: CnMockUserIdBody): Promise<any> {
     try { return await this.appService.idvMockKycGetCN(body); }
     catch (e) { return rethrow(e); }
   }

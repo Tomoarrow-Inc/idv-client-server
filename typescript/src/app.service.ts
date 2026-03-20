@@ -5,37 +5,24 @@ import type {
   TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
   StartIdvResp, GetKycResp,
   TomoIdvStartRes, GoogleStartResp,
-} from 'tomo-idv-client-node';
-import type {
-  // Generic
-  IdvStartBody,
-  IdvKycGetBody,
-  // US
-  IdvUsStartBody,
-  GetKycUsBody,
-  // UK
-  IdvUkStartBody,
-  GetKycUkBody,
-  // CA
-  IdvCaStartBody,
-  GetKycCaBody,
-  // JP
-  IdvJpStartBody,
-  GetKycJpBody,
-  // CN
-  IdvCnStartBody,
-  IdvCnKycGetBody,
-  IdvCnMockStartBody,
-  IdvCnMockTokenBody,
-  IdvCnMockKycGetBody,
-  // Google Social KYC
-  GoogleStartBody,
-  // WeChat Social KYC
-  WeChatStartBody,
+  // Request body types (replacing api-contract.ts)
+  StartIdvReq,
+  GetKycReq,
+  PlaidStartIdvRequest,
+  PlaidGetKycReq,
+  LiquidStartIdvRequest,
+  LiquidGetKycReq,
+  TomoIdvStartReq,
+  TencentGetKycReq,
+  GoogleStartReq,
+  WeChatStartReq,
   WeChatStartResp,
-  // Social Result
-  SocialResultBody,
-} from './api-contract';
+  SocialResultReq,
+} from 'tomo-idv-client-node';
+
+/** CN mock endpoint request types (not in SDK — mock endpoints use raw apiPost) */
+type CnMockStartBody = { user_id: string; redirect_url: string };
+type CnMockUserIdBody = { user_id: string };
 
 type SafeFetchResult<T> =
   | { ok: true; data: T }
@@ -108,14 +95,14 @@ export class AppService {
 
   // ── Generic (country-agnostic) ──
 
-  async idvStart(body: IdvStartBody): Promise<StartIdvResp> {
+  async idvStart(body: StartIdvReq): Promise<StartIdvResp> {
     return this.api.v1IdvStartPost({
       Authorization: this.bearerToken(),
       StartIdvReq: body,
     });
   }
 
-  async idvKycGet(body: IdvKycGetBody): Promise<GetKycResp> {
+  async idvKycGet(body: GetKycReq): Promise<GetKycResp> {
     return this.api.v1IdvKycGetPost({
       Authorization: this.bearerToken(),
       GetKycReq: body,
@@ -124,19 +111,19 @@ export class AppService {
 
   // ── Google Social KYC ──
 
-  async googleStart(body: GoogleStartBody): Promise<GoogleStartResp> {
+  async googleStart(body: GoogleStartReq): Promise<GoogleStartResp> {
     return this.apiPost('/v1/idv/social/google/start', body, this.requireAccessToken());
   }
 
   // ── WeChat Social KYC ──
 
-  async wechatStart(body: WeChatStartBody): Promise<WeChatStartResp> {
+  async wechatStart(body: WeChatStartReq): Promise<WeChatStartResp> {
     return this.apiPost('/v1/idv/social/wechat/start', body, this.requireAccessToken());
   }
 
   // ── WeChat Mock Social KYC ──
 
-  async wechatMockStart(body: WeChatStartBody): Promise<WeChatStartResp> {
+  async wechatMockStart(body: WeChatStartReq): Promise<WeChatStartResp> {
     const result = await this.apiPost<WeChatStartResp>(
       '/v1/idv/social/wechat-mock/start', body, this.requireAccessToken(),
     );
@@ -187,20 +174,20 @@ export class AppService {
 
   // ── Social Result ──
 
-  async socialResult(body: SocialResultBody): Promise<GetKycResp> {
+  async socialResult(body: SocialResultReq): Promise<GetKycResp> {
     return this.apiPost('/v1/idv/social/result', body, this.requireAccessToken());
   }
 
   // ── US (Plaid) ──
 
-  async idvStartUS(body: IdvUsStartBody): Promise<PlaidStartIdvResp> {
+  async idvStartUS(body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvUsStartPost({
       Authorization: this.bearerToken(),
       PlaidStartIdvRequest: body,
     });
   }
 
-  async getKycUS(body: GetKycUsBody): Promise<{ [key: string]: string }> {
+  async getKycUS(body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
     return this.api.v1IdvUsKycGetPost({
       Authorization: this.bearerToken(),
       PlaidGetKycReq: body,
@@ -213,14 +200,14 @@ export class AppService {
 
   // ── UK (Plaid) ──
 
-  async idvStartUK(body: IdvUkStartBody): Promise<PlaidStartIdvResp> {
+  async idvStartUK(body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvUkStartPost({
       Authorization: this.bearerToken(),
       PlaidStartIdvRequest: body,
     });
   }
 
-  async getKycUK(body: GetKycUkBody): Promise<{ [key: string]: string }> {
+  async getKycUK(body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
     return this.api.v1IdvUkKycGetPost({
       Authorization: this.bearerToken(),
       PlaidGetKycReq: body,
@@ -233,14 +220,14 @@ export class AppService {
 
   // ── CA (Plaid) ──
 
-  async idvStartCA(body: IdvCaStartBody): Promise<PlaidStartIdvResp> {
+  async idvStartCA(body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
     return this.api.v1IdvCaStartPost({
       Authorization: this.bearerToken(),
       PlaidStartIdvRequest: body,
     });
   }
 
-  async getKycCA(body: GetKycCaBody): Promise<{ [key: string]: string }> {
+  async getKycCA(body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
     return this.api.v1IdvCaKycGetPost({
       Authorization: this.bearerToken(),
       PlaidGetKycReq: body,
@@ -253,7 +240,7 @@ export class AppService {
 
   // ── JP (Liquid) ──
 
-  async idvStartJP(body: IdvJpStartBody): Promise<LiquidIntegratedAppResponse> {
+  async idvStartJP(body: LiquidStartIdvRequest): Promise<LiquidIntegratedAppResponse> {
     this.requireNumericUserId(body.user_id);
     return this.api.v1IdvJpStartPost({
       Authorization: this.bearerToken(),
@@ -261,7 +248,7 @@ export class AppService {
     });
   }
 
-  async getKycJP(body: GetKycJpBody): Promise<{ [key: string]: string }> {
+  async getKycJP(body: LiquidGetKycReq): Promise<{ [key: string]: string }> {
     this.requireNumericUserId(body.user_id);
     return this.api.v1IdvJpKycGetPost({
       Authorization: this.bearerToken(),
@@ -275,17 +262,17 @@ export class AppService {
 
   // ── CN (TomoIdv) ──
 
-  async idvStartCN(body: IdvCnStartBody): Promise<TomoIdvStartRes> {
+  async idvStartCN(body: TomoIdvStartReq): Promise<TomoIdvStartRes> {
     return this.api.v1IdvCnStartPost({
       Authorization: this.bearerToken(),
       TomoIdvStartReq: body,
     });
   }
 
-  async idvKycGetCN(body: IdvCnKycGetBody): Promise<any> {
+  async idvKycGetCN(body: TencentGetKycReq): Promise<any> {
     return this.api.v1IdvCnKycGetPost({
       Authorization: this.bearerToken(),
-      TomoIdvGetResultReq: body,
+      TencentGetKycReq: body,
     });
   }
 
@@ -293,15 +280,15 @@ export class AppService {
     return this.api.v1IdvCnHealthGet();
   }
 
-  async idvMockStartCN(body: IdvCnMockStartBody): Promise<any> {
+  async idvMockStartCN(body: CnMockStartBody): Promise<any> {
     return this.apiPost('/v1/idv/cn/mock/start', body, this.requireAccessToken());
   }
 
-  async idvMockTokenCN(body: IdvCnMockTokenBody): Promise<any> {
+  async idvMockTokenCN(body: CnMockUserIdBody): Promise<any> {
     return this.apiPost('/v1/idv/cn/mock/token', body, this.requireAccessToken());
   }
 
-  async idvMockKycGetCN(body: IdvCnMockKycGetBody): Promise<any> {
+  async idvMockKycGetCN(body: CnMockUserIdBody): Promise<any> {
     return this.apiPost('/v1/idv/cn/mock/kyc/get', body, this.requireAccessToken());
   }
 
