@@ -3,9 +3,8 @@ import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import type {
   TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
-  StartIdvResp, GetKycResp, SessionToken, LoginTicketResponse,
-  EitherStringValue, TomoIdvStartRes, TomoIdvIssueTokenRes,
-  TomoIdvMockStartRes, TomoIdvMockIssueTokenRes, GoogleStartResp,
+  StartIdvResp, GetKycResp,
+  TomoIdvStartRes, GoogleStartResp,
 } from 'tomo-idv-client-node';
 import type {
   // Generic
@@ -14,34 +13,21 @@ import type {
   // US
   IdvUsStartBody,
   GetKycUsBody,
-  PutKycUsBody,
-  IdvUsCookieStartBody,
-  PlaidSessionTokenBody,
   // UK
   IdvUkStartBody,
   GetKycUkBody,
-  PutKycUkBody,
-  IdvUkCookieStartBody,
   // CA
   IdvCaStartBody,
   GetKycCaBody,
-  PutKycCaBody,
-  IdvCaCookieStartBody,
   // JP
   IdvJpStartBody,
   GetKycJpBody,
-  PutKycJpBody,
-  IdvJpCookieStartBody,
-  LiquidSessionTokenBody,
   // CN
   IdvCnStartBody,
-  IdvCnTokenBody,
   IdvCnKycGetBody,
   IdvCnMockStartBody,
   IdvCnMockTokenBody,
   IdvCnMockKycGetBody,
-  // Login Ticket
-  LoginTicketBody,
   // Google Social KYC
   GoogleStartBody,
   // WeChat Social KYC
@@ -139,10 +125,7 @@ export class AppService {
   // ── Google Social KYC ──
 
   async googleStart(body: GoogleStartBody): Promise<GoogleStartResp> {
-    return this.api.v1IdvGoogleStartPost({
-      Authorization: this.bearerToken(),
-      GoogleStartReq: body,
-    });
+    return this.apiPost('/v1/idv/social/google/start', body, this.requireAccessToken());
   }
 
   // ── WeChat Social KYC ──
@@ -224,18 +207,6 @@ export class AppService {
     });
   }
 
-  async putKycUS(body: PutKycUsBody): Promise<void> {
-    return this.api.v1IdvUsKycPutPost({
-      PlaidPutKycReq: body,
-    });
-  }
-
-  async idvCookieStartUS(body: IdvUsCookieStartBody): Promise<PlaidStartIdvResp> {
-    return this.api.v1IdvUsCookieStartPost({
-      PlaidStartIdvRequest: body,
-    });
-  }
-
   async healthUS(): Promise<string> {
     return this.api.v1IdvUsHealthGet();
   }
@@ -256,18 +227,6 @@ export class AppService {
     });
   }
 
-  async putKycUK(body: PutKycUkBody): Promise<void> {
-    return this.api.v1IdvUkKycPutPost({
-      PlaidPutKycReq: body,
-    });
-  }
-
-  async idvCookieStartUK(body: IdvUkCookieStartBody): Promise<PlaidStartIdvResp> {
-    return this.api.v1IdvUkCookieStartPost({
-      PlaidStartIdvRequest: body,
-    });
-  }
-
   async healthUK(): Promise<string> {
     return this.api.v1IdvUkHealthGet();
   }
@@ -285,18 +244,6 @@ export class AppService {
     return this.api.v1IdvCaKycGetPost({
       Authorization: this.bearerToken(),
       PlaidGetKycReq: body,
-    });
-  }
-
-  async putKycCA(body: PutKycCaBody): Promise<void> {
-    return this.api.v1IdvCaKycPutPost({
-      PlaidPutKycReq: body,
-    });
-  }
-
-  async idvCookieStartCA(body: IdvCaCookieStartBody): Promise<PlaidStartIdvResp> {
-    return this.api.v1IdvCaCookieStartPost({
-      PlaidStartIdvRequest: body,
     });
   }
 
@@ -322,26 +269,6 @@ export class AppService {
     });
   }
 
-  async putKycJP(body: PutKycJpBody): Promise<void> {
-    this.requireNumericUserId(body.user_id);
-    return this.api.v1IdvJpKycPutPost({
-      LiquidPutKycReq: body,
-    });
-  }
-
-  async idvCookieStartJP(body: IdvJpCookieStartBody): Promise<LiquidIntegratedAppResponse> {
-    this.requireNumericUserId(body.user_id);
-    return this.api.v1IdvJpCookieStartPost({
-      LiquidStartIdvRequest: body,
-    });
-  }
-
-  async notificationJP(body: any): Promise<EitherStringValue> {
-    return this.api.v1IdvJpNotificationPost({
-      body,
-    });
-  }
-
   async healthJP(): Promise<string> {
     return this.api.v1IdvJpHealthGet();
   }
@@ -355,13 +282,6 @@ export class AppService {
     });
   }
 
-  async idvTokenCN(body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes> {
-    return this.api.v1IdvCnTokenPost({
-      Authorization: this.bearerToken(),
-      TomoIdvIssueTokenReq: body,
-    });
-  }
-
   async idvKycGetCN(body: IdvCnKycGetBody): Promise<any> {
     return this.api.v1IdvCnKycGetPost({
       Authorization: this.bearerToken(),
@@ -369,56 +289,20 @@ export class AppService {
     });
   }
 
-  async idvResultWebCN(): Promise<any> {
-    return this.api.v1IdvCnResultWebPost();
-  }
-
   async healthCN(): Promise<string> {
     return this.api.v1IdvCnHealthGet();
   }
 
-  async idvMockStartCN(body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes> {
-    return this.api.v1IdvCnMockStartPost({
-      Authorization: this.bearerToken(),
-      TomoIdvMockStartReq: body,
-    });
+  async idvMockStartCN(body: IdvCnMockStartBody): Promise<any> {
+    return this.apiPost('/v1/idv/cn/mock/start', body, this.requireAccessToken());
   }
 
-  async idvMockTokenCN(body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes> {
-    return this.api.v1IdvCnMockTokenPost({
-      Authorization: this.bearerToken(),
-      TomoIdvMockIssueTokenReq: body,
-    });
+  async idvMockTokenCN(body: IdvCnMockTokenBody): Promise<any> {
+    return this.apiPost('/v1/idv/cn/mock/token', body, this.requireAccessToken());
   }
 
   async idvMockKycGetCN(body: IdvCnMockKycGetBody): Promise<any> {
-    return this.api.v1IdvCnMockKycGetPost({
-      Authorization: this.bearerToken(),
-      TomoIdvMockGetResultReq: body,
-    });
-  }
-
-  // ── Session Tokens ──
-
-  async plaidTokenSession(body: PlaidSessionTokenBody): Promise<SessionToken> {
-    return this.api.v1IdvPlaidTokenSessionPost({
-      PlaidSessionTokenRequest: body,
-    });
-  }
-
-  async liquidTokenSession(body: LiquidSessionTokenBody): Promise<SessionToken> {
-    this.requireNumericUserId(body.user_id);
-    return this.api.v1IdvLiquidTokenSessionPost({
-      LiquidSessionTokenRequest: body,
-    });
-  }
-
-  // ── Login Ticket ──
-
-  async loginTicket(body: LoginTicketBody): Promise<LoginTicketResponse> {
-    return this.api.v1IdvLoginTicketPost({
-      LoginTicketRequest: body,
-    });
+    return this.apiPost('/v1/idv/cn/mock/kyc/get', body, this.requireAccessToken());
   }
 
   // ── Helpers ──

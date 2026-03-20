@@ -40,7 +40,7 @@ export type WeChatStartResp = {
 // ── Social Result ──
 
 export type SocialResultBody = {
-  user_id: string;
+  social_id: string;
 };
 
 export type IdvKycGetBody = {
@@ -61,22 +61,6 @@ export type GetKycUsBody = {
   fields?: PlaidIdvField[];
 };
 
-export type PutKycUsBody = {
-  user_id: string;
-  idv_session_id: string;
-};
-
-export type IdvUsCookieStartBody = {
-  user_id: string;
-  email: string;
-  callback_url: string;
-};
-
-export type PlaidSessionTokenBody = {
-  user_id: string;
-  idv_session_id?: string;
-};
-
 // ── UK (Plaid) ──
 
 export type IdvUkStartBody = {
@@ -88,17 +72,6 @@ export type IdvUkStartBody = {
 export type GetKycUkBody = {
   user_id: string;
   fields?: PlaidIdvField[];
-};
-
-export type PutKycUkBody = {
-  user_id: string;
-  idv_session_id: string;
-};
-
-export type IdvUkCookieStartBody = {
-  user_id: string;
-  email: string;
-  callback_url: string;
 };
 
 // ── CA (Plaid) ──
@@ -114,17 +87,6 @@ export type GetKycCaBody = {
   fields?: PlaidIdvField[];
 };
 
-export type PutKycCaBody = {
-  user_id: string;
-  idv_session_id: string;
-};
-
-export type IdvCaCookieStartBody = {
-  user_id: string;
-  email: string;
-  callback_url: string;
-};
-
 // ── JP (Liquid) ──
 
 export type IdvJpStartBody = {
@@ -137,28 +99,11 @@ export type GetKycJpBody = {
   fields?: LiquidIdvField[];
 };
 
-export type PutKycJpBody = {
-  user_id: string;
-};
-
-export type IdvJpCookieStartBody = {
-  user_id: string;
-  callback_url: string;
-};
-
-export type LiquidSessionTokenBody = {
-  user_id: string;
-};
-
 // ── CN (TomoIdv) ──
 
 export type IdvCnStartBody = {
   user_id: string;
   redirect_url: string;
-};
-
-export type IdvCnTokenBody = {
-  user_id: string;
 };
 
 export type IdvCnKycGetBody = {
@@ -178,9 +123,3 @@ export type IdvCnMockKycGetBody = {
   user_id: string;
 };
 
-// ── Login Ticket ──
-
-export type LoginTicketBody = {
-  login_ticket?: string;
-  biz_token?: string;
-};

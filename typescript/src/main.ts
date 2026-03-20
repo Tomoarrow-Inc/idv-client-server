@@ -168,12 +168,6 @@ function injectSwaggerExamples(doc: any): void {
   setExample('PlaidGetKycReq', 'user_id', USER_ID_US);
   // fields: optional, 비워둠
 
-  setExample('PlaidPutKycReq', 'user_id', USER_ID_US);
-  // idv_session_id: 비워둠 (start 응답에서 획득)
-
-  setExample('PlaidSessionTokenRequest', 'user_id', USER_ID_US);
-  // idv_session_id: 비워둠
-
   // ── JP (Liquid) ──
   setExample('LiquidStartIdvRequest', 'user_id', USER_ID_JP);
   setExample('LiquidStartIdvRequest', 'callback_url', CALLBACK_URL);
@@ -181,17 +175,9 @@ function injectSwaggerExamples(doc: any): void {
   setExample('LiquidGetKycReq', 'user_id', USER_ID_JP);
   // fields: optional, 비워둠
 
-  setExample('LiquidPutKycReq', 'user_id', USER_ID_JP);
-
-  setExample('LiquidSessionTokenRequest', 'user_id', USER_ID_JP);
-
   // ── CN (TomoIdv) ──
   setExample('TomoIdvStartReq', 'user_id', USER_ID_CN);
   setExample('TomoIdvStartReq', 'redirect_url', REDIRECT_URL);
-
-  setExample('TomoIdvIssueTokenReq', 'user_id', USER_ID_CN);
-
-  setExample('TomoIdvGetResultReq', 'user_id', USER_ID_CN);
 
   // ── CN Mock ──
   setExample('TomoIdvMockStartReq', 'user_id', USER_ID_CN);
@@ -200,8 +186,6 @@ function injectSwaggerExamples(doc: any): void {
   setExample('TomoIdvMockIssueTokenReq', 'user_id', USER_ID_CN);
 
   setExample('TomoIdvMockGetResultReq', 'user_id', USER_ID_CN);
-
-  // ── LoginTicket: 비워둠 (외부 플로우에서 획득) ──
 
   // ── Google Social KYC ──
   setExample('GoogleStartReq', 'callback_url', CALLBACK_URL);
@@ -219,7 +203,7 @@ async function bootstrap() {
 
   const swaggerDoc = JSON.parse(
     readFileSync(
-      join(__dirname, 'swagger', 'client-server.openapi.json'),
+      join(__dirname, 'swagger', 'sdk.openapi.json'),
       'utf-8',
     ),
   );

@@ -4,9 +4,8 @@ import { AppService } from './app.service';
 import { ResponseError } from 'tomo-idv-client-node';
 import type {
   TokenResponse, GoogleStartResp, PlaidStartIdvResp, LiquidIntegratedAppResponse,
-  StartIdvResp, GetKycResp, SessionToken, LoginTicketResponse,
-  EitherStringValue, TomoIdvStartRes, TomoIdvIssueTokenRes,
-  TomoIdvMockStartRes, TomoIdvMockIssueTokenRes,
+  StartIdvResp, GetKycResp,
+  TomoIdvStartRes,
 } from 'tomo-idv-client-node';
 import type {
   // Generic
@@ -15,34 +14,21 @@ import type {
   // US
   IdvUsStartBody,
   GetKycUsBody,
-  PutKycUsBody,
-  IdvUsCookieStartBody,
-  PlaidSessionTokenBody,
   // UK
   IdvUkStartBody,
   GetKycUkBody,
-  PutKycUkBody,
-  IdvUkCookieStartBody,
   // CA
   IdvCaStartBody,
   GetKycCaBody,
-  PutKycCaBody,
-  IdvCaCookieStartBody,
   // JP
   IdvJpStartBody,
   GetKycJpBody,
-  PutKycJpBody,
-  IdvJpCookieStartBody,
-  LiquidSessionTokenBody,
   // CN
   IdvCnStartBody,
-  IdvCnTokenBody,
   IdvCnKycGetBody,
   IdvCnMockStartBody,
   IdvCnMockTokenBody,
   IdvCnMockKycGetBody,
-  // Login Ticket
-  LoginTicketBody,
   // Google Social KYC
   GoogleStartBody,
   // WeChat Social KYC
@@ -166,18 +152,6 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  @Post('/v1/idv/us/kyc/put')
-  async putKycUS(@Body() body: PutKycUsBody): Promise<void> {
-    try { return await this.appService.putKycUS(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/us/cookie/start')
-  async idvCookieStartUS(@Body() body: IdvUsCookieStartBody): Promise<PlaidStartIdvResp> {
-    try { return await this.appService.idvCookieStartUS(body); }
-    catch (e) { return rethrow(e); }
-  }
-
   @Get('/v1/idv/us/health')
   async healthUS(): Promise<string> {
     try { return await this.appService.healthUS(); }
@@ -195,18 +169,6 @@ export class AppController {
   @Post('/v1/idv/uk/kyc/get')
   async getKycUK(@Body() body: GetKycUkBody): Promise<{ [key: string]: string }> {
     try { return await this.appService.getKycUK(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/uk/kyc/put')
-  async putKycUK(@Body() body: PutKycUkBody): Promise<void> {
-    try { return await this.appService.putKycUK(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/uk/cookie/start')
-  async idvCookieStartUK(@Body() body: IdvUkCookieStartBody): Promise<PlaidStartIdvResp> {
-    try { return await this.appService.idvCookieStartUK(body); }
     catch (e) { return rethrow(e); }
   }
 
@@ -230,18 +192,6 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  @Post('/v1/idv/ca/kyc/put')
-  async putKycCA(@Body() body: PutKycCaBody): Promise<void> {
-    try { return await this.appService.putKycCA(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/ca/cookie/start')
-  async idvCookieStartCA(@Body() body: IdvCaCookieStartBody): Promise<PlaidStartIdvResp> {
-    try { return await this.appService.idvCookieStartCA(body); }
-    catch (e) { return rethrow(e); }
-  }
-
   @Get('/v1/idv/ca/health')
   async healthCA(): Promise<string> {
     try { return await this.appService.healthCA(); }
@@ -262,24 +212,6 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  @Post('/v1/idv/jp/kyc/put')
-  async putKycJP(@Body() body: PutKycJpBody): Promise<void> {
-    try { return await this.appService.putKycJP(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/jp/cookie/start')
-  async idvCookieStartJP(@Body() body: IdvJpCookieStartBody): Promise<LiquidIntegratedAppResponse> {
-    try { return await this.appService.idvCookieStartJP(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/jp/notification')
-  async notificationJP(@Body() body: any): Promise<EitherStringValue> {
-    try { return await this.appService.notificationJP(body); }
-    catch (e) { return rethrow(e); }
-  }
-
   @Get('/v1/idv/jp/health')
   async healthJP(): Promise<string> {
     try { return await this.appService.healthJP(); }
@@ -294,21 +226,9 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  @Post('/v1/idv/cn/token')
-  async idvTokenCN(@Body() body: IdvCnTokenBody): Promise<TomoIdvIssueTokenRes> {
-    try { return await this.appService.idvTokenCN(body); }
-    catch (e) { return rethrow(e); }
-  }
-
   @Post('/v1/idv/cn/kyc/get')
   async idvKycGetCN(@Body() body: IdvCnKycGetBody): Promise<any> {
     try { return await this.appService.idvKycGetCN(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/cn/result/web')
-  async idvResultWebCN(): Promise<any> {
-    try { return await this.appService.idvResultWebCN(); }
     catch (e) { return rethrow(e); }
   }
 
@@ -321,13 +241,13 @@ export class AppController {
   // ── CN Mock ──
 
   @Post('/v1/idv/cn/mock/start')
-  async idvMockStartCN(@Body() body: IdvCnMockStartBody): Promise<TomoIdvMockStartRes> {
+  async idvMockStartCN(@Body() body: IdvCnMockStartBody): Promise<any> {
     try { return await this.appService.idvMockStartCN(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/cn/mock/token')
-  async idvMockTokenCN(@Body() body: IdvCnMockTokenBody): Promise<TomoIdvMockIssueTokenRes> {
+  async idvMockTokenCN(@Body() body: IdvCnMockTokenBody): Promise<any> {
     try { return await this.appService.idvMockTokenCN(body); }
     catch (e) { return rethrow(e); }
   }
@@ -335,28 +255,6 @@ export class AppController {
   @Post('/v1/idv/cn/mock/kyc/get')
   async idvMockKycGetCN(@Body() body: IdvCnMockKycGetBody): Promise<any> {
     try { return await this.appService.idvMockKycGetCN(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  // ── Session Tokens ──
-
-  @Post('/v1/idv/plaid/token/session')
-  async plaidTokenSession(@Body() body: PlaidSessionTokenBody): Promise<SessionToken> {
-    try { return await this.appService.plaidTokenSession(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/liquid/token/session')
-  async liquidTokenSession(@Body() body: LiquidSessionTokenBody): Promise<SessionToken> {
-    try { return await this.appService.liquidTokenSession(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  // ── Login Ticket ──
-
-  @Post('/v1/idv/login-ticket')
-  async loginTicket(@Body() body: LoginTicketBody): Promise<LoginTicketResponse> {
-    try { return await this.appService.loginTicket(body); }
     catch (e) { return rethrow(e); }
   }
 
