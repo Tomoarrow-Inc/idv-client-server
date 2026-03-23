@@ -24,7 +24,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("com.tomoarrow.idv:idv-kotlin-client:1.0.0-SNAPSHOT")
+    implementation("com.tomoarrow.idv:tomo-idv-client-kotlin:1.0.0-SNAPSHOT")
     // SDK transitive deps (declared as implementation in SDK, not api)
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
