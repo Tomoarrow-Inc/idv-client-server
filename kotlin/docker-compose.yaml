@@ -1,0 +1,31 @@
+
+services:
+  bff-kotlin:
+    image: tomoadmin/idv-bff-kotlin:dev
+    build:
+      context: ../
+      dockerfile: kotlin/Dockerfile
+
+    ports:
+      - "3000:3000"
+
+    env_file:
+      - .env
+
+    environment:
+      - IDV_BASE_URL=https://test.tomopayment.com
+
+  bff-kotlin-dev:
+    image: tomoadmin/idv-bff-kotlin:dev
+    build:
+      context: ../
+      dockerfile: kotlin/Dockerfile
+
+    ports:
+      - "3001:3000"
+
+    env_file:
+      - .env
+
+    environment:
+      - IDV_BASE_URL=https://dev.tomopayment.com

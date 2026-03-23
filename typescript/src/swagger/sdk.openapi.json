@@ -1,0 +1,1475 @@
+{
+  "components": {
+    "schemas": {
+      "Country": {
+        "enum": [
+          "us",
+          "uk",
+          "ca",
+          "jp",
+          "cn",
+          "unknown"
+        ],
+        "type": "string"
+      },
+      "GetKycReq": {
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "country"
+        ],
+        "type": "object"
+      },
+      "GetKycResp": {
+        "properties": {
+          "city": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "date_of_birth": {
+            "type": "string"
+          },
+          "email_address": {
+            "type": "string"
+          },
+          "family_name": {
+            "type": "string"
+          },
+          "full_address": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "given_name": {
+            "type": "string"
+          },
+          "phone_number": {
+            "type": "string"
+          },
+          "postal_code": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "street": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "date_of_birth",
+          "full_name",
+          "country",
+          "full_address"
+        ],
+        "type": "object"
+      },
+      "GoogleStartReq": {
+        "properties": {
+          "callback_url": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "login_hint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "callback_url"
+        ],
+        "type": "object"
+      },
+      "GoogleStartResp": {
+        "properties": {
+          "authorization_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorization_url"
+        ],
+        "type": "object"
+      },
+      "LiquidGetKycReq": {
+        "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/LiquidIdvField"
+            },
+            "type": "array"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "type": "object"
+      },
+      "LiquidGetResultResp": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/LiquidGetResultResp"
+          },
+          {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "LiquidIdvField": {
+        "enum": [
+          "name",
+          "date_of_birth",
+          "sex",
+          "address",
+          "postal_code"
+        ],
+        "type": "string"
+      },
+      "LiquidIntegratedAppResponse": {
+        "properties": {
+          "start_idv_uri": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_idv_uri"
+        ],
+        "type": "object"
+      },
+      "LiquidStartIdvRequest": {
+        "properties": {
+          "callback_url": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "callback_url"
+        ],
+        "type": "object"
+      },
+      "PlaidGetKycReq": {
+        "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/PlaidIdvField"
+            },
+            "type": "array"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "type": "object"
+      },
+      "PlaidGetResultResp": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PlaidGetResultResp"
+          },
+          {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "PlaidIdvField": {
+        "enum": [
+          "date_of_birth",
+          "email_address",
+          "phone_number",
+          "family_name",
+          "given_name",
+          "city",
+          "country",
+          "postal_code",
+          "region",
+          "street"
+        ],
+        "type": "string"
+      },
+      "PlaidStartIdvRequest": {
+        "properties": {
+          "callback_url": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "callback_url"
+        ],
+        "type": "object"
+      },
+      "PlaidStartIdvResp": {
+        "properties": {
+          "start_idv_uri": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_idv_uri"
+        ],
+        "type": "object"
+      },
+      "SocialResultReq": {
+        "properties": {
+          "social_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "social_id"
+        ],
+        "type": "object"
+      },
+      "StartIdvReq": {
+        "properties": {
+          "callback_url": {
+            "type": "string"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          },
+          "email": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "callback_url",
+          "email"
+        ],
+        "type": "object"
+      },
+      "StartIdvResp": {
+        "properties": {
+          "start_idv_uri": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_idv_uri"
+        ],
+        "type": "object"
+      },
+      "TencentGetKycReq": {
+        "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/TencentIdvField"
+            },
+            "type": "array"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "type": "object"
+      },
+      "TencentGetKycResp": {
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "date_of_birth": {
+            "type": "string"
+          },
+          "document_type": {
+            "type": "string"
+          },
+          "face_compare_passed": {
+            "type": "boolean"
+          },
+          "family_name": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "given_name": {
+            "type": "string"
+          },
+          "id_number": {
+            "type": "string"
+          },
+          "issuing_country": {
+            "type": "string"
+          },
+          "liveness_passed": {
+            "type": "boolean"
+          },
+          "nationality": {
+            "type": "string"
+          },
+          "ocr_passed": {
+            "type": "boolean"
+          },
+          "sex": {
+            "type": "string"
+          },
+          "similarity": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "TencentGetUnionResultResp": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/TencentGetKycResp"
+          },
+          {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "TencentIdvField": {
+        "enum": [
+          "full_name",
+          "date_of_birth",
+          "sex",
+          "address",
+          "id_number",
+          "nationality"
+        ],
+        "type": "string"
+      },
+      "TokenRequestForm": {
+        "properties": {
+          "client_assertion": {
+            "type": "string"
+          },
+          "client_assertion_type": {
+            "type": "string"
+          },
+          "grant_type": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "grant_type",
+          "client_assertion_type",
+          "client_assertion"
+        ],
+        "type": "object"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "expires_in": {
+            "maximum": 9223372036854775807,
+            "minimum": -9223372036854775808,
+            "type": "integer"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "token_type",
+          "expires_in"
+        ],
+        "type": "object"
+      },
+      "TomoIdvStartReq": {
+        "properties": {
+          "callback_url": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "callback_url"
+        ],
+        "type": "object"
+      },
+      "TomoIdvStartRes": {
+        "properties": {
+          "start_idv_uri": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_idv_uri"
+        ],
+        "type": "object"
+      },
+      "WeChatStartReq": {
+        "properties": {
+          "callback_url": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "login_hint": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "callback_url"
+        ],
+        "type": "object"
+      },
+      "WeChatStartResp": {
+        "properties": {
+          "authorization_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorization_url"
+        ],
+        "type": "object"
+      },
+      "JsonValue": {
+        "description": "Arbitrary JSON value"
+      },
+      "TomoIdvMockGetResultReq": {
+        "properties": {
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "type": "object"
+      },
+      "TomoIdvMockIssueTokenReq": {
+        "properties": {
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "type": "object"
+      },
+      "TomoIdvMockIssueTokenRes": {
+        "properties": {
+          "expires_in": {
+            "type": "integer"
+          },
+          "key": {
+            "type": "string"
+          },
+          "session_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_token",
+          "expires_in",
+          "key"
+        ],
+        "type": "object"
+      },
+      "TomoIdvMockStartReq": {
+        "properties": {
+          "callback_url": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "callback_url"
+        ],
+        "type": "object"
+      },
+      "TomoIdvMockStartRes": {
+        "properties": {
+          "start_idv_uri": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_idv_uri"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "tomo-idv-sdk",
+    "version": "0.1.0.0"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/idv/ca/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/v1/idv/ca/kyc/get": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaidGetKycReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaidGetResultResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/ca/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaidStartIdvRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaidStartIdvResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/cn/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/v1/idv/cn/kyc/get": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/TencentGetKycReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/TencentGetUnionResultResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/cn/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/TomoIdvStartReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/TomoIdvStartRes"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/jp/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/v1/idv/jp/kyc/get": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/LiquidGetKycReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiquidGetResultResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/jp/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/LiquidStartIdvRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiquidIntegratedAppResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/kyc/get": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/GetKycReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetKycResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/social/google/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleStartReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleStartResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/social/result": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/SocialResultReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetKycResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/social/wechat/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/WeChatStartReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeChatStartResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/StartIdvReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartIdvResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/uk/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/v1/idv/uk/kyc/get": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaidGetKycReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaidGetResultResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/uk/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaidStartIdvRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaidStartIdvResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/us/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/v1/idv/us/kyc/get": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaidGetKycReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaidGetResultResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/us/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaidStartIdvRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaidStartIdvResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/oauth2/token": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequestForm"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body`"
+          }
+        }
+      }
+    },
+    "/v1/idv/cn/mock/kyc/get": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/TomoIdvMockGetResultReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/JsonValue"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/cn/mock/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/TomoIdvMockStartReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/TomoIdvMockStartRes"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/cn/mock/token": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/TomoIdvMockIssueTokenReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/TomoIdvMockIssueTokenRes"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    },
+    "/v1/idv/social/wechat-mock/callback": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "error",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "content": {
+              "application/json;charset=utf-8": {}
+            },
+            "description": "",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid `error` or `state` or `code`"
+          }
+        }
+      }
+    },
+    "/v1/idv/social/wechat-mock/login": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/html;charset=utf-8": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `state`"
+          }
+        }
+      }
+    },
+    "/v1/idv/social/wechat-mock/start": {
+      "post": {
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json;charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/WeChatStartReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json;charset=utf-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeChatStartResp"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "Invalid `body` or `Authorization`"
+          }
+        }
+      }
+    }
+  }
+}

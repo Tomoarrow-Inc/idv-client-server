@@ -1,0 +1,49 @@
+
+services:
+  client-server:
+    image: tomoadmin/idv-client-server:test-0.0.2.5
+    build:
+      context: ../
+      dockerfile: typescript/Dockerfile
+      target: development
+
+  client-server-test:
+    image: tomoadmin/idv-client-server:test-0.0.2.5
+
+    ports:
+      - "8080:3000"
+
+    env_file:
+      - .env
+
+    environment:
+      - IDV_BASE_URL=https://test.tomopayment.com
+      - IDV_APP_URL=https://app-test.tomopayment.com
+
+
+  client-server-dev:
+    image: tomoadmin/idv-client-server:test-0.0.2.5
+
+    ports:
+      - "8081:3000"
+
+    env_file:
+      - .env
+
+    environment:
+      - IDV_BASE_URL=https://dev.tomopayment.com
+      - IDV_APP_URL=https://app-dev.tomopayment.com
+
+
+  client-server-prod:
+    image: tomoadmin/idv-client-server:test-0.0.2.5
+
+    ports:
+      - "80:3000"
+
+    env_file:
+      - .env
+
+    environment:
+      - IDV_BASE_URL=https://api.tomopayment.com
+      - IDV_APP_URL=https://app.tomopayment.com

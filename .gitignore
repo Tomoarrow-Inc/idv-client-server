@@ -1,10 +1,27 @@
-# compiled output
-/node_modules
-/build
-/dist
+# ===== TypeScript (NestJS) =====
+typescript/node_modules/
+typescript/build/
+typescript/dist/
+typescript/coverage/
+typescript/.nyc_output/
+typescript/.pnpm-store/
+
+# ===== Kotlin (Spring Boot) =====
+kotlin/.gradle/
+kotlin/build/
+kotlin/.idea/
+kotlin/*.iml
+kotlin/*.ipr
+kotlin/*.iws
+
+# ===== Root-level legacy artifacts =====
+/node_modules/
+/dist/
+/.pnpm-store/
+
+# ===== Shared =====
 
 # Logs
-logs
 *.log
 npm-debug.log*
 pnpm-debug.log*
@@ -15,20 +32,13 @@ lerna-debug.log*
 # OS
 .DS_Store
 
-# Tests
-/coverage
-/.nyc_output
-
 # IDEs and editors
-/.idea
 .project
 .classpath
 .c9/
 *.launch
 .settings/
 *.sublime-workspace
-
-# IDE - VSCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -38,6 +48,7 @@ lerna-debug.log*
 # dotenv environment variable files
 .env*
 .env
+.env*
 .env.development.local
 .env.test.local
 .env.production.local
@@ -53,9 +64,5 @@ pids
 *.seed
 *.pid.lock
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
+# Diagnostic reports
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-.pnpm-store/
-.claude/
-.claude/worktrees/
-.claude/worktrees/**
