@@ -1,7 +1,8 @@
 package com.tomoarrow.idv.bff.service
 
-import com.tomoarrow.idv.bff.auth.JwtAssertionBuilder
 import com.tomoarrow.idv.bff.config.AppProperties
+import com.tomoarrow.idv.client.ClientAssertionHelper
+import com.tomoarrow.idv.client.ClientAssertionOptions
 import com.tomoarrow.idv.client.generated.apis.DefaultApi
 import org.springframework.stereotype.Service
 
@@ -29,10 +30,12 @@ class TokenService(
         val baseUrl = appProperties.idvBaseUrl.trimEnd('/')
         val clientId = appProperties.tomoIdvClientId
 
-        val clientAssertion = JwtAssertionBuilder.createClientAssertion(
-            clientId = clientId,
-            secretKey = appProperties.tomoIdvSecret,
-            baseUrl = baseUrl
+        val clientAssertion = ClientAssertionHelper.createClientAssertion(
+            ClientAssertionOptions(
+                clientId = clientId,
+                secretKey = appProperties.tomoIdvSecret,
+                baseUrl = baseUrl
+            )
         )
 
         val tokenResponse = api.v1Oauth2TokenPost(

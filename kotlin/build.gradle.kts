@@ -28,7 +28,6 @@ dependencies {
     // SDK transitive deps (declared as implementation in SDK, not api)
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    implementation("com.nimbusds:nimbus-jose-jwt:10.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
