@@ -1,4 +1,3 @@
-.openapi-generator-ignore
 README.md
 build.gradle
 docs/DefaultApi.md
@@ -40,11 +39,3 @@ src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockStartReq.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockStartRes.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/WeChatStartReq.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/WeChatStartResp.kt
-src/test/kotlin/com/tomoarrow/idv/mock/generated/apis/DefaultApiTest.kt
-src/test/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockGetResultReqTest.kt
-src/test/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockIssueTokenReqTest.kt
-src/test/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockIssueTokenResTest.kt
-src/test/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockStartReqTest.kt
-src/test/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockStartResTest.kt
-src/test/kotlin/com/tomoarrow/idv/mock/generated/models/WeChatStartReqTest.kt
-src/test/kotlin/com/tomoarrow/idv/mock/generated/models/WeChatStartRespTest.kt
