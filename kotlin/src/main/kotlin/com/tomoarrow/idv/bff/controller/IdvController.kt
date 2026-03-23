@@ -121,24 +121,6 @@ class IdvController(
         idvService.idvCnHealth()
     }
 
-    @PostMapping("/v1/idv/cn/mock/start")
-    fun idvCnMockStart(@RequestBody body: Map<String, Any>): Any = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.idvCnMockStart("Bearer $token", body)
-    }
-
-    @PostMapping("/v1/idv/cn/mock/token")
-    fun idvCnMockToken(@RequestBody body: Map<String, Any>): Any = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.idvCnMockToken("Bearer $token", body)
-    }
-
-    @PostMapping("/v1/idv/cn/mock/kyc/get")
-    fun idvCnMockKycGet(@RequestBody body: Map<String, Any>): Any = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.idvCnMockKycGet("Bearer $token", body)
-    }
-
     // ===== Social KYC =====
 
     @PostMapping("/v1/idv/social/google/start")
