@@ -5,6 +5,7 @@ import type {
   TokenResponse, GoogleStartResp, PlaidStartIdvResp, LiquidIntegratedAppResponse,
   StartIdvResp, GetKycResp,
   TomoIdvStartRes,
+  LiquidGetUnionResultResp, TencentGetUnionResultResp,
   // Request body types (replacing api-contract.ts)
   StartIdvReq,
   GetKycReq,
@@ -154,7 +155,7 @@ export class AppController {
   }
 
   @Post('/v1/idv/jp/kyc/get')
-  async getKycJP(@Body() body: LiquidGetKycReq): Promise<{ [key: string]: string }> {
+  async getKycJP(@Body() body: LiquidGetKycReq): Promise<LiquidGetUnionResultResp> {
     try { return await this.appService.getKycJP(body); }
     catch (e) { return rethrow(e); }
   }
@@ -174,7 +175,7 @@ export class AppController {
   }
 
   @Post('/v1/idv/cn/kyc/get')
-  async idvKycGetCN(@Body() body: TencentGetKycReq): Promise<any> {
+  async idvKycGetCN(@Body() body: TencentGetKycReq): Promise<TencentGetUnionResultResp> {
     try { return await this.appService.idvKycGetCN(body); }
     catch (e) { return rethrow(e); }
   }

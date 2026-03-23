@@ -71,7 +71,7 @@ class IdvService(
         return api.v1IdvJpStartPost(authorization = authorization, liquidStartIdvRequest = req)
     }
 
-    suspend fun kycJpGet(authorization: String, req: LiquidGetKycReq): Map<String, String> {
+    suspend fun kycJpGet(authorization: String, req: LiquidGetKycReq): LiquidGetUnionResultResp {
         return api.v1IdvJpKycGetPost(authorization = authorization, liquidGetKycReq = req)
     }
 
