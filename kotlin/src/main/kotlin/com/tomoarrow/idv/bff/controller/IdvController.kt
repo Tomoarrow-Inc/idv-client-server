@@ -92,7 +92,7 @@ class IdvController(
     }
 
     @PostMapping("/v1/idv/jp/kyc/get")
-    fun kycJpGet(@RequestBody body: LiquidGetKycReq): Map<String, String> = runBlocking {
+    fun kycJpGet(@RequestBody body: LiquidGetKycReq): LiquidGetUnionResultResp = runBlocking {
         val token = tokenService.requireAccessToken()
         idvService.kycJpGet("Bearer $token", body)
     }

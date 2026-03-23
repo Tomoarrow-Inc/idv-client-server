@@ -5,6 +5,7 @@ import type {
   TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
   StartIdvResp, GetKycResp,
   TomoIdvStartRes, GoogleStartResp,
+  LiquidGetUnionResultResp, TencentGetUnionResultResp,
   // Request body types (replacing api-contract.ts)
   StartIdvReq,
   GetKycReq,
@@ -193,7 +194,7 @@ export class AppService {
     });
   }
 
-  async getKycJP(body: LiquidGetKycReq): Promise<{ [key: string]: string }> {
+  async getKycJP(body: LiquidGetKycReq): Promise<LiquidGetUnionResultResp> {
     this.requireNumericUserId(body.user_id);
     return this.api.v1IdvJpKycGetPost({
       Authorization: this.bearerToken(),
@@ -214,7 +215,7 @@ export class AppService {
     });
   }
 
-  async idvKycGetCN(body: TencentGetKycReq): Promise<any> {
+  async idvKycGetCN(body: TencentGetKycReq): Promise<TencentGetUnionResultResp> {
     return this.api.v1IdvCnKycGetPost({
       Authorization: this.bearerToken(),
       TencentGetKycReq: body,
