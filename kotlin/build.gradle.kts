@@ -25,7 +25,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("io.github.tomoarrow-inc:tomo-idv-client-kotlin:1.0.0")
+    implementation("io.github.tomoarrow-inc:tomo-idv-client-kotlin:1.0.2")
     // [LOCAL SDK] 로컬 SDK 테스트 시 아래 SNAPSHOT 버전으로 변경
     // implementation("io.github.tomoarrow-inc:tomo-idv-client-kotlin:1.0.0-SNAPSHOT")
     // SDK transitive deps (declared as implementation in SDK, not api)
