@@ -1,18 +1,19 @@
-# Stage 1: Build SDK → publish to local Maven repo
-FROM eclipse-temurin:21-jdk-alpine AS sdk-build
-WORKDIR /sdk
-COPY --from=tomo-idv-client-kotlin . .
-RUN ./gradlew publishToMavenLocal --no-daemon
+# [LOCAL SDK BUILD] 로컬 SDK 테스트 시 아래 주석 해제 + build.gradle.kts에서 mavenLocal() 주석 해제 + 버전을 1.0.0-SNAPSHOT으로 변경
+# FROM eclipse-temurin:21-jdk-alpine AS sdk-build
+# WORKDIR /sdk
+# COPY --from=tomo-idv-client-kotlin . .
+# RUN ./gradlew publishToMavenLocal --no-daemon
 
-# Stage 2: Build BFF with SDK from local Maven
+# Stage 1: Build BFF (SDK is fetched from Maven Central)
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
-COPY --from=sdk-build /root/.m2/repository /root/.m2/repository
+# [LOCAL SDK BUILD] 로컬 SDK 테스트 시 아래 주석 해제
+# COPY --from=sdk-build /root/.m2/repository /root/.m2/repository
 COPY kotlin/ ./
 COPY test-board/ /app/test-board/
 RUN ./gradlew bootJar --no-daemon
 
-# Stage 3: Runtime
+# Stage 2: Runtime
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar

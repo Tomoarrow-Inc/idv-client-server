@@ -15,7 +15,8 @@ java {
 }
 
 repositories {
-    mavenLocal()
+    // [LOCAL SDK] 로컬 SDK 테스트 시 주석 해제
+    // mavenLocal()
     mavenCentral()
 }
 
@@ -24,7 +25,9 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("io.github.tomoarrow-inc:tomo-idv-client-kotlin:1.0.0-SNAPSHOT")
+    implementation("io.github.tomoarrow-inc:tomo-idv-client-kotlin:1.0.0")
+    // [LOCAL SDK] 로컬 SDK 테스트 시 아래 SNAPSHOT 버전으로 변경
+    // implementation("io.github.tomoarrow-inc:tomo-idv-client-kotlin:1.0.0-SNAPSHOT")
     // SDK transitive deps (declared as implementation in SDK, not api)
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
