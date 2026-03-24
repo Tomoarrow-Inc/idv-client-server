@@ -55,7 +55,3 @@ Maven Central에서 [tomo-idv-client-kotlin](https://central.sonatype.com/artifa
 // build.gradle.kts
 implementation("io.github.tomoarrow-inc:tomo-idv-client-kotlin:1.0.2")
 ```
-
-### 로컬 SDK 테스트
-
-로컬에서 수정한 SDK를 테스트하시려면 `build.gradle.kts`와 `Dockerfile`의 `[LOCAL SDK]` 주석을 참고해주세요.
