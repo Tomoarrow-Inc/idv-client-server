@@ -56,7 +56,7 @@ docker compose up -d bff-kotlin
 source ./dcp
 dcp ghci up -d idv-client-server-kotlin
 
-# 또는 단독 실행
+# 또는 단독으로 실행할 수 있습니다
 cd idv-client-server/kotlin
 docker compose up -d
 >>>>>>> 2b7d098 (docs: Kotlin BFF README.md 추가 + .env.example에서 IDV_APP_URL 제거)
