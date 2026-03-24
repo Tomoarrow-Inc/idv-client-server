@@ -37,20 +37,14 @@ cp .env.example .env
 ### 2. Docker 빌드 및 실행
 
 ```bash
-# superproject 루트에서 실행합니다
-source ./dcp
-dcp ghci up -d idv-client-server-kotlin
-
-# 또는 단독으로 실행할 수 있습니다
 cd idv-client-server/kotlin
-docker compose up -d
+docker compose up -d bff-kotlin
 ```
 
 ### 3. 확인
 
 ```bash
-# 포트 4301 (docker-compose-local.yaml 기준)
-curl http://localhost:4301/test-board
+curl http://localhost:3000/test-board
 ```
 
 ## SDK 의존성
