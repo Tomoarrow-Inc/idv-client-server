@@ -1,5 +1,13 @@
 apis/DefaultApi.ts
 apis/index.ts
+docs/DefaultApi.md
+docs/TomoIdvMockGetResultReq.md
+docs/TomoIdvMockIssueTokenReq.md
+docs/TomoIdvMockIssueTokenRes.md
+docs/TomoIdvMockStartReq.md
+docs/TomoIdvMockStartRes.md
+docs/WeChatStartReq.md
+docs/WeChatStartResp.md
 index.ts
 models/TomoIdvMockGetResultReq.ts
 models/TomoIdvMockIssueTokenReq.ts
