@@ -8,6 +8,5 @@ data class AppProperties(
     val tomoIdvClientId: String = "",
     val tomoIdvSecret: String = "",
     val googleClientId: String = "",
-    val wechatAppId: String = "",
     val testBoardPath: String = "../../test-board/test-board.html"
 )

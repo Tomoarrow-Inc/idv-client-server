@@ -2,11 +2,10 @@ import { Body, Controller, Get, HttpException, HttpStatus, Post } from '@nestjs/
 import { AppService } from './app.service';
 import { ResponseError } from 'tomo-idv-client-node';
 import type {
-  TokenResponse, GoogleStartResp, PlaidStartIdvResp, LiquidIntegratedAppResponse,
+  TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
   StartIdvResp, GetKycResp,
   TomoIdvStartRes,
   LiquidGetUnionResultResp, TencentGetUnionResultResp,
-  // Request body types (replacing api-contract.ts)
   StartIdvReq,
   GetKycReq,
   PlaidStartIdvRequest,
@@ -15,10 +14,6 @@ import type {
   LiquidGetKycReq,
   TomoIdvStartReq,
   TencentGetKycReq,
-  GoogleStartReq,
-  WeChatStartReq,
-  WeChatStartResp,
-  SocialResultReq,
 } from 'tomo-idv-client-node';
 async function rethrow(error: unknown): Promise<never> {
   if (error instanceof ResponseError) {
@@ -59,30 +54,6 @@ export class AppController {
   @Post('/v1/idv/kyc/get')
   async idvKycGet(@Body() body: GetKycReq): Promise<GetKycResp> {
     try { return await this.appService.idvKycGet(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  // ── Google Social KYC ──
-
-  @Post('/v1/idv/social/google/start')
-  async googleStart(@Body() body: GoogleStartReq): Promise<GoogleStartResp> {
-    try { return await this.appService.googleStart(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  // ── WeChat Social KYC ──
-
-  @Post('/v1/idv/social/wechat/start')
-  async wechatStart(@Body() body: WeChatStartReq): Promise<WeChatStartResp> {
-    try { return await this.appService.wechatStart(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  // ── Social Result ──
-
-  @Post('/v1/idv/social/result')
-  async socialResult(@Body() body: SocialResultReq): Promise<GetKycResp> {
-    try { return await this.appService.socialResult(body); }
     catch (e) { return rethrow(e); }
   }
 

@@ -121,23 +121,4 @@ class IdvController(
         idvService.idvCnHealth()
     }
 
-    // ===== Social KYC =====
-
-    @PostMapping("/v1/idv/social/google/start")
-    fun googleStart(@RequestBody body: GoogleStartReq): GoogleStartResp = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.googleStart("Bearer $token", body)
-    }
-
-    @PostMapping("/v1/idv/social/wechat/start")
-    fun wechatStart(@RequestBody body: WeChatStartReq): WeChatStartResp = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.wechatStart("Bearer $token", body)
-    }
-
-    @PostMapping("/v1/idv/social/result")
-    fun socialResult(@RequestBody body: SocialResultReq): GetKycResp = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.socialResult("Bearer $token", body)
-    }
 }

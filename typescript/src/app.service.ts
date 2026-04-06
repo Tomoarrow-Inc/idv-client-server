@@ -4,9 +4,8 @@ import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import type {
   TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
   StartIdvResp, GetKycResp,
-  TomoIdvStartRes, GoogleStartResp,
+  TomoIdvStartRes,
   LiquidGetUnionResultResp, TencentGetUnionResultResp,
-  // Request body types (replacing api-contract.ts)
   StartIdvReq,
   GetKycReq,
   PlaidStartIdvRequest,
@@ -15,15 +14,7 @@ import type {
   LiquidGetKycReq,
   TomoIdvStartReq,
   TencentGetKycReq,
-  GoogleStartReq,
-  WeChatStartReq,
-  WeChatStartResp,
-  SocialResultReq,
 } from 'tomo-idv-client-node';
-
-type SafeFetchResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; status?: number; message: string };
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
@@ -39,25 +30,8 @@ export class AppService {
     return 'Hello World!';
   }
 
-  // ── Manual request helpers (for endpoints not in generated API) ──
-
   private bearerToken(): string {
     return `Bearer ${this.requireAccessToken()}`;
-  }
-
-  private async apiPost<T>(path: string, body?: unknown, accessToken?: string): Promise<T> {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json;charset=utf-8' };
-    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
-    const response = await (this.api as any).request({ path, method: 'POST', headers, body });
-    return await response.json();
-  }
-
-  private async apiGet<T>(path: string): Promise<T> {
-    const response = await (this.api as any).request({
-      path, method: 'GET',
-      headers: { 'Content-Type': 'application/json;charset=utf-8' },
-    });
-    return await response.json();
   }
 
   // ── OAuth2 ──
@@ -104,24 +78,6 @@ export class AppService {
       Authorization: this.bearerToken(),
       GetKycReq: body,
     });
-  }
-
-  // ── Google Social KYC ──
-
-  async googleStart(body: GoogleStartReq): Promise<GoogleStartResp> {
-    return this.apiPost('/v1/idv/social/google/start', body, this.requireAccessToken());
-  }
-
-  // ── WeChat Social KYC ──
-
-  async wechatStart(body: WeChatStartReq): Promise<WeChatStartResp> {
-    return this.apiPost('/v1/idv/social/wechat/start', body, this.requireAccessToken());
-  }
-
-  // ── Social Result ──
-
-  async socialResult(body: SocialResultReq): Promise<GetKycResp> {
-    return this.apiPost('/v1/idv/social/result', body, this.requireAccessToken());
   }
 
   // ── US (Plaid) ──
@@ -257,25 +213,6 @@ export class AppService {
   private resolveBaseUrl(): string {
     const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';
     return base.replace(/\/$/, '');
-  }
-
-  private async safeFetchJson<T>(url: string, init?: RequestInit): Promise<SafeFetchResult<T>> {
-    try {
-      const response = await fetch(url, init);
-      const text = await response.text();
-
-      if (!response.ok) {
-        return { ok: false, status: response.status, message: text || response.statusText };
-      }
-
-      try {
-        return { ok: true, data: JSON.parse(text) as T };
-      } catch {
-        return { ok: false, status: response.status, message: 'Invalid JSON response' };
-      }
-    } catch (error) {
-      return { ok: false, message: `Fetch failed: ${error}` };
-    }
   }
 
   // ==================== State Management Methods ====================

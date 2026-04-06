@@ -93,18 +93,5 @@ class IdvService(
         return api.v1IdvCnHealthGet()
     }
 
-    // ===== Social KYC =====
-
-    suspend fun googleStart(authorization: String, req: GoogleStartReq): GoogleStartResp {
-        return api.v1IdvSocialGoogleStartPost(authorization = authorization, googleStartReq = req)
-    }
-
-    suspend fun wechatStart(authorization: String, req: WeChatStartReq): WeChatStartResp {
-        return api.v1IdvSocialWechatStartPost(authorization = authorization, weChatStartReq = req)
-    }
-
-    suspend fun socialResult(authorization: String, req: SocialResultReq): GetKycResp {
-        return api.v1IdvSocialResultPost(authorization = authorization, socialResultReq = req)
-    }
 
 }
