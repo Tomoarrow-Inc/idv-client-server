@@ -1899,9 +1899,9 @@
         'jp-start-new':      { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'jp-kyc-get':        { endpoint: '/v1/idv/jp/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
         // ── CN ──
-        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
+        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: '799975290332796849300000000000044', callback_url: window.location.origin + '/test-board' }) },
         'cn-start-new':      { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
+        'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044' }) },
         // ── Generic /v1/idv/start ──
         'generic-start-none-verified': { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
         'generic-start-none-new':      { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com' }) },
@@ -1913,7 +1913,7 @@
         // ── Generic /v1/idv/kyc/get ──
         'generic-kyc-get-us': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
         'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
-        'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'cn' }) },
+        'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
       };
 
       // Initialize all card textareas with default bodies
