@@ -27,8 +27,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1(express@5.1.0)
       tomo-idv-client-node:
-        specifier: ^1.0.2
-        version: 1.0.2
+        specifier: ^1.2.0
+        version: 1.2.0
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0
@@ -2779,8 +2779,8 @@ packages:
     resolution: {integrity: sha512-kh9LVIWH5CnL63Ipf0jhlBIy0UsrMj/NJDfpsy1SqOXlLKEVyXXYrnFxFT1yOOYVGBSApeVnjPw/sBz5BfEjAQ==}
     engines: {node: '>=14.16'}
 
-  tomo-idv-client-node@1.0.2:
-    resolution: {integrity: sha512-YXXkCgVaIVi+41RxbuiwZ8lrqQ408U7pA4fnIrc3AkXuqzAOAe3Ibpw8MklPo+b4wILN33lEM1wNooEhZ8Koow==}
+  tomo-idv-client-node@1.2.0:
+    resolution: {integrity: sha512-whKA4A1V0X84IQDHyybUGax3DvEnVDKmj06dYdF68Q6Cu7HrjbOHImMOnz7Z+A676ooXO27ORr6kRTxHriC5iw==}
     engines: {node: '>=18.0.0'}
 
   tree-kill@1.2.2:
@@ -6103,7 +6103,7 @@ snapshots:
       '@tokenizer/token': 0.3.0
       ieee754: 1.2.1
 
-  tomo-idv-client-node@1.0.2: {}
+  tomo-idv-client-node@1.2.0: {}
 
   tree-kill@1.2.2: {}
 
