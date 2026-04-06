@@ -7,6 +7,7 @@
 Name | Type
 ------------ | -------------
 `callback_url` | string
+`code` | string
 `country` | string
 `login_hint` | string
 
@@ -18,6 +19,7 @@ import type { WeChatStartReq } from ''
 // TODO: Update the object below with actual values
 const example = {
   "callback_url": null,
+  "code": null,
   "country": null,
   "login_hint": null,
 } satisfies WeChatStartReq

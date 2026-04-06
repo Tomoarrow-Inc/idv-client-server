@@ -30,6 +30,12 @@ export interface WeChatStartReq {
      * @type {string}
      * @memberof WeChatStartReq
      */
+    code?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WeChatStartReq
+     */
     country?: string;
     /**
      * 
@@ -58,6 +64,7 @@ export function WeChatStartReqFromJSONTyped(json: any, ignoreDiscriminator: bool
     return {
         
         'callback_url': json['callback_url'],
+        'code': json['code'] == null ? undefined : json['code'],
         'country': json['country'] == null ? undefined : json['country'],
         'login_hint': json['login_hint'] == null ? undefined : json['login_hint'],
     };
@@ -75,6 +82,7 @@ export function WeChatStartReqToJSONTyped(value?: WeChatStartReq | null, ignoreD
     return {
         
         'callback_url': value['callback_url'],
+        'code': value['code'],
         'country': value['country'],
         'login_hint': value['login_hint'],
     };

@@ -32,6 +32,7 @@ import kotlinx.serialization.Contextual
  * 
  *
  * @param callbackUrl 
+ * @param code 
  * @param country 
  * @param loginHint 
  */
@@ -41,6 +42,9 @@ data class WeChatStartReq (
 
     @SerialName(value = "callback_url")
     val callbackUrl: kotlin.String,
+
+    @SerialName(value = "code")
+    val code: kotlin.String? = null,
 
     @SerialName(value = "country")
     val country: kotlin.String? = null,
