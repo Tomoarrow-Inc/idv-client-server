@@ -50,23 +50,23 @@ function injectSwaggerExamples(doc: any): void {
   setExample('GetKycReq', 'country', 'us');
 
   // ── US/UK/CA (Plaid) ──
-  setExample('PlaidStartIdvRequest', 'user_id', USER_ID_US);
-  setExample('PlaidStartIdvRequest', 'callback_url', CALLBACK_URL);
-  setExample('PlaidStartIdvRequest', 'email', EMAIL);
+  setExample('PlaidStartIdvReq', 'user_id', USER_ID_US);
+  setExample('PlaidStartIdvReq', 'callback_url', CALLBACK_URL);
+  setExample('PlaidStartIdvReq', 'email', EMAIL);
 
   setExample('PlaidGetKycReq', 'user_id', USER_ID_US);
   // fields: optional, 비워둠
 
   // ── JP (Liquid) ──
-  setExample('LiquidStartIdvRequest', 'user_id', USER_ID_JP);
-  setExample('LiquidStartIdvRequest', 'callback_url', CALLBACK_URL);
+  setExample('LiquidStartIdvReq', 'user_id', USER_ID_JP);
+  setExample('LiquidStartIdvReq', 'callback_url', CALLBACK_URL);
 
   setExample('LiquidGetKycReq', 'user_id', USER_ID_JP);
   // fields: optional, 비워둠
 
-  // ── CN (TomoIdv) ──
-  setExample('TomoIdvStartReq', 'user_id', USER_ID_CN);
-  setExample('TomoIdvStartReq', 'callback_url', CALLBACK_URL);
+  // ── CN (Tencent) ──
+  setExample('TencentStartReq', 'user_id', USER_ID_CN);
+  setExample('TencentStartReq', 'callback_url', CALLBACK_URL);
 
   // ── CN Mock ──
   setExample('TomoIdvMockStartReq', 'user_id', USER_ID_CN);

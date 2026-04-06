@@ -15,18 +15,18 @@ class IdvService(
 
     // ===== Generic (country-agnostic) =====
 
-    suspend fun idvStart(authorization: String, startIdvReq: StartIdvReq): StartIdvResp {
+    suspend fun idvStart(authorization: String, startIdvReq: StartIdvReq): StartIdvRes {
         return api.v1IdvStartPost(authorization = authorization, startIdvReq = startIdvReq)
     }
 
-    suspend fun kycGet(authorization: String, getKycReq: GetKycReq): GetKycResp {
+    suspend fun kycGet(authorization: String, getKycReq: GetKycReq): GetKycRes {
         return api.v1IdvKycGetPost(authorization = authorization, getKycReq = getKycReq)
     }
 
     // ===== US (Plaid) =====
 
-    suspend fun idvUsStart(authorization: String, req: PlaidStartIdvRequest): PlaidStartIdvResp {
-        return api.v1IdvUsStartPost(authorization = authorization, plaidStartIdvRequest = req)
+    suspend fun idvUsStart(authorization: String, req: PlaidStartIdvReq): PlaidStartIdvRes {
+        return api.v1IdvUsStartPost(authorization = authorization, plaidStartIdvReq = req)
     }
 
     suspend fun kycUsGet(authorization: String, req: PlaidGetKycReq): Map<String, String> {
@@ -39,8 +39,8 @@ class IdvService(
 
     // ===== UK (Plaid) =====
 
-    suspend fun idvUkStart(authorization: String, req: PlaidStartIdvRequest): PlaidStartIdvResp {
-        return api.v1IdvUkStartPost(authorization = authorization, plaidStartIdvRequest = req)
+    suspend fun idvUkStart(authorization: String, req: PlaidStartIdvReq): PlaidStartIdvRes {
+        return api.v1IdvUkStartPost(authorization = authorization, plaidStartIdvReq = req)
     }
 
     suspend fun kycUkGet(authorization: String, req: PlaidGetKycReq): Map<String, String> {
@@ -53,8 +53,8 @@ class IdvService(
 
     // ===== CA (Plaid) =====
 
-    suspend fun idvCaStart(authorization: String, req: PlaidStartIdvRequest): PlaidStartIdvResp {
-        return api.v1IdvCaStartPost(authorization = authorization, plaidStartIdvRequest = req)
+    suspend fun idvCaStart(authorization: String, req: PlaidStartIdvReq): PlaidStartIdvRes {
+        return api.v1IdvCaStartPost(authorization = authorization, plaidStartIdvReq = req)
     }
 
     suspend fun kycCaGet(authorization: String, req: PlaidGetKycReq): Map<String, String> {
@@ -67,11 +67,11 @@ class IdvService(
 
     // ===== JP (Liquid) =====
 
-    suspend fun idvJpStart(authorization: String, req: LiquidStartIdvRequest): LiquidIntegratedAppResponse {
-        return api.v1IdvJpStartPost(authorization = authorization, liquidStartIdvRequest = req)
+    suspend fun idvJpStart(authorization: String, req: LiquidStartIdvReq): LiquidIntegratedAppRes {
+        return api.v1IdvJpStartPost(authorization = authorization, liquidStartIdvReq = req)
     }
 
-    suspend fun kycJpGet(authorization: String, req: LiquidGetKycReq): LiquidGetUnionResultResp {
+    suspend fun kycJpGet(authorization: String, req: LiquidGetKycReq): LiquidGetUnionResultRes {
         return api.v1IdvJpKycGetPost(authorization = authorization, liquidGetKycReq = req)
     }
 
@@ -81,11 +81,11 @@ class IdvService(
 
     // ===== CN (Tencent/TomoIdv) =====
 
-    suspend fun idvCnStart(authorization: String, req: TomoIdvStartReq): TomoIdvStartRes {
-        return api.v1IdvCnStartPost(authorization = authorization, tomoIdvStartReq = req)
+    suspend fun idvCnStart(authorization: String, req: TencentStartReq): TencentStartIdvRes {
+        return api.v1IdvCnStartPost(authorization = authorization, tencentStartReq = req)
     }
 
-    suspend fun kycCnGet(authorization: String, req: TencentGetKycReq): TencentGetUnionResultResp {
+    suspend fun kycCnGet(authorization: String, req: TencentGetKycReq): TencentGetUnionResultRes {
         return api.v1IdvCnKycGetPost(authorization = authorization, tencentGetKycReq = req)
     }
 

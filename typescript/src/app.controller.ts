@@ -2,17 +2,17 @@ import { Body, Controller, Get, HttpException, HttpStatus, Post } from '@nestjs/
 import { AppService } from './app.service';
 import { ResponseError } from 'tomo-idv-client-node';
 import type {
-  TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
-  StartIdvResp, GetKycResp,
-  TomoIdvStartRes,
-  LiquidGetUnionResultResp, TencentGetUnionResultResp,
+  TokenRes, PlaidStartIdvRes, LiquidIntegratedAppRes,
+  StartIdvRes, GetKycRes,
+  TencentStartIdvRes,
+  LiquidGetUnionResultRes, TencentGetUnionResultRes,
   StartIdvReq,
   GetKycReq,
-  PlaidStartIdvRequest,
+  PlaidStartIdvReq,
   PlaidGetKycReq,
-  LiquidStartIdvRequest,
+  LiquidStartIdvReq,
   LiquidGetKycReq,
-  TomoIdvStartReq,
+  TencentStartReq,
   TencentGetKycReq,
 } from 'tomo-idv-client-node';
 async function rethrow(error: unknown): Promise<never> {
@@ -38,7 +38,7 @@ export class AppController {
   // ── OAuth2 ──
 
   @Post('/v1/oauth2/token')
-  async issueClientCredentialsToken(): Promise<TokenResponse> {
+  async issueClientCredentialsToken(): Promise<TokenRes> {
     try { return await this.appService.issueClientCredentialsToken(); }
     catch (e) { return rethrow(e); }
   }
@@ -46,13 +46,13 @@ export class AppController {
   // ── Generic (country-agnostic) ──
 
   @Post('/v1/idv/start')
-  async idvStart(@Body() body: StartIdvReq): Promise<StartIdvResp> {
+  async idvStart(@Body() body: StartIdvReq): Promise<StartIdvRes> {
     try { return await this.appService.idvStart(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/kyc/get')
-  async idvKycGet(@Body() body: GetKycReq): Promise<GetKycResp> {
+  async idvKycGet(@Body() body: GetKycReq): Promise<GetKycRes> {
     try { return await this.appService.idvKycGet(body); }
     catch (e) { return rethrow(e); }
   }
@@ -60,7 +60,7 @@ export class AppController {
   // ── US (Plaid) ──
 
   @Post('/v1/idv/us/start')
-  async idvStartUS(@Body() body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
+  async idvStartUS(@Body() body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
     try { return await this.appService.idvStartUS(body); }
     catch (e) { return rethrow(e); }
   }
@@ -80,7 +80,7 @@ export class AppController {
   // ── UK (Plaid) ──
 
   @Post('/v1/idv/uk/start')
-  async idvStartUK(@Body() body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
+  async idvStartUK(@Body() body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
     try { return await this.appService.idvStartUK(body); }
     catch (e) { return rethrow(e); }
   }
@@ -100,7 +100,7 @@ export class AppController {
   // ── CA (Plaid) ──
 
   @Post('/v1/idv/ca/start')
-  async idvStartCA(@Body() body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
+  async idvStartCA(@Body() body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
     try { return await this.appService.idvStartCA(body); }
     catch (e) { return rethrow(e); }
   }
@@ -120,13 +120,13 @@ export class AppController {
   // ── JP (Liquid) ──
 
   @Post('/v1/idv/jp/start')
-  async idvStartJP(@Body() body: LiquidStartIdvRequest): Promise<LiquidIntegratedAppResponse> {
+  async idvStartJP(@Body() body: LiquidStartIdvReq): Promise<LiquidIntegratedAppRes> {
     try { return await this.appService.idvStartJP(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/jp/kyc/get')
-  async getKycJP(@Body() body: LiquidGetKycReq): Promise<LiquidGetUnionResultResp> {
+  async getKycJP(@Body() body: LiquidGetKycReq): Promise<LiquidGetUnionResultRes> {
     try { return await this.appService.getKycJP(body); }
     catch (e) { return rethrow(e); }
   }
@@ -137,16 +137,16 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  // ── CN (TomoIdv) ──
+  // ── CN (Tencent) ──
 
   @Post('/v1/idv/cn/start')
-  async idvStartCN(@Body() body: TomoIdvStartReq): Promise<TomoIdvStartRes> {
+  async idvStartCN(@Body() body: TencentStartReq): Promise<TencentStartIdvRes> {
     try { return await this.appService.idvStartCN(body); }
     catch (e) { return rethrow(e); }
   }
 
   @Post('/v1/idv/cn/kyc/get')
-  async idvKycGetCN(@Body() body: TencentGetKycReq): Promise<TencentGetUnionResultResp> {
+  async idvKycGetCN(@Body() body: TencentGetKycReq): Promise<TencentGetUnionResultRes> {
     try { return await this.appService.idvKycGetCN(body); }
     catch (e) { return rethrow(e); }
   }

@@ -57,7 +57,7 @@ describeIf('DefaultApi -> real idv-server (integration)', () => {
 
     const resp = await api.v1IdvUsStartPost({
       Authorization: `Bearer ${accessToken}`,
-      PlaidStartIdvRequest: {
+      PlaidStartIdvReq: {
         user_id: userId,
         email: 'sdk-user@example.com',
         callback_url: 'idvexpo://verify',

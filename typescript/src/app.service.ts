@@ -2,17 +2,17 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import type {
-  TokenResponse, PlaidStartIdvResp, LiquidIntegratedAppResponse,
-  StartIdvResp, GetKycResp,
-  TomoIdvStartRes,
-  LiquidGetUnionResultResp, TencentGetUnionResultResp,
+  TokenRes, PlaidStartIdvRes, LiquidIntegratedAppRes,
+  StartIdvRes, GetKycRes,
+  TencentStartIdvRes,
+  LiquidGetUnionResultRes, TencentGetUnionResultRes,
   StartIdvReq,
   GetKycReq,
-  PlaidStartIdvRequest,
+  PlaidStartIdvReq,
   PlaidGetKycReq,
-  LiquidStartIdvRequest,
+  LiquidStartIdvReq,
   LiquidGetKycReq,
-  TomoIdvStartReq,
+  TencentStartReq,
   TencentGetKycReq,
 } from 'tomo-idv-client-node';
 
@@ -36,7 +36,7 @@ export class AppService {
 
   // ── OAuth2 ──
 
-  async issueClientCredentialsToken(): Promise<TokenResponse> {
+  async issueClientCredentialsToken(): Promise<TokenRes> {
     const baseUrl = this.resolveBaseUrl();
     const clientAssertion = createClientAssertion({
       client_id: TOMO_IDV_CLIENT_ID,
@@ -66,14 +66,14 @@ export class AppService {
 
   // ── Generic (country-agnostic) ──
 
-  async idvStart(body: StartIdvReq): Promise<StartIdvResp> {
+  async idvStart(body: StartIdvReq): Promise<StartIdvRes> {
     return this.api.v1IdvStartPost({
       Authorization: this.bearerToken(),
       StartIdvReq: body,
     });
   }
 
-  async idvKycGet(body: GetKycReq): Promise<GetKycResp> {
+  async idvKycGet(body: GetKycReq): Promise<GetKycRes> {
     return this.api.v1IdvKycGetPost({
       Authorization: this.bearerToken(),
       GetKycReq: body,
@@ -82,10 +82,10 @@ export class AppService {
 
   // ── US (Plaid) ──
 
-  async idvStartUS(body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
+  async idvStartUS(body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
     return this.api.v1IdvUsStartPost({
       Authorization: this.bearerToken(),
-      PlaidStartIdvRequest: body,
+      PlaidStartIdvReq: body,
     });
   }
 
@@ -102,10 +102,10 @@ export class AppService {
 
   // ── UK (Plaid) ──
 
-  async idvStartUK(body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
+  async idvStartUK(body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
     return this.api.v1IdvUkStartPost({
       Authorization: this.bearerToken(),
-      PlaidStartIdvRequest: body,
+      PlaidStartIdvReq: body,
     });
   }
 
@@ -122,10 +122,10 @@ export class AppService {
 
   // ── CA (Plaid) ──
 
-  async idvStartCA(body: PlaidStartIdvRequest): Promise<PlaidStartIdvResp> {
+  async idvStartCA(body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
     return this.api.v1IdvCaStartPost({
       Authorization: this.bearerToken(),
-      PlaidStartIdvRequest: body,
+      PlaidStartIdvReq: body,
     });
   }
 
@@ -142,15 +142,15 @@ export class AppService {
 
   // ── JP (Liquid) ──
 
-  async idvStartJP(body: LiquidStartIdvRequest): Promise<LiquidIntegratedAppResponse> {
+  async idvStartJP(body: LiquidStartIdvReq): Promise<LiquidIntegratedAppRes> {
     this.requireNumericUserId(body.user_id);
     return this.api.v1IdvJpStartPost({
       Authorization: this.bearerToken(),
-      LiquidStartIdvRequest: body,
+      LiquidStartIdvReq: body,
     });
   }
 
-  async getKycJP(body: LiquidGetKycReq): Promise<LiquidGetUnionResultResp> {
+  async getKycJP(body: LiquidGetKycReq): Promise<LiquidGetUnionResultRes> {
     this.requireNumericUserId(body.user_id);
     return this.api.v1IdvJpKycGetPost({
       Authorization: this.bearerToken(),
@@ -162,16 +162,16 @@ export class AppService {
     return this.api.v1IdvJpHealthGet();
   }
 
-  // ── CN (TomoIdv) ──
+  // ── CN (Tencent) ──
 
-  async idvStartCN(body: TomoIdvStartReq): Promise<TomoIdvStartRes> {
+  async idvStartCN(body: TencentStartReq): Promise<TencentStartIdvRes> {
     return this.api.v1IdvCnStartPost({
       Authorization: this.bearerToken(),
-      TomoIdvStartReq: body,
+      TencentStartReq: body,
     });
   }
 
-  async idvKycGetCN(body: TencentGetKycReq): Promise<TencentGetUnionResultResp> {
+  async idvKycGetCN(body: TencentGetKycReq): Promise<TencentGetUnionResultRes> {
     return this.api.v1IdvCnKycGetPost({
       Authorization: this.bearerToken(),
       TencentGetKycReq: body,
