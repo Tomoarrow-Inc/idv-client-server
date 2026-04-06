@@ -6,8 +6,6 @@ docs/TomoIdvMockIssueTokenReq.md
 docs/TomoIdvMockIssueTokenRes.md
 docs/TomoIdvMockStartReq.md
 docs/TomoIdvMockStartRes.md
-docs/WeChatStartReq.md
-docs/WeChatStartResp.md
 proguard-rules.pro
 settings.gradle
 src/main/kotlin/com/tomoarrow/idv/mock/generated/apis/DefaultApi.kt
@@ -37,5 +35,3 @@ src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockIssueTokenReq
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockIssueTokenRes.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockStartReq.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockStartRes.kt
-src/main/kotlin/com/tomoarrow/idv/mock/generated/models/WeChatStartReq.kt
-src/main/kotlin/com/tomoarrow/idv/mock/generated/models/WeChatStartResp.kt

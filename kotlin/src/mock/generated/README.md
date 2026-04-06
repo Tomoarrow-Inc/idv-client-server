@@ -48,9 +48,6 @@ All URIs are relative to *http://localhost*
 | *DefaultApi* | [**v1IdvCnMockKycGetPost**](docs/DefaultApi.md#v1idvcnmockkycgetpost) | **POST** /v1/idv/cn/mock/kyc/get |  |
 | *DefaultApi* | [**v1IdvCnMockStartPost**](docs/DefaultApi.md#v1idvcnmockstartpost) | **POST** /v1/idv/cn/mock/start |  |
 | *DefaultApi* | [**v1IdvCnMockTokenPost**](docs/DefaultApi.md#v1idvcnmocktokenpost) | **POST** /v1/idv/cn/mock/token |  |
-| *DefaultApi* | [**v1IdvSocialWechatMockCallbackGet**](docs/DefaultApi.md#v1idvsocialwechatmockcallbackget) | **GET** /v1/idv/social/wechat-mock/callback |  |
-| *DefaultApi* | [**v1IdvSocialWechatMockLoginGet**](docs/DefaultApi.md#v1idvsocialwechatmockloginget) | **GET** /v1/idv/social/wechat-mock/login |  |
-| *DefaultApi* | [**v1IdvSocialWechatMockStartPost**](docs/DefaultApi.md#v1idvsocialwechatmockstartpost) | **POST** /v1/idv/social/wechat-mock/start |  |
 
 
 <a id="documentation-for-models"></a>
@@ -61,8 +58,6 @@ All URIs are relative to *http://localhost*
  - [com.tomoarrow.idv.mock.generated.models.TomoIdvMockIssueTokenRes](docs/TomoIdvMockIssueTokenRes.md)
  - [com.tomoarrow.idv.mock.generated.models.TomoIdvMockStartReq](docs/TomoIdvMockStartReq.md)
  - [com.tomoarrow.idv.mock.generated.models.TomoIdvMockStartRes](docs/TomoIdvMockStartRes.md)
- - [com.tomoarrow.idv.mock.generated.models.WeChatStartReq](docs/WeChatStartReq.md)
- - [com.tomoarrow.idv.mock.generated.models.WeChatStartResp](docs/WeChatStartResp.md)
 
 
 <a id="documentation-for-authorization"></a>

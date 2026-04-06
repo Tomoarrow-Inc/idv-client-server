@@ -20,8 +20,6 @@ import type {
   TomoIdvMockIssueTokenRes,
   TomoIdvMockStartReq,
   TomoIdvMockStartRes,
-  WeChatStartReq,
-  WeChatStartResp,
 } from '../models/index';
 import {
     TomoIdvMockGetResultReqFromJSON,
@@ -34,10 +32,6 @@ import {
     TomoIdvMockStartReqToJSON,
     TomoIdvMockStartResFromJSON,
     TomoIdvMockStartResToJSON,
-    WeChatStartReqFromJSON,
-    WeChatStartReqToJSON,
-    WeChatStartRespFromJSON,
-    WeChatStartRespToJSON,
 } from '../models/index';
 
 export interface V1IdvCnMockKycGetPostRequest {
@@ -53,21 +47,6 @@ export interface V1IdvCnMockStartPostRequest {
 export interface V1IdvCnMockTokenPostRequest {
     Authorization?: string;
     TomoIdvMockIssueTokenReq?: TomoIdvMockIssueTokenReq;
-}
-
-export interface V1IdvSocialWechatMockCallbackGetRequest {
-    code?: string;
-    state?: string;
-    error?: string;
-}
-
-export interface V1IdvSocialWechatMockLoginGetRequest {
-    state?: string;
-}
-
-export interface V1IdvSocialWechatMockStartPostRequest {
-    Authorization?: string;
-    WeChatStartReq?: WeChatStartReq;
 }
 
 /**
@@ -202,137 +181,6 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async v1IdvCnMockTokenPost(requestParameters: V1IdvCnMockTokenPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TomoIdvMockIssueTokenRes> {
         const response = await this.v1IdvCnMockTokenPostRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for v1IdvSocialWechatMockCallbackGet without sending the request
-     */
-    async v1IdvSocialWechatMockCallbackGetRequestOpts(requestParameters: V1IdvSocialWechatMockCallbackGetRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        if (requestParameters['code'] != null) {
-            queryParameters['code'] = requestParameters['code'];
-        }
-
-        if (requestParameters['state'] != null) {
-            queryParameters['state'] = requestParameters['state'];
-        }
-
-        if (requestParameters['error'] != null) {
-            queryParameters['error'] = requestParameters['error'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/idv/social/wechat-mock/callback`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    async v1IdvSocialWechatMockCallbackGetRaw(requestParameters: V1IdvSocialWechatMockCallbackGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        const requestOptions = await this.v1IdvSocialWechatMockCallbackGetRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    async v1IdvSocialWechatMockCallbackGet(requestParameters: V1IdvSocialWechatMockCallbackGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.v1IdvSocialWechatMockCallbackGetRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     * Creates request options for v1IdvSocialWechatMockLoginGet without sending the request
-     */
-    async v1IdvSocialWechatMockLoginGetRequestOpts(requestParameters: V1IdvSocialWechatMockLoginGetRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        if (requestParameters['state'] != null) {
-            queryParameters['state'] = requestParameters['state'];
-        }
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/v1/idv/social/wechat-mock/login`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     */
-    async v1IdvSocialWechatMockLoginGetRaw(requestParameters: V1IdvSocialWechatMockLoginGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
-        const requestOptions = await this.v1IdvSocialWechatMockLoginGetRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<string>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
-    }
-
-    /**
-     */
-    async v1IdvSocialWechatMockLoginGet(requestParameters: V1IdvSocialWechatMockLoginGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
-        const response = await this.v1IdvSocialWechatMockLoginGetRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for v1IdvSocialWechatMockStartPost without sending the request
-     */
-    async v1IdvSocialWechatMockStartPostRequestOpts(requestParameters: V1IdvSocialWechatMockStartPostRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
-
-        if (requestParameters['Authorization'] != null) {
-            headerParameters['Authorization'] = String(requestParameters['Authorization']);
-        }
-
-
-        let urlPath = `/v1/idv/social/wechat-mock/start`;
-
-        return {
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: WeChatStartReqToJSON(requestParameters['WeChatStartReq']),
-        };
-    }
-
-    /**
-     */
-    async v1IdvSocialWechatMockStartPostRaw(requestParameters: V1IdvSocialWechatMockStartPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WeChatStartResp>> {
-        const requestOptions = await this.v1IdvSocialWechatMockStartPostRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => WeChatStartRespFromJSON(jsonValue));
-    }
-
-    /**
-     */
-    async v1IdvSocialWechatMockStartPost(requestParameters: V1IdvSocialWechatMockStartPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WeChatStartResp> {
-        const response = await this.v1IdvSocialWechatMockStartPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
