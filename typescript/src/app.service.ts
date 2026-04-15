@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
+import * as fs from 'fs';
 import type {
   TokenRes,
   StartIdvRes, GetKycRes,
