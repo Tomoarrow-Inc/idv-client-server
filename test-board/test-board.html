@@ -1891,8 +1891,8 @@
 
       const CUSTOM_CARDS = {
         // ── US ──
-        'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com', policy_id: '' }) },
-        'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com', policy_id: '' }) },
+        'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
+        'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
         'us-kyc-get':        { endpoint: '/v1/idv/us/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
         // ── JP ──
         'jp-start-verified': { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
@@ -1903,13 +1903,13 @@
         'cn-start-new':      { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044' }) },
         // ── Generic /v1/idv/start ──
-        'generic-start-none-verified': { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com', policy_id: '' }) },
-        'generic-start-none-new':      { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com', policy_id: '' }) },
-        'generic-start-us-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com', policy_id: '' }) },
-        'generic-start-us-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com', policy_id: '' }) },
-        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', email: 'test@example.com', policy_id: '' }) },
-        'generic-start-jp-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', email: 'test@example.com', policy_id: '' }) },
-        'generic-start-cn-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', email: 'test@example.com', policy_id: '' }) },
+        'generic-start-none-verified': { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
+        'generic-start-none-new':      { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
+        'generic-start-us-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
+        'generic-start-us-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
+        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
+        'generic-start-jp-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
+        'generic-start-cn-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
         // ── Generic /v1/idv/kyc/get ──
         'generic-kyc-get-us': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
         'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
