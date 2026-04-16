@@ -222,6 +222,9 @@
                     "email": {
                         "type": "string"
                     },
+                    "kyc_policy_id": {
+                        "type": "string"
+                    },
                     "user_id": {
                         "type": "string"
                     }
@@ -252,6 +255,9 @@
                         "$ref": "#/components/schemas/Country"
                     },
                     "email": {
+                        "type": "string"
+                    },
+                    "kyc_policy_id": {
                         "type": "string"
                     },
                     "user_id": {
