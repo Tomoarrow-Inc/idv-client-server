@@ -2072,11 +2072,37 @@
             linkEl.href = authUrl;
             authLinkEl.classList.remove('hidden');
           }
+
+          // Show "Copy pid" button if response contains pid field
+          if (id === 'pid-existing' && data.pid) {
+            document.getElementById('btn-copy-pid').style.display = 'inline-block';
+          }
         } else {
           badgeEl.className = 'api-badge api-badge-fail';
           badgeEl.textContent = 'ERR ' + status;
           cardEl.classList.remove('api-success');
           cardEl.classList.add('api-error');
+        }
+      }
+
+      function copyPidToCard2() {
+        try {
+          const json = JSON.parse(document.getElementById('json-pid-existing').textContent);
+          const pid = json.pid || json.personal_id;
+          if (!pid) { alert('No pid found in response'); return; }
+          // Update Card 5-2 body
+          const body2 = JSON.parse(document.getElementById('body-pid-resolve').value);
+          body2.user_id = pid;
+          document.getElementById('body-pid-resolve').value = JSON.stringify(body2, null, 2);
+          // Update Card 5-4 body
+          const body4 = JSON.parse(document.getElementById('body-pid-kyc-get').value);
+          body4.user_id = pid;
+          document.getElementById('body-pid-kyc-get').value = JSON.stringify(body4, null, 2);
+          // Flash feedback
+          document.getElementById('btn-copy-pid').textContent = 'Copied!';
+          setTimeout(() => { document.getElementById('btn-copy-pid').textContent = 'Copy pid to Card 5-2'; }, 1500);
+        } catch (e) {
+          alert('Failed to extract pid: ' + e.message);
         }
       }
 
