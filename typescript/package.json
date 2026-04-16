@@ -28,7 +28,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
-    "tomo-idv-client-node": "^1.2.0"
+    "tomo-idv-client-node": "file:/tomo-idv-client-node"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
