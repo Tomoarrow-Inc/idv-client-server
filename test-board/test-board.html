@@ -1326,6 +1326,97 @@
         </div>
       </div>
 
+      <!-- ════════════════════════════════════ -->
+      <!-- 6. Personal ID Resolution Test      -->
+      <!-- ════════════════════════════════════ -->
+      <hr class="section-divider">
+      <div class="section-card">
+        <h2><span class="step">6</span>Personal ID Resolution Test</h2>
+        <p class="note">user_id 3-way resolution 검증: auth_id / personal_id(64자 hex) / 신규 user_id</p>
+      </div>
+
+      <!-- 6-1: Start with existing auth_id -->
+      <p class="substep-title"><span class="substep">6-1</span> POST /v1/idv/cn/start - 기존 auth_id로 start</p>
+      <p class="note" style="margin-bottom:8px">이미 인증된 user_id(auth_id)로 start 요청. 기존 pid를 응답에 포함하여 반환합니다.</p>
+
+      <div class="api-card" id="card-pid-existing">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case A</span> Existing auth_id</span>
+          <span class="api-badge api-badge-idle" id="badge-pid-existing">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-pid-existing"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('pid-existing')">Send</button>
+          <button class="btn-secondary" id="btn-copy-pid" onclick="copyPidToCard2()" style="display:none">Copy pid to Card 6-2</button>
+        </div>
+        <div id="result-pid-existing" class="hidden">
+          <div id="authlink-pid-existing" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-pid-existing"></pre>
+        </div>
+      </div>
+
+      <!-- 6-2: Start with personal_id -->
+      <p class="substep-title"><span class="substep">6-2</span> POST /v1/idv/cn/start - personal_id로 start</p>
+      <p class="note" style="margin-bottom:8px">personal_id(64자 hex)로 start 요청. 서버가 기존 auth_id로 변환하여 처리합니다. 6-1의 응답에서 pid를 복사하세요.</p>
+
+      <div class="api-card" id="card-pid-resolve">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case B</span> Resolve from personal_id</span>
+          <span class="api-badge api-badge-idle" id="badge-pid-resolve">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-pid-resolve"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('pid-resolve')">Send</button>
+        </div>
+        <div id="result-pid-resolve" class="hidden">
+          <div id="authlink-pid-resolve" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-pid-resolve"></pre>
+        </div>
+      </div>
+
+      <!-- 6-3: Start with new user_id -->
+      <p class="substep-title"><span class="substep">6-3</span> POST /v1/idv/cn/start - 신규 user_id로 start</p>
+      <p class="note" style="margin-bottom:8px">처음 들어오는 user_id로 start 요청. 신규 인증 flow를 시작합니다.</p>
+
+      <div class="api-card" id="card-pid-new">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case C</span> New user</span>
+          <span class="api-badge api-badge-idle" id="badge-pid-new">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-pid-new"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('pid-new')">Send</button>
+        </div>
+        <div id="result-pid-new" class="hidden">
+          <div id="authlink-pid-new" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-pid-new"></pre>
+        </div>
+      </div>
+
+      <!-- 6-4: KYC get with personal_id -->
+      <p class="substep-title"><span class="substep">6-4</span> POST /v1/idv/cn/kyc/get - personal_id로 KYC 조회</p>
+      <p class="note" style="margin-bottom:8px">personal_id로 KYC 결과를 조회합니다. 6-1의 응답에서 pid를 사용하세요.</p>
+
+      <div class="api-card" id="card-pid-kyc-get">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case D</span> KYC get by personal_id</span>
+          <span class="api-badge api-badge-idle" id="badge-pid-kyc-get">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-pid-kyc-get"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('pid-kyc-get')">Send</button>
+        </div>
+        <div id="result-pid-kyc-get" class="hidden">
+          <pre id="json-pid-kyc-get"></pre>
+        </div>
+      </div>
+
     </div><!-- end tab-custom -->
 
     <!-- ═══════════════════════════════════════════ -->
@@ -2016,6 +2107,11 @@
         'policy-negative-invalid':       { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), email: 'policy-test@example.com', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'nonexistent-policy-xyz' }) },
         'policy-fallback':               { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), email: 'policy-test@example.com', callback_url: window.location.origin + '/test-board' }) },
         'policy-verified-complete-flow': { endpoint: '/v1/idv/us/start', body: () => ({ user_id: '7999752903327968491', email: 'verified@example.com', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
+        // ── Personal ID Resolution Test ──
+        'pid-existing':  { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: 'tomoAfds134fqa51asdq', callback_url: window.location.origin + '/test-board' }) },
+        'pid-resolve':   { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: '<paste pid from Card 6-1>', callback_url: window.location.origin + '/test-board' }) },
+        'pid-new':       { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'pid-kyc-get':   { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '<paste pid from Card 6-1>' }) },
       };
 
       // Initialize all card textareas with default bodies
@@ -2090,17 +2186,17 @@
           const json = JSON.parse(document.getElementById('json-pid-existing').textContent);
           const pid = json.pid || json.personal_id;
           if (!pid) { alert('No pid found in response'); return; }
-          // Update Card 5-2 body
+          // Update Card 6-2 body
           const body2 = JSON.parse(document.getElementById('body-pid-resolve').value);
           body2.user_id = pid;
           document.getElementById('body-pid-resolve').value = JSON.stringify(body2, null, 2);
-          // Update Card 5-4 body
+          // Update Card 6-4 body
           const body4 = JSON.parse(document.getElementById('body-pid-kyc-get').value);
           body4.user_id = pid;
           document.getElementById('body-pid-kyc-get').value = JSON.stringify(body4, null, 2);
           // Flash feedback
           document.getElementById('btn-copy-pid').textContent = 'Copied!';
-          setTimeout(() => { document.getElementById('btn-copy-pid').textContent = 'Copy pid to Card 5-2'; }, 1500);
+          setTimeout(() => { document.getElementById('btn-copy-pid').textContent = 'Copy pid to Card 6-2'; }, 1500);
         } catch (e) {
           alert('Failed to extract pid: ' + e.message);
         }
