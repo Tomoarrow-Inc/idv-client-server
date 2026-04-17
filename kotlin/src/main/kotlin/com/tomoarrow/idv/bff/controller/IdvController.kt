@@ -26,6 +26,14 @@ class IdvController(
         idvService.kycGet("Bearer $token", body)
     }
 
+    // ===== Session (vendor-agnostic) =====
+
+    @PostMapping("/v1/idv/sessions/start")
+    fun idvSessionStart(@RequestBody body: SessionStartReq): SessionStartRes = runBlocking {
+        val token = tokenService.requireAccessToken()
+        idvService.idvSessionStart("Bearer $token", body)
+    }
+
     // ===== US (Plaid) =====
 
     @PostMapping("/v1/idv/us/start")

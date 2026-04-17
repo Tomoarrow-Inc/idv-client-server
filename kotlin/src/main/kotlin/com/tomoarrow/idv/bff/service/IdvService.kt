@@ -23,6 +23,12 @@ class IdvService(
         return api.v1IdvKycGetPost(authorization = authorization, getKycReq = getKycReq)
     }
 
+    // ===== Session (vendor-agnostic) =====
+
+    suspend fun idvSessionStart(authorization: String, sessionStartReq: SessionStartReq): SessionStartRes {
+        return api.v1IdvSessionsStartPost(authorization = authorization, sessionStartReq = sessionStartReq)
+    }
+
     // ===== US (Plaid) =====
 
     suspend fun idvUsStart(authorization: String, req: PlaidStartIdvReq): PlaidStartIdvRes {
