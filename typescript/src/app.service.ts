@@ -84,20 +84,20 @@ export class AppService {
     });
   }
 
-  // ── Per-country start (delegates to session start with country) ──
+  // ── Per-country start (delegates to /v1/idv/start for backward compat) ──
 
   async idvCountryStart(
     country: string,
     body: { user_id: string; callback_url?: string; email?: string; policy_id?: string },
-  ): Promise<SessionStartRes> {
-    return this.api.v1IdvSessionsStartPost({
+  ): Promise<StartIdvRes> {
+    return this.api.v1IdvStartPost({
       Authorization: this.bearerToken(),
-      SessionStartReq: {
+      StartIdvReq: {
         user_id: body.user_id,
         country: country as Country,
         callback_url: body.callback_url,
         email: body.email,
-        policy_id: body.policy_id,
+        kyc_policy_id: body.policy_id,
       },
     });
   }

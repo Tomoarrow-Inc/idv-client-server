@@ -65,7 +65,7 @@ export class AppController {
   async idvCountryStart(
     @Param('country') country: string,
     @Body() body: { user_id: string; callback_url?: string; email?: string; policy_id?: string },
-  ): Promise<SessionStartRes> {
+  ): Promise<StartIdvRes> {
     try { return await this.appService.idvCountryStart(country, body); }
     catch (e) { return rethrow(e); }
   }
