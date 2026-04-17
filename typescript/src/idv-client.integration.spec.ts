@@ -51,21 +51,20 @@ describeIf('DefaultApi -> real idv-server (integration)', () => {
     expect(accessToken.split('.').length).toBeGreaterThanOrEqual(2);
   });
 
-  it('starts US IDV via /v1/idv/us/start', async () => {
+  it('starts US IDV via /v1/idv/sessions/start', async () => {
     const accessToken = await issueToken();
     const userId = uniqueUserId('sdk-us-start');
 
-    const resp = await api.v1IdvUsStartPost({
+    const resp = await api.v1IdvSessionsStartPost({
       Authorization: `Bearer ${accessToken}`,
-      PlaidStartIdvReq: {
+      SessionStartReq: {
         user_id: userId,
+        country: 'us',
         email: 'sdk-user@example.com',
         callback_url: 'idvexpo://verify',
       },
     });
 
-    const uri = (resp as any).start_idv_uri ?? (resp as any).startIdvUri;
-    expect(typeof uri).toBe('string');
-    expect(uri).toMatch(/^https?:\/\//);
+    expect(typeof resp.session_id).toBe('string');
   });
 });

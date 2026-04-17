@@ -1,19 +1,11 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ResponseError } from 'tomo-idv-client-node';
 import type {
-  TokenRes, PlaidStartIdvRes, LiquidIntegratedAppRes,
+  TokenRes,
   StartIdvRes, GetKycRes,
-  TencentStartIdvRes,
-  LiquidGetUnionResultRes, TencentGetUnionResultRes,
   StartIdvReq,
   GetKycReq,
-  PlaidStartIdvReq,
-  PlaidGetKycReq,
-  LiquidStartIdvReq,
-  LiquidGetKycReq,
-  TencentStartReq,
-  TencentGetKycReq,
   SessionStartReq,
   SessionStartRes,
 } from 'tomo-idv-client-node';
@@ -67,103 +59,25 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  // ── US (Plaid) ──
+  // ── Per-country start (delegates to session start with country) ──
 
-  @Post('/v1/idv/us/start')
-  async idvStartUS(@Body() body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
-    try { return await this.appService.idvStartUS(body); }
+  @Post('/v1/idv/:country/start')
+  async idvCountryStart(
+    @Param('country') country: string,
+    @Body() body: { user_id: string; callback_url?: string; email?: string; policy_id?: string },
+  ): Promise<SessionStartRes> {
+    try { return await this.appService.idvCountryStart(country, body); }
     catch (e) { return rethrow(e); }
   }
 
-  @Post('/v1/idv/us/kyc/get')
-  async getKycUS(@Body() body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
-    try { return await this.appService.getKycUS(body); }
-    catch (e) { return rethrow(e); }
-  }
+  // ── Per-country kyc/get (delegates to unified kyc/get with country) ──
 
-  @Get('/v1/idv/us/health')
-  async healthUS(): Promise<string> {
-    try { return await this.appService.healthUS(); }
-    catch (e) { return rethrow(e); }
-  }
-
-  // ── UK (Plaid) ──
-
-  @Post('/v1/idv/uk/start')
-  async idvStartUK(@Body() body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
-    try { return await this.appService.idvStartUK(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/uk/kyc/get')
-  async getKycUK(@Body() body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
-    try { return await this.appService.getKycUK(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Get('/v1/idv/uk/health')
-  async healthUK(): Promise<string> {
-    try { return await this.appService.healthUK(); }
-    catch (e) { return rethrow(e); }
-  }
-
-  // ── CA (Plaid) ──
-
-  @Post('/v1/idv/ca/start')
-  async idvStartCA(@Body() body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
-    try { return await this.appService.idvStartCA(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/ca/kyc/get')
-  async getKycCA(@Body() body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
-    try { return await this.appService.getKycCA(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Get('/v1/idv/ca/health')
-  async healthCA(): Promise<string> {
-    try { return await this.appService.healthCA(); }
-    catch (e) { return rethrow(e); }
-  }
-
-  // ── JP (Liquid) ──
-
-  @Post('/v1/idv/jp/start')
-  async idvStartJP(@Body() body: LiquidStartIdvReq): Promise<LiquidIntegratedAppRes> {
-    try { return await this.appService.idvStartJP(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/jp/kyc/get')
-  async getKycJP(@Body() body: LiquidGetKycReq): Promise<LiquidGetUnionResultRes> {
-    try { return await this.appService.getKycJP(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Get('/v1/idv/jp/health')
-  async healthJP(): Promise<string> {
-    try { return await this.appService.healthJP(); }
-    catch (e) { return rethrow(e); }
-  }
-
-  // ── CN (Tencent) ──
-
-  @Post('/v1/idv/cn/start')
-  async idvStartCN(@Body() body: TencentStartReq): Promise<TencentStartIdvRes> {
-    try { return await this.appService.idvStartCN(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Post('/v1/idv/cn/kyc/get')
-  async idvKycGetCN(@Body() body: TencentGetKycReq): Promise<TencentGetUnionResultRes> {
-    try { return await this.appService.idvKycGetCN(body); }
-    catch (e) { return rethrow(e); }
-  }
-
-  @Get('/v1/idv/cn/health')
-  async healthCN(): Promise<string> {
-    try { return await this.appService.healthCN(); }
+  @Post('/v1/idv/:country/kyc/get')
+  async idvCountryKycGet(
+    @Param('country') country: string,
+    @Body() body: { user_id: string },
+  ): Promise<GetKycRes> {
+    try { return await this.appService.idvCountryKycGet(country, body); }
     catch (e) { return rethrow(e); }
   }
 

@@ -4,7 +4,9 @@ import com.tomoarrow.idv.bff.service.IdvService
 import com.tomoarrow.idv.bff.service.TokenService
 import com.tomoarrow.idv.client.generated.models.*
 import kotlinx.coroutines.runBlocking
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 class IdvController(
@@ -34,99 +36,30 @@ class IdvController(
         idvService.idvSessionStart("Bearer $token", body)
     }
 
-    // ===== US (Plaid) =====
+    // ===== Per-country start (delegates to session start with country) =====
 
-    @PostMapping("/v1/idv/us/start")
-    fun idvUsStart(@RequestBody body: PlaidStartIdvReq): PlaidStartIdvRes = runBlocking {
+    @PostMapping("/v1/idv/{country}/start")
+    fun idvCountryStart(
+        @PathVariable country: String,
+        @RequestBody body: SessionStartReq
+    ): SessionStartRes = runBlocking {
         val token = tokenService.requireAccessToken()
-        idvService.idvUsStart("Bearer $token", body)
+        val resolved = Country.decode(country)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown country: $country")
+        idvService.idvSessionStart("Bearer $token", body.copy(country = resolved))
     }
 
-    @PostMapping("/v1/idv/us/kyc/get")
-    fun kycUsGet(@RequestBody body: PlaidGetKycReq): Map<String, String> = runBlocking {
+    // ===== Per-country kyc/get (delegates to unified kyc/get with country) =====
+
+    @PostMapping("/v1/idv/{country}/kyc/get")
+    fun kycCountryGet(
+        @PathVariable country: String,
+        @RequestBody body: GetKycReq
+    ): GetKycRes = runBlocking {
         val token = tokenService.requireAccessToken()
-        idvService.kycUsGet("Bearer $token", body)
-    }
-
-    @GetMapping("/v1/idv/us/health")
-    fun idvUsHealth(): String = runBlocking {
-        idvService.idvUsHealth()
-    }
-
-    // ===== UK (Plaid) =====
-
-    @PostMapping("/v1/idv/uk/start")
-    fun idvUkStart(@RequestBody body: PlaidStartIdvReq): PlaidStartIdvRes = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.idvUkStart("Bearer $token", body)
-    }
-
-    @PostMapping("/v1/idv/uk/kyc/get")
-    fun kycUkGet(@RequestBody body: PlaidGetKycReq): Map<String, String> = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.kycUkGet("Bearer $token", body)
-    }
-
-    @GetMapping("/v1/idv/uk/health")
-    fun idvUkHealth(): String = runBlocking {
-        idvService.idvUkHealth()
-    }
-
-    // ===== CA (Plaid) =====
-
-    @PostMapping("/v1/idv/ca/start")
-    fun idvCaStart(@RequestBody body: PlaidStartIdvReq): PlaidStartIdvRes = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.idvCaStart("Bearer $token", body)
-    }
-
-    @PostMapping("/v1/idv/ca/kyc/get")
-    fun kycCaGet(@RequestBody body: PlaidGetKycReq): Map<String, String> = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.kycCaGet("Bearer $token", body)
-    }
-
-    @GetMapping("/v1/idv/ca/health")
-    fun idvCaHealth(): String = runBlocking {
-        idvService.idvCaHealth()
-    }
-
-    // ===== JP (Liquid) =====
-
-    @PostMapping("/v1/idv/jp/start")
-    fun idvJpStart(@RequestBody body: LiquidStartIdvReq): LiquidIntegratedAppRes = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.idvJpStart("Bearer $token", body)
-    }
-
-    @PostMapping("/v1/idv/jp/kyc/get")
-    fun kycJpGet(@RequestBody body: LiquidGetKycReq): LiquidGetUnionResultRes = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.kycJpGet("Bearer $token", body)
-    }
-
-    @GetMapping("/v1/idv/jp/health")
-    fun idvJpHealth(): String = runBlocking {
-        idvService.idvJpHealth()
-    }
-
-    // ===== CN (Tencent/TomoIdv) =====
-
-    @PostMapping("/v1/idv/cn/start")
-    fun idvCnStart(@RequestBody body: TencentStartReq): TencentStartIdvRes = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.idvCnStart("Bearer $token", body)
-    }
-
-    @PostMapping("/v1/idv/cn/kyc/get")
-    fun kycCnGet(@RequestBody body: TencentGetKycReq): TencentGetUnionResultRes = runBlocking {
-        val token = tokenService.requireAccessToken()
-        idvService.kycCnGet("Bearer $token", body)
-    }
-
-    @GetMapping("/v1/idv/cn/health")
-    fun idvCnHealth(): String = runBlocking {
-        idvService.idvCnHealth()
+        val resolved = Country.decode(country)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown country: $country")
+        idvService.kycGet("Bearer $token", body.copy(country = resolved))
     }
 
 }

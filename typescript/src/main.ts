@@ -12,10 +12,7 @@ function injectSwaggerExamples(doc: any): void {
   const schemas = doc.components?.schemas;
   if (!schemas) return;
 
-  // 국가별 테스트 user_id (CLAUDE.md 참조)
   const USER_ID_US = '7999752903327968491';
-  const USER_ID_JP = '7999752903327968498';
-  const USER_ID_CN = '799975290332796849300000000000007';
   const CALLBACK_URL = 'https://example.com/callback';
   const EMAIL = 'test@example.com';
 
@@ -49,32 +46,11 @@ function injectSwaggerExamples(doc: any): void {
   setExample('GetKycReq', 'user_id', USER_ID_US);
   setExample('GetKycReq', 'country', 'us');
 
-  // ── US/UK/CA (Plaid) ──
-  setExample('PlaidStartIdvReq', 'user_id', USER_ID_US);
-  setExample('PlaidStartIdvReq', 'callback_url', CALLBACK_URL);
-  setExample('PlaidStartIdvReq', 'email', EMAIL);
-
-  setExample('PlaidGetKycReq', 'user_id', USER_ID_US);
-  // fields: optional, 비워둠
-
-  // ── JP (Liquid) ──
-  setExample('LiquidStartIdvReq', 'user_id', USER_ID_JP);
-  setExample('LiquidStartIdvReq', 'callback_url', CALLBACK_URL);
-
-  setExample('LiquidGetKycReq', 'user_id', USER_ID_JP);
-  // fields: optional, 비워둠
-
-  // ── CN (Tencent) ──
-  setExample('TencentStartReq', 'user_id', USER_ID_CN);
-  setExample('TencentStartReq', 'callback_url', CALLBACK_URL);
-
-  // ── CN Mock ──
-  setExample('TomoIdvMockStartReq', 'user_id', USER_ID_CN);
-  setExample('TomoIdvMockStartReq', 'callback_url', CALLBACK_URL);
-
-  setExample('TomoIdvMockIssueTokenReq', 'user_id', USER_ID_CN);
-
-  setExample('TomoIdvMockGetResultReq', 'user_id', USER_ID_CN);
+  // ── Session (vendor-agnostic) ──
+  setExample('SessionStartReq', 'user_id', USER_ID_US);
+  setExample('SessionStartReq', 'callback_url', CALLBACK_URL);
+  setExample('SessionStartReq', 'email', EMAIL);
+  setExample('SessionStartReq', 'country', 'us');
 
 }
 

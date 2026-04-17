@@ -1,21 +1,14 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import type {
-  TokenRes, PlaidStartIdvRes, LiquidIntegratedAppRes,
+  TokenRes,
   StartIdvRes, GetKycRes,
-  TencentStartIdvRes,
-  LiquidGetUnionResultRes, TencentGetUnionResultRes,
   StartIdvReq,
   GetKycReq,
-  PlaidStartIdvReq,
-  PlaidGetKycReq,
-  LiquidStartIdvReq,
-  LiquidGetKycReq,
-  TencentStartReq,
-  TencentGetKycReq,
   SessionStartReq,
   SessionStartRes,
+  Country,
 } from 'tomo-idv-client-node';
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
@@ -91,126 +84,37 @@ export class AppService {
     });
   }
 
-  // ── US (Plaid) ──
+  // ── Per-country start (delegates to session start with country) ──
 
-  async idvStartUS(body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
-    return this.api.v1IdvUsStartPost({
+  async idvCountryStart(
+    country: string,
+    body: { user_id: string; callback_url?: string; email?: string; policy_id?: string },
+  ): Promise<SessionStartRes> {
+    return this.api.v1IdvSessionsStartPost({
       Authorization: this.bearerToken(),
-      PlaidStartIdvReq: body,
+      SessionStartReq: {
+        user_id: body.user_id,
+        country: country as Country,
+        callback_url: body.callback_url,
+        email: body.email,
+        policy_id: body.policy_id,
+      },
     });
   }
 
-  async getKycUS(body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
-    return this.api.v1IdvUsKycGetPost({
+  // ── Per-country kyc/get (delegates to unified kyc/get with country) ──
+
+  async idvCountryKycGet(
+    country: string,
+    body: { user_id: string },
+  ): Promise<GetKycRes> {
+    return this.api.v1IdvKycGetPost({
       Authorization: this.bearerToken(),
-      PlaidGetKycReq: body,
+      GetKycReq: {
+        user_id: body.user_id,
+        country: country as Country,
+      },
     });
-  }
-
-  async healthUS(): Promise<string> {
-    return this.api.v1IdvUsHealthGet();
-  }
-
-  // ── UK (Plaid) ──
-
-  async idvStartUK(body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
-    return this.api.v1IdvUkStartPost({
-      Authorization: this.bearerToken(),
-      PlaidStartIdvReq: body,
-    });
-  }
-
-  async getKycUK(body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
-    return this.api.v1IdvUkKycGetPost({
-      Authorization: this.bearerToken(),
-      PlaidGetKycReq: body,
-    });
-  }
-
-  async healthUK(): Promise<string> {
-    return this.api.v1IdvUkHealthGet();
-  }
-
-  // ── CA (Plaid) ──
-
-  async idvStartCA(body: PlaidStartIdvReq): Promise<PlaidStartIdvRes> {
-    return this.api.v1IdvCaStartPost({
-      Authorization: this.bearerToken(),
-      PlaidStartIdvReq: body,
-    });
-  }
-
-  async getKycCA(body: PlaidGetKycReq): Promise<{ [key: string]: string }> {
-    return this.api.v1IdvCaKycGetPost({
-      Authorization: this.bearerToken(),
-      PlaidGetKycReq: body,
-    });
-  }
-
-  async healthCA(): Promise<string> {
-    return this.api.v1IdvCaHealthGet();
-  }
-
-  // ── JP (Liquid) ──
-
-  async idvStartJP(body: LiquidStartIdvReq): Promise<LiquidIntegratedAppRes> {
-    this.requireNumericUserId(body.user_id);
-    return this.api.v1IdvJpStartPost({
-      Authorization: this.bearerToken(),
-      LiquidStartIdvReq: body,
-    });
-  }
-
-  async getKycJP(body: LiquidGetKycReq): Promise<LiquidGetUnionResultRes> {
-    this.requireNumericUserId(body.user_id);
-    return this.api.v1IdvJpKycGetPost({
-      Authorization: this.bearerToken(),
-      LiquidGetKycReq: body,
-    });
-  }
-
-  async healthJP(): Promise<string> {
-    return this.api.v1IdvJpHealthGet();
-  }
-
-  // ── CN (Tencent) ──
-
-  async idvStartCN(body: TencentStartReq): Promise<TencentStartIdvRes> {
-    return this.api.v1IdvCnStartPost({
-      Authorization: this.bearerToken(),
-      TencentStartReq: body,
-    });
-  }
-
-  async idvKycGetCN(body: TencentGetKycReq): Promise<TencentGetUnionResultRes> {
-    return this.api.v1IdvCnKycGetPost({
-      Authorization: this.bearerToken(),
-      TencentGetKycReq: body,
-    });
-  }
-
-  async healthCN(): Promise<string> {
-    return this.api.v1IdvCnHealthGet();
-  }
-
-  // ── Helpers ──
-
-  /**
-   * Liquid (JP) provider requires user_id to be numeric only (digits).
-   * Throws 400 immediately if user_id contains non-digit characters.
-   */
-  private requireNumericUserId(userId: string): void {
-    if (!/^\d+$/.test(userId)) {
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'JP IDV (Liquid) requires a numeric user_id. ' +
-            `Received: "${userId}"`,
-          error: 'Bad Request',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
   }
 
   private requireAccessToken(): string {
