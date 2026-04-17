@@ -445,6 +445,21 @@
         border-radius: 4px;
         margin-right: 6px;
       }
+      /* JWT Inspector */
+      .jwt-inspector { margin-top: 12px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+      .jwt-section { padding: 10px 14px; }
+      .jwt-section-title { font-size: 0.78rem; font-weight: 700; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+      .jwt-section:nth-child(odd) { background: #fafafa; }
+      .jwt-verify { padding: 8px 14px; font-size: 0.82rem; font-weight: 600; }
+      .jwt-verify.valid { background: #e8f5e9; color: #2e7d32; }
+      .jwt-verify.invalid { background: #ffebee; color: #c62828; }
+      .jwt-verify.pending { background: #fff3e0; color: #e65100; }
+      .claims-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+      .claims-table th { text-align: left; padding: 4px 8px; color: #888; font-weight: 600; border-bottom: 1px solid #eee; width: 140px; }
+      .claims-table td { padding: 4px 8px; word-break: break-all; border-bottom: 1px solid #eee; }
+      .claims-table td .copy-val { cursor: pointer; color: #1976d2; text-decoration: underline dotted; }
+      .claims-table td .copy-val:hover { color: #0d47a1; }
+      .claims-table td .copied-flash { color: #4caf50; font-size: 0.72rem; margin-left: 4px; }
     </style>
   </head>
   <body>
@@ -1336,7 +1351,7 @@
       </div>
 
       <!-- 6-1: Start with existing auth_id -->
-      <p class="substep-title"><span class="substep">6-1</span> POST /v1/idv/cn/start - 기존 auth_id로 start</p>
+      <p class="substep-title"><span class="substep">6-1</span> POST /v1/idv/us/start - 기존 auth_id로 start</p>
       <p class="note" style="margin-bottom:8px">이미 인증된 user_id(auth_id)로 start 요청. 기존 pid를 응답에 포함하여 반환합니다.</p>
 
       <div class="api-card" id="card-pid-existing">
@@ -1354,11 +1369,13 @@
             <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
           </div>
           <pre id="json-pid-existing"></pre>
+          <div id="table-pid-existing"></div>
+          <div id="jwt-pid-existing"></div>
         </div>
       </div>
 
       <!-- 6-2: Start with personal_id -->
-      <p class="substep-title"><span class="substep">6-2</span> POST /v1/idv/cn/start - personal_id로 start</p>
+      <p class="substep-title"><span class="substep">6-2</span> POST /v1/idv/us/start - personal_id로 start</p>
       <p class="note" style="margin-bottom:8px">personal_id(64자 hex)로 start 요청. 서버가 기존 auth_id로 변환하여 처리합니다. 6-1의 응답에서 pid를 복사하세요.</p>
 
       <div class="api-card" id="card-pid-resolve">
@@ -1375,11 +1392,13 @@
             <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
           </div>
           <pre id="json-pid-resolve"></pre>
+          <div id="table-pid-resolve"></div>
+          <div id="jwt-pid-resolve"></div>
         </div>
       </div>
 
       <!-- 6-3: Start with new user_id -->
-      <p class="substep-title"><span class="substep">6-3</span> POST /v1/idv/cn/start - 신규 user_id로 start</p>
+      <p class="substep-title"><span class="substep">6-3</span> POST /v1/idv/us/start - 신규 user_id로 start</p>
       <p class="note" style="margin-bottom:8px">처음 들어오는 user_id로 start 요청. 신규 인증 flow를 시작합니다.</p>
 
       <div class="api-card" id="card-pid-new">
@@ -1396,11 +1415,13 @@
             <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
           </div>
           <pre id="json-pid-new"></pre>
+          <div id="table-pid-new"></div>
+          <div id="jwt-pid-new"></div>
         </div>
       </div>
 
       <!-- 6-4: KYC get with personal_id -->
-      <p class="substep-title"><span class="substep">6-4</span> POST /v1/idv/cn/kyc/get - personal_id로 KYC 조회</p>
+      <p class="substep-title"><span class="substep">6-4</span> POST /v1/idv/us/kyc/get - personal_id로 KYC 조회</p>
       <p class="note" style="margin-bottom:8px">personal_id로 KYC 결과를 조회합니다. 6-1의 응답에서 pid를 사용하세요.</p>
 
       <div class="api-card" id="card-pid-kyc-get">
@@ -1414,6 +1435,7 @@
         </div>
         <div id="result-pid-kyc-get" class="hidden">
           <pre id="json-pid-kyc-get"></pre>
+          <div id="table-pid-kyc-get"></div>
         </div>
       </div>
 
@@ -2108,10 +2130,10 @@
         'policy-fallback':               { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), email: 'policy-test@example.com', callback_url: window.location.origin + '/test-board' }) },
         'policy-verified-complete-flow': { endpoint: '/v1/idv/us/start', body: () => ({ user_id: '7999752903327968491', email: 'verified@example.com', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
         // ── Personal ID Resolution Test ──
-        'pid-existing':  { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: 'tomoAfds134fqa51asdq', callback_url: window.location.origin + '/test-board' }) },
-        'pid-resolve':   { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: '<paste pid from Card 6-1>', callback_url: window.location.origin + '/test-board' }) },
-        'pid-new':       { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'pid-kyc-get':   { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '<paste pid from Card 6-1>' }) },
+        'pid-existing':  { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', email: 'test@example.com', callback_url: window.location.origin + '/test-board' }) },
+        'pid-resolve':   { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '<paste pid from Card 6-1>', email: 'test@example.com', callback_url: window.location.origin + '/test-board' }) },
+        'pid-new':       { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), email: 'test@example.com', callback_url: window.location.origin + '/test-board' }) },
+        'pid-kyc-get':   { endpoint: '/v1/idv/us/kyc/get', body: () => ({ user_id: '<paste pid from Card 6-1>' }) },
       };
 
       // Initialize all card textareas with default bodies
@@ -2173,12 +2195,155 @@
           if (id === 'pid-existing' && data.pid) {
             document.getElementById('btn-copy-pid').style.display = 'inline-block';
           }
+
+          // Render JWT inspector if start_idv_uri contains a token
+          const inspectorEl = document.getElementById('jwt-' + id);
+          if (inspectorEl && data.start_idv_uri) {
+            renderJwtInspector('jwt-' + id, data.start_idv_uri);
+          }
+
+          // Render response table for easy reading
+          const tableEl = document.getElementById('table-' + id);
+          if (tableEl) {
+            renderResponseTable('table-' + id, data);
+          }
+
+          // Render session_token JWT if present
+          if (data.session_token) {
+            const stInspector = document.getElementById('jwt-' + id);
+            if (stInspector) {
+              const jwt = parseJwtParts(data.session_token);
+              if (jwt) {
+                let html = '<div class="jwt-inspector"><div class="jwt-verify pending">Session Token JWT (no key for verification)</div>';
+                html += '<div class="jwt-section"><div class="jwt-section-title">Header</div>' + renderClaimsTable(jwt.header) + '</div>';
+                html += '<div class="jwt-section"><div class="jwt-section-title">Payload (Claims)</div>' + renderClaimsTable(jwt.payload) + '</div></div>';
+                stInspector.innerHTML = html;
+              }
+            }
+          }
         } else {
           badgeEl.className = 'api-badge api-badge-fail';
           badgeEl.textContent = 'ERR ' + status;
           cardEl.classList.remove('api-success');
           cardEl.classList.add('api-error');
         }
+      }
+
+      // ══════════════════════════════════════
+      // JWT Inspector — parse, verify, render
+      // ══════════════════════════════════════
+
+      function b64urlDecode(str) {
+        str = str.replace(/-/g, '+').replace(/_/g, '/');
+        while (str.length % 4) str += '=';
+        return atob(str);
+      }
+
+      function b64urlToUint8(str) {
+        const raw = b64urlDecode(str);
+        return Uint8Array.from(raw, c => c.charCodeAt(0));
+      }
+
+      function parseJwtParts(token) {
+        const parts = token.split('.');
+        if (parts.length !== 3) return null;
+        try {
+          const header = JSON.parse(b64urlDecode(parts[0]));
+          const payload = JSON.parse(b64urlDecode(parts[1]));
+          return { header, payload, headerB64: parts[0], payloadB64: parts[1], signatureB64: parts[2] };
+        } catch (e) { return null; }
+      }
+
+      async function verifyES256(token, jwk) {
+        try {
+          const parts = token.split('.');
+          const key = await crypto.subtle.importKey('jwk', jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+          const data = new TextEncoder().encode(parts[0] + '.' + parts[1]);
+          const sig = b64urlToUint8(parts[2]);
+          return await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, key, sig, data);
+        } catch (e) { return false; }
+      }
+
+      function renderClaimsTable(obj) {
+        let html = '<table class="claims-table">';
+        for (const [k, v] of Object.entries(obj)) {
+          const display = typeof v === 'object' ? JSON.stringify(v) : String(v);
+          const isTs = (k === 'exp' || k === 'iat' || k === 'nbf') && typeof v === 'number';
+          const extra = isTs ? ' <span style="color:#888;font-size:0.72rem">(' + new Date(v * 1000).toISOString() + ')</span>' : '';
+          html += '<tr><th>' + k + '</th><td>'
+            + '<span class="copy-val" onclick="copyClaimValue(this, \'' + display.replace(/'/g, "\\'") + '\')">' + display + '</span>'
+            + extra + '</td></tr>';
+        }
+        html += '</table>';
+        return html;
+      }
+
+      function copyClaimValue(el, val) {
+        navigator.clipboard.writeText(val).then(() => {
+          const flash = document.createElement('span');
+          flash.className = 'copied-flash';
+          flash.textContent = 'copied';
+          el.parentNode.appendChild(flash);
+          setTimeout(() => flash.remove(), 1200);
+        });
+      }
+
+      async function renderJwtInspector(containerId, startIdvUri) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        // Extract token and key from URL
+        let tokenStr, jwkJson;
+        try {
+          const url = new URL(startIdvUri);
+          tokenStr = url.searchParams.get('token');
+          const keyB64 = url.searchParams.get('key');
+          if (keyB64) jwkJson = JSON.parse(b64urlDecode(keyB64));
+        } catch (e) {
+          // Try manual extraction for non-standard URLs
+          const tokenMatch = startIdvUri.match(/[?&]token=([^&]+)/);
+          const keyMatch = startIdvUri.match(/[?&]key=([^&]+)/);
+          if (tokenMatch) tokenStr = tokenMatch[1];
+          if (keyMatch) try { jwkJson = JSON.parse(b64urlDecode(keyMatch[1])); } catch(e2) {}
+        }
+
+        if (!tokenStr) {
+          container.innerHTML = '<div class="jwt-verify pending">No token found in start_idv_uri</div>';
+          return;
+        }
+
+        const jwt = parseJwtParts(tokenStr);
+        if (!jwt) {
+          container.innerHTML = '<div class="jwt-verify invalid">Failed to parse JWT</div>';
+          return;
+        }
+
+        let html = '<div class="jwt-inspector">';
+
+        // Signature verification
+        if (jwkJson) {
+          const valid = await verifyES256(tokenStr, jwkJson);
+          html += '<div class="jwt-verify ' + (valid ? 'valid' : 'invalid') + '">'
+            + (valid ? 'Signature VALID (ES256)' : 'Signature INVALID') + '</div>';
+        } else {
+          html += '<div class="jwt-verify pending">No JWK key — signature not verified</div>';
+        }
+
+        // Header
+        html += '<div class="jwt-section"><div class="jwt-section-title">Header</div>' + renderClaimsTable(jwt.header) + '</div>';
+
+        // Payload
+        html += '<div class="jwt-section"><div class="jwt-section-title">Payload (Claims)</div>' + renderClaimsTable(jwt.payload) + '</div>';
+
+        html += '</div>';
+        container.innerHTML = html;
+      }
+
+      function renderResponseTable(containerId, data) {
+        const container = document.getElementById(containerId);
+        if (!container || !data || typeof data !== 'object') return;
+        container.innerHTML = '<div class="jwt-inspector"><div class="jwt-section"><div class="jwt-section-title">Response Fields</div>'
+          + renderClaimsTable(data) + '</div></div>';
       }
 
       function copyPidToCard2() {
