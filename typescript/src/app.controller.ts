@@ -14,6 +14,8 @@ import type {
   LiquidGetKycReq,
   TencentStartReq,
   TencentGetKycReq,
+  SessionStartReq,
+  SessionStartRes,
 } from 'tomo-idv-client-node';
 async function rethrow(error: unknown): Promise<never> {
   if (error instanceof ResponseError) {
@@ -54,6 +56,14 @@ export class AppController {
   @Post('/v1/idv/kyc/get')
   async idvKycGet(@Body() body: GetKycReq): Promise<GetKycRes> {
     try { return await this.appService.idvKycGet(body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  // ── Session (vendor-agnostic) ──
+
+  @Post('/v1/idv/sessions/start')
+  async idvSessionStart(@Body() body: SessionStartReq): Promise<SessionStartRes> {
+    try { return await this.appService.idvSessionStart(body); }
     catch (e) { return rethrow(e); }
   }
 

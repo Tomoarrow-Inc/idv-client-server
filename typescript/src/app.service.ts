@@ -14,6 +14,8 @@ import type {
   LiquidGetKycReq,
   TencentStartReq,
   TencentGetKycReq,
+  SessionStartReq,
+  SessionStartRes,
 } from 'tomo-idv-client-node';
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
@@ -77,6 +79,15 @@ export class AppService {
     return this.api.v1IdvKycGetPost({
       Authorization: this.bearerToken(),
       GetKycReq: body,
+    });
+  }
+
+  // ── Session (vendor-agnostic) ──
+
+  async idvSessionStart(body: SessionStartReq): Promise<SessionStartRes> {
+    return this.api.v1IdvSessionsStartPost({
+      Authorization: this.bearerToken(),
+      SessionStartReq: body,
     });
   }
 
