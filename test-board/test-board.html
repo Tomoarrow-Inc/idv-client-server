@@ -463,6 +463,16 @@
     </style>
   </head>
   <body>
+    <!-- Quick Jump Sidebar (Custom KYC only) -->
+    <nav class="qj-sidebar" id="qjSidebar">
+      <div class="qj-title">Quick Jump</div>
+      <a class="qj-item" data-target="section-token">0 Token</a>
+      <a class="qj-item" data-target="section-plaid">1 Plaid</a>
+      <a class="qj-item" data-target="section-liquid">2 Liquid</a>
+      <a class="qj-item" data-target="section-tencent">3 Tencent</a>
+      <a class="qj-item" data-target="section-generic">4 Generic</a>
+      <a class="qj-item" data-target="section-verify">5 Verify</a>
+    </nav>
     <h1>KYC Test Board</h1>
     <p class="subtitle">
       Customer site simulation &mdash; IDV API testing
@@ -839,7 +849,7 @@
     <div class="tab-content" id="tab-custom">
 
       <!-- Step 0: Access Token -->
-      <div class="card" style="border-left: 4px solid #1976d2">
+      <div class="card" id="section-token" style="border-left: 4px solid #1976d2">
         <h2><span class="step">0</span>Access Token</h2>
         <p class="note">
           OAuth2 access_token을 발급합니다 (client_credentials + JWT assertion). 아래 모든 API 호출에 필요합니다.
@@ -859,7 +869,7 @@
       <!-- 1. Plaid IDV (US/UK/CA)              -->
       <!-- ════════════════════════════════════ -->
       <hr class="section-divider">
-      <div class="section-card">
+      <div class="section-card" id="section-plaid">
         <h2><span class="step">1</span>Plaid IDV <span class="country-label country-us">US/UK/CA</span></h2>
         <p class="note">Plaid 기반 신원인증. callback_url로 결과를 수신하며, email은 Plaid fallback용으로 사용됩니다.</p>
       </div>
@@ -926,7 +936,7 @@
       <!-- 2. Liquid eKYC (JP)                  -->
       <!-- ════════════════════════════════════ -->
       <hr class="section-divider">
-      <div class="section-card">
+      <div class="section-card" id="section-liquid">
         <h2><span class="step">2</span>Liquid eKYC <span class="country-label country-jp">JP</span></h2>
         <p class="note">Liquid 기반 일본 eKYC. user_id는 숫자만 허용됩니다 (Liquid API 제약).</p>
       </div>
@@ -993,7 +1003,7 @@
       <!-- 3. Tencent IDV (CN)                  -->
       <!-- ════════════════════════════════════ -->
       <hr class="section-divider">
-      <div class="section-card">
+      <div class="section-card" id="section-tencent">
         <h2><span class="step">3</span>Tencent IDV <span class="country-label country-cn">CN</span></h2>
         <p class="note">Tencent Cloud 기반 중국 eKYC. start 시 callback_url로 인증 페이지로 이동합니다.</p>
       </div>
@@ -1060,7 +1070,7 @@
       <!-- 4. Generic Endpoint                  -->
       <!-- ════════════════════════════════════ -->
       <hr class="section-divider">
-      <div class="section-card">
+      <div class="section-card" id="section-generic">
         <h2><span class="step">4</span>Generic Endpoint <span class="country-label country-generic">country-agnostic</span></h2>
         <p class="note">body의 country 필드로 프로바이더를 자동 라우팅하는 통합 엔드포인트입니다. country 없이 호출하거나 각 국가를 지정할 수 있습니다.</p>
       </div>
@@ -2086,6 +2096,8 @@
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.getElementById('tab-' + tab).classList.add('active');
         document.querySelector('.tab-btn[onclick*="' + tab + '"]').classList.add('active');
+        document.getElementById('qjSidebar').classList.toggle('visible', tab === 'custom');
+        if (tab === 'custom') requestAnimationFrame(function() { window.dispatchEvent(new Event('scroll')); });
       }
 
       // ══════════════════════════════════════
@@ -2141,6 +2153,67 @@
         const el = document.getElementById('body-' + id);
         if (el) el.value = JSON.stringify(CUSTOM_CARDS[id].body(), null, 2);
       });
+
+      // ═══════════════════════════════════════
+      // Tencent Verify — send with optional file upload
+      // ═══════════════════════════════════════
+      async function sendVerify() {
+        const bodyText = document.getElementById('body-cn-verify').value;
+        const resultEl = document.getElementById('result-cn-verify');
+        const jsonEl = document.getElementById('json-cn-verify');
+        const badgeEl = document.getElementById('badge-cn-verify');
+        const cardEl = document.getElementById('card-cn-verify');
+
+        let parsedBody;
+        try { parsedBody = JSON.parse(bodyText); }
+        catch (e) {
+          badgeEl.className = 'api-badge api-badge-fail';
+          badgeEl.textContent = 'JSON ERROR';
+          return;
+        }
+
+        resultEl.classList.remove('hidden');
+        jsonEl.textContent = 'Requesting...';
+        badgeEl.className = 'api-badge api-badge-idle';
+        badgeEl.textContent = 'LOADING';
+        cardEl.classList.remove('api-success', 'api-error');
+
+        const cardFile = document.getElementById('verify-card-file').files[0];
+        const selfieFile = document.getElementById('verify-selfie-file').files[0];
+
+        // FormData 구성 (파일 있든 없든 multipart로 전송)
+        const formData = new FormData();
+        if (cardFile) formData.append('card', cardFile);
+        if (selfieFile) formData.append('selfie', selfieFile);
+        formData.append('user_id', parsedBody.user_id);
+        formData.append('level', String(parsedBody.level));
+        if (parsedBody.config) formData.append('config', JSON.stringify(parsedBody.config));
+
+        try {
+          const resp = await fetch('/v1/idv/cn/start/verify', {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await resp.json();
+          jsonEl.textContent = JSON.stringify(data, null, 2);
+          if (resp.ok) {
+            badgeEl.className = 'api-badge api-badge-ok';
+            badgeEl.textContent = 'OK ' + resp.status;
+            cardEl.classList.remove('api-error');
+            cardEl.classList.add('api-success');
+          } else {
+            badgeEl.className = 'api-badge api-badge-fail';
+            badgeEl.textContent = 'FAIL ' + resp.status;
+            cardEl.classList.remove('api-success');
+            cardEl.classList.add('api-error');
+          }
+        } catch (e) {
+          jsonEl.textContent = 'Error: ' + e.message;
+          badgeEl.className = 'api-badge api-badge-fail';
+          badgeEl.textContent = 'ERROR';
+          cardEl.classList.add('api-error');
+        }
+      }
 
       async function sendCustom(id) {
         const cfg = CUSTOM_CARDS[id];
@@ -2579,6 +2652,43 @@
           allJson.forEach(j => { j.textContent = JSON.stringify(data, null, 2); });
         }
       };
+      // ══════════════════════════════════════
+      // Quick Jump Sidebar — scroll & highlight
+      // ══════════════════════════════════════
+      (function initQuickJump() {
+        const items = document.querySelectorAll('.qj-item');
+        const sectionIds = Array.from(items).map(i => i.dataset.target);
+
+        // Click → smooth scroll
+        items.forEach(item => {
+          item.addEventListener('click', () => {
+            const el = document.getElementById(item.dataset.target);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        });
+
+        // Scroll → highlight the section closest to viewport top
+        function updateActive() {
+          let current = sectionIds[0];
+          var nearBottom = (window.innerHeight + window.scrollY) >= document.body.scrollHeight - 60;
+          if (nearBottom) {
+            current = sectionIds[sectionIds.length - 1];
+          } else {
+            for (const id of sectionIds) {
+              const el = document.getElementById(id);
+              if (el && el.offsetParent !== null && el.getBoundingClientRect().top <= 120) {
+                current = id;
+              }
+            }
+          }
+          items.forEach(i => {
+            i.classList.toggle('active', i.dataset.target === current);
+          });
+        }
+
+        window.addEventListener('scroll', updateActive, { passive: true });
+        updateActive();
+      })();
     </script>
   </body>
 </html>
