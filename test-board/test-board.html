@@ -2186,11 +2186,13 @@
         if (cardFile) formData.append('card', cardFile);
         if (selfieFile) formData.append('selfie', selfieFile);
         formData.append('user_id', parsedBody.user_id);
-        formData.append('level', String(parsedBody.level));
-        if (parsedBody.config) formData.append('config', JSON.stringify(parsedBody.config));
+        if (parsedBody.callback_url) formData.append('callback_url', parsedBody.callback_url);
+        // formData.append('level', String(parsedBody.level));
+        // if (parsedBody.config) formData.append('config', JSON.stringify(parsedBody.config));
 
         try {
-          const resp = await fetch('/v1/idv/cn/start/verify', {
+          // const resp = await fetch('/v1/idv/cn/start/verify', {
+          const resp = await fetch('/v1/idv/cn/start', {
             method: 'POST',
             body: formData,
           });
