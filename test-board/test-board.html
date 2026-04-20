@@ -471,7 +471,6 @@
       <a class="qj-item" data-target="section-liquid">2 Liquid</a>
       <a class="qj-item" data-target="section-tencent">3 Tencent</a>
       <a class="qj-item" data-target="section-generic">4 Generic</a>
-      <a class="qj-item" data-target="section-verify">5 Verify</a>
     </nav>
     <h1>KYC Test Board</h1>
     <p class="subtitle">
@@ -1010,7 +1009,19 @@
 
       <!-- 3-1: cn/start -->
       <p class="substep-title"><span class="substep">3-1</span> POST /v1/idv/cn/start &mdash; IDV 시작</p>
-      <p class="note" style="margin-bottom:8px">Tencent eKYC 인증 세션을 생성합니다.</p>
+      <p class="note" style="margin-bottom:8px">Tencent eKYC 인증 세션을 생성합니다. 이미지는 BFF env에서 자동 로드되며, 파일 업로드 시 해당 파일을 사용합니다.</p>
+
+      <div style="margin-bottom:12px; padding:12px; background:#f5f5f5; border-radius:4px">
+        <p style="margin:0 0 8px 0; font-weight:600; font-size:0.9rem">이미지 업로드 (선택 — 없으면 env 파일 사용)</p>
+        <div style="margin-bottom:6px">
+          <label style="display:inline-block; width:130px; font-size:0.85rem">Card Image:</label>
+          <input type="file" id="verify-card-file" accept="image/*" style="font-size:0.85rem">
+        </div>
+        <div>
+          <label style="display:inline-block; width:130px; font-size:0.85rem">Selfie:</label>
+          <input type="file" id="verify-selfie-file" accept="image/*" style="font-size:0.85rem">
+        </div>
+      </div>
 
       <div class="api-card" id="card-cn-start-verified">
         <div class="api-card-header">
@@ -1047,6 +1058,7 @@
           <pre id="json-cn-start-new"></pre>
         </div>
       </div>
+
 
       <!-- 3-2: cn/kyc/get -->
       <p class="substep-title"><span class="substep">3-2</span> POST /v1/idv/cn/kyc/get &mdash; KYC 결과 조회</p>
@@ -2154,69 +2166,6 @@
         if (el) el.value = JSON.stringify(CUSTOM_CARDS[id].body(), null, 2);
       });
 
-      // ═══════════════════════════════════════
-      // Tencent Verify — send with optional file upload
-      // ═══════════════════════════════════════
-      async function sendVerify() {
-        const bodyText = document.getElementById('body-cn-verify').value;
-        const resultEl = document.getElementById('result-cn-verify');
-        const jsonEl = document.getElementById('json-cn-verify');
-        const badgeEl = document.getElementById('badge-cn-verify');
-        const cardEl = document.getElementById('card-cn-verify');
-
-        let parsedBody;
-        try { parsedBody = JSON.parse(bodyText); }
-        catch (e) {
-          badgeEl.className = 'api-badge api-badge-fail';
-          badgeEl.textContent = 'JSON ERROR';
-          return;
-        }
-
-        resultEl.classList.remove('hidden');
-        jsonEl.textContent = 'Requesting...';
-        badgeEl.className = 'api-badge api-badge-idle';
-        badgeEl.textContent = 'LOADING';
-        cardEl.classList.remove('api-success', 'api-error');
-
-        const cardFile = document.getElementById('verify-card-file').files[0];
-        const selfieFile = document.getElementById('verify-selfie-file').files[0];
-
-        // FormData 구성 (파일 있든 없든 multipart로 전송)
-        const formData = new FormData();
-        if (cardFile) formData.append('card', cardFile);
-        if (selfieFile) formData.append('selfie', selfieFile);
-        formData.append('user_id', parsedBody.user_id);
-        if (parsedBody.callback_url) formData.append('callback_url', parsedBody.callback_url);
-        // formData.append('level', String(parsedBody.level));
-        // if (parsedBody.config) formData.append('config', JSON.stringify(parsedBody.config));
-
-        try {
-          // const resp = await fetch('/v1/idv/cn/start/verify', {
-          const resp = await fetch('/v1/idv/cn/start', {
-            method: 'POST',
-            body: formData,
-          });
-          const data = await resp.json();
-          jsonEl.textContent = JSON.stringify(data, null, 2);
-          if (resp.ok) {
-            badgeEl.className = 'api-badge api-badge-ok';
-            badgeEl.textContent = 'OK ' + resp.status;
-            cardEl.classList.remove('api-error');
-            cardEl.classList.add('api-success');
-          } else {
-            badgeEl.className = 'api-badge api-badge-fail';
-            badgeEl.textContent = 'FAIL ' + resp.status;
-            cardEl.classList.remove('api-success');
-            cardEl.classList.add('api-error');
-          }
-        } catch (e) {
-          jsonEl.textContent = 'Error: ' + e.message;
-          badgeEl.className = 'api-badge api-badge-fail';
-          badgeEl.textContent = 'ERROR';
-          cardEl.classList.add('api-error');
-        }
-      }
-
       async function sendCustom(id) {
         const cfg = CUSTOM_CARDS[id];
         if (!cfg) return;
@@ -2245,11 +2194,30 @@
           return;
         }
 
-        const { ok, status, data } = await apiCall(cfg.endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(parsedBody),
-        });
+        // CN start: 파일 업로드가 있으면 multipart, 없으면 JSON
+        let fetchOpts;
+        const isCnStart = id.startsWith('cn-start');
+        const cardFile = isCnStart ? document.getElementById('verify-card-file')?.files[0] : null;
+        const selfieFile = isCnStart ? document.getElementById('verify-selfie-file')?.files[0] : null;
+
+        if (isCnStart && (cardFile || selfieFile)) {
+          // 파일 업로드 → /start/verify (multipart, 이전 방식)
+          const formData = new FormData();
+          if (cardFile) formData.append('card', cardFile);
+          if (selfieFile) formData.append('selfie', selfieFile);
+          formData.append('user_id', parsedBody.user_id);
+          if (parsedBody.callback_url) formData.append('callback_url', parsedBody.callback_url);
+          fetchOpts = { method: 'POST', body: formData };
+        } else {
+          fetchOpts = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(parsedBody),
+          };
+        }
+
+        const endpoint = (isCnStart && (cardFile || selfieFile)) ? '/v1/idv/cn/start/verify' : cfg.endpoint;
+        const { ok, status, data } = await apiCall(endpoint, fetchOpts);
 
         jsonEl.textContent = JSON.stringify(data, null, 2);
         if (ok) {
