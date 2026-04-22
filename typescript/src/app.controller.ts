@@ -64,7 +64,7 @@ export class AppController {
   @Post('/v1/idv/:country/start')
   async idvCountryStart(
     @Param('country') country: string,
-    @Body() body: { user_id: string; callback_url?: string; email?: string; policy_id?: string },
+    @Body() body: { user_id: string; callback_url?: string; email?: string; kyc_policy_id?: string },
   ): Promise<StartIdvRes> {
     try { return await this.appService.idvCountryStart(country, body); }
     catch (e) { return rethrow(e); }

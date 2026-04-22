@@ -88,7 +88,7 @@ export class AppService {
 
   async idvCountryStart(
     country: string,
-    body: { user_id: string; callback_url?: string; email?: string; policy_id?: string },
+    body: { user_id: string; callback_url?: string; email?: string; kyc_policy_id?: string },
   ): Promise<StartIdvRes> {
     return this.api.v1IdvStartPost({
       Authorization: this.bearerToken(),
@@ -97,7 +97,7 @@ export class AppService {
         country: country as Country,
         callback_url: body.callback_url,
         email: body.email,
-        kyc_policy_id: body.policy_id,
+        kyc_policy_id: body.kyc_policy_id,
       },
     });
   }
