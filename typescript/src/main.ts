@@ -55,7 +55,13 @@ function injectSwaggerExamples(doc: any): void {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
+
+  const expressApp0 = app.getHttpAdapter().getInstance();
+  const bodyParser = require('express').json({ limit: '10mb' });
+  const urlencodedParser = require('express').urlencoded({ extended: true, limit: '10mb' });
+  expressApp0.use(bodyParser);
+  expressApp0.use(urlencodedParser);
 
   app.enableCors({
     origin: '*',

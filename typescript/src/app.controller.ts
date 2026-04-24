@@ -59,7 +59,17 @@ export class AppController {
     catch (e) { return rethrow(e); }
   }
 
-  // ── Per-country start (delegates to session start with country) ──
+  // ── CN start (이미지 포함 시 verify, 없으면 그대로 전달 → 서버에서 분기) ──
+
+  @Post('/v1/idv/cn/start')
+  async idvStartCN(
+    @Body() body: { user_id: string; callback_url?: string; card_image_base64?: string; best_frame_base64?: string; kyc_policy_id?: string },
+  ): Promise<any> {
+    try { return await this.appService.idvStartCN(body); }
+    catch (e) { return rethrow(e); }
+  }
+
+  // ── Per-country start (delegates to generic start with country) ──
 
   @Post('/v1/idv/:country/start')
   async idvCountryStart(

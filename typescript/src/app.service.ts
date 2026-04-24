@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
-import * as fs from 'fs';
 import type {
   TokenRes,
   StartIdvRes, GetKycRes,
@@ -9,6 +8,7 @@ import type {
   GetKycReq,
   SessionStartReq,
   SessionStartRes,
+  TencentStartIdvRes,
   Country,
 } from 'tomo-idv-client-node';
 
@@ -82,6 +82,27 @@ export class AppService {
     return this.api.v1IdvSessionsStartPost({
       Authorization: this.bearerToken(),
       SessionStartReq: body,
+    });
+  }
+
+  // ── CN start (SDK v1IdvCnStartPost 사용, 이미지 있으면 포함 → 서버에서 분기) ──
+
+  async idvStartCN(body: {
+    user_id: string;
+    callback_url?: string;
+    card_image_base64?: string;
+    best_frame_base64?: string;
+    kyc_policy_id?: string;
+  }): Promise<TencentStartIdvRes> {
+    return this.api.v1IdvCnStartPost({
+      Authorization: this.bearerToken(),
+      TencentStartReq: {
+        user_id: body.user_id,
+        callback_url: body.callback_url,
+        card_image_base64: body.card_image_base64,
+        best_frame_base64: body.best_frame_base64,
+        kyc_policy_id: body.kyc_policy_id,
+      },
     });
   }
 
