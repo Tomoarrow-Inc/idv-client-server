@@ -32,6 +32,8 @@ import com.tomoarrow.idv.mock.generated.models.TomoIdvMockIssueTokenReq
 import com.tomoarrow.idv.mock.generated.models.TomoIdvMockIssueTokenRes
 import com.tomoarrow.idv.mock.generated.models.TomoIdvMockStartReq
 import com.tomoarrow.idv.mock.generated.models.TomoIdvMockStartRes
+import com.tomoarrow.idv.mock.generated.models.VerifyReq
+import com.tomoarrow.idv.mock.generated.models.VerifyRes
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -210,6 +212,84 @@ open class DefaultApi(basePath: kotlin.String = defaultBasePath, client: Call.Fa
         return RequestConfig(
             method = RequestMethod.POST,
             path = "/v1/idv/cn/mock/start",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = false,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * POST /v1/idv/cn/mock/start/verify
+     * 
+     * 
+     * @param authorization  (optional)
+     * @param verifyReq  (optional)
+     * @return VerifyRes
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    suspend fun v1IdvCnMockStartVerifyPost(authorization: kotlin.String? = null, verifyReq: VerifyReq? = null) : VerifyRes = withContext(Dispatchers.IO) {
+        val localVarResponse = v1IdvCnMockStartVerifyPostWithHttpInfo(authorization = authorization, verifyReq = verifyReq)
+
+        return@withContext when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as VerifyRes
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * POST /v1/idv/cn/mock/start/verify
+     * 
+     * 
+     * @param authorization  (optional)
+     * @param verifyReq  (optional)
+     * @return ApiResponse<VerifyRes?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    suspend fun v1IdvCnMockStartVerifyPostWithHttpInfo(authorization: kotlin.String?, verifyReq: VerifyReq?) : ApiResponse<VerifyRes?> = withContext(Dispatchers.IO) {
+        val localVariableConfig = v1IdvCnMockStartVerifyPostRequestConfig(authorization = authorization, verifyReq = verifyReq)
+
+        return@withContext request<VerifyReq, VerifyRes>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation v1IdvCnMockStartVerifyPost
+     *
+     * @param authorization  (optional)
+     * @param verifyReq  (optional)
+     * @return RequestConfig
+     */
+    fun v1IdvCnMockStartVerifyPostRequestConfig(authorization: kotlin.String?, verifyReq: VerifyReq?) : RequestConfig<VerifyReq> {
+        val localVariableBody = verifyReq
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        authorization?.apply { localVariableHeaders["Authorization"] = this.toString() }
+        localVariableHeaders["Content-Type"] = "application/json;charset=utf-8"
+        localVariableHeaders["Accept"] = "application/json;charset=utf-8"
+
+        return RequestConfig(
+            method = RequestMethod.POST,
+            path = "/v1/idv/cn/mock/start/verify",
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = false,

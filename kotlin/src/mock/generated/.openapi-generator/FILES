@@ -1,11 +1,14 @@
 README.md
 build.gradle
 docs/DefaultApi.md
+docs/LevelResult.md
 docs/TomoIdvMockGetResultReq.md
 docs/TomoIdvMockIssueTokenReq.md
 docs/TomoIdvMockIssueTokenRes.md
 docs/TomoIdvMockStartReq.md
 docs/TomoIdvMockStartRes.md
+docs/VerifyReq.md
+docs/VerifyRes.md
 proguard-rules.pro
 settings.gradle
 src/main/kotlin/com/tomoarrow/idv/mock/generated/apis/DefaultApi.kt
@@ -30,8 +33,11 @@ src/main/kotlin/com/tomoarrow/idv/mock/generated/infrastructure/StringBuilderAda
 src/main/kotlin/com/tomoarrow/idv/mock/generated/infrastructure/URIAdapter.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/infrastructure/URLAdapter.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/infrastructure/UUIDAdapter.kt
+src/main/kotlin/com/tomoarrow/idv/mock/generated/models/LevelResult.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockGetResultReq.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockIssueTokenReq.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockIssueTokenRes.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockStartReq.kt
 src/main/kotlin/com/tomoarrow/idv/mock/generated/models/TomoIdvMockStartRes.kt
+src/main/kotlin/com/tomoarrow/idv/mock/generated/models/VerifyReq.kt
+src/main/kotlin/com/tomoarrow/idv/mock/generated/models/VerifyRes.kt

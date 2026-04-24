@@ -20,6 +20,8 @@ import type {
   TomoIdvMockIssueTokenRes,
   TomoIdvMockStartReq,
   TomoIdvMockStartRes,
+  VerifyReq,
+  VerifyRes,
 } from '../models/index';
 import {
     TomoIdvMockGetResultReqFromJSON,
@@ -32,6 +34,10 @@ import {
     TomoIdvMockStartReqToJSON,
     TomoIdvMockStartResFromJSON,
     TomoIdvMockStartResToJSON,
+    VerifyReqFromJSON,
+    VerifyReqToJSON,
+    VerifyResFromJSON,
+    VerifyResToJSON,
 } from '../models/index';
 
 export interface V1IdvCnMockKycGetPostRequest {
@@ -42,6 +48,11 @@ export interface V1IdvCnMockKycGetPostRequest {
 export interface V1IdvCnMockStartPostRequest {
     Authorization?: string;
     TomoIdvMockStartReq?: TomoIdvMockStartReq;
+}
+
+export interface V1IdvCnMockStartVerifyPostRequest {
+    Authorization?: string;
+    VerifyReq?: VerifyReq;
 }
 
 export interface V1IdvCnMockTokenPostRequest {
@@ -139,6 +150,48 @@ export class DefaultApi extends runtime.BaseAPI {
      */
     async v1IdvCnMockStartPost(requestParameters: V1IdvCnMockStartPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TomoIdvMockStartRes> {
         const response = await this.v1IdvCnMockStartPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for v1IdvCnMockStartVerifyPost without sending the request
+     */
+    async v1IdvCnMockStartVerifyPostRequestOpts(requestParameters: V1IdvCnMockStartVerifyPostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        if (requestParameters['Authorization'] != null) {
+            headerParameters['Authorization'] = String(requestParameters['Authorization']);
+        }
+
+
+        let urlPath = `/v1/idv/cn/mock/start/verify`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: VerifyReqToJSON(requestParameters['VerifyReq']),
+        };
+    }
+
+    /**
+     */
+    async v1IdvCnMockStartVerifyPostRaw(requestParameters: V1IdvCnMockStartVerifyPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<VerifyRes>> {
+        const requestOptions = await this.v1IdvCnMockStartVerifyPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => VerifyResFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async v1IdvCnMockStartVerifyPost(requestParameters: V1IdvCnMockStartVerifyPostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<VerifyRes> {
+        const response = await this.v1IdvCnMockStartVerifyPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

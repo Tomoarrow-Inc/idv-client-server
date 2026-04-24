@@ -6,6 +6,7 @@ All URIs are relative to *http://localhost*
 | ------------- | ------------- | ------------- |
 | [**v1IdvCnMockKycGetPost**](DefaultApi.md#v1IdvCnMockKycGetPost) | **POST** /v1/idv/cn/mock/kyc/get |  |
 | [**v1IdvCnMockStartPost**](DefaultApi.md#v1IdvCnMockStartPost) | **POST** /v1/idv/cn/mock/start |  |
+| [**v1IdvCnMockStartVerifyPost**](DefaultApi.md#v1IdvCnMockStartVerifyPost) | **POST** /v1/idv/cn/mock/start/verify |  |
 | [**v1IdvCnMockTokenPost**](DefaultApi.md#v1IdvCnMockTokenPost) | **POST** /v1/idv/cn/mock/token |  |
 
 
@@ -91,6 +92,52 @@ try {
 ### Return type
 
 [**TomoIdvMockStartRes**](TomoIdvMockStartRes.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json;charset=utf-8
+ - **Accept**: application/json;charset=utf-8
+
+<a id="v1IdvCnMockStartVerifyPost"></a>
+# **v1IdvCnMockStartVerifyPost**
+> VerifyRes v1IdvCnMockStartVerifyPost(authorization, verifyReq)
+
+
+
+### Example
+```kotlin
+// Import classes:
+//import com.tomoarrow.idv.mock.generated.infrastructure.*
+//import com.tomoarrow.idv.mock.generated.models.*
+
+val apiInstance = DefaultApi()
+val authorization : kotlin.String = authorization_example // kotlin.String | 
+val verifyReq : VerifyReq =  // VerifyReq | 
+try {
+    val result : VerifyRes = apiInstance.v1IdvCnMockStartVerifyPost(authorization, verifyReq)
+    println(result)
+} catch (e: ClientException) {
+    println("4xx response calling DefaultApi#v1IdvCnMockStartVerifyPost")
+    e.printStackTrace()
+} catch (e: ServerException) {
+    println("5xx response calling DefaultApi#v1IdvCnMockStartVerifyPost")
+    e.printStackTrace()
+}
+```
+
+### Parameters
+| **authorization** | **kotlin.String**|  | [optional] |
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **verifyReq** | [**VerifyReq**](VerifyReq.md)|  | [optional] |
+
+### Return type
+
+[**VerifyRes**](VerifyRes.md)
 
 ### Authorization
 
