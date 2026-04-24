@@ -460,6 +460,54 @@
       .claims-table td .copy-val { cursor: pointer; color: #1976d2; text-decoration: underline dotted; }
       .claims-table td .copy-val:hover { color: #0d47a1; }
       .claims-table td .copied-flash { color: #4caf50; font-size: 0.72rem; margin-left: 4px; }
+      /* ── Quick Jump Sidebar (Custom KYC only) ── */
+      .qj-sidebar {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        left: max(12px, calc((100% - 720px) / 2 - 192px));
+        width: 160px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+        padding: 14px 0;
+        z-index: 100;
+        display: none;
+      }
+      .qj-sidebar.visible { display: block; }
+      .qj-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0 16px 8px;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 4px;
+      }
+      .qj-item {
+        display: block;
+        padding: 6px 16px;
+        font-size: 0.82rem;
+        color: #555;
+        cursor: pointer;
+        text-decoration: none;
+        border-left: 3px solid transparent;
+        transition: all 0.15s;
+      }
+      .qj-item:hover {
+        background: #f5f7fa;
+        color: #333;
+      }
+      .qj-item.active {
+        color: #1976d2;
+        font-weight: 600;
+        border-left-color: #1976d2;
+        background: #e8f0fe;
+      }
+      @media (max-width: 1080px) {
+        .qj-sidebar { display: none !important; }
+      }
     </style>
   </head>
   <body>
@@ -471,6 +519,8 @@
       <a class="qj-item" data-target="section-liquid">2 Liquid</a>
       <a class="qj-item" data-target="section-tencent">3 Tencent</a>
       <a class="qj-item" data-target="section-generic">4 Generic</a>
+      <a class="qj-item" data-target="section-policy">5 Policy</a>
+      <a class="qj-item" data-target="section-ppid">6 PPID</a>
     </nav>
     <h1>KYC Test Board</h1>
     <p class="subtitle">
@@ -1270,7 +1320,7 @@
       <!-- 5. Policy Tests                       -->
       <!-- ════════════════════════════════════ -->
       <hr class="section-divider">
-      <div class="section-card">
+      <div class="section-card" id="section-policy">
         <h2><span class="step">5</span>Policy Tests <span class="country-label country-us">US</span></h2>
         <p class="note">kyc_policy_id 기반 정책 테스트. 미리 입력된 body로 한 번의 클릭으로 케이스별 정책 동작을 검증합니다.</p>
       </div>
@@ -1367,7 +1417,7 @@
       <!-- 6. Personal ID Resolution Test      -->
       <!-- ════════════════════════════════════ -->
       <hr class="section-divider">
-      <div class="section-card">
+      <div class="section-card" id="section-ppid">
         <h2><span class="step">6</span>Personal ID Resolution Test</h2>
         <p class="note">user_id 3-way resolution 검증: auth_id / personal_id(64자 hex) / 신규 user_id</p>
       </div>
@@ -2133,8 +2183,8 @@
         'jp-start-new':      { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'jp-kyc-get':        { endpoint: '/v1/idv/jp/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
         // ── CN ──
-        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: '799975290332796849300000000000044', callback_url: window.location.origin + '/test-board' }) },
-        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: '799975290332796849300000000000044', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
         'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044' }) },
         // ── Generic /v1/idv/start ──
         'generic-start-none-verified': { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
@@ -2194,29 +2244,29 @@
           return;
         }
 
-        // CN start: 파일 업로드가 있으면 multipart, 없으면 JSON
-        let fetchOpts;
+        // CN start: 파일이 있으면 base64 변환 후 JSON body에 포함
         const isCnStart = id.startsWith('cn-start');
         const cardFile = isCnStart ? document.getElementById('verify-card-file')?.files[0] : null;
         const selfieFile = isCnStart ? document.getElementById('verify-selfie-file')?.files[0] : null;
 
         if (isCnStart && (cardFile || selfieFile)) {
-          // 파일 업로드 → /start/verify (multipart, 이전 방식)
-          const formData = new FormData();
-          if (cardFile) formData.append('card', cardFile);
-          if (selfieFile) formData.append('selfie', selfieFile);
-          formData.append('user_id', parsedBody.user_id);
-          if (parsedBody.callback_url) formData.append('callback_url', parsedBody.callback_url);
-          fetchOpts = { method: 'POST', body: formData };
-        } else {
-          fetchOpts = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(parsedBody),
-          };
+          const toBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          if (cardFile) parsedBody.card_image_base64 = await toBase64(cardFile);
+          if (selfieFile) parsedBody.best_frame_base64 = await toBase64(selfieFile);
         }
 
-        const endpoint = (isCnStart && (cardFile || selfieFile)) ? '/v1/idv/cn/start/verify' : cfg.endpoint;
+        const fetchOpts = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsedBody),
+        };
+
+        const endpoint = cfg.endpoint;
         const { ok, status, data } = await apiCall(endpoint, fetchOpts);
 
         jsonEl.textContent = JSON.stringify(data, null, 2);
