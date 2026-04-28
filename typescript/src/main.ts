@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import * as swaggerUi from 'swagger-ui-express';
 import { readFileSync } from 'fs';
@@ -55,13 +56,12 @@ function injectSwaggerExamples(doc: any): void {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false,
+  });
 
-  const expressApp0 = app.getHttpAdapter().getInstance();
-  const bodyParser = require('express').json({ limit: '10mb' });
-  const urlencodedParser = require('express').urlencoded({ extended: true, limit: '10mb' });
-  expressApp0.use(bodyParser);
-  expressApp0.use(urlencodedParser);
+  app.useBodyParser('json', { limit: '10mb' });
+  app.useBodyParser('urlencoded', { extended: true, limit: '10mb' });
 
   app.enableCors({
     origin: '*',
