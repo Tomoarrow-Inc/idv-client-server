@@ -8,6 +8,9 @@ WORKDIR /home/app
 COPY typescript/ .
 COPY test-board/ /home/app/test-board/
 
+# Copy tomo-idv-client-node from additional_contexts
+COPY --from=tomo-idv-client-node . /tomo-idv-client-node/
+
 RUN pnpm install
 
 RUN pnpm build

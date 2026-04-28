@@ -6,6 +6,8 @@ services:
       context: ../
       dockerfile: typescript/Dockerfile
       target: development
+      additional_contexts:
+          tomo-idv-client-node: ../../tomo-idv-client-node
 
   client-server-test:
     image: tomoadmin/idv-client-server:test-0.0.2.5

@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: typescript/Dockerfile
       target: development
+      additional_contexts:
+        tomo-idv-client-node: ../tomo-idv-client-node
     ports:
       - "4300:3000"
     env_file:
