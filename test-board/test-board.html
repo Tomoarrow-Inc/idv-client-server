@@ -1276,6 +1276,7 @@
       // ── API Helper ──
       async function apiCall(url, options = {}) {
         const res = await fetch(url, options);
+        const contentType = res.headers.get('content-type') || '';
         const text = await res.text();
         let data;
         try {
@@ -1283,7 +1284,15 @@
         } catch {
           data = text;
         }
-        return { ok: res.ok, status: res.status, data };
+        return { ok: res.ok, status: res.status, data, text, contentType };
+      }
+
+      function formatApiData(data) {
+        return typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+      }
+
+      function renderApiResponseBody(ok, data, text) {
+        return ok ? formatApiData(data) : text;
       }
 
       // ══════════════════════════════════════
@@ -1403,9 +1412,9 @@
         };
 
         const endpoint = cfg.endpoint;
-        const { ok, status, data } = await apiCall(endpoint, fetchOpts);
+        const { ok, status, data, text } = await apiCall(endpoint, fetchOpts);
 
-        jsonEl.textContent = JSON.stringify(data, null, 2);
+        jsonEl.textContent = renderApiResponseBody(ok, data, text);
         if (ok) {
           badgeEl.className = 'api-badge api-badge-ok';
           badgeEl.textContent = 'OK ' + status;
@@ -1639,9 +1648,9 @@
           };
         }
 
-        const { ok, status, data } = await apiCall(endpoint, fetchOpts);
+        const { ok, status, data, text } = await apiCall(endpoint, fetchOpts);
 
-        jsonEl.textContent = JSON.stringify(data, null, 2);
+        jsonEl.textContent = renderApiResponseBody(ok, data, text);
         if (ok) {
           badgeEl.className = 'api-badge api-badge-ok int-ep-badge'; badgeEl.textContent = status;
           if (rowEl) { rowEl.classList.remove('api-error'); rowEl.classList.add('api-success'); }
@@ -1793,7 +1802,7 @@
         allBtns.forEach(b => b.disabled = true);
         allStatus.forEach(s => { s.className = 'status info'; s.textContent = 'Requesting...'; });
 
-        const { ok, status, data } = await apiCall('/v1/oauth2/token', { method: 'POST' });
+        const { ok, status, data, text } = await apiCall('/v1/oauth2/token', { method: 'POST' });
 
         allBtns.forEach(b => b.disabled = false);
         allDetail.forEach(d => d.classList.remove('hidden'));
@@ -1801,10 +1810,10 @@
         if (ok) {
           const expiresIn = data.expires_in || '?';
           allStatus.forEach(s => { s.className = 'status ok'; s.textContent = 'Issued (expires in ' + expiresIn + 's)'; });
-          allJson.forEach(j => { j.textContent = JSON.stringify(data, null, 2); });
+          allJson.forEach(j => { j.textContent = renderApiResponseBody(ok, data, text); });
         } else {
           allStatus.forEach(s => { s.className = 'status error'; s.textContent = 'Error ' + status; });
-          allJson.forEach(j => { j.textContent = JSON.stringify(data, null, 2); });
+          allJson.forEach(j => { j.textContent = renderApiResponseBody(ok, data, text); });
         }
       }
       // ══════════════════════════════════════

@@ -43,4 +43,15 @@ describe('test-board deprecated auth removal', () => {
     const customCards = html.slice(customCardsStart, customCardsEnd);
     expect(customCards).not.toMatch(/\bemail\s*:/);
   });
+
+  it('renders idv-server error response bodies without parsing or reformatting', () => {
+    const html = readTestBoardHtml();
+
+    expect(html).toContain("const contentType = res.headers.get('content-type') || ''");
+    expect(html).toContain('return { ok: res.ok, status: res.status, data, text, contentType };');
+    expect(html).toContain('function renderApiResponseBody(ok, data, text) {');
+    expect(html).toContain('return ok ? formatApiData(data) : text;');
+    expect(html).toContain('jsonEl.textContent = renderApiResponseBody(ok, data, text);');
+    expect(html).toContain('j.textContent = renderApiResponseBody(ok, data, text);');
+  });
 });
