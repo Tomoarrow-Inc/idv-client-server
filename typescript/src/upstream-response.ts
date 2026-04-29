@@ -32,6 +32,10 @@ export class UpstreamResponseFilter
 }
 
 export async function rethrowUpstream(error: unknown): Promise<never> {
+  if (error instanceof UpstreamResponseError) {
+    throw error;
+  }
+
   if (error instanceof ResponseError) {
     const status = error.response.status || HttpStatus.BAD_GATEWAY;
     const contentType = error.response.headers.get('content-type') ?? undefined;
