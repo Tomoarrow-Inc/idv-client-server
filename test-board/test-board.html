@@ -342,6 +342,8 @@
         box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
       }
       .api-card .actions { margin-top: 10px; }
+      .debug-copy-btn.is-copied { border-color: #2e7d32; color: #2e7d32; background: #e8f5e9; }
+      .debug-copy-btn.is-failed { border-color: #c62828; color: #c62828; background: #ffebee; }
       /* Old API tab — compact endpoint rows */
       .int-endpoint {
         display: flex;
@@ -1318,42 +1320,52 @@
         return id;
       }
 
+      const EXPECTED_RESPONSES = {
+        startOk: { status: 200, bodyShape: ['start_idv_uri or authorization_url'], description: 'IDV start should return a launch URL for the provider or complete flow.' },
+        kycGetOk: { status: 200, bodyShape: ['KYC result JSON object'], description: 'KYC get should return the selected user identity verification result.' },
+        policyInvalid: { status: 400, bodyContains: 'KYC policy not found', description: 'Unknown kyc_policy_id should return a policy-not-found error.' },
+        ppidExisting: { status: 200, bodyShape: ['pid or personal_id'], description: 'Existing auth_id start should return the already resolved personal identifier.' },
+        ppidKycGet: { status: 200, bodyShape: ['KYC result JSON object for personal_id'], description: 'KYC get by personal_id should resolve back to the verified user result.' },
+      };
+
       const CUSTOM_CARDS = {
         // ── US ──
-        'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
-        'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'us-kyc-get':        { endpoint: '/v1/idv/us/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
+        'us-start-verified': { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
+        'us-start-new':      { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'us-kyc-get':        { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491' }) },
         // ── JP ──
-        'jp-start-verified': { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
-        'jp-start-new':      { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'jp-kyc-get':        { endpoint: '/v1/idv/jp/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
+        'jp-start-verified': { endpoint: '/v1/idv/jp/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
+        'jp-start-new':      { endpoint: '/v1/idv/jp/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'jp-kyc-get':        { endpoint: '/v1/idv/jp/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491' }) },
         // ── CN ──
-        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: '799975290332796849300000000000044', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044' }) },
+        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '799975290332796849300000000000044', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '799975290332796849300000000000044' }) },
         // ── Generic /v1/idv/start ──
-        'generic-start-none-verified': { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-none-new':      { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-us-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-us-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-jp-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-cn-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-none-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-none-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-us-verified':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-us-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-jp-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-cn-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
         // ── Generic /v1/idv/kyc/get ──
-        'generic-kyc-get-us': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
-        'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
-        'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
+        'generic-kyc-get-us': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
+        'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
+        'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
         // ── Policy Tests ──
-        'policy-positive-verify':        { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
-        'policy-negative-invalid':       { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'nonexistent-policy-xyz' }) },
-        'policy-fallback':               { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'policy-verified-complete-flow': { endpoint: '/v1/idv/us/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
+        'policy-positive-verify':        { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
+        'policy-negative-invalid':       { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.policyInvalid, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'nonexistent-policy-xyz' }) },
+        'policy-fallback':               { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'policy-verified-complete-flow': { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
         // ── Personal ID Resolution Test ──
-        'pid-existing':  { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
-        'pid-resolve':   { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '<paste pid from Card 6-1>', callback_url: window.location.origin + '/test-board' }) },
-        'pid-new':       { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'pid-kyc-get':   { endpoint: '/v1/idv/us/kyc/get', body: () => ({ user_id: '<paste pid from Card 6-1>' }) },
+        'pid-existing':  { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.ppidExisting, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
+        'pid-resolve':   { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '<paste pid from Card 6-1>', callback_url: window.location.origin + '/test-board' }) },
+        'pid-new':       { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'pid-kyc-get':   { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.ppidKycGet, body: () => ({ user_id: '<paste pid from Card 6-1>' }) },
       };
+
+      const LAST_CUSTOM_RESULTS = {};
 
       // Initialize all card textareas with default bodies
       Object.keys(CUSTOM_CARDS).forEach(id => {
@@ -1361,7 +1373,11 @@
         if (el) el.value = JSON.stringify(CUSTOM_CARDS[id].body(), null, 2);
       });
 
-      async function sendCustom(id) {
+      installCustomDebugCopyButtons();
+
+      // 문제점: 기존 sendCustom는 응답을 화면에만 렌더링하고 endpoint/request/expected/actual response를
+      // 한 번에 공유할 수 있는 디버그 스냅샷을 남기지 않는다. 개선된 함수: sendCustom.
+      async function sendCustomOld(id) {
         const cfg = CUSTOM_CARDS[id];
         if (!cfg) return;
         const bodyText = document.getElementById('body-' + id).value;
@@ -1447,6 +1463,361 @@
           }
 
           // Render session_token JWT if present
+          if (data.session_token) {
+            const stInspector = document.getElementById('jwt-' + id);
+            if (stInspector) {
+              const jwt = parseJwtParts(data.session_token);
+              if (jwt) {
+                let html = '<div class="jwt-inspector"><div class="jwt-verify pending">Session Token JWT (no key for verification)</div>';
+                html += '<div class="jwt-section"><div class="jwt-section-title">Header</div>' + renderClaimsTable(jwt.header) + '</div>';
+                html += '<div class="jwt-section"><div class="jwt-section-title">Payload (Claims)</div>' + renderClaimsTable(jwt.payload) + '</div></div>';
+                stInspector.innerHTML = html;
+              }
+            }
+          }
+        } else {
+          badgeEl.className = 'api-badge api-badge-fail';
+          badgeEl.textContent = 'ERR ' + status;
+          cardEl.classList.remove('api-success');
+          cardEl.classList.add('api-error');
+        }
+      }
+
+      function cloneDebugValue(value) {
+        if (value === undefined) return null;
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function collectResponseHeaders(headers) {
+        const out = {};
+        if (!headers || !headers.forEach) return out;
+        headers.forEach((value, key) => { out[key] = value; });
+        return out;
+      }
+
+      async function apiCallWithDebug(url, options = {}) {
+        const res = await fetch(url, options);
+        const contentType = res.headers.get('content-type') || '';
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+        return {
+          ok: res.ok,
+          status: res.status,
+          statusText: res.statusText,
+          data,
+          text,
+          contentType,
+          headers: collectResponseHeaders(res.headers),
+        };
+      }
+
+      function parseCurrentRequestBody(id) {
+        const bodyText = document.getElementById('body-' + id)?.value ?? '';
+        try {
+          return { bodyText, body: JSON.parse(bodyText), bodyParseError: null };
+        } catch (e) {
+          return { bodyText, body: null, bodyParseError: e.message };
+        }
+      }
+
+      function sanitizeDebugValue(value, key = '') {
+        if (value === null || value === undefined) return value;
+        if (typeof value === 'string') {
+          if (/base64/i.test(key) || value.length > 5000) {
+            return {
+              omitted: true,
+              reason: /base64/i.test(key) ? 'base64 field' : 'large string',
+              length: value.length,
+            };
+          }
+          return value;
+        }
+        if (Array.isArray(value)) return value.map(item => sanitizeDebugValue(item));
+        if (typeof value === 'object') {
+          const out = {};
+          Object.entries(value).forEach(([childKey, childValue]) => {
+            out[childKey] = sanitizeDebugValue(childValue, childKey);
+          });
+          return out;
+        }
+        return value;
+      }
+
+      function getCustomCardLabel(id) {
+        const cardEl = document.getElementById('card-' + id);
+        return cardEl?.querySelector('.endpoint')?.innerText?.trim() || id;
+      }
+
+      function getCustomCardUiState(id) {
+        const cardEl = document.getElementById('card-' + id);
+        const badgeEl = document.getElementById('badge-' + id);
+        const authLinkEl = document.getElementById('authlink-' + id);
+        const linkEl = authLinkEl?.querySelector('a');
+        return {
+          cardLabel: getCustomCardLabel(id),
+          badgeText: badgeEl?.textContent || null,
+          badgeClassName: badgeEl?.className || null,
+          cardClassName: cardEl?.className || null,
+          authLinkVisible: !!authLinkEl && !authLinkEl.classList.contains('hidden'),
+          authLinkHref: linkEl?.href || null,
+        };
+      }
+
+      function getBrowserDebugContext() {
+        return {
+          href: window.location.href,
+          origin: window.location.origin,
+          userAgent: navigator.userAgent,
+          language: navigator.language,
+          languages: Array.from(navigator.languages || []),
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          viewport: { width: window.innerWidth, height: window.innerHeight },
+        };
+      }
+
+      function collectCnFileAttachments(id) {
+        if (!id.startsWith('cn-start')) return [];
+        const pairs = [
+          ['card_image_base64', document.getElementById('verify-card-file')?.files[0]],
+          ['best_frame_base64', document.getElementById('verify-selfie-file')?.files[0]],
+        ];
+        return pairs
+          .filter(([, file]) => !!file)
+          .map(([field, file]) => ({
+            field,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            lastModified: file.lastModified,
+          }));
+      }
+
+      function createActualResponseDebug(result) {
+        if (!result) return null;
+        return {
+          ok: result.ok,
+          status: result.status,
+          statusText: result.statusText,
+          contentType: result.contentType,
+          responseHeaders: result.headers,
+          body: cloneDebugValue(result.data),
+          bodyText: result.text,
+        };
+      }
+
+      function buildCustomDebugPayload(id, overrides = {}) {
+        const cfg = CUSTOM_CARDS[id];
+        const currentRequest = parseCurrentRequestBody(id);
+        const last = LAST_CUSTOM_RESULTS[id] || {};
+        const fullUrl = cfg ? new URL(cfg.endpoint, window.location.origin).href : null;
+        return {
+          caseId: id,
+          method: 'POST',
+          endpoint: cfg?.endpoint || null,
+          fullUrl,
+          request: {
+            method: 'POST',
+            endpoint: cfg?.endpoint || null,
+            fullUrl,
+            headers: { 'Content-Type': 'application/json' },
+            bodyText: currentRequest.bodyText,
+            body: currentRequest.body,
+            bodyParseError: currentRequest.bodyParseError,
+            lastSentBody: overrides.lastSentBody ?? last.request?.lastSentBody ?? null,
+            attachments: overrides.attachments ?? last.request?.attachments ?? collectCnFileAttachments(id),
+          },
+          expectedResponse: cloneDebugValue(cfg?.expectedResponse || null),
+          actualResponse: overrides.actualResponse ?? last.actualResponse ?? null,
+          timing: {
+            startedAt: overrides.startedAt ?? last.timing?.startedAt ?? null,
+            finishedAt: overrides.finishedAt ?? last.timing?.finishedAt ?? null,
+            durationMs: overrides.durationMs ?? last.timing?.durationMs ?? null,
+          },
+          browserContext: getBrowserDebugContext(),
+          uiState: getCustomCardUiState(id),
+          error: overrides.error ?? last.error ?? null,
+          copiedAt: overrides.copiedAt ?? null,
+        };
+      }
+
+      async function writeClipboardWithFallback(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(text);
+            return;
+          } catch (_) {
+            // Fall back to execCommand for non-secure origins or older browsers.
+          }
+        }
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', 'readonly');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        const ok = document.execCommand('copy');
+        textarea.remove();
+        if (!ok) throw new Error('Clipboard copy failed');
+      }
+
+      function setCopyButtonState(button, state, label) {
+        button.classList.remove('is-copied', 'is-failed');
+        if (state) button.classList.add(state);
+        button.textContent = label;
+        setTimeout(() => {
+          button.classList.remove('is-copied', 'is-failed');
+          button.textContent = 'Copy debug';
+        }, 1400);
+      }
+
+      async function copyCustomDebugCase(id, button) {
+        const payload = buildCustomDebugPayload(id, { copiedAt: new Date().toISOString() });
+        try {
+          await writeClipboardWithFallback(JSON.stringify(payload, null, 2));
+          setCopyButtonState(button, 'is-copied', 'Copied');
+        } catch (e) {
+          LAST_CUSTOM_RESULTS[id] = buildCustomDebugPayload(id, { error: { type: 'copy', message: e.message } });
+          setCopyButtonState(button, 'is-failed', 'Copy failed');
+        }
+      }
+
+      function installCustomDebugCopyButtons() {
+        Object.keys(CUSTOM_CARDS).forEach(id => {
+          const actionsEl = document.querySelector('#card-' + id + ' .actions');
+          if (!actionsEl || document.getElementById('btn-copy-debug-' + id)) return;
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.id = 'btn-copy-debug-' + id;
+          button.className = 'btn-secondary debug-copy-btn';
+          button.textContent = 'Copy debug';
+          button.addEventListener('click', () => copyCustomDebugCase(id, button));
+          actionsEl.appendChild(button);
+        });
+      }
+
+      async function sendCustom(id) {
+        const cfg = CUSTOM_CARDS[id];
+        if (!cfg) return;
+        const bodyText = document.getElementById('body-' + id).value;
+        const resultEl = document.getElementById('result-' + id);
+        const jsonEl = document.getElementById('json-' + id);
+        const badgeEl = document.getElementById('badge-' + id);
+        const cardEl = document.getElementById('card-' + id);
+        const authLinkEl = document.getElementById('authlink-' + id);
+        const startedAt = new Date();
+        const startedAtMs = performance.now();
+
+        resultEl.classList.remove('hidden');
+        if (authLinkEl) authLinkEl.classList.add('hidden');
+        jsonEl.textContent = 'Requesting...';
+        badgeEl.className = 'api-badge api-badge-idle';
+        badgeEl.textContent = 'LOADING';
+        cardEl.classList.remove('api-success', 'api-error');
+
+        let parsedBody;
+        try {
+          parsedBody = JSON.parse(bodyText);
+        } catch (e) {
+          jsonEl.textContent = 'Invalid JSON: ' + e.message;
+          badgeEl.className = 'api-badge api-badge-fail';
+          badgeEl.textContent = 'JSON ERROR';
+          cardEl.classList.add('api-error');
+          LAST_CUSTOM_RESULTS[id] = buildCustomDebugPayload(id, {
+            startedAt: startedAt.toISOString(),
+            finishedAt: new Date().toISOString(),
+            durationMs: Math.round(performance.now() - startedAtMs),
+            error: { type: 'requestBodyParse', message: e.message },
+          });
+          return;
+        }
+
+        const isCnStart = id.startsWith('cn-start');
+        const cardFile = isCnStart ? document.getElementById('verify-card-file')?.files[0] : null;
+        const selfieFile = isCnStart ? document.getElementById('verify-selfie-file')?.files[0] : null;
+        const attachments = collectCnFileAttachments(id);
+
+        if (isCnStart && (cardFile || selfieFile)) {
+          const toBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          if (cardFile) parsedBody.card_image_base64 = await toBase64(cardFile);
+          if (selfieFile) parsedBody.best_frame_base64 = await toBase64(selfieFile);
+        }
+
+        const fetchOpts = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsedBody),
+        };
+
+        const endpoint = cfg.endpoint;
+        let result;
+        try {
+          result = await apiCallWithDebug(endpoint, fetchOpts);
+        } catch (e) {
+          jsonEl.textContent = 'Network error: ' + e.message;
+          badgeEl.className = 'api-badge api-badge-fail';
+          badgeEl.textContent = 'NETWORK';
+          cardEl.classList.add('api-error');
+          LAST_CUSTOM_RESULTS[id] = buildCustomDebugPayload(id, {
+            startedAt: startedAt.toISOString(),
+            finishedAt: new Date().toISOString(),
+            durationMs: Math.round(performance.now() - startedAtMs),
+            lastSentBody: sanitizeDebugValue(parsedBody),
+            attachments,
+            error: { type: 'network', message: e.message },
+          });
+          return;
+        }
+
+        const { ok, status, data, text } = result;
+        jsonEl.textContent = renderApiResponseBody(ok, data, text);
+        LAST_CUSTOM_RESULTS[id] = buildCustomDebugPayload(id, {
+          startedAt: startedAt.toISOString(),
+          finishedAt: new Date().toISOString(),
+          durationMs: Math.round(performance.now() - startedAtMs),
+          lastSentBody: sanitizeDebugValue(parsedBody),
+          attachments,
+          actualResponse: createActualResponseDebug(result),
+          error: null,
+        });
+
+        if (ok) {
+          badgeEl.className = 'api-badge api-badge-ok';
+          badgeEl.textContent = 'OK ' + status;
+          cardEl.classList.remove('api-error');
+          cardEl.classList.add('api-success');
+
+          const authUrl = data && (data.start_idv_uri || data.authorization_url);
+          if (authUrl && authLinkEl) {
+            const linkEl = authLinkEl.querySelector('a');
+            linkEl.href = authUrl;
+            authLinkEl.classList.remove('hidden');
+          }
+
+          if (id === 'pid-existing' && data.pid) {
+            document.getElementById('btn-copy-pid').style.display = 'inline-block';
+          }
+
+          const inspectorEl = document.getElementById('jwt-' + id);
+          if (inspectorEl && data.start_idv_uri) {
+            renderJwtInspector('jwt-' + id, data.start_idv_uri);
+          }
+
+          const tableEl = document.getElementById('table-' + id);
+          if (tableEl) {
+            renderResponseTable('table-' + id, data);
+          }
+
           if (data.session_token) {
             const stInspector = document.getElementById('jwt-' + id);
             if (stInspector) {
