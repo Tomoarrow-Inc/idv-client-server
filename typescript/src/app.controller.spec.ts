@@ -1,4 +1,15 @@
-import { createHash, createPublicKey, createSign, createVerify, generateKeyPairSync, KeyObject } from 'node:crypto';
+import {
+  createHash,
+  createPublicKey,
+  createSign,
+  createVerify,
+  generateKeyPairSync,
+  KeyObject,
+} from 'node:crypto';
+import {
+  EMPTY_KYC_POLICY_ID_MESSAGE,
+  normalizeUpstreamErrorBody,
+} from './app.controller';
 
 type RegistrationResponseBody = {
   client_id: string;
@@ -20,42 +31,91 @@ interface EcKeyPair {
 }
 
 const shouldRunIntegration = process.env.RUN_IDV_INTEGRATION_TESTS === 'true';
-const baseUrl = (process.env.IDV_BASE_URL ?? 'http://localhost:8080').replace(/\/$/, '');
+const baseUrl = (process.env.IDV_BASE_URL ?? 'http://localhost:8080').replace(
+  /\/$/,
+  '',
+);
 const describeIfEnabled = shouldRunIntegration ? describe : describe.skip;
+
+describe('policy error response normalization', () => {
+  it('returns an English text body when upstream sends the legacy Korean empty kyc_policy_id message as text', () => {
+    // idv-server may send a plain text error body; Nest wraps that string as
+    // {statusCode, message}, so the string must be normalized before throwing.
+    const normalized = normalizeUpstreamErrorBody(
+      'kyc_policy_id \uAC12\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694.',
+    );
+
+    expect(normalized).toBe(EMPTY_KYC_POLICY_ID_MESSAGE);
+  });
+
+  it('returns an English message when upstream sends the legacy Korean empty kyc_policy_id message', () => {
+    // This reproduces the BFF response shape reported by clients and ensures
+    // no Korean policy validation text is exposed after Nest wraps the error.
+    const normalized = normalizeUpstreamErrorBody({
+      statusCode: 400,
+      message:
+        'kyc_policy_id \uAC12\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694.',
+    });
+
+    expect(normalized).toEqual({
+      statusCode: 400,
+      message: EMPTY_KYC_POLICY_ID_MESSAGE,
+    });
+  });
+
+  it('removes the legacy Korean empty kyc_policy_id text from SDK-prefixed errors', () => {
+    // Some generated SDKs prefix upstream messages before the BFF handler sees
+    // them; this keeps those wrapped errors English-only as well.
+    const normalized = normalizeUpstreamErrorBody(
+      'Client error : 400 kyc_policy_id \uAC12\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694.',
+    );
+
+    expect(normalized).toBe(
+      `Client error : 400 ${EMPTY_KYC_POLICY_ID_MESSAGE}`,
+    );
+  });
+});
 
 // Exercise the IDV OAuth2 token endpoint using the same flow as the Haskell spec.
 describeIfEnabled('+/oauth2/token (private_key_jwt)', () => {
-  it(
-    'issues access token for valid client_assertion and DPoP',
-    async () => {
-      const asJwkEnv = process.env.AS_SIGNING_JWK;
-      if (!asJwkEnv) {
-        throw new Error('AS_SIGNING_JWK env var must be set to verify access token signature');
-      }
-      const asPublicKey = createPublicKey({ key: JSON.parse(asJwkEnv) as JsonWebKey, format: 'jwk' });
+  it('issues access token for valid client_assertion and DPoP', async () => {
+    const asJwkEnv = process.env.AS_SIGNING_JWK;
+    if (!asJwkEnv) {
+      throw new Error(
+        'AS_SIGNING_JWK env var must be set to verify access token signature',
+      );
+    }
+    const asPublicKey = createPublicKey({
+      key: JSON.parse(asJwkEnv) as JsonWebKey,
+      format: 'jwk',
+    });
 
-      const clientKeys = generateEcP256();
-      const kid = computeJwkThumbprint(clientKeys.publicJwk);
-      const clientId = await registerClient(baseUrl, kid, clientKeys.publicJwk);
+    const clientKeys = generateEcP256();
+    const kid = computeJwkThumbprint(clientKeys.publicJwk);
+    const clientId = await registerClient(baseUrl, kid, clientKeys.publicJwk);
 
-      const audience = `${baseUrl}/oauth2/token`;
-      const assertion = createClientAssertion(clientKeys.privateKey, clientId, audience);
+    const audience = `${baseUrl}/oauth2/token`;
+    const assertion = createClientAssertion(
+      clientKeys.privateKey,
+      clientId,
+      audience,
+    );
 
-      const tokenResponse = await requestAccessToken(baseUrl, assertion);
-      expect(tokenResponse.token_type).toBe('Bearer');
-      const grantedScope = tokenResponse.scope ?? tokenResponse.scopeGranted;
-      expect(grantedScope).toBe('idv.read');
+    const tokenResponse = await requestAccessToken(baseUrl, assertion);
+    expect(tokenResponse.token_type).toBe('Bearer');
+    const grantedScope = tokenResponse.scope ?? tokenResponse.scopeGranted;
+    expect(grantedScope).toBe('idv.read');
 
-      const payload = verifyJwt(tokenResponse.access_token, asPublicKey);
-      expect(payload.sub).toBe(clientId);
-      expect(payload.scope).toBe('idv.read');
-    },
-    20000,
-  );
+    const payload = verifyJwt(tokenResponse.access_token, asPublicKey);
+    expect(payload.sub).toBe(clientId);
+    expect(payload.scope).toBe('idv.read');
+  }, 20000);
 });
 
 function generateEcP256(): EcKeyPair {
-  const { publicKey, privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+  const { publicKey, privateKey } = generateKeyPairSync('ec', {
+    namedCurve: 'P-256',
+  });
   const publicJwk = publicKey.export({ format: 'jwk' }) as JsonWebKey;
   const privateJwk = privateKey.export({ format: 'jwk' }) as JsonWebKey;
   return { publicKey, privateKey, publicJwk, privateJwk };
@@ -78,7 +138,11 @@ function base64UrlEncode(input: Buffer): string {
     .replace(/=+$/u, '');
 }
 
-function createClientAssertion(privateKey: KeyObject, clientId: string, audience: string): string {
+function createClientAssertion(
+  privateKey: KeyObject,
+  clientId: string,
+  audience: string,
+): string {
   const now = Math.floor(Date.now() / 1000);
   const payload = {
     iss: clientId,
@@ -91,8 +155,13 @@ function createClientAssertion(privateKey: KeyObject, clientId: string, audience
   return signJwt(privateKey, payload);
 }
 
-function signJwt(privateKey: KeyObject, payload: Record<string, unknown>): string {
-  const header = base64UrlEncode(Buffer.from(JSON.stringify({ alg: 'ES256', typ: 'JWT' })));
+function signJwt(
+  privateKey: KeyObject,
+  payload: Record<string, unknown>,
+): string {
+  const header = base64UrlEncode(
+    Buffer.from(JSON.stringify({ alg: 'ES256', typ: 'JWT' })),
+  );
   const claims = base64UrlEncode(Buffer.from(JSON.stringify(payload)));
   const signingInput = `${header}.${claims}`;
   const signer = createSign('sha256');
@@ -103,7 +172,11 @@ function signJwt(privateKey: KeyObject, payload: Record<string, unknown>): strin
   return `${signingInput}.${signatureEncoded}`;
 }
 
-async function registerClient(base: string, kid: string, jwk: JsonWebKey): Promise<string> {
+async function registerClient(
+  base: string,
+  kid: string,
+  jwk: JsonWebKey,
+): Promise<string> {
   if (!jwk.x || !jwk.y) {
     throw new Error('JWK missing coordinates');
   }
@@ -147,13 +220,19 @@ async function registerClient(base: string, kid: string, jwk: JsonWebKey): Promi
   return json.client_id;
 }
 
-async function requestAccessToken(base: string, assertion: string): Promise<TokenResponseBody> {
+async function requestAccessToken(
+  base: string,
+  assertion: string,
+): Promise<TokenResponseBody> {
   const tokenUrl = `${base}/v1/oauth2/token`;
   const params = new URLSearchParams();
   params.set('grant_type', 'client_credentials');
   params.set('scope', 'idv.read');
   params.set('resource', base);
-  params.set('client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer');
+  params.set(
+    'client_assertion_type',
+    'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+  );
   params.set('client_assertion', assertion);
 
   const response = await fetch(tokenUrl, {
@@ -167,7 +246,9 @@ async function requestAccessToken(base: string, assertion: string): Promise<Toke
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Failed to issue access token (${response.status}): ${text}`);
+    throw new Error(
+      `Failed to issue access token (${response.status}): ${text}`,
+    );
   }
 
   return (await response.json()) as TokenResponseBody;
