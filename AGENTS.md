@@ -20,7 +20,7 @@ Backend For Frontend (BFF) server for idv-client. Handles OAuth2 client-assertio
 - BFF는 transparent proxy로 동작하며 request body를 변환 없이 idv-server에 전달한다.
 - 에러 응답은 upstream status, content-type, body를 그대로 보존한다. 메시지 문자열을 새로 만들거나 바꾸지 않는다.
 
-## 역할 정의 (OIDC Social KYC)
+## 역할 정의
 
 | 컴포넌트 | 역할 | 설명 |
 |---|---|---|
@@ -29,65 +29,19 @@ Backend For Frontend (BFF) server for idv-client. Handles OAuth2 client-assertio
 | idv-server | **Tomo API Server** | KYC 오케스트레이션, ID vendor 연동, 인가 관리 |
 | idv-app | **Tomo App (Frontend)** | Tomo 측 UI (인가 승인 페이지 등) |
 
-### OIDC Social KYC 플로우
+### Custom KYC 플로우
 
-```
-[End User]          [Customer Frontend]    [Customer Backend]       [Tomo API]       [Google]
- (browser)          (test-board.html)      (idv-client-server)     (idv-server)
-    │                     │                       │                      │               │
-    │ ── A. 사전 인증 ─────────────────────────────────────────────────────────────────────
-    │                     │              POST /v1/oauth2/token ─────────►│               │
-    │                     │              (client_credentials + JWT)      │               │
-    │                     │                       │◄── access_token ─────│               │
-    │                     │                       │                      │               │
-    │ ── B. Google Sign-In ────────────────────────────────────────────────────────────────
-    ├── "Sign in" ──────►│                       │                      │               │
-    │                     ├── Google Identity Services ────────────────────────────────►│
-    │                     │◄── ID Token (sub, email, name) ────────────────────────────│
-    │◄── 사용자 정보 ────│                       │                      │               │
-    │                     │                       │                      │               │
-    │ ── C. Social KYC 시작 ───────────────────────────────────────────────────────────────
-    ├── "인증 시작" ────►│                       │                      │               │
-    │                     ├── { customer_id } ──►│                      │               │
-    │                     │              POST /v1/idv/start ────────────►│               │
-    │                     │              { user_id: <customer_id>,       │               │
-    │                     │                email: <google_email>,        │               │
-    │                     │                login_hint: <google_email>,   │               │
-    │                     │                callback_url: <test-board>,   │               │
-    │                     │                provider: "google" }          │               │
-    │                     │                       │◄── { start_idv_uri } │               │
-    │                     │◄── start_idv_uri ─────│                      │               │
-    │◄── "인가 승인" 버튼│                       │                      │               │
-    │                     │                       │                      │               │
-    │ ── D. 인가 승인 ────────────────────────────────────────────────────────────────────
-    ├── start_idv_uri 방문 ──────────────────────────────────────────►│               │
-    │   (Tomo 인가 페이지: "KYC 인증을 승인하시겠습니까?")              │               │
-    │── 승인 ────────────────────────────────────────────────────────►│               │
-    │                     │                       │◄── redirect ─────────│               │
-    │                     │                       │  (callback_url)      │               │
-    │                     │                       │                      │               │
-    │ ── E. KYC 결과 조회 ────────────────────────────────────────────────────────────────
-    │                     │              POST /v1/idv/kyc/get ─────────►│               │
-    │                     │              { user_id: <customer_id>,       │               │
-    │                     │                country: "us" }               │               │
-    │                     │                       │◄── { country,        │               │
-    │                     │                       │     full_name,       │               │
-    │                     │                       │     date_of_birth,   │               │
-    │                     │                       │     full_address }   │               │
-    │                     │◄── KYC 결과 ──────────│                      │               │
-    │◄── 결과 표시 ──────│                       │                      │               │
-```
+idv-client-server는 고객사 BFF 시뮬레이터로서 OAuth2 client_credentials 인증과 Authorization header 부착만 담당한다. `/v1/idv/start`, `/v1/idv/{country}/start`, `/v1/idv/kyc/get` 등 IDV request body는 test-board 또는 클라이언트가 보낸 값을 그대로 idv-server에 전달한다.
 
 **핵심 포인트:**
-- user_id는 **고객사의 내부 사용자 식별자**이다 (Google sub이 아님)
-- Google subject_id(sub)는 **idv-server가 OAuth callback에서 직접 추출**한다 — 고객사가 전달하지 않음
-- Step D의 `start_idv_uri`는 **Tomo의 인가 페이지** (Google Login 아님)
-- end user는 Google Login을 **한 번만** 한다 (고객사 Frontend에서)
-- Tomo API는 고객사가 client_credentials로 인증된 상태이므로, 고객사가 제출한 user_id를 신뢰한다
+- user_id는 **고객사의 내부 사용자 식별자**이다.
+- idv-client-server는 request body의 필드를 보정하거나 기본값을 주입하지 않는다.
+- idv-app은 idv-server가 반환한 `start_idv_uri` 이후의 사용자 입력 및 인가 화면을 담당한다.
+- Tomo API는 고객사가 client_credentials로 인증된 상태이므로, 고객사가 제출한 user_id를 신뢰한다.
 
 ### Test Board
 
-`/test-board` — 고객사 Frontend를 시뮬레이션하는 인터랙티브 테스트 페이지. Google Sign-In → Token → Start Social KYC → Authorization → KYC Status 플로우를 브라우저에서 테스트할 수 있다.
+`/test-board` — 고객사 Frontend를 시뮬레이션하는 인터랙티브 Custom KYC 테스트 페이지. Token 발급 후 IDV API request body가 그대로 전달되는지 브라우저에서 테스트할 수 있다.
 
 ## Tech Stack
 
@@ -238,7 +192,6 @@ All routes are on the root controller (`@Controller()`), all are POST except hea
 | `PORT` | No | Server port (default: 3000, mapped to 4300 in docker-compose) |
 | `RUN_IDV_INTEGRATION_TESTS` | No | Set to `true` to run OAuth2 integration tests |
 | `AS_SIGNING_JWK` | No | AS public JWK for verifying access tokens in tests |
-| `GOOGLE_CLIENT_ID` | Yes (test board) | Google Cloud OAuth 2.0 Client ID for test-board Google Sign-In |
 
 Also accepts `IDV_SERVER` and `IDV_BASEURL` as fallbacks for `IDV_BASE_URL`.
 

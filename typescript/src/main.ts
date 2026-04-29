@@ -15,7 +15,6 @@ function injectSwaggerExamples(doc: any): void {
 
   const USER_ID_US = '7999752903327968491';
   const CALLBACK_URL = 'https://example.com/callback';
-  const EMAIL = 'test@example.com';
 
   const setExample = (schemaName: string, field: string, value: any) => {
     if (schemas[schemaName]?.properties?.[field]) {
@@ -41,7 +40,6 @@ function injectSwaggerExamples(doc: any): void {
   // ── Generic (country-agnostic) ──
   setExample('StartIdvReq', 'user_id', USER_ID_US);
   setExample('StartIdvReq', 'callback_url', CALLBACK_URL);
-  setExample('StartIdvReq', 'email', EMAIL);
   setExample('StartIdvReq', 'country', 'us');
 
   setExample('GetKycReq', 'user_id', USER_ID_US);
@@ -50,7 +48,6 @@ function injectSwaggerExamples(doc: any): void {
   // ── Session (vendor-agnostic) ──
   setExample('SessionStartReq', 'user_id', USER_ID_US);
   setExample('SessionStartReq', 'callback_url', CALLBACK_URL);
-  setExample('SessionStartReq', 'email', EMAIL);
   setExample('SessionStartReq', 'country', 'us');
 
 }
@@ -89,7 +86,6 @@ async function bootstrap() {
 
   expressApp.get('/test-board/config', (_req, res) => {
     res.json({
-      googleClientId: process.env.GOOGLE_CLIENT_ID || '',
       idvServerUrl: process.env.IDV_BASE_URL || '',
       idvAppUrl: process.env.IDV_APP_URL || '',
     });

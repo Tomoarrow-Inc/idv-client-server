@@ -25,7 +25,7 @@ class TestBoardController(
     // test-board.html expects camelCase keys — bypass Jackson SNAKE_CASE by returning raw JSON
     @GetMapping("/test-board/config", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun testBoardConfig(): ResponseEntity<String> {
-        val json = """{"googleClientId":"${appProperties.googleClientId}","idvServerUrl":"${appProperties.idvBaseUrl}"}"""
+        val json = """{"idvServerUrl":"${appProperties.idvBaseUrl}"}"""
         return ResponseEntity.ok(json)
     }
 }

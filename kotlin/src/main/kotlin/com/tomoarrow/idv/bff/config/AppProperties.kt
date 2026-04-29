@@ -7,6 +7,5 @@ data class AppProperties(
     val idvBaseUrl: String = "http://localhost",
     val tomoIdvClientId: String = "",
     val tomoIdvSecret: String = "",
-    val googleClientId: String = "",
     val testBoardPath: String = "../../test-board/test-board.html"
 )

@@ -165,8 +165,6 @@ typescript/src/
   app.controller.ts    — 모든 HTTP 라우트 (30+ 엔드포인트)
   app.service.ts       — 비즈니스 로직 (IdvServerClient 호출)
   state.service.ts     — 인메모리 상태 관리 (토큰 저장)
-  wechat-login.ts      — WeChat 로그인 콜백 유틸리티
-
   sdk/
     idv-client.ts      — IdvServerClient (Generated DefaultApi 래퍼, body 변형 금지)
     tomo-idv-node.ts   — OAuth2 JWT 어설션 생성 (ES256/P-256)
@@ -264,7 +262,6 @@ kotlin/src/main/kotlin/com/tomoarrow/idv/bff/
 | 항목 | TypeScript | Kotlin |
 |---|---|---|
 | Old API 엔드포인트 | 지원 (`/v1/verify/session` 등) | 미지원 (레거시) |
-| WeChat 로그인 콜백 | 지원 (`/wechat/login/callback`) | 미지원 |
 | Swagger UI | 지원 (`/api-docs`) | 미지원 |
 | 직렬화 전략 | idv-server wire format 보존 | idv-server wire format 보존 |
 | SDK 호출 | Generated TypeScript fetch | Kotlin suspend fun + runBlocking |
@@ -319,7 +316,6 @@ kotlin/src/main/kotlin/com/tomoarrow/idv/bff/
 | POST | `/v1/idv/plaid/token/session` | Plaid 세션 토큰 |
 | POST | `/v1/idv/liquid/token/session` | Liquid 세션 토큰 |
 | POST | `/v1/idv/login-ticket` | 로그인 티켓 교환 |
-| POST | `/v1/idv/google/start` | Google Social KYC 시작 |
 | GET | `/test-board` | Test Board HTML |
 | GET | `/test-board/config` | Test Board 설정 JSON |
 
@@ -332,9 +328,7 @@ kotlin/src/main/kotlin/com/tomoarrow/idv/bff/
 | `IDV_BASE_URL` | O | idv-server URL | `http://localhost` |
 | `TOMO_IDV_CLIENT_ID` | O | OAuth2 클라이언트 ID | — |
 | `TOMO_IDV_SECRET` | O | Base64url EC P-256 JWK 개인 키 | — |
-| `GOOGLE_CLIENT_ID` | △ | Google OAuth2 Client ID (test-board용) | — |
 | `IDV_APP_URL` | △ | idv-app URL (test-board 설정) | — |
-| `WECHAT_CLIENT_APP_ID` | △ | WeChat AppID (test-board용) | — |
 | `TEST_BOARD_PATH` | X | test-board.html 절대 경로 | 자동 설정 |
 | `PORT` | X | 서버 포트 (TypeScript만) | `3000` |
 

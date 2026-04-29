@@ -4,8 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KYC Test Board</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
     <style>
       * {
         box-sizing: border-box;
@@ -216,34 +214,6 @@
       .badge-error {
         background: #ffebee;
         color: #c62828;
-      }
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-top: 10px;
-        padding: 10px;
-        background: #f9f9f9;
-        border-radius: 6px;
-      }
-      .user-info img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-      }
-      .user-info .details {
-        font-size: 0.85rem;
-      }
-      .user-info .details .name {
-        font-weight: 600;
-      }
-      .user-info .details .email {
-        color: #666;
-      }
-      .user-info .details .sub {
-        font-family: monospace;
-        font-size: 0.78rem;
-        color: #999;
       }
       .divider {
         border: none;
@@ -512,7 +482,7 @@
   </head>
   <body>
     <!-- Quick Jump Sidebar (Custom KYC only) -->
-    <nav class="qj-sidebar" id="qjSidebar">
+    <nav class="qj-sidebar visible" id="qjSidebar">
       <div class="qj-title">Quick Jump</div>
       <a class="qj-item" data-target="section-token">0 Token</a>
       <a class="qj-item" data-target="section-plaid">1 Plaid</a>
@@ -529,373 +499,14 @@
 
     <!-- Tab Navigation -->
     <div class="tab-nav">
-      <button class="tab-btn active" onclick="switchTab('social')">Social KYC</button>
-      <button class="tab-btn" onclick="switchTab('custom')">Custom KYC</button>
+      <button class="tab-btn active" onclick="switchTab('custom')">Custom KYC</button>
       <button class="tab-btn" onclick="switchTab('old-api')">Old API</button>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
-    <!-- TAB: Social KYC (existing)                  -->
-    <!-- ═══════════════════════════════════════════ -->
-    <div class="tab-content active" id="tab-social">
-
-    <!-- Provider Selection -->
-    <div class="card" style="border-left: 4px solid #1976d2">
-      <h2>Select Provider</h2>
-      <div class="provider-select">
-        <label
-          ><input
-            type="radio"
-            name="socialProvider"
-            value="google"
-            checked
-            onchange="onProviderChange()"
-          />
-          Google</label
-        >
-        <label
-          ><input
-            type="radio"
-            name="socialProvider"
-            value="wechat"
-            onchange="onProviderChange()"
-          />
-          WeChat</label
-        >
-        <label
-          ><input
-            type="radio"
-            name="socialProvider"
-            value="wechat-mock"
-            onchange="onProviderChange()"
-          />
-          WeChat (Mock)</label
-        >
-      </div>
-    </div>
-
-    <!-- Step 0: Google Sign-In -->
-    <div class="card" id="googleSignInCard">
-      <h2><span class="step">0</span>Google Sign-In</h2>
-      <p class="note">
-        Sign in with Google to authenticate and get email for login_hint.
-      </p>
-      <div id="googleSignInBtn" style="margin-top: 12px"></div>
-      <div id="googleUser" class="hidden">
-        <div class="user-info">
-          <img id="googleAvatar" src="" alt="avatar" />
-          <div class="details">
-            <div class="name" id="googleName"></div>
-            <div class="email" id="googleEmail"></div>
-            <div class="sub">Subject ID: <span id="googleSub"></span></div>
-          </div>
-        </div>
-        <div class="actions" style="margin-top: 8px">
-          <button class="btn-secondary" onclick="googleSignOut()">
-            Sign Out
-          </button>
-        </div>
-      </div>
-      <div id="googleError" class="hidden">
-        <div class="status error" id="googleErrorMsg"></div>
-      </div>
-    </div>
-
-    <!-- Step 0: WeChat Login (hidden by default) -->
-    <div class="card hidden" id="wechatLoginCard">
-      <h2><span class="step">0</span>WeChat Login</h2>
-      <p class="note">
-        Scan the QR code with WeChat to log in. This simulates the customer's
-        own WeChat login (separate from KYC authorization).
-      </p>
-
-      <!-- QR code container - WeChat JS SDK renders here -->
-      <div
-        id="wechatQrContainer"
-        style="margin-top: 12px; text-align: center"
-      ></div>
-
-      <!-- Logged-in user info (hidden until login) -->
-      <div id="wechatUser" class="hidden">
-        <div class="user-info">
-          <img
-            id="wechatAvatar"
-            src=""
-            alt="avatar"
-            style="width: 40px; height: 40px; border-radius: 50%"
-            onerror="this.style.display='none'"
-          />
-          <div class="details">
-            <div class="name" id="wechatNickname"></div>
-            <div class="sub">UnionID: <span id="wechatUnionId"></span></div>
-            <div class="sub">OpenID: <span id="wechatOpenId"></span></div>
-          </div>
-        </div>
-        <div class="actions" style="margin-top: 8px">
-          <button class="btn-secondary" onclick="wechatSignOut()">
-            Sign Out
-          </button>
-        </div>
-      </div>
-
-      <!-- Error display -->
-      <div id="wechatError" class="hidden">
-        <div class="status error" id="wechatErrorMsg"></div>
-      </div>
-    </div>
-
-    <!-- Step 0: WeChat Mock Login (hidden by default) -->
-    <div class="card hidden" id="wechatMockLoginCard">
-      <h2><span class="step">0</span>WeChat Mock Login</h2>
-      <p class="note">
-        Mock 로그인 페이지로 이동한 뒤 callback으로 돌아옵니다. 실제 WeChat App
-        ID / App Secret은 필요하지 않습니다.
-      </p>
-      <div id="wechatMockUserPreview" style="margin-top: 12px">
-        <div class="user-info" style="background: #fff3e0">
-          <div
-            style="
-              width: 40px;
-              height: 40px;
-              border-radius: 50%;
-              background: #07c160;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: white;
-              font-weight: bold;
-              font-size: 18px;
-            "
-          >
-            M
-          </div>
-          <div class="details">
-            <div class="name">Mock WeChat User</div>
-            <div class="sub">
-              UnionID:
-              <span style="font-family: monospace"
-                >mock-wechat-unionid-12345</span
-              >
-            </div>
-            <div class="sub">
-              OpenID:
-              <span style="font-family: monospace"
-                >mock-wechat-openid-12345</span
-              >
-            </div>
-          </div>
-        </div>
-        <div class="actions" style="margin-top: 12px">
-          <button
-            class="btn-primary"
-            style="background: #07c160"
-            onclick="wechatMockLogin()"
-          >
-            Open Mock Login
-          </button>
-        </div>
-      </div>
-      <div id="wechatMockUser" class="hidden">
-        <div class="user-info">
-          <div
-            style="
-              width: 40px;
-              height: 40px;
-              border-radius: 50%;
-              background: #07c160;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: white;
-              font-weight: bold;
-              font-size: 18px;
-            "
-          >
-            M
-          </div>
-          <div class="details">
-            <div class="name">
-              <span id="wechatMockNickname">Mock WeChat User</span>
-              <span class="badge badge-verified">MOCK</span>
-            </div>
-            <div class="sub">
-              UnionID:
-              <span id="wechatMockUnionId" style="font-family: monospace"
-                >mock-wechat-unionid-12345</span
-              >
-            </div>
-            <div class="sub">
-              OpenID:
-              <span id="wechatMockOpenId" style="font-family: monospace"
-                >mock-wechat-openid-12345</span
-              >
-            </div>
-          </div>
-        </div>
-        <div class="actions" style="margin-top: 8px">
-          <button class="btn-secondary" onclick="wechatMockSignOut()">
-            Sign Out
-          </button>
-        </div>
-      </div>
-      <div id="wechatMockError" class="hidden">
-        <div class="status error" id="wechatMockErrorMsg"></div>
-      </div>
-    </div>
-
-    <!-- Step 1: Access Token -->
-    <div class="card">
-      <h2><span class="step">1</span>Access Token</h2>
-      <p class="note">
-        Get OAuth2 access_token (client_credentials + JWT assertion).
-      </p>
-      <div class="actions">
-        <button class="btn-primary" id="btnGetToken" onclick="getToken()">
-          Get Token
-        </button>
-        <span id="tokenStatus" class="status info">Not issued</span>
-      </div>
-      <div id="tokenDetail" class="hidden">
-        <pre id="tokenJson"></pre>
-      </div>
-    </div>
-
-    <!-- Step 2: Start Social KYC -->
-    <div class="card">
-      <h2><span class="step">2</span>Start Social KYC</h2>
-      <p class="note" id="socialKycNote">
-        POST /v1/idv/social/google/start — All providers use the same request
-        shape; login_hint can be used as the Plaid fallback email.
-      </p>
-      <label for="callbackUrl">Callback URL</label>
-      <input type="text" id="callbackUrl" placeholder="callback_url" />
-      <div class="row">
-        <div>
-          <label for="country">Country (optional)</label>
-          <input type="text" id="country" placeholder="e.g. us, jp, cn" />
-        </div>
-        <div id="loginHintRow">
-          <label for="loginHint" id="loginHintLabel"
-            >Login Hint (optional fallback email)</label
-          >
-          <input type="text" id="loginHint" placeholder="user@example.com" />
-        </div>
-      </div>
-      <div class="actions">
-        <button
-          class="btn-primary"
-          id="btnStartSocial"
-          onclick="startSocialKyc()"
-        >
-          Start Verification
-        </button>
-      </div>
-      <div id="startResult" class="hidden">
-        <div id="startStatus" class="status info"></div>
-        <pre id="startJson"></pre>
-        <div id="authUrlBox" class="hidden" style="margin-top: 10px">
-          <a
-            id="authUrlLink"
-            href="#"
-            target="_blank"
-            class="ext"
-            style="font-size: 1rem; font-weight: 600"
-            >Open Authorization Page &#8599;</a
-          >
-          <p class="note">
-            This opens the Tomo authorization page (not Google Login).
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: Authorization -->
-    <div class="card">
-      <h2><span class="step">3</span>Authorization (external)</h2>
-      <p style="font-size: 0.85rem; color: #666">
-        Click "Open Authorization Page" above to visit the Tomo authorization
-        page.<br />
-        After approval, you will be redirected back to this page
-        (callback_url).<br />
-        <span style="color: #999"
-          >Google: redirects to Google Login. WeChat: shows a QR code. WeChat
-          (Mock): opens a local mock consent page that follows the same redirect
-          structure.</span
-        >
-      </p>
-      <div id="callbackInfo" class="hidden" style="margin-top: 10px">
-        <div class="status ok">Returned from authorization callback</div>
-        <pre id="callbackParams"></pre>
-      </div>
-    </div>
-
-    <hr class="divider" style="margin: 24px 0" />
-
-    <!-- Step 4: Social Result -->
-    <div class="card">
-      <h2><span class="step">4</span>Social KYC Result</h2>
-      <p class="note">
-        POST /v1/idv/social/result — Query KYC result by user_id (Social KYC
-        flow).
-      </p>
-      <label for="socialResultUserId">User ID</label>
-      <input type="text" id="socialResultUserId" placeholder="user_id" />
-      <div class="actions">
-        <button class="btn-primary" onclick="getSocialResult()">
-          Get Social Result
-        </button>
-      </div>
-      <div id="socialResult" class="hidden">
-        <div id="socialResultStatus" class="status info"></div>
-        <pre id="socialResultJson"></pre>
-      </div>
-    </div>
-
-    <hr class="divider" style="margin: 24px 0" />
-
-    <!-- Step 5: Existing KYC Test (optional) -->
-    <div class="card">
-      <h2><span class="step">5</span>Existing KYC Test (optional)</h2>
-      <p class="note">
-        Test existing per-country KYC endpoints (not part of Social KYC flow).
-      </p>
-      <div class="row">
-        <div>
-          <label for="kycCountry">Country</label>
-          <select id="kycCountry">
-            <option value="us" selected>us</option>
-            <option value="uk">uk</option>
-            <option value="ca">ca</option>
-            <option value="jp">jp</option>
-            <option value="cn">cn</option>
-          </select>
-        </div>
-        <div>
-          <label for="kycUserId">User ID</label>
-          <input
-            type="text"
-            id="kycUserId"
-            value="7999752903327968491"
-            placeholder="user_id"
-          />
-        </div>
-      </div>
-      <div class="actions">
-        <button class="btn-primary" onclick="getKycResult()">
-          Get KYC Result
-        </button>
-      </div>
-      <div id="kycResult" class="hidden">
-        <pre id="kycJson"></pre>
-      </div>
-    </div>
-
-    </div><!-- end tab-social -->
-
-    <!-- ═══════════════════════════════════════════ -->
     <!-- TAB: Custom KYC                               -->
     <!-- ═══════════════════════════════════════════ -->
-    <div class="tab-content" id="tab-custom">
+    <div class="tab-content active" id="tab-custom">
 
       <!-- Step 0: Access Token -->
       <div class="card" id="section-token" style="border-left: 4px solid #1976d2">
@@ -920,7 +531,7 @@
       <hr class="section-divider">
       <div class="section-card" id="section-plaid">
         <h2><span class="step">1</span>Plaid IDV <span class="country-label country-us">US/UK/CA</span></h2>
-        <p class="note">Plaid 기반 신원인증. callback_url로 결과를 수신하며, email은 Plaid fallback용으로 사용됩니다.</p>
+        <p class="note">Plaid 기반 신원인증. callback_url로 결과를 수신합니다.</p>
       </div>
 
       <!-- 1-1: us/start -->
@@ -1639,14 +1250,6 @@
     </div>
 
     <script>
-      // ── State ──
-      let googleProfile = null; // { sub, email, name, picture }
-      let wechatProfile = null; // { unionid, openid, nickname, headimgurl }
-      let wechatProfileProvider = null; // 'wechat' | 'wechat-mock'
-      // ── Init ──
-      document.getElementById('callbackUrl').value =
-        window.location.origin + '/test-board';
-
       // ── Old API tab: load URLs from server config ──
       let oldApiServerUrl = '';
       let oldApiAppUrl = '';
@@ -1670,272 +1273,6 @@
         } catch (e) { /* Config not available */ }
       })();
 
-      // Check if returned from WeChat login callback (Step 0)
-      (function checkWechatCallback() {
-        const params = new URLSearchParams(window.location.search);
-        const provider = params.get('wechat_provider') || 'wechat';
-
-        if (params.get('wechat_login') === 'success') {
-          wechatProfile = {
-            unionid: params.get('wechat_unionid') || '',
-            openid: params.get('wechat_openid') || '',
-            nickname: params.get('wechat_nickname') || '',
-            headimgurl: params.get('wechat_headimgurl') || '',
-          };
-          wechatProfileProvider = provider;
-
-          if (provider === 'wechat-mock') {
-            document.getElementById('wechatMockNickname').textContent =
-              wechatProfile.nickname || 'Mock WeChat User';
-            document.getElementById('wechatMockUnionId').textContent =
-              wechatProfile.unionid;
-            document.getElementById('wechatMockOpenId').textContent =
-              wechatProfile.openid;
-            document
-              .getElementById('wechatMockUserPreview')
-              .classList.add('hidden');
-            document
-              .getElementById('wechatMockUser')
-              .classList.remove('hidden');
-            document.getElementById('wechatMockError').classList.add('hidden');
-            document.querySelector(
-              'input[name="socialProvider"][value="wechat-mock"]',
-            ).checked = true;
-          } else {
-            document.getElementById('wechatAvatar').src =
-              wechatProfile.headimgurl;
-            document.getElementById('wechatNickname').textContent =
-              wechatProfile.nickname || 'WeChat User';
-            document.getElementById('wechatUnionId').textContent =
-              wechatProfile.unionid;
-            document.getElementById('wechatOpenId').textContent =
-              wechatProfile.openid;
-            document.getElementById('wechatUser').classList.remove('hidden');
-            document
-              .getElementById('wechatQrContainer')
-              .classList.add('hidden');
-            document.getElementById('wechatError').classList.add('hidden');
-            document.querySelector(
-              'input[name="socialProvider"][value="wechat"]',
-            ).checked = true;
-          }
-
-          onProviderChange();
-
-          // Clean URL (remove wechat_* params)
-          const cleanUrl = window.location.origin + window.location.pathname;
-          window.history.replaceState({}, document.title, cleanUrl);
-          return; // Don't process as authorization callback
-        }
-
-        if (params.get('wechat_error')) {
-          wechatProfile = null;
-          wechatProfileProvider = null;
-          if (provider === 'wechat-mock') {
-            showWechatMockError(
-              'WeChat mock login error: ' + params.get('wechat_error'),
-            );
-            document.querySelector(
-              'input[name="socialProvider"][value="wechat-mock"]',
-            ).checked = true;
-          } else {
-            showWechatError(
-              'WeChat login error: ' + params.get('wechat_error'),
-            );
-            document.querySelector(
-              'input[name="socialProvider"][value="wechat"]',
-            ).checked = true;
-          }
-          onProviderChange();
-
-          const cleanUrl = window.location.origin + window.location.pathname;
-          window.history.replaceState({}, document.title, cleanUrl);
-          return;
-        }
-      })();
-
-      // Check if returned from authorization callback (Step 3)
-      (function checkCallback() {
-        const params = new URLSearchParams(window.location.search);
-        // Skip if this was a WeChat login callback (already handled above)
-        if (params.get('wechat_login') || params.get('wechat_error')) return;
-        if (params.toString()) {
-          const callbackInfo = document.getElementById('callbackInfo');
-          const callbackParamsEl = document.getElementById('callbackParams');
-          callbackInfo.classList.remove('hidden');
-          const obj = {};
-          params.forEach((v, k) => {
-            obj[k] = v;
-          });
-          callbackParamsEl.textContent = JSON.stringify(obj, null, 2);
-        }
-      })();
-
-      // ── Google Sign-In ──
-      async function initGoogleSignIn() {
-        try {
-          const res = await fetch('/test-board/config');
-          const config = await res.json();
-          if (!config.googleClientId) {
-            showGoogleError('GOOGLE_CLIENT_ID not configured on server.');
-            return;
-          }
-          google.accounts.id.initialize({
-            client_id: config.googleClientId,
-            callback: handleGoogleCredentialResponse,
-            auto_select: false,
-          });
-          google.accounts.id.renderButton(
-            document.getElementById('googleSignInBtn'),
-            {
-              theme: 'outline',
-              size: 'large',
-              text: 'signin_with',
-              shape: 'rectangular',
-            },
-          );
-        } catch (e) {
-          showGoogleError('Failed to load Google Sign-In config: ' + e.message);
-        }
-      }
-
-      function handleGoogleCredentialResponse(response) {
-        try {
-          const payload = parseJwt(response.credential);
-          googleProfile = {
-            sub: payload.sub,
-            email: payload.email,
-            name: payload.name,
-            picture: payload.picture,
-          };
-
-          // Display user info
-          document.getElementById('googleAvatar').src = payload.picture || '';
-          document.getElementById('googleName').textContent =
-            payload.name || '';
-          document.getElementById('googleEmail').textContent =
-            payload.email || '';
-          document.getElementById('googleSub').textContent = payload.sub || '';
-          document.getElementById('googleUser').classList.remove('hidden');
-          document.getElementById('googleSignInBtn').classList.add('hidden');
-          document.getElementById('googleError').classList.add('hidden');
-
-          // Auto-fill login_hint from Google email
-          document.getElementById('loginHint').value = payload.email;
-        } catch (e) {
-          showGoogleError('Failed to parse Google ID token: ' + e.message);
-        }
-      }
-
-      function googleSignOut() {
-        googleProfile = null;
-        google.accounts.id.disableAutoSelect();
-        document.getElementById('googleUser').classList.add('hidden');
-        document.getElementById('googleSignInBtn').classList.remove('hidden');
-        document.getElementById('loginHint').value = '';
-      }
-
-      function showGoogleError(msg) {
-        document.getElementById('googleError').classList.remove('hidden');
-        document.getElementById('googleErrorMsg').textContent = msg;
-      }
-
-      // ── WeChat Login (Real QR Code via WeChat JS SDK) ──
-      async function initWeChatLogin() {
-        try {
-          const res = await fetch('/test-board/config');
-          const config = await res.json();
-          if (!config.wechatAppId) {
-            showWechatError('WECHAT_CLIENT_APP_ID not configured on server.');
-            return;
-          }
-
-          const redirectUri = encodeURIComponent(
-            window.location.origin + '/wechat/login/callback',
-          );
-          const state = 'testboard_' + Date.now();
-
-          // Clear previous QR code
-          document.getElementById('wechatQrContainer').innerHTML = '';
-
-          new WxLogin({
-            self_redirect: false,
-            id: 'wechatQrContainer',
-            appid: config.wechatAppId,
-            scope: 'snsapi_login',
-            redirect_uri: redirectUri,
-            state: state,
-            style: 'black',
-            href: '',
-          });
-        } catch (e) {
-          showWechatError('Failed to initialize WeChat Login: ' + e.message);
-        }
-      }
-
-      function wechatSignOut() {
-        wechatProfile = null;
-        wechatProfileProvider = null;
-        document.getElementById('wechatUser').classList.add('hidden');
-        document.getElementById('wechatQrContainer').classList.remove('hidden');
-        document.getElementById('wechatError').classList.add('hidden');
-        initWeChatLogin(); // Re-render QR code
-      }
-
-      function showWechatError(msg) {
-        document.getElementById('wechatError').classList.remove('hidden');
-        document.getElementById('wechatErrorMsg').textContent = msg;
-      }
-
-      // ── WeChat Mock Login ──
-      function wechatMockLogin() {
-        const state = 'testboard_mock_' + Date.now();
-        window.location.href =
-          '/wechat-mock/login?state=' + encodeURIComponent(state);
-      }
-
-      function wechatMockSignOut() {
-        wechatProfile = null;
-        wechatProfileProvider = null;
-        document.getElementById('wechatMockUser').classList.add('hidden');
-        document
-          .getElementById('wechatMockUserPreview')
-          .classList.remove('hidden');
-        document.getElementById('wechatMockError').classList.add('hidden');
-      }
-
-      function showWechatMockError(msg) {
-        document.getElementById('wechatMockUser').classList.add('hidden');
-        document
-          .getElementById('wechatMockUserPreview')
-          .classList.remove('hidden');
-        document.getElementById('wechatMockError').classList.remove('hidden');
-        document.getElementById('wechatMockErrorMsg').textContent = msg;
-      }
-
-      // Decode JWT payload (no verification — frontend only)
-      function parseJwt(token) {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-          atob(base64)
-            .split('')
-            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-            .join(''),
-        );
-        return JSON.parse(jsonPayload);
-      }
-
-      // Wait for GIS library to load, then init
-      function waitForGis() {
-        if (typeof google !== 'undefined' && google.accounts) {
-          initGoogleSignIn();
-        } else {
-          setTimeout(waitForGis, 100);
-        }
-      }
-      waitForGis();
-
       // ── API Helper ──
       async function apiCall(url, options = {}) {
         const res = await fetch(url, options);
@@ -1947,207 +1284,6 @@
           data = text;
         }
         return { ok: res.ok, status: res.status, data };
-      }
-
-      // ── Provider Selection ──
-      function onProviderChange() {
-        const provider = document.querySelector(
-          'input[name="socialProvider"]:checked',
-        ).value;
-        const loginHintRow = document.getElementById('loginHintRow');
-        const loginHintLabel = document.getElementById('loginHintLabel');
-        const loginHintInput = document.getElementById('loginHint');
-        const noteEl = document.getElementById('socialKycNote');
-        const googleSignInCard = document.getElementById('googleSignInCard');
-        const wechatLoginCard = document.getElementById('wechatLoginCard');
-        const wechatMockLoginCard = document.getElementById(
-          'wechatMockLoginCard',
-        );
-
-        if (provider === 'wechat') {
-          loginHintRow.classList.remove('hidden');
-          loginHintLabel.textContent =
-            'Login Hint (Plaid fallback email, optional)';
-          loginHintInput.placeholder = 'user@example.com';
-          noteEl.textContent =
-            'POST /v1/idv/social/wechat/start — WeChat QR code login. login_hint is optional and only needed when Plaid countries require an email.';
-          googleSignInCard.classList.add('hidden');
-          wechatLoginCard.classList.remove('hidden');
-          wechatMockLoginCard.classList.add('hidden');
-          if (!wechatProfile || wechatProfileProvider !== 'wechat') {
-            document.getElementById('wechatUser').classList.add('hidden');
-            document
-              .getElementById('wechatQrContainer')
-              .classList.remove('hidden');
-            initWeChatLogin(); // Initialize QR code when WeChat is first selected
-          }
-        } else if (provider === 'wechat-mock') {
-          loginHintRow.classList.remove('hidden');
-          loginHintLabel.textContent =
-            'Login Hint (Plaid fallback email, optional)';
-          loginHintInput.placeholder = 'user@example.com';
-          noteEl.textContent =
-            'POST /v1/idv/social/wechat-mock/start — Mock WeChat login and Tomo consent flow. login_hint stays available for Plaid fallback email tests.';
-          googleSignInCard.classList.add('hidden');
-          wechatLoginCard.classList.add('hidden');
-          wechatMockLoginCard.classList.remove('hidden');
-          if (!wechatProfile || wechatProfileProvider !== 'wechat-mock') {
-            document.getElementById('wechatMockUser').classList.add('hidden');
-            document
-              .getElementById('wechatMockUserPreview')
-              .classList.remove('hidden');
-          }
-        } else {
-          loginHintRow.classList.remove('hidden');
-          loginHintLabel.textContent = 'Login Hint (from Google email)';
-          loginHintInput.placeholder = 'user@gmail.com';
-          noteEl.textContent =
-            'POST /v1/idv/social/google/start — Google email is used as login_hint. Returns authorization_url.';
-          googleSignInCard.classList.remove('hidden');
-          wechatLoginCard.classList.add('hidden');
-          wechatMockLoginCard.classList.add('hidden');
-        }
-      }
-
-      // ── Step 1: Get Token ──
-      async function getToken() {
-        const btn = document.getElementById('btnGetToken');
-        const statusEl = document.getElementById('tokenStatus');
-        const detailEl = document.getElementById('tokenDetail');
-        const jsonEl = document.getElementById('tokenJson');
-
-        btn.disabled = true;
-        statusEl.className = 'status info';
-        statusEl.textContent = 'Requesting...';
-
-        const { ok, status, data } = await apiCall('/v1/oauth2/token', {
-          method: 'POST',
-        });
-
-        btn.disabled = false;
-        detailEl.classList.remove('hidden');
-
-        if (ok) {
-          statusEl.className = 'status ok';
-          const expiresIn = data.expires_in || '?';
-          statusEl.textContent = 'Issued (expires in ' + expiresIn + 's)';
-          jsonEl.textContent = JSON.stringify(data, null, 2);
-        } else {
-          statusEl.className = 'status error';
-          statusEl.textContent = 'Error ' + status;
-          jsonEl.textContent = JSON.stringify(data, null, 2);
-        }
-      }
-
-      // ── Step 2: Start Social KYC ──
-      async function startSocialKyc() {
-        const btn = document.getElementById('btnStartSocial');
-        const resultEl = document.getElementById('startResult');
-        const statusEl = document.getElementById('startStatus');
-        const jsonEl = document.getElementById('startJson');
-        const authUrlBox = document.getElementById('authUrlBox');
-
-        btn.disabled = true;
-        resultEl.classList.remove('hidden');
-        authUrlBox.classList.add('hidden');
-        statusEl.className = 'status info';
-        statusEl.textContent = 'Starting...';
-
-        const provider = document.querySelector(
-          'input[name="socialProvider"]:checked',
-        ).value;
-
-        const body = {
-          callback_url: document.getElementById('callbackUrl').value,
-        };
-        const country = document.getElementById('country').value;
-        if (country) body.country = country;
-
-        const loginHint = document.getElementById('loginHint').value;
-        if (loginHint) body.login_hint = loginHint;
-
-        let endpoint;
-        if (provider === 'google') endpoint = '/v1/idv/social/google/start';
-        else if (provider === 'wechat-mock')
-          endpoint = '/v1/idv/social/wechat-mock/start';
-        else endpoint = '/v1/idv/social/wechat/start';
-
-        const { ok, status, data } = await apiCall(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        btn.disabled = false;
-        jsonEl.textContent = JSON.stringify(data, null, 2);
-
-        if (ok) {
-          statusEl.className = 'status ok';
-          statusEl.textContent = 'Started successfully';
-          const authUrl = data.authorization_url;
-          if (authUrl) {
-            authUrlBox.classList.remove('hidden');
-            const link = document.getElementById('authUrlLink');
-            link.href = authUrl;
-          }
-        } else {
-          statusEl.className = 'status error';
-          statusEl.textContent = 'Error ' + status;
-        }
-      }
-
-      // ── Step 4: Get Social Result ──
-      async function getSocialResult() {
-        const resultEl = document.getElementById('socialResult');
-        const statusEl = document.getElementById('socialResultStatus');
-        const jsonEl = document.getElementById('socialResultJson');
-
-        resultEl.classList.remove('hidden');
-        statusEl.className = 'status info';
-        statusEl.textContent = 'Loading...';
-        jsonEl.textContent = '';
-
-        const body = {
-          user_id: document.getElementById('socialResultUserId').value,
-        };
-
-        const { ok, status, data } = await apiCall('/v1/idv/social/result', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        jsonEl.textContent = JSON.stringify(data, null, 2);
-
-        if (ok) {
-          statusEl.className = 'status ok';
-          statusEl.textContent = 'Result retrieved';
-        } else {
-          statusEl.className = 'status error';
-          statusEl.textContent = 'Error ' + status;
-        }
-      }
-
-      // ── Step 5: Get KYC Result ──
-      async function getKycResult() {
-        const resultEl = document.getElementById('kycResult');
-        const jsonEl = document.getElementById('kycJson');
-
-        resultEl.classList.remove('hidden');
-        jsonEl.textContent = 'Loading...';
-
-        const body = {
-          user_id: document.getElementById('kycUserId').value,
-          country: document.getElementById('kycCountry').value,
-        };
-
-        const { ok, status, data } = await apiCall('/v1/idv/kyc/get', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        jsonEl.textContent = JSON.stringify(data, null, 2);
       }
 
       // ══════════════════════════════════════
@@ -2175,8 +1311,8 @@
 
       const CUSTOM_CARDS = {
         // ── US ──
-        'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
-        'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
+        'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
         'us-kyc-get':        { endpoint: '/v1/idv/us/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
         // ── JP ──
         'jp-start-verified': { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
@@ -2187,26 +1323,26 @@
         'cn-start-new':      { endpoint: '/v1/idv/cn/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
         'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044' }) },
         // ── Generic /v1/idv/start ──
-        'generic-start-none-verified': { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
-        'generic-start-none-new':      { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
-        'generic-start-us-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
-        'generic-start-us-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
-        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
-        'generic-start-jp-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
-        'generic-start-cn-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', email: 'test@example.com', kyc_policy_id: '' }) },
+        'generic-start-none-verified': { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-none-new':      { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-us-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-us-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-jp-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-cn-new':        { endpoint: '/v1/idv/start', body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
         // ── Generic /v1/idv/kyc/get ──
         'generic-kyc-get-us': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
         'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
         'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
         // ── Policy Tests ──
-        'policy-positive-verify':        { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), email: 'policy-test@example.com', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
-        'policy-negative-invalid':       { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), email: 'policy-test@example.com', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'nonexistent-policy-xyz' }) },
-        'policy-fallback':               { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), email: 'policy-test@example.com', callback_url: window.location.origin + '/test-board' }) },
-        'policy-verified-complete-flow': { endpoint: '/v1/idv/us/start', body: () => ({ user_id: '7999752903327968491', email: 'verified@example.com', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
+        'policy-positive-verify':        { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
+        'policy-negative-invalid':       { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'nonexistent-policy-xyz' }) },
+        'policy-fallback':               { endpoint: '/v1/idv/us/start', body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'policy-verified-complete-flow': { endpoint: '/v1/idv/us/start', body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
         // ── Personal ID Resolution Test ──
-        'pid-existing':  { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', email: 'test@example.com', callback_url: window.location.origin + '/test-board' }) },
-        'pid-resolve':   { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '<paste pid from Card 6-1>', email: 'test@example.com', callback_url: window.location.origin + '/test-board' }) },
-        'pid-new':       { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), email: 'test@example.com', callback_url: window.location.origin + '/test-board' }) },
+        'pid-existing':  { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
+        'pid-resolve':   { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '<paste pid from Card 6-1>', callback_url: window.location.origin + '/test-board' }) },
+        'pid-new':       { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'pid-kyc-get':   { endpoint: '/v1/idv/us/kyc/get', body: () => ({ user_id: '<paste pid from Card 6-1>' }) },
       };
 
@@ -2647,13 +1783,12 @@
         });
       }
 
-      // Sync token status between tabs
-      const origGetToken = getToken;
-      getToken = async function() {
-        const allBtns = [document.getElementById('btnGetToken'), document.getElementById('btnGetTokenDirect')].filter(Boolean);
-        const allStatus = [document.getElementById('tokenStatus'), document.getElementById('tokenStatusDirect')].filter(Boolean);
-        const allDetail = [document.getElementById('tokenDetail'), document.getElementById('tokenDetailDirect')].filter(Boolean);
-        const allJson = [document.getElementById('tokenJson'), document.getElementById('tokenJsonDirect')].filter(Boolean);
+      // Issue OAuth2 token for Custom KYC requests.
+      async function getToken() {
+        const allBtns = [document.getElementById('btnGetTokenDirect')].filter(Boolean);
+        const allStatus = [document.getElementById('tokenStatusDirect')].filter(Boolean);
+        const allDetail = [document.getElementById('tokenDetailDirect')].filter(Boolean);
+        const allJson = [document.getElementById('tokenJsonDirect')].filter(Boolean);
 
         allBtns.forEach(b => b.disabled = true);
         allStatus.forEach(s => { s.className = 'status info'; s.textContent = 'Requesting...'; });
@@ -2671,7 +1806,7 @@
           allStatus.forEach(s => { s.className = 'status error'; s.textContent = 'Error ' + status; });
           allJson.forEach(j => { j.textContent = JSON.stringify(data, null, 2); });
         }
-      };
+      }
       // ══════════════════════════════════════
       // Quick Jump Sidebar — scroll & highlight
       // ══════════════════════════════════════
