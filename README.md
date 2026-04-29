@@ -168,7 +168,7 @@ typescript/src/
   wechat-login.ts      — WeChat 로그인 콜백 유틸리티
 
   sdk/
-    idv-client.ts      — IdvServerClient (Generated DefaultApi 래퍼, snake→camel 변환)
+    idv-client.ts      — IdvServerClient (Generated DefaultApi 래퍼, body 변형 금지)
     tomo-idv-node.ts   — OAuth2 JWT 어설션 생성 (ES256/P-256)
     api-contract.ts    — 요청 바디 타입 정의 (snake_case)
     generated/         — OpenAPI Generator 산출물 (수동 편집 금지)
@@ -266,7 +266,7 @@ kotlin/src/main/kotlin/com/tomoarrow/idv/bff/
 | Old API 엔드포인트 | 지원 (`/v1/verify/session` 등) | 미지원 (레거시) |
 | WeChat 로그인 콜백 | 지원 (`/wechat/login/callback`) | 미지원 |
 | Swagger UI | 지원 (`/api-docs`) | 미지원 |
-| 직렬화 전략 | 수동 snake↔camel 변환 | Jackson SNAKE_CASE 자동 변환 |
+| 직렬화 전략 | idv-server wire format 보존 | idv-server wire format 보존 |
 | SDK 호출 | Generated TypeScript fetch | Kotlin suspend fun + runBlocking |
 
 ## 공통 API 엔드포인트

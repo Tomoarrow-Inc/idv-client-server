@@ -3,14 +3,14 @@ import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import type {
   TokenRes,
-  StartIdvRes, GetKycRes,
+  StartIdvRes,
+  GetKycRes,
   StartIdvReq,
   GetKycReq,
   SessionStartReq,
   SessionStartRes,
-  TencentStartIdvRes,
-  Country,
 } from 'tomo-idv-client-node';
+import { UpstreamResponseError } from './upstream-response';
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
@@ -42,7 +42,8 @@ export class AppService {
 
     const tokenResponse = await this.api.v1Oauth2TokenPost({
       client_assertion: clientAssertion,
-      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      client_assertion_type:
+        'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
       grant_type: 'client_credentials',
       scope: 'idv.read',
       resource: `https://api.tomopayment.com/v1/idv`,
@@ -85,7 +86,7 @@ export class AppService {
     });
   }
 
-  // ── CN start (SDK v1IdvCnStartPost 사용, 이미지 있으면 포함 → 서버에서 분기) ──
+  // ── CN start ──
 
   async idvStartCN(body: {
     user_id: string;
@@ -93,56 +94,39 @@ export class AppService {
     card_image_base64?: string;
     best_frame_base64?: string;
     kyc_policy_id?: string;
-  }): Promise<TencentStartIdvRes> {
-    return this.api.v1IdvCnStartPost({
-      Authorization: this.bearerToken(),
-      TencentStartReq: {
-        user_id: body.user_id,
-        callback_url: body.callback_url,
-        card_image_base64: body.card_image_base64,
-        best_frame_base64: body.best_frame_base64,
-        kyc_policy_id: body.kyc_policy_id,
-      },
-    });
+  }): Promise<unknown> {
+    return this.proxyPost('/v1/idv/cn/start', body);
   }
 
-  // ── Per-country start (delegates to /v1/idv/start for backward compat) ──
+  // ── Per-country start ──
 
   async idvCountryStart(
     country: string,
-    body: { user_id: string; callback_url?: string; email?: string; kyc_policy_id?: string },
-  ): Promise<StartIdvRes> {
-    return this.api.v1IdvStartPost({
-      Authorization: this.bearerToken(),
-      StartIdvReq: {
-        user_id: body.user_id,
-        country: country as Country,
-        callback_url: body.callback_url,
-        email: body.email,
-        kyc_policy_id: body.kyc_policy_id,
-      },
-    });
+    body: {
+      user_id: string;
+      callback_url?: string;
+      email?: string;
+      kyc_policy_id?: string;
+    },
+  ): Promise<unknown> {
+    return this.proxyPost(`/v1/idv/${country}/start`, body);
   }
 
-  // ── Per-country kyc/get (delegates to unified kyc/get with country) ──
+  // ── Per-country kyc/get ──
 
   async idvCountryKycGet(
     country: string,
     body: { user_id: string },
-  ): Promise<GetKycRes> {
-    return this.api.v1IdvKycGetPost({
-      Authorization: this.bearerToken(),
-      GetKycReq: {
-        user_id: body.user_id,
-        country: country as Country,
-      },
-    });
+  ): Promise<unknown> {
+    return this.proxyPost(`/v1/idv/${country}/kyc/get`, body);
   }
 
   private requireAccessToken(): string {
-    const accessToken = this.getState('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found. Please call /v1/oauth2/token first.');
+    const accessToken = this.getState('access_token') as unknown;
+    if (typeof accessToken !== 'string' || !accessToken) {
+      throw new Error(
+        'No access token found. Please call /v1/oauth2/token first.',
+      );
     }
     return accessToken;
   }
@@ -150,6 +134,32 @@ export class AppService {
   private resolveBaseUrl(): string {
     const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';
     return base.replace(/\/$/, '');
+  }
+
+  private async proxyPost(path: string, body: unknown): Promise<unknown> {
+    const response = await fetch(`${this.resolveBaseUrl()}${path}`, {
+      method: 'POST',
+      headers: {
+        Authorization: this.bearerToken(),
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify(body),
+    });
+    const responseBody = await response.text();
+
+    if (!response.ok) {
+      throw new UpstreamResponseError(
+        response.status,
+        responseBody,
+        response.headers.get('content-type') ?? undefined,
+      );
+    }
+
+    try {
+      return JSON.parse(responseBody) as unknown;
+    } catch {
+      return responseBody;
+    }
   }
 
   // ==================== State Management Methods ====================

@@ -4,9 +4,7 @@ import com.tomoarrow.idv.bff.service.IdvService
 import com.tomoarrow.idv.bff.service.TokenService
 import com.tomoarrow.idv.client.generated.models.*
 import kotlinx.coroutines.runBlocking
-import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 class IdvController(
@@ -31,35 +29,31 @@ class IdvController(
     // ===== Session (vendor-agnostic) =====
 
     @PostMapping("/v1/idv/sessions/start")
-    fun idvSessionStart(@RequestBody body: SessionStartReq): SessionStartRes = runBlocking {
+    fun idvSessionStart(@RequestBody body: Map<String, Any?>): Any = runBlocking {
         val token = tokenService.requireAccessToken()
-        idvService.idvSessionStart("Bearer $token", body)
+        idvService.proxyPost("Bearer $token", "/v1/idv/sessions/start", body)
     }
 
-    // ===== Per-country start (delegates to session start with country) =====
+    // ===== Per-country start (transparent proxy) =====
 
     @PostMapping("/v1/idv/{country}/start")
     fun idvCountryStart(
         @PathVariable country: String,
-        @RequestBody body: SessionStartReq
-    ): SessionStartRes = runBlocking {
+        @RequestBody body: Map<String, Any?>
+    ): Any = runBlocking {
         val token = tokenService.requireAccessToken()
-        val resolved = Country.decode(country)
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown country: $country")
-        idvService.idvSessionStart("Bearer $token", body.copy(country = resolved))
+        idvService.proxyPost("Bearer $token", "/v1/idv/$country/start", body)
     }
 
-    // ===== Per-country kyc/get (delegates to unified kyc/get with country) =====
+    // ===== Per-country kyc/get (transparent proxy) =====
 
     @PostMapping("/v1/idv/{country}/kyc/get")
     fun kycCountryGet(
         @PathVariable country: String,
-        @RequestBody body: GetKycReq
-    ): GetKycRes = runBlocking {
+        @RequestBody body: Map<String, Any?>
+    ): Any = runBlocking {
         val token = tokenService.requireAccessToken()
-        val resolved = Country.decode(country)
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown country: $country")
-        idvService.kycGet("Bearer $token", body.copy(country = resolved))
+        idvService.proxyPost("Bearer $token", "/v1/idv/$country/kyc/get", body)
     }
 
 }

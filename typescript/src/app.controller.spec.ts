@@ -6,10 +6,6 @@ import {
   generateKeyPairSync,
   KeyObject,
 } from 'node:crypto';
-import {
-  EMPTY_KYC_POLICY_ID_MESSAGE,
-  normalizeUpstreamErrorBody,
-} from './app.controller';
 
 type RegistrationResponseBody = {
   client_id: string;
@@ -36,45 +32,6 @@ const baseUrl = (process.env.IDV_BASE_URL ?? 'http://localhost:8080').replace(
   '',
 );
 const describeIfEnabled = shouldRunIntegration ? describe : describe.skip;
-
-describe('policy error response normalization', () => {
-  it('returns an English text body when upstream sends the legacy Korean empty kyc_policy_id message as text', () => {
-    // idv-server may send a plain text error body; Nest wraps that string as
-    // {statusCode, message}, so the string must be normalized before throwing.
-    const normalized = normalizeUpstreamErrorBody(
-      'kyc_policy_id \uAC12\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694.',
-    );
-
-    expect(normalized).toBe(EMPTY_KYC_POLICY_ID_MESSAGE);
-  });
-
-  it('returns an English message when upstream sends the legacy Korean empty kyc_policy_id message', () => {
-    // This reproduces the BFF response shape reported by clients and ensures
-    // no Korean policy validation text is exposed after Nest wraps the error.
-    const normalized = normalizeUpstreamErrorBody({
-      statusCode: 400,
-      message:
-        'kyc_policy_id \uAC12\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694.',
-    });
-
-    expect(normalized).toEqual({
-      statusCode: 400,
-      message: EMPTY_KYC_POLICY_ID_MESSAGE,
-    });
-  });
-
-  it('removes the legacy Korean empty kyc_policy_id text from SDK-prefixed errors', () => {
-    // Some generated SDKs prefix upstream messages before the BFF handler sees
-    // them; this keeps those wrapped errors English-only as well.
-    const normalized = normalizeUpstreamErrorBody(
-      'Client error : 400 kyc_policy_id \uAC12\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694.',
-    );
-
-    expect(normalized).toBe(
-      `Client error : 400 ${EMPTY_KYC_POLICY_ID_MESSAGE}`,
-    );
-  });
-});
 
 // Exercise the IDV OAuth2 token endpoint using the same flow as the Haskell spec.
 describeIfEnabled('+/oauth2/token (private_key_jwt)', () => {

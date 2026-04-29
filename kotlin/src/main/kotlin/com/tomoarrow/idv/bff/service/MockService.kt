@@ -1,6 +1,7 @@
 package com.tomoarrow.idv.bff.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.tomoarrow.idv.bff.UpstreamHttpException
 import com.tomoarrow.idv.bff.config.AppProperties
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -47,7 +48,7 @@ class MockService(
         httpClient.newCall(request).execute().use { response ->
             val responseBody = response.body?.string() ?: ""
             if (!response.isSuccessful) {
-                throw RuntimeException("Upstream error ${response.code}: $responseBody")
+                throw UpstreamHttpException(response.code, responseBody, response.header("Content-Type"))
             }
             return try {
                 objectMapper.readValue(responseBody, Map::class.java)
