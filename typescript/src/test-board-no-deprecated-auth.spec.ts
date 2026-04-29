@@ -1,12 +1,13 @@
 /**
  * Purpose
  * - The test-board simulates a customer frontend, so it must not provide
- *   deprecated external auth flows or silently add email defaults to request
- *   bodies.
+ *   deprecated external auth flows, and its request fixtures must keep email
+ *   behavior explicit.
  *
  * Verification
  * - Deprecated auth UI/endpoint strings are absent from the served HTML.
- * - Custom KYC default body definitions do not include an email field.
+ * - Custom KYC request body textareas are initialized with a default email.
+ * - Section 7 keeps the only email-free request body for Plaid fallback.
  * - US start cards keep an explicit default policy id while dedicated policy
  *   cards isolate default, empty, and incorrect kyc_policy_id inputs.
  */
@@ -48,7 +49,7 @@ describe('test-board deprecated auth removal', () => {
     }
   });
 
-  it('does not seed email into Custom KYC request bodies', () => {
+  it('initializes default Custom KYC request bodies with email', () => {
     const html = readTestBoardHtml();
     const customCardsStart = html.indexOf('const CUSTOM_CARDS = {');
     const customCardsEnd = html.indexOf('// Initialize all card textareas');
@@ -57,7 +58,29 @@ describe('test-board deprecated auth removal', () => {
     expect(customCardsEnd).toBeGreaterThan(customCardsStart);
 
     const customCards = html.slice(customCardsStart, customCardsEnd);
-    expect(customCards).not.toMatch(/\bemail\s*:/);
+    // Default request body rendering must go through the shared email injector
+    // so customer examples do not accidentally exercise Plaid email fallback.
+    expect(html).toContain('function withDefaultEmail(body) {');
+    expect(html).toContain('function customCardBody(id) {');
+    expect(html).toContain('return cfg.includeDefaultEmail === false ? body : withDefaultEmail(body);');
+    expect(html).toContain('if (el) el.value = JSON.stringify(customCardBody(id), null, 2);');
+    expect(customCards.match(/includeDefaultEmail:\s*false/g)).toHaveLength(1);
+  });
+
+  it('keeps section 7 as the explicit Plaid email fallback request', () => {
+    const html = readTestBoardHtml();
+    const entry = customCardEntry(html, 'email-fallback-plaid');
+
+    // Section 7 is the only case that intentionally omits email so the test
+    // board can verify idv-app collects email before Plaid redirect.
+    expect(html).toContain('id="section-email-fallback"');
+    expect(html).toContain('id="card-email-fallback-plaid"');
+    expect(html).toContain("sendCustom('email-fallback-plaid')");
+    expect(entry).toContain("endpoint: '/v1/idv/us/start'");
+    expect(entry).toContain('expectedResponse: EXPECTED_RESPONSES.emailFallback');
+    expect(entry).toContain('includeDefaultEmail: false');
+    expect(entry).toContain("kyc_policy_id: 'test-policy-verify'");
+    expect(entry).not.toContain('email:');
   });
 
   it('keeps no-country start examples with an explicit blank policy id', () => {
@@ -86,7 +109,7 @@ describe('test-board deprecated auth removal', () => {
       // kyc_policy_id. Policy edge cases are covered by the dedicated cards.
       expect(entry).toContain("endpoint: '/v1/idv/us/start'");
       expect(entry).toContain("kyc_policy_id: 'test-policy-verify'");
-      expect(entry).not.toContain('email:');
+      expect(entry).toContain('expectedResponse: EXPECTED_RESPONSES.startOk');
     }
   });
 

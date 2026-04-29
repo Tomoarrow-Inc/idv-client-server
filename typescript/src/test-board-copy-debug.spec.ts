@@ -95,4 +95,18 @@ describe('test-board Custom KYC debug copy', () => {
       expect(block).toContain(`expectedResponse: ${expectedResponse}`);
     }
   });
+
+  it('covers the email fallback case with debug copy metadata', () => {
+    const html = readTestBoardHtml();
+    const block = customCardsBlock(html);
+
+    // The fallback card intentionally omits default email, but it still needs
+    // the same debug-copy metadata as every other Custom KYC request.
+    expect(html).toContain('id="section-email-fallback"');
+    expect(html).toContain('id="card-email-fallback-plaid"');
+    expect(html).toContain("sendCustom('email-fallback-plaid')");
+    expect(block).toContain("'email-fallback-plaid':");
+    expect(block).toContain('expectedResponse: EXPECTED_RESPONSES.emailFallback');
+    expect(block).toContain('includeDefaultEmail: false');
+  });
 });

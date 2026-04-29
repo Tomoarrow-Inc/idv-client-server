@@ -493,6 +493,7 @@
       <a class="qj-item" data-target="section-generic">4 Generic</a>
       <a class="qj-item" data-target="section-policy">5 Policy</a>
       <a class="qj-item" data-target="section-ppid">6 PPID</a>
+      <a class="qj-item" data-target="section-email-fallback">7 Email</a>
     </nav>
     <h1>KYC Test Board</h1>
     <p class="subtitle">
@@ -1124,6 +1125,38 @@
         </div>
       </div>
 
+      <!-- ════════════════════════════════════ -->
+      <!-- 7. Email Fallback Test              -->
+      <!-- ════════════════════════════════════ -->
+      <hr class="section-divider">
+      <div class="section-card" id="section-email-fallback">
+        <h2><span class="step">7</span>Email Fallback Test <span class="country-label country-us">US</span></h2>
+        <p class="note">Plaid 경유 전 email이 없는 start 요청에서 idv-app의 email fallback 입력 화면으로 연결되는지 검증합니다.</p>
+      </div>
+
+      <!-- 7-1: Plaid email fallback -->
+      <p class="substep-title"><span class="substep">7-1</span> POST /v1/idv/us/start - email 없이 Plaid fallback 시작</p>
+      <p class="note" style="margin-bottom:8px">이 카드만 의도적으로 email을 생략합니다. 다른 기본 request body는 email을 포함합니다.</p>
+
+      <div class="api-card" id="card-email-fallback-plaid">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case</span> Plaid Email Fallback</span>
+          <span class="api-badge api-badge-idle" id="badge-email-fallback-plaid">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-email-fallback-plaid"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('email-fallback-plaid')">Send</button>
+        </div>
+        <div id="result-email-fallback-plaid" class="hidden">
+          <div id="authlink-email-fallback-plaid" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-email-fallback-plaid"></pre>
+          <div id="table-email-fallback-plaid"></div>
+          <div id="jwt-email-fallback-plaid"></div>
+        </div>
+      </div>
+
     </div><!-- end tab-custom -->
 
     <!-- ═══════════════════════════════════════════ -->
@@ -1320,9 +1353,33 @@
         return id;
       }
 
+      function emailLocalPartForUserId(userId) {
+        return String(userId || 'test-board-user')
+          .toLowerCase()
+          .replace(/[^a-z0-9._+-]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 48) || 'test-board-user';
+      }
+
+      function defaultEmailForBody(body) {
+        return 'test-board+' + emailLocalPartForUserId(body?.user_id) + '@example.com';
+      }
+
+      function withDefaultEmail(body) {
+        if (Object.prototype.hasOwnProperty.call(body, 'email')) return body;
+        return { ...body, email: defaultEmailForBody(body) };
+      }
+
+      function customCardBody(id) {
+        const cfg = CUSTOM_CARDS[id];
+        const body = cfg.body();
+        return cfg.includeDefaultEmail === false ? body : withDefaultEmail(body);
+      }
+
       const EXPECTED_RESPONSES = {
         startOk: { status: 200, bodyShape: ['start_idv_uri or authorization_url'], description: 'IDV start should return a launch URL for the provider or complete flow.' },
         kycGetOk: { status: 200, bodyShape: ['KYC result JSON object'], description: 'KYC get should return the selected user identity verification result.' },
+        emailFallback: { status: 200, bodyShape: ['start_idv_uri for email fallback flow'], description: 'Missing Plaid email should return an idv-app fallback URL before vendor redirect.' },
         policyEmpty: { status: 400, bodyContains: 'Please provide kyc_policy_id.', description: 'Explicitly empty kyc_policy_id should fail shared input validation.' },
         policyIncorrect: { status: 404, bodyContains: 'KYC policy not found', description: 'Unknown kyc_policy_id should return a policy-not-found error.' },
         ppidExisting: { status: 200, bodyShape: ['pid or personal_id'], description: 'Existing auth_id start should return the already resolved personal identifier.' },
@@ -1364,6 +1421,8 @@
         'pid-resolve':   { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '<paste pid from Card 6-1>', callback_url: window.location.origin + '/test-board' }) },
         'pid-new':       { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'pid-kyc-get':   { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.ppidKycGet, body: () => ({ user_id: '<paste pid from Card 6-1>' }) },
+        // ── Email Fallback Test ──
+        'email-fallback-plaid': { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.emailFallback, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
       };
 
       const LAST_CUSTOM_RESULTS = {};
@@ -1371,7 +1430,7 @@
       // Initialize all card textareas with default bodies
       Object.keys(CUSTOM_CARDS).forEach(id => {
         const el = document.getElementById('body-' + id);
-        if (el) el.value = JSON.stringify(CUSTOM_CARDS[id].body(), null, 2);
+        if (el) el.value = JSON.stringify(customCardBody(id), null, 2);
       });
 
       installCustomDebugCopyButtons();
