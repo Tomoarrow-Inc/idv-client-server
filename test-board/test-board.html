@@ -938,69 +938,69 @@
         <p class="note">kyc_policy_id 기반 정책 테스트. 미리 입력된 body로 한 번의 클릭으로 케이스별 정책 동작을 검증합니다.</p>
       </div>
 
-      <!-- 5-1: Valid Policy (Positive) -->
-      <p class="substep-title"><span class="substep">5-1</span> Valid Policy &mdash; 200 + start_idv_uri 기대</p>
-      <p class="note" style="margin-bottom:8px">등록된 kyc_policy_id="test-policy-verify"로 start. 200 응답을 받아야 합니다.</p>
+      <!-- 5-1: Default Policy -->
+      <p class="substep-title"><span class="substep">5-1</span> Default Policy &mdash; 200 + start_idv_uri 기대</p>
+      <p class="note" style="margin-bottom:8px">kyc_policy_id를 생략하여 서버 기본 정책 폴백을 검증합니다.</p>
 
-      <div class="api-card" id="card-policy-positive-verify">
+      <div class="api-card" id="card-policy-default">
         <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Case</span> Valid Policy (Positive)</span>
-          <span class="api-badge api-badge-idle" id="badge-policy-positive-verify">NOT TESTED</span>
+          <span class="endpoint"><span class="case-label">Case</span> Default Policy</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-default">NOT TESTED</span>
         </div>
-        <p class="note">신규 user_id + 유효 kyc_policy_id. 200 + start_idv_uri 기대.</p>
-        <textarea class="json-editor" id="body-policy-positive-verify"></textarea>
+        <p class="note">신규 user_id + kyc_policy_id 생략. default policy fallback으로 200 기대.</p>
+        <textarea class="json-editor" id="body-policy-default"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendCustom('policy-positive-verify')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('policy-default')">Send</button>
         </div>
-        <div id="result-policy-positive-verify" class="hidden">
-          <div id="authlink-policy-positive-verify" class="hidden" style="margin-bottom:8px">
+        <div id="result-policy-default" class="hidden">
+          <div id="authlink-policy-default" class="hidden" style="margin-bottom:8px">
             <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
           </div>
-          <pre id="json-policy-positive-verify"></pre>
+          <pre id="json-policy-default"></pre>
         </div>
       </div>
 
-      <!-- 5-2: Invalid Policy (400 expected) -->
-      <p class="substep-title"><span class="substep">5-2</span> Invalid Policy &mdash; 400 기대</p>
-      <p class="note" style="margin-bottom:8px">존재하지 않는 kyc_policy_id로 start. 400 + "KYC policy not found" 기대.</p>
+      <!-- 5-2: Empty Policy -->
+      <p class="substep-title"><span class="substep">5-2</span> Empty Policy &mdash; 400 기대</p>
+      <p class="note" style="margin-bottom:8px">kyc_policy_id=""로 start. 400 + "Please provide kyc_policy_id." 기대.</p>
 
-      <div class="api-card" id="card-policy-negative-invalid">
+      <div class="api-card" id="card-policy-empty">
         <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Case</span> Invalid Policy (Negative)</span>
-          <span class="api-badge api-badge-idle" id="badge-policy-negative-invalid">NOT TESTED</span>
+          <span class="endpoint"><span class="case-label">Case</span> Empty Policy</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-empty">NOT TESTED</span>
         </div>
-        <p class="note">존재하지 않는 kyc_policy_id. 400 에러 기대.</p>
-        <textarea class="json-editor" id="body-policy-negative-invalid"></textarea>
+        <p class="note">명시적 빈 kyc_policy_id. 400 입력 검증 에러 기대.</p>
+        <textarea class="json-editor" id="body-policy-empty"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendCustom('policy-negative-invalid')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('policy-empty')">Send</button>
         </div>
-        <div id="result-policy-negative-invalid" class="hidden">
-          <div id="authlink-policy-negative-invalid" class="hidden" style="margin-bottom:8px">
+        <div id="result-policy-empty" class="hidden">
+          <div id="authlink-policy-empty" class="hidden" style="margin-bottom:8px">
             <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
           </div>
-          <pre id="json-policy-negative-invalid"></pre>
+          <pre id="json-policy-empty"></pre>
         </div>
       </div>
 
-      <!-- 5-3: No Policy (Env Fallback) -->
-      <p class="substep-title"><span class="substep">5-3</span> No Policy &mdash; Env Fallback</p>
-      <p class="note" style="margin-bottom:8px">kyc_policy_id 없이 start. 서버의 TEMPLATE_ID env var 폴백이 적용됩니다.</p>
+      <!-- 5-3: Incorrect Policy -->
+      <p class="substep-title"><span class="substep">5-3</span> Incorrect Policy &mdash; 404 기대</p>
+      <p class="note" style="margin-bottom:8px">존재하지 않는 kyc_policy_id로 start. 404 + "KYC policy not found" 기대.</p>
 
-      <div class="api-card" id="card-policy-fallback">
+      <div class="api-card" id="card-policy-incorrect">
         <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Case</span> No Policy (Fallback)</span>
-          <span class="api-badge api-badge-idle" id="badge-policy-fallback">NOT TESTED</span>
+          <span class="endpoint"><span class="case-label">Case</span> Incorrect Policy</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-incorrect">NOT TESTED</span>
         </div>
-        <p class="note">kyc_policy_id 미지정. env var TEMPLATE_ID 폴백으로 200 기대.</p>
-        <textarea class="json-editor" id="body-policy-fallback"></textarea>
+        <p class="note">존재하지 않는 kyc_policy_id. 404 정책 없음 에러 기대.</p>
+        <textarea class="json-editor" id="body-policy-incorrect"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendCustom('policy-fallback')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('policy-incorrect')">Send</button>
         </div>
-        <div id="result-policy-fallback" class="hidden">
-          <div id="authlink-policy-fallback" class="hidden" style="margin-bottom:8px">
+        <div id="result-policy-incorrect" class="hidden">
+          <div id="authlink-policy-incorrect" class="hidden" style="margin-bottom:8px">
             <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
           </div>
-          <pre id="json-policy-fallback"></pre>
+          <pre id="json-policy-incorrect"></pre>
         </div>
       </div>
 
@@ -1323,15 +1323,16 @@
       const EXPECTED_RESPONSES = {
         startOk: { status: 200, bodyShape: ['start_idv_uri or authorization_url'], description: 'IDV start should return a launch URL for the provider or complete flow.' },
         kycGetOk: { status: 200, bodyShape: ['KYC result JSON object'], description: 'KYC get should return the selected user identity verification result.' },
-        policyInvalid: { status: 400, bodyContains: 'KYC policy not found', description: 'Unknown kyc_policy_id should return a policy-not-found error.' },
+        policyEmpty: { status: 400, bodyContains: 'Please provide kyc_policy_id.', description: 'Explicitly empty kyc_policy_id should fail shared input validation.' },
+        policyIncorrect: { status: 404, bodyContains: 'KYC policy not found', description: 'Unknown kyc_policy_id should return a policy-not-found error.' },
         ppidExisting: { status: 200, bodyShape: ['pid or personal_id'], description: 'Existing auth_id start should return the already resolved personal identifier.' },
         ppidKycGet: { status: 200, bodyShape: ['KYC result JSON object for personal_id'], description: 'KYC get by personal_id should resolve back to the verified user result.' },
       };
 
       const CUSTOM_CARDS = {
         // ── US ──
-        'us-start-verified': { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
-        'us-start-new':      { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'us-start-verified': { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
+        'us-start-new':      { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
         'us-kyc-get':        { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491' }) },
         // ── JP ──
         'jp-start-verified': { endpoint: '/v1/idv/jp/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
@@ -1354,9 +1355,9 @@
         'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
         'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
         // ── Policy Tests ──
-        'policy-positive-verify':        { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
-        'policy-negative-invalid':       { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.policyInvalid, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'nonexistent-policy-xyz' }) },
-        'policy-fallback':               { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'policy-default':                { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'policy-empty':                  { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.policyEmpty, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'policy-incorrect':              { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.policyIncorrect, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'nonexistent-policy-xyz' }) },
         'policy-verified-complete-flow': { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
         // ── Personal ID Resolution Test ──
         'pid-existing':  { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.ppidExisting, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },

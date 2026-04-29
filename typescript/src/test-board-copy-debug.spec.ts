@@ -75,4 +75,24 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain("button.addEventListener('click', () => copyCustomDebugCase(id, button))");
     expect(html).toContain('actionsEl.appendChild(button)');
   });
+
+  it('covers the split policy cases with debug copy metadata', () => {
+    const html = readTestBoardHtml();
+    const block = customCardsBlock(html);
+
+    const policyCases = [
+      ['policy-default', 'EXPECTED_RESPONSES.startOk'],
+      ['policy-empty', 'EXPECTED_RESPONSES.policyEmpty'],
+      ['policy-incorrect', 'EXPECTED_RESPONSES.policyIncorrect'],
+    ];
+
+    for (const [cardId, expectedResponse] of policyCases) {
+      // The policy cards are debug fixtures, so each one needs both a rendered
+      // card id and expectedResponse metadata for the copied debug payload.
+      expect(html).toContain(`id="card-${cardId}"`);
+      expect(html).toContain(`sendCustom('${cardId}')`);
+      expect(block).toContain(`'${cardId}':`);
+      expect(block).toContain(`expectedResponse: ${expectedResponse}`);
+    }
+  });
 });

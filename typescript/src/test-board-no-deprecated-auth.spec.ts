@@ -7,8 +7,8 @@
  * Verification
  * - Deprecated auth UI/endpoint strings are absent from the served HTML.
  * - Custom KYC default body definitions do not include an email field.
- * - The 4-1 no-country start card keeps an explicit blank kyc_policy_id so
- *   customer-facing regression checks cover the empty-policy input case.
+ * - US start cards keep an explicit default policy id while dedicated policy
+ *   cards isolate default, empty, and incorrect kyc_policy_id inputs.
  */
 
 import { readFileSync } from 'fs';
@@ -75,16 +75,43 @@ describe('test-board deprecated auth removal', () => {
     }
   });
 
-  it('keeps 1-1.B new US start focused on email fallback input', () => {
+  it('keeps US start cards explicit about the selected default policy id', () => {
     const html = readTestBoardHtml();
-    const entry = customCardEntry(html, 'us-start-new');
+    const usStartCardIds = ['us-start-verified', 'us-start-new'];
 
-    // Case 1-1.B verifies the missing-email fallback path. It must omit the
-    // email field and also omit kyc_policy_id so empty-policy validation does
-    // not intercept the fallback behavior.
-    expect(entry).toContain("endpoint: '/v1/idv/us/start'");
-    expect(entry).not.toContain('email:');
-    expect(entry).not.toContain('kyc_policy_id:');
+    for (const cardId of usStartCardIds) {
+      const entry = customCardEntry(html, cardId);
+
+      // These top-level US start examples must not silently remove
+      // kyc_policy_id. Policy edge cases are covered by the dedicated cards.
+      expect(entry).toContain("endpoint: '/v1/idv/us/start'");
+      expect(entry).toContain("kyc_policy_id: 'test-policy-verify'");
+      expect(entry).not.toContain('email:');
+    }
+  });
+
+  it('separates default, empty, and incorrect policy request bodies', () => {
+    const html = readTestBoardHtml();
+
+    const defaultPolicy = customCardEntry(html, 'policy-default');
+    // Default policy means intentional omission so the server fallback path is
+    // tested separately from explicit empty and incorrect policy input.
+    expect(defaultPolicy).toContain("endpoint: '/v1/idv/us/start'");
+    expect(defaultPolicy).toContain('expectedResponse: EXPECTED_RESPONSES.startOk');
+    expect(defaultPolicy).not.toContain('kyc_policy_id:');
+
+    const emptyPolicy = customCardEntry(html, 'policy-empty');
+    // Empty policy is a client input validation case and must stay distinct
+    // from the default fallback omission path.
+    expect(emptyPolicy).toContain("endpoint: '/v1/idv/us/start'");
+    expect(emptyPolicy).toContain('expectedResponse: EXPECTED_RESPONSES.policyEmpty');
+    expect(emptyPolicy).toContain("kyc_policy_id: ''");
+
+    const incorrectPolicy = customCardEntry(html, 'policy-incorrect');
+    // Incorrect policy exercises the policy-not-found path with a non-empty id.
+    expect(incorrectPolicy).toContain("endpoint: '/v1/idv/us/start'");
+    expect(incorrectPolicy).toContain('expectedResponse: EXPECTED_RESPONSES.policyIncorrect');
+    expect(incorrectPolicy).toContain("kyc_policy_id: 'nonexistent-policy-xyz'");
   });
 
   it('renders idv-server error response bodies without parsing or reformatting', () => {
