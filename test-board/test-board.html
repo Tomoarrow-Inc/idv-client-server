@@ -1320,8 +1320,8 @@
 
       const CUSTOM_CARDS = {
         // ── US ──
-        'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'us-start-verified': { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
+        'us-start-new':      { endpoint: '/v1/idv/us/start',   body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'us-kyc-get':        { endpoint: '/v1/idv/us/kyc/get', body: () => ({ user_id: '7999752903327968491' }) },
         // ── JP ──
         'jp-start-verified': { endpoint: '/v1/idv/jp/start',   body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },

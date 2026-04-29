@@ -75,6 +75,18 @@ describe('test-board deprecated auth removal', () => {
     }
   });
 
+  it('keeps 1-1.B new US start focused on email fallback input', () => {
+    const html = readTestBoardHtml();
+    const entry = customCardEntry(html, 'us-start-new');
+
+    // Case 1-1.B verifies the missing-email fallback path. It must omit the
+    // email field and also omit kyc_policy_id so empty-policy validation does
+    // not intercept the fallback behavior.
+    expect(entry).toContain("endpoint: '/v1/idv/us/start'");
+    expect(entry).not.toContain('email:');
+    expect(entry).not.toContain('kyc_policy_id:');
+  });
+
   it('renders idv-server error response bodies without parsing or reformatting', () => {
     const html = readTestBoardHtml();
 
