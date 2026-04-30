@@ -1,14 +1,14 @@
 
 services:
   client-server:
-    image: tomoadmin/idv-client-server:test-0.0.2.5
+    image: tomoadmin/idv-client-server:1.2.1
     build:
       context: ../
       dockerfile: typescript/Dockerfile
       target: development
 
   client-server-test:
-    image: tomoadmin/idv-client-server:test-0.0.2.5
+    image: tomoadmin/idv-client-server:1.2.1
 
     ports:
       - "8080:3000"
@@ -19,7 +19,7 @@ services:
 
 
   client-server-dev:
-    image: tomoadmin/idv-client-server:test-0.0.2.5
+    image: tomoadmin/idv-client-server:1.2.1
 
     ports:
       - "8081:3000"
@@ -30,7 +30,7 @@ services:
 
 
   client-server-prod:
-    image: tomoadmin/idv-client-server:test-0.0.2.5
+    image: tomoadmin/idv-client-server:1.2.1
 
     ports:
       - "80:3000"
