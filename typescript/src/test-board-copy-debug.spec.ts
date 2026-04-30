@@ -66,6 +66,20 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain('collectCnFileAttachments(id)');
   });
 
+  it('marks expected error responses as successful test-board assertions', () => {
+    const html = readTestBoardHtml();
+
+    // Policy validation cards intentionally expect 400 responses. The board
+    // should grade them against expectedResponse instead of treating every
+    // non-2xx response as a failed customer test case.
+    expect(html).toContain('function matchesExpectedResponse(result, expectedResponse) {');
+    expect(html).toContain('expectedResponse.statuses?.includes(result.status)');
+    expect(html).toContain('const expectedMatched = matchesExpectedResponse(result, cfg.expectedResponse);');
+    expect(html).toContain('const shouldMarkSuccess = expectedMatched === null ? ok : expectedMatched;');
+    expect(html).toContain("badgeEl.textContent = (expectedMatched === null ? 'OK ' : 'PASS ') + status;");
+    expect(html).toContain("badgeEl.textContent = (expectedMatched === null ? 'ERR ' : 'FAIL ') + status;");
+  });
+
   it('installs a Copy debug button for each Custom KYC card', () => {
     const html = readTestBoardHtml();
 
@@ -76,19 +90,25 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain('actionsEl.appendChild(button)');
   });
 
-  it('covers the split policy cases with debug copy metadata', () => {
+  it('covers typed kyc_policy routing cases with debug copy metadata', () => {
     const html = readTestBoardHtml();
     const block = customCardsBlock(html);
 
     const policyCases = [
-      ['policy-default', 'EXPECTED_RESPONSES.startOk'],
-      ['policy-empty', 'EXPECTED_RESPONSES.policyEmpty'],
-      ['policy-incorrect', 'EXPECTED_RESPONSES.policyIncorrect'],
+      ['policy-us-personal-info-sms', 'EXPECTED_RESPONSES.startOk'],
+      ['policy-us-residential-card-ocr', 'EXPECTED_RESPONSES.startOk'],
+      ['policy-jp-idcard-gov', 'EXPECTED_RESPONSES.startOk'],
+      ['policy-jp-passport-ocr', 'EXPECTED_RESPONSES.startOk'],
+      ['policy-cn-idcard-gov', 'EXPECTED_RESPONSES.startOk'],
+      ['policy-cn-idcard-doc-auth-owner-check', 'EXPECTED_RESPONSES.startOk'],
+      ['policy-cn-idcard-ocr-owner-check', 'EXPECTED_RESPONSES.startOk'],
+      ['policy-missing', 'EXPECTED_RESPONSES.startOk'],
     ];
 
     for (const [cardId, expectedResponse] of policyCases) {
-      // The policy cards are debug fixtures, so each one needs both a rendered
-      // card id and expectedResponse metadata for the copied debug payload.
+      // The typed policy cards are debug fixtures for customer-reproducible
+      // /v1/idv/start routing, so each one needs rendered UI and expected
+      // response metadata for the copied debug payload.
       expect(html).toContain(`id="card-${cardId}"`);
       expect(html).toContain(`sendCustom('${cardId}')`);
       expect(block).toContain(`'${cardId}':`);

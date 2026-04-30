@@ -8,8 +8,9 @@
  * - Deprecated auth UI/endpoint strings are absent from the served HTML.
  * - Custom KYC request body textareas are initialized with a default email.
  * - Section 7 keeps the only email-free request body for Plaid fallback.
- * - US start cards keep an explicit default policy id while dedicated policy
- *   cards isolate default, empty, and incorrect kyc_policy_id inputs.
+ * - Generic start cards use typed kyc_policy bodies.
+ * - Dedicated policy cards cover valid Country x Subject/ID Type x Method x
+ *   OwnerAssurance cases plus missing-policy default routing.
  */
 
 import { readFileSync } from 'fs';
@@ -76,75 +77,102 @@ describe('test-board deprecated auth removal', () => {
     expect(html).toContain('id="section-email-fallback"');
     expect(html).toContain('id="card-email-fallback-plaid"');
     expect(html).toContain("sendCustom('email-fallback-plaid')");
-    expect(entry).toContain("endpoint: '/v1/idv/us/start'");
+    expect(entry).toContain("endpoint: '/v1/idv/start'");
     expect(entry).toContain('expectedResponse: EXPECTED_RESPONSES.emailFallback');
     expect(entry).toContain('includeDefaultEmail: false');
-    expect(entry).toContain("kyc_policy_id: 'test-policy-verify'");
+    expect(entry).toContain('kyc_policy: personalInfoSmsPolicy()');
     expect(entry).not.toContain('email:');
   });
 
-  it('keeps no-country start examples with an explicit blank policy id', () => {
+  it('keeps no-country start examples on typed policy validation', () => {
     const html = readTestBoardHtml();
+    const removedPolicyIdField = ['kyc', 'policy', 'id'].join('_');
     const noCountryStartCardIds = ['generic-start-none-verified', 'generic-start-none-new'];
 
     for (const cardId of noCountryStartCardIds) {
       const entry = customCardEntry(html, cardId);
 
-      // The 4-1 body intentionally sends kyc_policy_id="" without country so
-      // tests cover the policy-empty normalization path before provider routing.
+      // Country is the top-level policy classifier. These cards intentionally
+      // omit country while sending a typed policy so validation rejects the
+      // unsupported UNKNOWN-country combination.
       expect(entry).toContain("endpoint: '/v1/idv/start'");
-      expect(entry).toContain("kyc_policy_id: ''");
+      expect(entry).toContain('expectedResponse: EXPECTED_RESPONSES.policyUnsupported');
+      expect(entry).toContain('kyc_policy: personalInfoSmsPolicy()');
+      expect(entry).not.toContain(`${removedPolicyIdField}:`);
       expect(entry).not.toContain('country:');
     }
   });
 
-  it('keeps US start cards explicit about the selected default policy id', () => {
+  it('keeps generic country start cards on typed kyc_policy request bodies', () => {
     const html = readTestBoardHtml();
-    const usStartCardIds = ['us-start-verified', 'us-start-new'];
+    const removedPolicyIdField = ['kyc', 'policy', 'id'].join('_');
+    const countryStartCases = [
+      ['generic-start-us-new', "country: 'us'", 'kyc_policy: personalInfoSmsPolicy()'],
+      ['generic-start-jp-new', "country: 'jp'", "documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret'))"],
+      ['generic-start-cn-new', "country: 'cn'", "documentPolicy('id_card', 'government_id_verf', noOwnerAssurance())"],
+    ];
 
-    for (const cardId of usStartCardIds) {
+    for (const [cardId, country, policy] of countryStartCases) {
       const entry = customCardEntry(html, cardId);
 
-      // These top-level US start examples must not silently remove
-      // kyc_policy_id. Policy edge cases are covered by the dedicated cards.
-      expect(entry).toContain("endpoint: '/v1/idv/us/start'");
-      expect(entry).toContain("kyc_policy_id: 'test-policy-verify'");
+      // /v1/idv/start must receive Country and kyc_policy as public policy
+      // parameters; vendor/action names must not be part of the request body.
+      expect(entry).toContain("endpoint: '/v1/idv/start'");
+      expect(entry).toContain(country);
+      expect(entry).toContain(policy);
       expect(entry).toContain('expectedResponse: EXPECTED_RESPONSES.startOk');
+      expect(entry).not.toContain(`${removedPolicyIdField}:`);
+      expect(entry).not.toContain('plaid_');
+      expect(entry).not.toContain('liquid_');
+      expect(entry).not.toContain('tencent_');
     }
   });
 
-  it('separates default, empty, and incorrect policy request bodies', () => {
+  it('separates valid typed policy cases from missing-policy default routing', () => {
     const html = readTestBoardHtml();
+    const removedPolicyIdField = ['kyc', 'policy', 'id'].join('_');
 
-    const defaultPolicy = customCardEntry(html, 'policy-default');
-    // Default policy means intentional omission so the server fallback path is
-    // tested separately from explicit empty and incorrect policy input.
-    expect(defaultPolicy).toContain("endpoint: '/v1/idv/us/start'");
-    expect(defaultPolicy).toContain('expectedResponse: EXPECTED_RESPONSES.startOk');
-    expect(defaultPolicy).not.toContain('kyc_policy_id:');
+    const validPolicyCases = [
+      ['policy-us-personal-info-sms', "country: 'us'", 'kyc_policy: personalInfoSmsPolicy()'],
+      ['policy-us-residential-card-ocr', "country: 'us'", "documentPolicy('residential_card', 'document_ocr_check', noOwnerAssurance())"],
+      ['policy-jp-idcard-gov', "country: 'jp'", "documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret'))"],
+      ['policy-jp-passport-ocr', "country: 'jp'", "documentPolicy('passport', 'document_ocr_check', noOwnerAssurance())"],
+      ['policy-cn-idcard-gov', "country: 'cn'", "documentPolicy('id_card', 'government_id_verf', noOwnerAssurance())"],
+      ['policy-cn-idcard-doc-auth-owner-check', "country: 'cn'", "documentPolicy('id_card', 'document_authenticity_check', ownerCheck('submitted_doc_selfie_match'))"],
+      ['policy-cn-idcard-ocr-owner-check', "country: 'cn'", "documentPolicy('id_card', 'document_ocr_check', ownerCheck('submitted_doc_selfie_match'))"],
+    ];
 
-    const emptyPolicy = customCardEntry(html, 'policy-empty');
-    // Empty policy is a client input validation case and must stay distinct
-    // from the default fallback omission path.
-    expect(emptyPolicy).toContain("endpoint: '/v1/idv/us/start'");
-    expect(emptyPolicy).toContain('expectedResponse: EXPECTED_RESPONSES.policyEmpty');
-    expect(emptyPolicy).toContain("kyc_policy_id: ''");
+    for (const [cardId, country, policy] of validPolicyCases) {
+      const entry = customCardEntry(html, cardId);
 
-    const incorrectPolicy = customCardEntry(html, 'policy-incorrect');
-    // Incorrect policy exercises the policy-not-found path with a non-empty id.
-    expect(incorrectPolicy).toContain("endpoint: '/v1/idv/us/start'");
-    expect(incorrectPolicy).toContain('expectedResponse: EXPECTED_RESPONSES.policyIncorrect');
-    expect(incorrectPolicy).toContain("kyc_policy_id: 'nonexistent-policy-xyz'");
+      // These cards verify the public policy algebra cases. The request body
+      // must remain vendor-neutral and use typed policy parameters.
+      expect(entry).toContain("endpoint: '/v1/idv/start'");
+      expect(entry).toContain(country);
+      expect(entry).toContain(policy);
+      expect(entry).toContain('expectedResponse: EXPECTED_RESPONSES.startOk');
+      expect(entry).not.toContain(`${removedPolicyIdField}:`);
+    }
+
+    const missingPolicy = customCardEntry(html, 'policy-missing');
+    expect(missingPolicy).toContain("endpoint: '/v1/idv/start'");
+    expect(missingPolicy).toContain('expectedResponse: EXPECTED_RESPONSES.startOk');
+    expect(missingPolicy).not.toContain('kyc_policy:');
+    expect(missingPolicy).not.toContain(`${removedPolicyIdField}:`);
+
+    expect(html).not.toContain(['policy', 'legacy', 'id'].join('-'));
+    expect(html).not.toContain(['policy', 'Legacy', 'Id'].join(''));
   });
 
   it('renders idv-server error response bodies without parsing or reformatting', () => {
     const html = readTestBoardHtml();
 
     expect(html).toContain("const contentType = res.headers.get('content-type') || ''");
-    expect(html).toContain('return { ok: res.ok, status: res.status, data, text, contentType };');
+    expect(html).toContain('statusText: res.statusText');
+    expect(html).toContain('headers: collectResponseHeaders(res.headers)');
     expect(html).toContain('function renderApiResponseBody(ok, data, text) {');
     expect(html).toContain('return ok ? formatApiData(data) : text;');
     expect(html).toContain('jsonEl.textContent = renderApiResponseBody(ok, data, text);');
-    expect(html).toContain('j.textContent = renderApiResponseBody(ok, data, text);');
+    expect(html).toContain('actualResponse: createActualResponseDebug(result)');
   });
 });

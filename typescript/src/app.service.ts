@@ -63,11 +63,17 @@ export class AppService {
 
   // ── Generic (country-agnostic) ──
 
-  async idvStart(body: StartIdvReq): Promise<StartIdvRes> {
+  // Old problem: the generated SDK serializer can drop newly introduced typed
+  // kyc_policy fields before idv-server validates/routes them. Improved by idvStart.
+  async idvStartOld(body: StartIdvReq): Promise<StartIdvRes> {
     return this.api.v1IdvStartPost({
       Authorization: this.bearerToken(),
       StartIdvReq: body,
     });
+  }
+
+  async idvStart(body: StartIdvReq): Promise<StartIdvRes> {
+    return this.proxyPost('/v1/idv/start', body) as Promise<StartIdvRes>;
   }
 
   async idvKycGet(body: GetKycReq): Promise<GetKycRes> {
@@ -79,11 +85,17 @@ export class AppService {
 
   // ── Session (vendor-agnostic) ──
 
-  async idvSessionStart(body: SessionStartReq): Promise<SessionStartRes> {
+  // Old problem: the generated SDK serializer can drop newly introduced typed
+  // kyc_policy fields before idv-server validates/routes them. Improved by idvSessionStart.
+  async idvSessionStartOld(body: SessionStartReq): Promise<SessionStartRes> {
     return this.api.v1IdvSessionsStartPost({
       Authorization: this.bearerToken(),
       SessionStartReq: body,
     });
+  }
+
+  async idvSessionStart(body: SessionStartReq): Promise<SessionStartRes> {
+    return this.proxyPost('/v1/idv/sessions/start', body) as Promise<SessionStartRes>;
   }
 
   // ── CN start ──
@@ -93,7 +105,6 @@ export class AppService {
     callback_url?: string;
     card_image_base64?: string;
     best_frame_base64?: string;
-    kyc_policy_id?: string;
   }): Promise<unknown> {
     return this.proxyPost('/v1/idv/cn/start', body);
   }
@@ -106,7 +117,6 @@ export class AppService {
       user_id: string;
       callback_url?: string;
       email?: string;
-      kyc_policy_id?: string;
     },
   ): Promise<unknown> {
     return this.proxyPost(`/v1/idv/${country}/start`, body);

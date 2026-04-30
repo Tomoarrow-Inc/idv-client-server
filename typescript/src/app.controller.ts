@@ -69,7 +69,6 @@ export class AppController {
       callback_url?: string;
       card_image_base64?: string;
       best_frame_base64?: string;
-      kyc_policy_id?: string;
     },
   ): Promise<any> {
     try {
@@ -89,7 +88,6 @@ export class AppController {
       user_id: string;
       callback_url?: string;
       email?: string;
-      kyc_policy_id?: string;
     },
   ): Promise<unknown> {
     try {

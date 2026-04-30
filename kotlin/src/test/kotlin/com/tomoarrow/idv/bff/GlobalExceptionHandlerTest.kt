@@ -12,10 +12,10 @@ class GlobalExceptionHandlerTest {
         // generated SDK. The BFF must forward body as-is.
         val upstream = ClientError<Any>(
             message = "Bad Request",
-            body = "kyc_policy_id \uAC12\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694."
+            body = "validation failed"
         )
         val body = GlobalExceptionHandler.upstreamBody(upstream, "fallback")
 
-        assertEquals("kyc_policy_id \uAC12\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694.", body)
+        assertEquals("validation failed", body)
     }
 }

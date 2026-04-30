@@ -7,7 +7,7 @@ describe('upstream response passthrough', () => {
     // blocks must not pass it through the generic 502 wrapper path.
     const upstream = new UpstreamResponseError(
       400,
-      '{"message":"kyc_policy_id 값을 입력해 주세요."}',
+      '{"message":"validation failed"}',
       'application/json;charset=utf-8',
     );
 
@@ -17,8 +17,7 @@ describe('upstream response passthrough', () => {
   it('preserves upstream status, content type, and body without message rewriting', async () => {
     // This reproduces a plain text idv-server validation error. The BFF must
     // forward the body as-is instead of wrapping it as {statusCode, message}.
-    const body =
-      'kyc_policy_id \uAC12\uC744 \uC785\uB825\uD574 \uC8FC\uC138\uC694.';
+    const body = 'validation failed';
     const error = new ResponseError(
       new Response(body, {
         status: 400,

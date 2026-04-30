@@ -748,12 +748,12 @@
       <hr class="section-divider">
       <div class="section-card" id="section-generic">
         <h2><span class="step">4</span>Generic Endpoint <span class="country-label country-generic">country-agnostic</span></h2>
-        <p class="note">body의 country 필드로 프로바이더를 자동 라우팅하는 통합 엔드포인트입니다. country 없이 호출하거나 각 국가를 지정할 수 있습니다.</p>
+        <p class="note">body의 country와 kyc_policy로 public policy를 선택하는 통합 엔드포인트입니다. vendor 이름은 request/response에 노출하지 않습니다.</p>
       </div>
 
       <!-- 4-1: /v1/idv/start (no country) -->
-      <p class="substep-title"><span class="substep">4-1</span> POST /v1/idv/start &mdash; IDV 시작 (country 없음)</p>
-      <p class="note" style="margin-bottom:8px">country를 지정하지 않고 호출합니다.</p>
+      <p class="substep-title"><span class="substep">4-1</span> POST /v1/idv/start &mdash; country 없음</p>
+      <p class="note" style="margin-bottom:8px">country가 최상위 policy 분류이므로 country 없이 typed kyc_policy를 보내면 400을 기대합니다.</p>
 
       <div class="api-card" id="card-generic-start-none-verified">
         <div class="api-card-header">
@@ -935,95 +935,172 @@
       <!-- ════════════════════════════════════ -->
       <hr class="section-divider">
       <div class="section-card" id="section-policy">
-        <h2><span class="step">5</span>Policy Tests <span class="country-label country-us">US</span></h2>
-        <p class="note">kyc_policy_id 기반 정책 테스트. 미리 입력된 body로 한 번의 클릭으로 케이스별 정책 동작을 검증합니다.</p>
+        <h2><span class="step">5</span>KycPolicy Tests</h2>
+        <p class="note">/v1/idv/start의 Country x Subject/ID Type x Method x OwnerAssurance 조합을 검증합니다. 화면에는 vendor를 노출하지 않습니다.</p>
       </div>
 
-      <!-- 5-1: Default Policy -->
-      <p class="substep-title"><span class="substep">5-1</span> Default Policy &mdash; 200 + start_idv_uri 기대</p>
-      <p class="note" style="margin-bottom:8px">kyc_policy_id를 생략하여 서버 기본 정책 폴백을 검증합니다.</p>
+      <!-- 5-1: US PersonalInfoVerf -->
+      <p class="substep-title"><span class="substep">5-1</span> US PersonalInfoVerf + SMS OTP &mdash; 200 기대</p>
+      <p class="note" style="margin-bottom:8px">사용자 입력 개인정보를 SMS 인증으로 얻은 data source와 비교하는 policy입니다.</p>
 
-      <div class="api-card" id="card-policy-default">
+      <div class="api-card" id="card-policy-us-personal-info-sms">
         <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Case</span> Default Policy</span>
-          <span class="api-badge api-badge-idle" id="badge-policy-default">NOT TESTED</span>
+          <span class="endpoint"><span class="case-label">Case</span> US Personal Info SMS</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-us-personal-info-sms">NOT TESTED</span>
         </div>
-        <p class="note">신규 user_id + kyc_policy_id 생략. default policy fallback으로 200 기대.</p>
-        <textarea class="json-editor" id="body-policy-default"></textarea>
+        <textarea class="json-editor" id="body-policy-us-personal-info-sms"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendCustom('policy-default')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('policy-us-personal-info-sms')">Send</button>
         </div>
-        <div id="result-policy-default" class="hidden">
-          <div id="authlink-policy-default" class="hidden" style="margin-bottom:8px">
+        <div id="result-policy-us-personal-info-sms" class="hidden">
+          <div id="authlink-policy-us-personal-info-sms" class="hidden" style="margin-bottom:8px">
             <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
           </div>
-          <pre id="json-policy-default"></pre>
-        </div>
-      </div>
-
-      <!-- 5-2: Empty Policy -->
-      <p class="substep-title"><span class="substep">5-2</span> Empty Policy &mdash; 400 기대</p>
-      <p class="note" style="margin-bottom:8px">kyc_policy_id=""로 start. 400 + "Please provide kyc_policy_id." 기대.</p>
-
-      <div class="api-card" id="card-policy-empty">
-        <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Case</span> Empty Policy</span>
-          <span class="api-badge api-badge-idle" id="badge-policy-empty">NOT TESTED</span>
-        </div>
-        <p class="note">명시적 빈 kyc_policy_id. 400 입력 검증 에러 기대.</p>
-        <textarea class="json-editor" id="body-policy-empty"></textarea>
-        <div class="actions">
-          <button class="btn-primary" onclick="sendCustom('policy-empty')">Send</button>
-        </div>
-        <div id="result-policy-empty" class="hidden">
-          <div id="authlink-policy-empty" class="hidden" style="margin-bottom:8px">
-            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
-          </div>
-          <pre id="json-policy-empty"></pre>
+          <pre id="json-policy-us-personal-info-sms"></pre>
         </div>
       </div>
 
-      <!-- 5-3: Incorrect Policy -->
-      <p class="substep-title"><span class="substep">5-3</span> Incorrect Policy &mdash; 404 기대</p>
-      <p class="note" style="margin-bottom:8px">존재하지 않는 kyc_policy_id로 start. 404 + "KYC policy not found" 기대.</p>
+      <!-- 5-2: US ResidentialCard DocumentOcrCheck -->
+      <p class="substep-title"><span class="substep">5-2</span> US ResidentialCard DocumentOcrCheck &mdash; 200 기대</p>
+      <p class="note" style="margin-bottom:8px">미국 추가 ID type인 residential_card의 document OCR check policy입니다.</p>
 
-      <div class="api-card" id="card-policy-incorrect">
+      <div class="api-card" id="card-policy-us-residential-card-ocr">
         <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Case</span> Incorrect Policy</span>
-          <span class="api-badge api-badge-idle" id="badge-policy-incorrect">NOT TESTED</span>
+          <span class="endpoint"><span class="case-label">Case</span> US Residential Card OCR</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-us-residential-card-ocr">NOT TESTED</span>
         </div>
-        <p class="note">존재하지 않는 kyc_policy_id. 404 정책 없음 에러 기대.</p>
-        <textarea class="json-editor" id="body-policy-incorrect"></textarea>
+        <textarea class="json-editor" id="body-policy-us-residential-card-ocr"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendCustom('policy-incorrect')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('policy-us-residential-card-ocr')">Send</button>
         </div>
-        <div id="result-policy-incorrect" class="hidden">
-          <div id="authlink-policy-incorrect" class="hidden" style="margin-bottom:8px">
+        <div id="result-policy-us-residential-card-ocr" class="hidden">
+          <div id="authlink-policy-us-residential-card-ocr" class="hidden" style="margin-bottom:8px">
             <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
           </div>
-          <pre id="json-policy-incorrect"></pre>
+          <pre id="json-policy-us-residential-card-ocr"></pre>
         </div>
       </div>
 
-      <!-- 5-4: Verified User → Complete Page -->
-      <p class="substep-title"><span class="substep">5-4</span> Verified User &mdash; Complete Page</p>
-      <p class="note" style="margin-bottom:8px">이미 인증 완료된 user_id로 start. Complete 페이지로 이동, "Return to App" 버튼 확인.</p>
+      <!-- 5-3: JP ID Card GovernmentIdVerf -->
+      <p class="substep-title"><span class="substep">5-3</span> JP IdCard GovernmentIdVerf + DocumentSecret &mdash; 200 기대</p>
+      <p class="note" style="margin-bottom:8px">NFC + document secret/passcode 기반 government ID verification policy입니다.</p>
 
-      <div class="api-card" id="card-policy-verified-complete-flow">
+      <div class="api-card" id="card-policy-jp-idcard-gov">
         <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Case</span> Verified User (Complete Flow)</span>
-          <span class="api-badge api-badge-idle" id="badge-policy-verified-complete-flow">NOT TESTED</span>
+          <span class="endpoint"><span class="case-label">Case</span> JP ID Card Government Verification</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-jp-idcard-gov">NOT TESTED</span>
         </div>
-        <p class="note">인증 완료 user_id로 start → Complete 페이지 이동 확인.</p>
-        <textarea class="json-editor" id="body-policy-verified-complete-flow"></textarea>
+        <textarea class="json-editor" id="body-policy-jp-idcard-gov"></textarea>
         <div class="actions">
-          <button class="btn-primary" onclick="sendCustom('policy-verified-complete-flow')">Send</button>
+          <button class="btn-primary" onclick="sendCustom('policy-jp-idcard-gov')">Send</button>
         </div>
-        <div id="result-policy-verified-complete-flow" class="hidden">
-          <div id="authlink-policy-verified-complete-flow" class="hidden" style="margin-bottom:8px">
+        <div id="result-policy-jp-idcard-gov" class="hidden">
+          <div id="authlink-policy-jp-idcard-gov" class="hidden" style="margin-bottom:8px">
             <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
           </div>
-          <pre id="json-policy-verified-complete-flow"></pre>
+          <pre id="json-policy-jp-idcard-gov"></pre>
+        </div>
+      </div>
+
+      <!-- 5-4: JP Passport OCR -->
+      <p class="substep-title"><span class="substep">5-4</span> JP Passport DocumentOcrCheck &mdash; 200 기대</p>
+      <p class="note" style="margin-bottom:8px">JP에서 passport는 government DB verification이 아니라 document OCR check policy로 요청합니다.</p>
+
+      <div class="api-card" id="card-policy-jp-passport-ocr">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case</span> JP Passport OCR</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-jp-passport-ocr">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-policy-jp-passport-ocr"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('policy-jp-passport-ocr')">Send</button>
+        </div>
+        <div id="result-policy-jp-passport-ocr" class="hidden">
+          <div id="authlink-policy-jp-passport-ocr" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-policy-jp-passport-ocr"></pre>
+        </div>
+      </div>
+
+      <!-- 5-5: CN ID Card GovernmentIdVerf -->
+      <p class="substep-title"><span class="substep">5-5</span> CN IdCard GovernmentIdVerf &mdash; 200 기대</p>
+      <p class="note" style="margin-bottom:8px">CN ID 정보를 government DB와 비교하는 policy입니다.</p>
+
+      <div class="api-card" id="card-policy-cn-idcard-gov">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case</span> CN ID Card Government Verification</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-cn-idcard-gov">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-policy-cn-idcard-gov"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('policy-cn-idcard-gov')">Send</button>
+        </div>
+        <div id="result-policy-cn-idcard-gov" class="hidden">
+          <div id="authlink-policy-cn-idcard-gov" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-policy-cn-idcard-gov"></pre>
+        </div>
+      </div>
+
+      <!-- 5-6: CN DocumentAuthenticityCheck with OwnerCheck -->
+      <p class="substep-title"><span class="substep">5-6</span> CN IdCard DocumentAuthenticityCheck + Submitted Selfie &mdash; 200 기대</p>
+      <p class="note" style="margin-bottom:8px">ID card 진위 check와 제출 document/selfie owner check를 함께 요청하는 policy입니다.</p>
+
+      <div class="api-card" id="card-policy-cn-idcard-doc-auth-owner-check">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case</span> CN Document Authenticity + Selfie Check</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-cn-idcard-doc-auth-owner-check">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-policy-cn-idcard-doc-auth-owner-check"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('policy-cn-idcard-doc-auth-owner-check')">Send</button>
+        </div>
+        <div id="result-policy-cn-idcard-doc-auth-owner-check" class="hidden">
+          <div id="authlink-policy-cn-idcard-doc-auth-owner-check" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-policy-cn-idcard-doc-auth-owner-check"></pre>
+        </div>
+      </div>
+
+      <!-- 5-7: CN DocumentOcrCheck with OwnerCheck -->
+      <p class="substep-title"><span class="substep">5-7</span> CN IdCard DocumentOcrCheck + Submitted Selfie &mdash; 200 기대</p>
+      <p class="note" style="margin-bottom:8px">CN에서도 document OCR check를 독립 policy로 요청할 수 있음을 검증합니다.</p>
+
+      <div class="api-card" id="card-policy-cn-idcard-ocr-owner-check">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case</span> CN Document OCR + Selfie Check</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-cn-idcard-ocr-owner-check">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-policy-cn-idcard-ocr-owner-check"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('policy-cn-idcard-ocr-owner-check')">Send</button>
+        </div>
+        <div id="result-policy-cn-idcard-ocr-owner-check" class="hidden">
+          <div id="authlink-policy-cn-idcard-ocr-owner-check" class="hidden" style="margin-bottom:8px">
+            <a href="#" target="_blank" class="ext" style="font-size:0.95rem;font-weight:600">Open Authorization Page &#8599;</a>
+          </div>
+          <pre id="json-policy-cn-idcard-ocr-owner-check"></pre>
+        </div>
+      </div>
+
+      <!-- 5-8: Missing kyc_policy uses default policy -->
+      <p class="substep-title"><span class="substep">5-8</span> Missing kyc_policy &mdash; default policy 기대</p>
+      <p class="note" style="margin-bottom:8px">이전 버전 호환을 위해 country만 보내고 kyc_policy를 누락하면 country default policy로 시작되어야 합니다.</p>
+
+      <div class="api-card" id="card-policy-missing">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case</span> Missing kyc_policy</span>
+          <span class="api-badge api-badge-idle" id="badge-policy-missing">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-policy-missing"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('policy-missing')">Send</button>
+        </div>
+        <div id="result-policy-missing" class="hidden">
+          <pre id="json-policy-missing"></pre>
         </div>
       </div>
 
@@ -1377,52 +1454,70 @@
       }
 
       const EXPECTED_RESPONSES = {
-        startOk: { status: 200, bodyShape: ['start_idv_uri or authorization_url'], description: 'IDV start should return a launch URL for the provider or complete flow.' },
+        startOk: { statuses: [200, 201], bodyShape: ['start_idv_uri or authorization_url'], description: 'IDV start should return a launch URL for the provider or complete flow.' },
         kycGetOk: { status: 200, bodyShape: ['KYC result JSON object'], description: 'KYC get should return the selected user identity verification result.' },
         emailFallback: { status: 200, bodyShape: ['start_idv_uri for email fallback flow'], description: 'Missing Plaid email should return an idv-app fallback URL before vendor redirect.' },
-        policyEmpty: { status: 400, bodyContains: 'Please provide kyc_policy_id.', description: 'Explicitly empty kyc_policy_id should fail shared input validation.' },
-        policyIncorrect: { status: 404, bodyContains: 'KYC policy not found', description: 'Unknown kyc_policy_id should return a policy-not-found error.' },
+        policyMissing: { statuses: [200, 201], bodyShape: ['start_idv_uri or authorization_url'], description: 'Missing kyc_policy should apply the country default policy for legacy compatibility.' },
+        policyUnsupported: { status: 400, bodyContains: 'Unsupported kyc_policy', description: 'Unsupported Country x Subject x Method x OwnerAssurance combinations should fail validation.' },
         ppidExisting: { status: 200, bodyShape: ['pid or personal_id'], description: 'Existing auth_id start should return the already resolved personal identifier.' },
         ppidKycGet: { status: 200, bodyShape: ['KYC result JSON object for personal_id'], description: 'KYC get by personal_id should resolve back to the verified user result.' },
       };
 
+      const noOwnerAssurance = () => ({ kind: 'no_owner_assurance' });
+      const ownerVerf = (type) => ({ kind: 'owner_verf', type });
+      const ownerCheck = (type) => ({ kind: 'owner_check', type });
+      const personalInfoSmsPolicy = () => ({
+        subject: { kind: 'personal_info' },
+        method: 'personal_info_verf',
+        owner_assurance: ownerVerf('sms_otp'),
+      });
+      const documentPolicy = (idType, method, ownerAssurance) => ({
+        subject: { kind: 'document', id_type: idType },
+        method,
+        owner_assurance: ownerAssurance,
+      });
+
       const CUSTOM_CARDS = {
         // ── US ──
-        'us-start-verified': { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
-        'us-start-new':      { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
+        'us-start-verified': { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
+        'us-start-new':      { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'us-kyc-get':        { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491' }) },
         // ── JP ──
         'jp-start-verified': { endpoint: '/v1/idv/jp/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
         'jp-start-new':      { endpoint: '/v1/idv/jp/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'jp-kyc-get':        { endpoint: '/v1/idv/jp/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491' }) },
         // ── CN ──
-        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '799975290332796849300000000000044', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '799975290332796849300000000000044', callback_url: window.location.origin + '/test-board' }) },
+        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '799975290332796849300000000000044' }) },
         // ── Generic /v1/idv/start ──
-        'generic-start-none-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-none-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-us-verified':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-us-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-jp-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'generic-start-cn-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
+        'generic-start-none-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.policyUnsupported, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'generic-start-none-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.policyUnsupported, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'generic-start-us-verified':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'generic-start-us-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
+        'generic-start-jp-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
+        'generic-start-cn-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', noOwnerAssurance()) }) },
         // ── Generic /v1/idv/kyc/get ──
         'generic-kyc-get-us': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
         'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
         'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
         // ── Policy Tests ──
-        'policy-default':                { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'policy-empty':                  { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.policyEmpty, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: '' }) },
-        'policy-incorrect':              { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.policyIncorrect, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'nonexistent-policy-xyz' }) },
-        'policy-verified-complete-flow': { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
+        'policy-us-personal-info-sms':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'policy-us-residential-card-ocr':     { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('residential_card', 'document_ocr_check', noOwnerAssurance()) }) },
+        'policy-jp-idcard-gov':               { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
+        'policy-jp-passport-ocr':             { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('passport', 'document_ocr_check', noOwnerAssurance()) }) },
+        'policy-cn-idcard-gov':               { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', noOwnerAssurance()) }) },
+        'policy-cn-idcard-doc-auth-owner-check': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'document_authenticity_check', ownerCheck('submitted_doc_selfie_match')) }) },
+        'policy-cn-idcard-ocr-owner-check':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'document_ocr_check', ownerCheck('submitted_doc_selfie_match')) }) },
+        'policy-missing':                     { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board' }) },
         // ── Personal ID Resolution Test ──
         'pid-existing':  { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.ppidExisting, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
         'pid-resolve':   { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '<paste pid from Card 6-1>', callback_url: window.location.origin + '/test-board' }) },
         'pid-new':       { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
         'pid-kyc-get':   { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.ppidKycGet, body: () => ({ user_id: '<paste pid from Card 6-1>' }) },
         // ── Email Fallback Test ──
-        'email-fallback-plaid': { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.emailFallback, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy_id: 'test-policy-verify' }) },
+        'email-fallback-plaid': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.emailFallback, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
       };
 
       const LAST_CUSTOM_RESULTS = {};
@@ -1553,6 +1648,17 @@
         if (!headers || !headers.forEach) return out;
         headers.forEach((value, key) => { out[key] = value; });
         return out;
+      }
+
+      function matchesExpectedResponse(result, expectedResponse) {
+        if (!expectedResponse) return null;
+        const statusMatches =
+          expectedResponse.statuses?.includes(result.status) ||
+          expectedResponse.status === undefined ||
+          result.status === expectedResponse.status;
+        const bodyText = typeof result.data === 'string' ? result.data : (result.text || JSON.stringify(result.data ?? ''));
+        const bodyMatches = !expectedResponse.bodyContains || bodyText.includes(expectedResponse.bodyContains);
+        return statusMatches && bodyMatches;
       }
 
       async function apiCallWithDebug(url, options = {}) {
@@ -1840,6 +1946,8 @@
         }
 
         const { ok, status, data, text } = result;
+        const expectedMatched = matchesExpectedResponse(result, cfg.expectedResponse);
+        const shouldMarkSuccess = expectedMatched === null ? ok : expectedMatched;
         jsonEl.textContent = renderApiResponseBody(ok, data, text);
         LAST_CUSTOM_RESULTS[id] = buildCustomDebugPayload(id, {
           startedAt: startedAt.toISOString(),
@@ -1851,12 +1959,19 @@
           error: null,
         });
 
-        if (ok) {
+        if (shouldMarkSuccess) {
           badgeEl.className = 'api-badge api-badge-ok';
-          badgeEl.textContent = 'OK ' + status;
+          badgeEl.textContent = (expectedMatched === null ? 'OK ' : 'PASS ') + status;
           cardEl.classList.remove('api-error');
           cardEl.classList.add('api-success');
+        } else {
+          badgeEl.className = 'api-badge api-badge-fail';
+          badgeEl.textContent = (expectedMatched === null ? 'ERR ' : 'FAIL ') + status;
+          cardEl.classList.remove('api-success');
+          cardEl.classList.add('api-error');
+        }
 
+        if (ok) {
           const authUrl = data && (data.start_idv_uri || data.authorization_url);
           if (authUrl && authLinkEl) {
             const linkEl = authLinkEl.querySelector('a');
@@ -1890,11 +2005,6 @@
               }
             }
           }
-        } else {
-          badgeEl.className = 'api-badge api-badge-fail';
-          badgeEl.textContent = 'ERR ' + status;
-          cardEl.classList.remove('api-success');
-          cardEl.classList.add('api-error');
         }
       }
 
