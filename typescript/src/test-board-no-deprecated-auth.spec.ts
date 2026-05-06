@@ -6,8 +6,10 @@
  *
  * Verification
  * - Deprecated auth UI/endpoint strings are absent from the served HTML.
+ * - Removed IDV routes are exposed only as 404 compatibility regression cards.
  * - Custom KYC request body textareas are initialized with a default email.
- * - Section 7 keeps the only email-free request body for Plaid fallback.
+ * - Section 7 keeps the only non-deprecated email-free request body for Plaid
+ *   fallback.
  * - Generic start cards use typed kyc_policy bodies.
  * - Dedicated policy cards cover valid Country x Subject/ID Type x Method x
  *   OwnerAssurance cases plus missing-policy default routing.
@@ -23,6 +25,17 @@ const readTestBoardHtml = () =>
   );
 
 describe('test-board deprecated auth removal', () => {
+  const deprecatedCompatibilityCardIds = [
+    'deprecated-generic-kyc-get',
+    'deprecated-us-start',
+    'deprecated-uk-start',
+    'deprecated-ca-start',
+    'deprecated-jp-start',
+    'deprecated-cn-start',
+    'deprecated-us-kyc-get',
+    'deprecated-verify-session',
+  ];
+
   const customCardEntry = (html: string, cardId: string) => {
     const customCardsStart = html.indexOf('const CUSTOM_CARDS = {');
     const customCardsEnd = html.indexOf('// Initialize all card textareas');
@@ -55,30 +68,36 @@ describe('test-board deprecated auth removal', () => {
     }
   });
 
-  it('does not expose deprecated IDV endpoint implementations', () => {
-    // The test-board is the customer frontend simulator. It must not keep
-    // buttons, fixtures, or scripts for BFF routes removed from AppController.
+  it('exposes removed IDV routes only as deprecated compatibility checks', () => {
+    // Deprecated route strings may appear only in Section 8, where the board
+    // asserts they remain removed by expecting a 404 response.
     const html = readTestBoardHtml();
-    const deprecatedRouteStrings = [
+    const removedUiStrings = [
       'Old API',
       'old-api',
       'sendCustomOld',
-      '/v1/verify/session',
-      '/v1/idv/kyc/get',
-      '/v1/idv/us/start',
-      '/v1/idv/uk/start',
-      '/v1/idv/ca/start',
-      '/v1/idv/jp/start',
-      '/v1/idv/cn/start',
-      '/v1/idv/us/kyc/get',
       '/v1/idv/jp/kyc/get',
       '/v1/idv/cn/kyc/get',
       '/v1/jp/applicants/',
       '/idv/old',
     ];
 
-    for (const deprecatedRouteString of deprecatedRouteStrings) {
-      expect(html).not.toContain(deprecatedRouteString);
+    for (const removedUiString of removedUiStrings) {
+      expect(html).not.toContain(removedUiString);
+    }
+
+    expect(html).toContain('id="section-deprecated-compat"');
+    expect(html).toContain('EXPECTED_RESPONSES.deprecatedRemoved');
+
+    for (const cardId of deprecatedCompatibilityCardIds) {
+      const entry = customCardEntry(html, cardId);
+
+      expect(html).toContain(`id="card-${cardId}"`);
+      expect(html).toContain(`sendCustom('${cardId}')`);
+      expect(entry).toContain(
+        'expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved',
+      );
+      expect(entry).toContain('includeDefaultEmail: false');
     }
   });
 
@@ -92,7 +111,9 @@ describe('test-board deprecated auth removal', () => {
 
     const customCards = html.slice(customCardsStart, customCardsEnd);
     // Default request body rendering must go through the shared email injector
-    // so customer examples do not accidentally exercise Plaid email fallback.
+    // so active customer examples do not accidentally exercise Plaid email
+    // fallback. Deprecated 404 compatibility cards opt out because their body
+    // is not sent to a live implementation.
     expect(html).toContain('function withDefaultEmail(body) {');
     expect(html).toContain('function customCardBody(id) {');
     expect(html).toContain(
@@ -101,15 +122,17 @@ describe('test-board deprecated auth removal', () => {
     expect(html).toContain(
       'if (el) el.value = JSON.stringify(customCardBody(id), null, 2);',
     );
-    expect(customCards.match(/includeDefaultEmail:\s*false/g)).toHaveLength(1);
+    expect(customCards.match(/includeDefaultEmail:\s*false/g)).toHaveLength(
+      deprecatedCompatibilityCardIds.length + 1,
+    );
   });
 
   it('keeps section 7 as the explicit Plaid email fallback request', () => {
     const html = readTestBoardHtml();
     const entry = customCardEntry(html, 'email-fallback-plaid');
 
-    // Section 7 is the only case that intentionally omits email so the test
-    // board can verify idv-app collects email before Plaid redirect.
+    // Section 7 is the only active API case that intentionally omits email so
+    // the test board can verify idv-app collects email before Plaid redirect.
     expect(html).toContain('id="section-email-fallback"');
     expect(html).toContain('id="card-email-fallback-plaid"');
     expect(html).toContain("sendCustom('email-fallback-plaid')");

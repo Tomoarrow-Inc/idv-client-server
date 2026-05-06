@@ -469,6 +469,7 @@
       <a class="qj-item" data-target="section-policy">5 Policy</a>
       <a class="qj-item" data-target="section-ppid">6 PPID</a>
       <a class="qj-item" data-target="section-email-fallback">7 Email</a>
+      <a class="qj-item" data-target="section-deprecated-compat">8 Deprecated</a>
     </nav>
     <h1>KYC Test Board</h1>
     <p class="subtitle">
@@ -1196,6 +1197,143 @@
         </div>
       </div>
 
+      <!-- ════════════════════════════════════ -->
+      <!-- 8. Deprecated Compatibility Tests    -->
+      <!-- ════════════════════════════════════ -->
+      <hr class="section-divider">
+      <div class="section-card" id="section-deprecated-compat">
+        <h2><span class="step">8</span>Deprecated Compatibility Tests</h2>
+        <p class="note">제거된 호환성 endpoint가 BFF에서 다시 노출되지 않는지 404 응답으로 검증합니다.</p>
+      </div>
+
+      <!-- 8-1: generic kyc/get alias removed -->
+      <p class="substep-title"><span class="substep">8-1</span> POST /v1/idv/kyc/get &mdash; 404 기대</p>
+      <p class="note" style="margin-bottom:8px">결과 조회는 /v1/idv/result만 사용해야 합니다.</p>
+
+      <div class="api-card" id="card-deprecated-generic-kyc-get">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Removed</span> Generic kyc/get</span>
+          <span class="api-badge api-badge-idle" id="badge-deprecated-generic-kyc-get">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-deprecated-generic-kyc-get"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('deprecated-generic-kyc-get')">Send</button>
+        </div>
+        <div id="result-deprecated-generic-kyc-get" class="hidden">
+          <pre id="json-deprecated-generic-kyc-get"></pre>
+        </div>
+      </div>
+
+      <!-- 8-2: country start compatibility routes removed -->
+      <p class="substep-title"><span class="substep">8-2</span> POST /v1/idv/{country}/start &mdash; 404 기대</p>
+      <p class="note" style="margin-bottom:8px">국가별 start route는 /v1/idv/start + country body로 대체되었습니다.</p>
+
+      <div class="api-card" id="card-deprecated-us-start">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="country-label country-us">US</span> /v1/idv/us/start</span>
+          <span class="api-badge api-badge-idle" id="badge-deprecated-us-start">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-deprecated-us-start"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('deprecated-us-start')">Send</button>
+        </div>
+        <div id="result-deprecated-us-start" class="hidden">
+          <pre id="json-deprecated-us-start"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-deprecated-uk-start">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="country-label country-us">UK</span> /v1/idv/uk/start</span>
+          <span class="api-badge api-badge-idle" id="badge-deprecated-uk-start">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-deprecated-uk-start"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('deprecated-uk-start')">Send</button>
+        </div>
+        <div id="result-deprecated-uk-start" class="hidden">
+          <pre id="json-deprecated-uk-start"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-deprecated-ca-start">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="country-label country-us">CA</span> /v1/idv/ca/start</span>
+          <span class="api-badge api-badge-idle" id="badge-deprecated-ca-start">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-deprecated-ca-start"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('deprecated-ca-start')">Send</button>
+        </div>
+        <div id="result-deprecated-ca-start" class="hidden">
+          <pre id="json-deprecated-ca-start"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-deprecated-jp-start">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="country-label country-jp">JP</span> /v1/idv/jp/start</span>
+          <span class="api-badge api-badge-idle" id="badge-deprecated-jp-start">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-deprecated-jp-start"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('deprecated-jp-start')">Send</button>
+        </div>
+        <div id="result-deprecated-jp-start" class="hidden">
+          <pre id="json-deprecated-jp-start"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-deprecated-cn-start">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="country-label country-cn">CN</span> /v1/idv/cn/start</span>
+          <span class="api-badge api-badge-idle" id="badge-deprecated-cn-start">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-deprecated-cn-start"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('deprecated-cn-start')">Send</button>
+        </div>
+        <div id="result-deprecated-cn-start" class="hidden">
+          <pre id="json-deprecated-cn-start"></pre>
+        </div>
+      </div>
+
+      <!-- 8-3: country kyc/get compatibility routes removed -->
+      <p class="substep-title"><span class="substep">8-3</span> POST /v1/idv/{country}/kyc/get &mdash; 404 기대</p>
+      <p class="note" style="margin-bottom:8px">국가별 kyc/get route는 /v1/idv/result + country body로 대체되었습니다.</p>
+
+      <div class="api-card" id="card-deprecated-us-kyc-get">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="country-label country-us">US</span> /v1/idv/us/kyc/get</span>
+          <span class="api-badge api-badge-idle" id="badge-deprecated-us-kyc-get">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-deprecated-us-kyc-get"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('deprecated-us-kyc-get')">Send</button>
+        </div>
+        <div id="result-deprecated-us-kyc-get" class="hidden">
+          <pre id="json-deprecated-us-kyc-get"></pre>
+        </div>
+      </div>
+
+      <!-- 8-4: old verify session route removed -->
+      <p class="substep-title"><span class="substep">8-4</span> POST /v1/verify/session &mdash; 404 기대</p>
+      <p class="note" style="margin-bottom:8px">구버전 session verification route는 BFF에서 제공하지 않습니다.</p>
+
+      <div class="api-card" id="card-deprecated-verify-session">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Removed</span> /v1/verify/session</span>
+          <span class="api-badge api-badge-idle" id="badge-deprecated-verify-session">NOT TESTED</span>
+        </div>
+        <textarea class="json-editor" id="body-deprecated-verify-session"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('deprecated-verify-session')">Send</button>
+        </div>
+        <div id="result-deprecated-verify-session" class="hidden">
+          <pre id="json-deprecated-verify-session"></pre>
+        </div>
+      </div>
+
     </div><!-- end tab-custom -->
 
     <div class="footer">
@@ -1279,6 +1417,7 @@
         policyUnsupported: { status: 400, bodyContains: 'Unsupported kyc_policy', description: 'Unsupported Country x Subject x Method x OwnerAssurance combinations should fail validation.' },
         ppidExisting: { status: 200, bodyShape: ['pid or personal_id'], description: 'Existing auth_id start should return the already resolved personal identifier.' },
         ppidResult: { status: 200, bodyShape: ['KYC result JSON object for personal_id'], description: 'IDV result by personal_id should resolve back to the verified user result.' },
+        deprecatedRemoved: { status: 404, bodyShape: ['not found response'], description: 'Deprecated compatibility routes must stay removed from idv-client-server.' },
       };
 
       const noOwnerAssurance = () => ({ kind: 'no_owner_assurance' });
@@ -1336,6 +1475,15 @@
         'pid-kyc-get':   { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.ppidResult, body: () => ({ user_id: '<paste pid from Card 6-1>', country: 'us' }) },
         // ── Email Fallback Test ──
         'email-fallback-plaid': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.emailFallback, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        // ── Deprecated Compatibility Tests ──
+        'deprecated-generic-kyc-get': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
+        'deprecated-us-start':        { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-uk-start':        { endpoint: '/v1/idv/uk/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-ca-start':        { endpoint: '/v1/idv/ca/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-jp-start':        { endpoint: '/v1/idv/jp/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-cn-start':        { endpoint: '/v1/idv/cn/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-us-kyc-get':      { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: '7999752903327968491' }) },
+        'deprecated-verify-session':  { endpoint: '/v1/verify/session', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ session_id: 'removed-session' }) },
       };
 
       const LAST_CUSTOM_RESULTS = {};

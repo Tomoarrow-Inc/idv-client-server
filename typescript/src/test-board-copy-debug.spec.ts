@@ -8,6 +8,8 @@
  * - The copied debug bundle includes request, expected response, actual
  *   response, timing, browser, UI, and error context.
  * - The UI installs a Copy debug button for every Custom KYC card.
+ * - Deprecated compatibility cards are expected-response checks for removed
+ *   BFF routes.
  */
 
 import { readFileSync } from 'fs';
@@ -162,5 +164,35 @@ describe('test-board Custom KYC debug copy', () => {
       'expectedResponse: EXPECTED_RESPONSES.emailFallback',
     );
     expect(block).toContain('includeDefaultEmail: false');
+  });
+
+  it('covers deprecated compatibility checks with debug copy metadata', () => {
+    const html = readTestBoardHtml();
+    const block = customCardsBlock(html);
+    const deprecatedCases = [
+      'deprecated-generic-kyc-get',
+      'deprecated-us-start',
+      'deprecated-uk-start',
+      'deprecated-ca-start',
+      'deprecated-jp-start',
+      'deprecated-cn-start',
+      'deprecated-us-kyc-get',
+      'deprecated-verify-session',
+    ];
+
+    // These cards intentionally expect 404. They let the board catch accidental
+    // reintroduction of removed compatibility routes while still using the same
+    // debug-copy flow as live endpoint cards.
+    expect(html).toContain('id="section-deprecated-compat"');
+    expect(html).toContain('deprecatedRemoved: { status: 404');
+
+    for (const cardId of deprecatedCases) {
+      expect(html).toContain(`id="card-${cardId}"`);
+      expect(html).toContain(`sendCustom('${cardId}')`);
+      expect(block).toContain(`'${cardId}':`);
+      expect(block).toContain(
+        'expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved',
+      );
+    }
   });
 });
