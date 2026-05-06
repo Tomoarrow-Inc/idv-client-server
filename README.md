@@ -261,7 +261,7 @@ kotlin/src/main/kotlin/com/tomoarrow/idv/bff/
 
 | 항목 | TypeScript | Kotlin |
 |---|---|---|
-| Old API 엔드포인트 | 지원 (`/v1/verify/session` 등) | 미지원 (레거시) |
+| 구버전 엔드포인트 | 미지원 | 미지원 |
 | Swagger UI | 지원 (`/api-docs`) | 미지원 |
 | 직렬화 전략 | idv-server wire format 보존 | idv-server wire format 보존 |
 | SDK 호출 | Generated TypeScript fetch | Kotlin suspend fun + runBlocking |
@@ -279,43 +279,11 @@ kotlin/src/main/kotlin/com/tomoarrow/idv/bff/
 | 메서드 | 경로 | 설명 |
 |---|---|---|
 | POST | `/v1/idv/start` | IDV 시작 (country 필드로 분기) |
-| POST | `/v1/idv/kyc/get` | KYC 결과 조회 |
-
-### US/UK/CA (Plaid)
-| 메서드 | 경로 | 설명 |
-|---|---|---|
-| POST | `/v1/idv/{country}/start` | IDV 시작 |
-| POST | `/v1/idv/{country}/kyc/get` | KYC 조회 |
-| POST | `/v1/idv/{country}/kyc/put` | KYC 저장 |
-| POST | `/v1/idv/{country}/cookie/start` | 쿠키 기반 IDV 시작 |
-| GET | `/v1/idv/{country}/health` | 헬스체크 |
-
-### JP (Liquid)
-| 메서드 | 경로 | 설명 |
-|---|---|---|
-| POST | `/v1/idv/jp/start` | IDV 시작 |
-| POST | `/v1/idv/jp/kyc/get` | KYC 조회 |
-| POST | `/v1/idv/jp/kyc/put` | KYC 저장 |
-| POST | `/v1/idv/jp/cookie/start` | 쿠키 기반 IDV 시작 |
-| POST | `/v1/idv/jp/notification` | Liquid 웹훅 |
-| GET | `/v1/idv/jp/health` | 헬스체크 |
-
-### CN (Tencent/TomoIdv)
-| 메서드 | 경로 | 설명 |
-|---|---|---|
-| POST | `/v1/idv/cn/start` | IDV 시작 |
-| POST | `/v1/idv/cn/token` | CN 전용 토큰 발급 |
-| POST | `/v1/idv/cn/kyc/get` | KYC 조회 |
-| POST | `/v1/idv/cn/result/web` | 웹 결과 조회 |
-| GET | `/v1/idv/cn/health` | 헬스체크 |
-| POST | `/v1/idv/cn/mock/*` | 모의 테스트 (start, token, kyc/get) |
+| POST | `/v1/idv/result` | KYC 결과 조회 |
 
 ### 기타
 | 메서드 | 경로 | 설명 |
 |---|---|---|
-| POST | `/v1/idv/plaid/token/session` | Plaid 세션 토큰 |
-| POST | `/v1/idv/liquid/token/session` | Liquid 세션 토큰 |
-| POST | `/v1/idv/login-ticket` | 로그인 티켓 교환 |
 | GET | `/test-board` | Test Board HTML |
 | GET | `/test-board/config` | Test Board 설정 JSON |
 

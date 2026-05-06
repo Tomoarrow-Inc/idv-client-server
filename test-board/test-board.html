@@ -344,31 +344,6 @@
       .api-card .actions { margin-top: 10px; }
       .debug-copy-btn.is-copied { border-color: #2e7d32; color: #2e7d32; background: #e8f5e9; }
       .debug-copy-btn.is-failed { border-color: #c62828; color: #c62828; background: #ffebee; }
-      /* Old API tab — compact endpoint rows */
-      .int-endpoint {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px solid #f0f0f0;
-      }
-      .int-endpoint:last-child { border-bottom: none; }
-      .int-endpoint.api-success { background: #f1f8e9; border-radius: 4px; padding-left: 8px; padding-right: 8px; }
-      .int-endpoint.api-error { background: #fef0f0; border-radius: 4px; padding-left: 8px; padding-right: 8px; }
-      .int-ep-info { display: flex; align-items: center; gap: 8px; min-width: 0; }
-      .int-ep-method {
-        font-size: 0.7rem; font-weight: 700; color: #fff; background: #1976d2;
-        padding: 2px 6px; border-radius: 3px; flex-shrink: 0;
-      }
-      .int-ep-method-get { background: #2e7d32; }
-      .int-ep-path { font-family: monospace; font-size: 0.78rem; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .int-ep-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-      .int-test-btn { padding: 4px 12px !important; font-size: 0.76rem !important; min-width: auto !important; }
-      .int-ep-badge { min-width: 44px; text-align: center; font-size: 0.7rem; }
-      .int-result { margin: 0 0 4px; }
-      .int-result pre {
-        margin: 4px 0 8px; font-size: 0.76rem; padding: 8px; max-height: 200px;
-      }
       /* Section card (numbered provider group) */
       .section-card {
         background: #fff;
@@ -503,7 +478,6 @@
     <!-- Tab Navigation -->
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('custom')">Custom KYC</button>
-      <button class="tab-btn" onclick="switchTab('old-api')">Old API</button>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -537,8 +511,8 @@
         <p class="note">Plaid 기반 신원인증. callback_url로 결과를 수신합니다.</p>
       </div>
 
-      <!-- 1-1: us/start -->
-      <p class="substep-title"><span class="substep">1-1</span> POST /v1/idv/us/start &mdash; IDV 시작</p>
+      <!-- 1-1: /v1/idv/start (country: us) -->
+      <p class="substep-title"><span class="substep">1-1</span> POST /v1/idv/start &mdash; IDV 시작</p>
       <p class="note" style="margin-bottom:8px">KYC 인증 세션을 생성하고 start_idv_uri를 반환합니다.</p>
 
       <div class="api-card" id="card-us-start-verified">
@@ -577,13 +551,13 @@
         </div>
       </div>
 
-      <!-- 1-2: us/kyc/get -->
-      <p class="substep-title"><span class="substep">1-2</span> POST /v1/idv/us/kyc/get &mdash; KYC 결과 조회</p>
+      <!-- 1-2: /v1/idv/result (country: us) -->
+      <p class="substep-title"><span class="substep">1-2</span> POST /v1/idv/result &mdash; KYC 결과 조회</p>
       <p class="note" style="margin-bottom:8px">인증 완료된 사용자의 KYC 결과를 조회합니다.</p>
 
       <div class="api-card" id="card-us-kyc-get">
         <div class="api-card-header">
-          <span class="endpoint"><span class="method">POST</span>/v1/idv/us/kyc/get</span>
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/result</span>
           <span class="api-badge api-badge-idle" id="badge-us-kyc-get">NOT TESTED</span>
         </div>
         <textarea class="json-editor" id="body-us-kyc-get"></textarea>
@@ -604,8 +578,8 @@
         <p class="note">Liquid 기반 일본 eKYC. user_id는 숫자만 허용됩니다 (Liquid API 제약).</p>
       </div>
 
-      <!-- 2-1: jp/start -->
-      <p class="substep-title"><span class="substep">2-1</span> POST /v1/idv/jp/start &mdash; IDV 시작</p>
+      <!-- 2-1: /v1/idv/start (country: jp) -->
+      <p class="substep-title"><span class="substep">2-1</span> POST /v1/idv/start &mdash; IDV 시작</p>
       <p class="note" style="margin-bottom:8px">일본 eKYC 인증 세션을 생성합니다.</p>
 
       <div class="api-card" id="card-jp-start-verified">
@@ -644,13 +618,13 @@
         </div>
       </div>
 
-      <!-- 2-2: jp/kyc/get -->
-      <p class="substep-title"><span class="substep">2-2</span> POST /v1/idv/jp/kyc/get &mdash; KYC 결과 조회</p>
+      <!-- 2-2: /v1/idv/result (country: jp) -->
+      <p class="substep-title"><span class="substep">2-2</span> POST /v1/idv/result &mdash; KYC 결과 조회</p>
       <p class="note" style="margin-bottom:8px">인증 완료된 사용자의 KYC 결과를 조회합니다.</p>
 
       <div class="api-card" id="card-jp-kyc-get">
         <div class="api-card-header">
-          <span class="endpoint"><span class="method">POST</span>/v1/idv/jp/kyc/get</span>
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/result</span>
           <span class="api-badge api-badge-idle" id="badge-jp-kyc-get">NOT TESTED</span>
         </div>
         <textarea class="json-editor" id="body-jp-kyc-get"></textarea>
@@ -671,21 +645,9 @@
         <p class="note">Tencent Cloud 기반 중국 eKYC. start 시 callback_url로 인증 페이지로 이동합니다.</p>
       </div>
 
-      <!-- 3-1: cn/start -->
-      <p class="substep-title"><span class="substep">3-1</span> POST /v1/idv/cn/start &mdash; IDV 시작</p>
-      <p class="note" style="margin-bottom:8px">Tencent eKYC 인증 세션을 생성합니다. 이미지는 BFF env에서 자동 로드되며, 파일 업로드 시 해당 파일을 사용합니다.</p>
-
-      <div style="margin-bottom:12px; padding:12px; background:#f5f5f5; border-radius:4px">
-        <p style="margin:0 0 8px 0; font-weight:600; font-size:0.9rem">이미지 업로드 (선택 — 없으면 env 파일 사용)</p>
-        <div style="margin-bottom:6px">
-          <label style="display:inline-block; width:130px; font-size:0.85rem">Card Image:</label>
-          <input type="file" id="verify-card-file" accept="image/*" style="font-size:0.85rem">
-        </div>
-        <div>
-          <label style="display:inline-block; width:130px; font-size:0.85rem">Selfie:</label>
-          <input type="file" id="verify-selfie-file" accept="image/*" style="font-size:0.85rem">
-        </div>
-      </div>
+      <!-- 3-1: /v1/idv/start (country: cn) -->
+      <p class="substep-title"><span class="substep">3-1</span> POST /v1/idv/start &mdash; IDV 시작</p>
+      <p class="note" style="margin-bottom:8px">Tencent eKYC 인증 세션을 생성합니다.</p>
 
       <div class="api-card" id="card-cn-start-verified">
         <div class="api-card-header">
@@ -724,13 +686,13 @@
       </div>
 
 
-      <!-- 3-2: cn/kyc/get -->
-      <p class="substep-title"><span class="substep">3-2</span> POST /v1/idv/cn/kyc/get &mdash; KYC 결과 조회</p>
+      <!-- 3-2: /v1/idv/result (country: cn) -->
+      <p class="substep-title"><span class="substep">3-2</span> POST /v1/idv/result &mdash; KYC 결과 조회</p>
       <p class="note" style="margin-bottom:8px">인증 완료된 사용자의 KYC 결과를 조회합니다.</p>
 
       <div class="api-card" id="card-cn-kyc-get">
         <div class="api-card-header">
-          <span class="endpoint"><span class="method">POST</span>/v1/idv/cn/kyc/get</span>
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/result</span>
           <span class="api-badge api-badge-idle" id="badge-cn-kyc-get">NOT TESTED</span>
         </div>
         <textarea class="json-editor" id="body-cn-kyc-get"></textarea>
@@ -884,13 +846,13 @@
         </div>
       </div>
 
-      <!-- 4-5: /v1/idv/kyc/get -->
-      <p class="substep-title"><span class="substep">4-5</span> POST /v1/idv/kyc/get &mdash; KYC 결과 조회</p>
+      <!-- 4-5: /v1/idv/result -->
+      <p class="substep-title"><span class="substep">4-5</span> POST /v1/idv/result &mdash; KYC 결과 조회</p>
       <p class="note" style="margin-bottom:8px">country 필드가 필수입니다. 각 국가별로 테스트합니다.</p>
 
       <div class="api-card" id="card-generic-kyc-get-us">
         <div class="api-card-header">
-          <span class="endpoint"><span class="country-label country-us">US</span> /v1/idv/kyc/get</span>
+          <span class="endpoint"><span class="country-label country-us">US</span> /v1/idv/result</span>
           <span class="api-badge api-badge-idle" id="badge-generic-kyc-get-us">NOT TESTED</span>
         </div>
         <textarea class="json-editor" id="body-generic-kyc-get-us"></textarea>
@@ -904,7 +866,7 @@
 
       <div class="api-card" id="card-generic-kyc-get-jp">
         <div class="api-card-header">
-          <span class="endpoint"><span class="country-label country-jp">JP</span> /v1/idv/kyc/get</span>
+          <span class="endpoint"><span class="country-label country-jp">JP</span> /v1/idv/result</span>
           <span class="api-badge api-badge-idle" id="badge-generic-kyc-get-jp">NOT TESTED</span>
         </div>
         <textarea class="json-editor" id="body-generic-kyc-get-jp"></textarea>
@@ -918,7 +880,7 @@
 
       <div class="api-card" id="card-generic-kyc-get-cn">
         <div class="api-card-header">
-          <span class="endpoint"><span class="country-label country-cn">CN</span> /v1/idv/kyc/get</span>
+          <span class="endpoint"><span class="country-label country-cn">CN</span> /v1/idv/result</span>
           <span class="api-badge api-badge-idle" id="badge-generic-kyc-get-cn">NOT TESTED</span>
         </div>
         <textarea class="json-editor" id="body-generic-kyc-get-cn"></textarea>
@@ -1114,7 +1076,7 @@
       </div>
 
       <!-- 6-1: Start with existing auth_id -->
-      <p class="substep-title"><span class="substep">6-1</span> POST /v1/idv/us/start - 기존 auth_id로 start</p>
+      <p class="substep-title"><span class="substep">6-1</span> POST /v1/idv/start - 기존 auth_id로 start</p>
       <p class="note" style="margin-bottom:8px">이미 인증된 user_id(auth_id)로 start 요청. 기존 pid를 응답에 포함하여 반환합니다.</p>
 
       <div class="api-card" id="card-pid-existing">
@@ -1138,7 +1100,7 @@
       </div>
 
       <!-- 6-2: Start with personal_id -->
-      <p class="substep-title"><span class="substep">6-2</span> POST /v1/idv/us/start - personal_id로 start</p>
+      <p class="substep-title"><span class="substep">6-2</span> POST /v1/idv/start - personal_id로 start</p>
       <p class="note" style="margin-bottom:8px">personal_id(64자 hex)로 start 요청. 서버가 기존 auth_id로 변환하여 처리합니다. 6-1의 응답에서 pid를 복사하세요.</p>
 
       <div class="api-card" id="card-pid-resolve">
@@ -1161,7 +1123,7 @@
       </div>
 
       <!-- 6-3: Start with new user_id -->
-      <p class="substep-title"><span class="substep">6-3</span> POST /v1/idv/us/start - 신규 user_id로 start</p>
+      <p class="substep-title"><span class="substep">6-3</span> POST /v1/idv/start - 신규 user_id로 start</p>
       <p class="note" style="margin-bottom:8px">처음 들어오는 user_id로 start 요청. 신규 인증 flow를 시작합니다.</p>
 
       <div class="api-card" id="card-pid-new">
@@ -1184,7 +1146,7 @@
       </div>
 
       <!-- 6-4: KYC get with personal_id -->
-      <p class="substep-title"><span class="substep">6-4</span> POST /v1/idv/us/kyc/get - personal_id로 KYC 조회</p>
+      <p class="substep-title"><span class="substep">6-4</span> POST /v1/idv/result - personal_id로 KYC 조회</p>
       <p class="note" style="margin-bottom:8px">personal_id로 KYC 결과를 조회합니다. 6-1의 응답에서 pid를 사용하세요.</p>
 
       <div class="api-card" id="card-pid-kyc-get">
@@ -1212,7 +1174,7 @@
       </div>
 
       <!-- 7-1: Plaid email fallback -->
-      <p class="substep-title"><span class="substep">7-1</span> POST /v1/idv/us/start - email 없이 Plaid fallback 시작</p>
+      <p class="substep-title"><span class="substep">7-1</span> POST /v1/idv/start - email 없이 Plaid fallback 시작</p>
       <p class="note" style="margin-bottom:8px">이 카드만 의도적으로 email을 생략합니다. 다른 기본 request body는 email을 포함합니다.</p>
 
       <div class="api-card" id="card-email-fallback-plaid">
@@ -1236,155 +1198,11 @@
 
     </div><!-- end tab-custom -->
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- TAB: Old API (old API — legacy endpoints)  -->
-    <!-- ═══════════════════════════════════════════ -->
-    <div class="tab-content" id="tab-old-api">
-
-      <!-- 0. Authentication -->
-      <div class="section-card">
-        <h2><span class="substep">0</span> Authentication</h2>
-        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
-          <button class="btn-primary" onclick="loginWithTomoIDV()">Login with TomoIDV</button>
-          <span id="oldapi-sse-status" style="font-size: 0.82rem; color: #888;">Disconnected</span>
-        </div>
-        <div id="oldapi-session-banner" style="display: none; margin-top: 8px; padding: 10px 14px; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 4px;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-            <strong style="font-size: 0.85rem;">Session ID</strong>
-            <button onclick="copySessionId()" style="padding: 2px 8px; font-size: 0.72rem; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer;">Copy</button>
-          </div>
-          <code id="oldapi-session-id-display" style="font-size: 0.82rem; word-break: break-all; user-select: all;"></code>
-        </div>
-        <div id="oldapi-sse-log" style="margin-top: 8px; max-height: 150px; overflow-y: auto; font-size: 0.78rem; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 4px; padding: 8px; display: none;">
-          <pre id="oldapi-sse-messages" style="white-space: pre-wrap;"></pre>
-        </div>
-      </div>
-
-      <hr class="section-divider" />
-
-      <!-- 1. Identity Verification (Optional) -->
-      <div class="section-card">
-        <h2><span class="substep">1</span> Identity Verification <span style="font-size: 0.75rem; color: #999; font-weight: normal;">(Optional)</span></h2>
-        <p style="font-size: 0.82rem; color: #666; margin-bottom: 10px;">idv-app 본인인증 화면을 팝업으로 실행합니다. 아래 API Test만 사용할 경우 생략 가능합니다.</p>
-        <button class="btn-primary" id="btn-start-idv" onclick="startIDV()" disabled style="background: #7b1fa2;">Start IDV</button>
-      </div>
-
-      <hr class="section-divider" />
-
-      <!-- 2. Verify Session -->
-      <div class="section-card">
-        <h2><span class="substep">2</span> Verify Session</h2>
-        <div class="int-endpoint" id="int-row-verify-session">
-          <div class="int-ep-info">
-            <span class="int-ep-method">POST</span>
-            <span class="int-ep-path">/v1/verify/session</span>
-          </div>
-          <div class="int-ep-actions">
-            <button class="btn-primary int-test-btn" onclick="testOldApi('verify-session')" disabled>Test</button>
-            <span class="api-badge api-badge-idle int-ep-badge" id="badge-int-verify-session">—</span>
-          </div>
-        </div>
-        <div class="int-result hidden" id="result-int-verify-session"><pre id="json-int-verify-session"></pre></div>
-      </div>
-
-      <hr class="section-divider" />
-
-      <!-- 3. Plaid US -->
-      <div class="section-card">
-        <h2><span class="substep">3</span> Plaid US</h2>
-        <div class="int-endpoint" id="int-row-us-results">
-          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/us/results</span></div>
-          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('us-results')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-us-results">—</span></div>
-        </div>
-        <div class="int-result hidden" id="result-int-us-results"><pre id="json-int-us-results"></pre></div>
-        <div class="int-endpoint" id="int-row-us-verify-kyc">
-          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/us/verify/kyc</span></div>
-          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('us-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-us-verify-kyc">—</span></div>
-        </div>
-        <div class="int-result hidden" id="result-int-us-verify-kyc"><pre id="json-int-us-verify-kyc"></pre></div>
-      </div>
-
-      <hr class="section-divider" />
-
-      <!-- 4. Plaid UK -->
-      <div class="section-card">
-        <h2><span class="substep">4</span> Plaid UK</h2>
-        <div class="int-endpoint" id="int-row-uk-results">
-          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/uk/results</span></div>
-          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('uk-results')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-uk-results">—</span></div>
-        </div>
-        <div class="int-result hidden" id="result-int-uk-results"><pre id="json-int-uk-results"></pre></div>
-        <div class="int-endpoint" id="int-row-uk-verify-kyc">
-          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/uk/verify/kyc</span></div>
-          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('uk-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-uk-verify-kyc">—</span></div>
-        </div>
-        <div class="int-result hidden" id="result-int-uk-verify-kyc"><pre id="json-int-uk-verify-kyc"></pre></div>
-      </div>
-
-      <hr class="section-divider" />
-
-      <!-- 5. Plaid CA -->
-      <div class="section-card">
-        <h2><span class="substep">5</span> Plaid CA</h2>
-        <div class="int-endpoint" id="int-row-ca-results">
-          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/ca/results</span></div>
-          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('ca-results')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-ca-results">—</span></div>
-        </div>
-        <div class="int-result hidden" id="result-int-ca-results"><pre id="json-int-ca-results"></pre></div>
-        <div class="int-endpoint" id="int-row-ca-verify-kyc">
-          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/ca/verify/kyc</span></div>
-          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('ca-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-ca-verify-kyc">—</span></div>
-        </div>
-        <div class="int-result hidden" id="result-int-ca-verify-kyc"><pre id="json-int-ca-verify-kyc"></pre></div>
-      </div>
-
-      <hr class="section-divider" />
-
-      <!-- 6. Liquid JP -->
-      <div class="section-card">
-        <h2><span class="substep">6</span> Liquid JP</h2>
-        <div class="int-endpoint" id="int-row-jp-ic-info">
-          <div class="int-ep-info"><span class="int-ep-method int-ep-method-get">GET</span><span class="int-ep-path">/v1/jp/applicants/{session_id}/id_document_ic_information</span></div>
-          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('jp-ic-info')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-ic-info">—</span></div>
-        </div>
-        <div class="int-result hidden" id="result-int-jp-ic-info"><pre id="json-int-jp-ic-info"></pre></div>
-        <div class="int-endpoint" id="int-row-jp-verify-kyc">
-          <div class="int-ep-info"><span class="int-ep-method">POST</span><span class="int-ep-path">/v1/jp/verify/kyc</span></div>
-          <div class="int-ep-actions"><button class="btn-primary int-test-btn" onclick="testOldApi('jp-verify-kyc')" disabled>Test</button><span class="api-badge api-badge-idle int-ep-badge" id="badge-int-jp-verify-kyc">—</span></div>
-        </div>
-        <div class="int-result hidden" id="result-int-jp-verify-kyc"><pre id="json-int-jp-verify-kyc"></pre></div>
-      </div>
-
-    </div><!-- end tab-old-api -->
-
     <div class="footer">
       <a href="/api-docs" class="ext">Swagger UI (/api-docs) &rarr;</a>
     </div>
 
     <script>
-      // ── Old API tab: load URLs from server config ──
-      let oldApiServerUrl = '';
-      let oldApiAppUrl = '';
-
-      function resolvePublicUrl(url) {
-        try {
-          const hostname = new URL(url).hostname;
-          if (!hostname.includes('.') && hostname !== 'localhost') {
-            return 'http://localhost';
-          }
-          return url;
-        } catch { return url; }
-      }
-
-      (async function initOldApiUrls() {
-        try {
-          const res = await fetch('/test-board/config');
-          const config = await res.json();
-          if (config.idvServerUrl) oldApiServerUrl = resolvePublicUrl(config.idvServerUrl);
-          if (config.idvAppUrl) oldApiAppUrl = config.idvAppUrl;
-        } catch (e) { /* Config not available */ }
-      })();
-
       // ── API Helper ──
       async function apiCall(url, options = {}) {
         const res = await fetch(url, options);
@@ -1455,12 +1273,12 @@
 
       const EXPECTED_RESPONSES = {
         startOk: { statuses: [200, 201], bodyShape: ['start_idv_uri or authorization_url'], description: 'IDV start should return a launch URL for the provider or complete flow.' },
-        kycGetOk: { status: 200, bodyShape: ['KYC result JSON object'], description: 'KYC get should return the selected user identity verification result.' },
+        resultOk: { status: 200, bodyShape: ['KYC result JSON object'], description: 'IDV result should return the selected user identity verification result.' },
         emailFallback: { status: 200, bodyShape: ['start_idv_uri for email fallback flow'], description: 'Missing Plaid email should return an idv-app fallback URL before vendor redirect.' },
-        policyMissing: { statuses: [200, 201], bodyShape: ['start_idv_uri or authorization_url'], description: 'Missing kyc_policy should apply the country default policy for legacy compatibility.' },
+        policyMissing: { statuses: [200, 201], bodyShape: ['start_idv_uri or authorization_url'], description: 'Missing kyc_policy should apply the country default policy.' },
         policyUnsupported: { status: 400, bodyContains: 'Unsupported kyc_policy', description: 'Unsupported Country x Subject x Method x OwnerAssurance combinations should fail validation.' },
         ppidExisting: { status: 200, bodyShape: ['pid or personal_id'], description: 'Existing auth_id start should return the already resolved personal identifier.' },
-        ppidKycGet: { status: 200, bodyShape: ['KYC result JSON object for personal_id'], description: 'KYC get by personal_id should resolve back to the verified user result.' },
+        ppidResult: { status: 200, bodyShape: ['KYC result JSON object for personal_id'], description: 'IDV result by personal_id should resolve back to the verified user result.' },
       };
 
       const noOwnerAssurance = () => ({ kind: 'no_owner_assurance' });
@@ -1479,17 +1297,17 @@
 
       const CUSTOM_CARDS = {
         // ── US ──
-        'us-start-verified': { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
-        'us-start-new':      { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'us-kyc-get':        { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491' }) },
+        'us-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'us-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'us-kyc-get':        { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
         // ── JP ──
-        'jp-start-verified': { endpoint: '/v1/idv/jp/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
-        'jp-start-new':      { endpoint: '/v1/idv/jp/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'jp-kyc-get':        { endpoint: '/v1/idv/jp/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491' }) },
+        'jp-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
+        'jp-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
+        'jp-kyc-get':        { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
         // ── CN ──
-        'cn-start-verified': { endpoint: '/v1/idv/cn/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '799975290332796849300000000000044', callback_url: window.location.origin + '/test-board' }) },
-        'cn-start-new':      { endpoint: '/v1/idv/cn/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'cn-kyc-get':        { endpoint: '/v1/idv/cn/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '799975290332796849300000000000044' }) },
+        'cn-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', noOwnerAssurance()) }) },
+        'cn-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', noOwnerAssurance()) }) },
+        'cn-kyc-get':        { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
         // ── Generic /v1/idv/start ──
         'generic-start-none-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.policyUnsupported, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'generic-start-none-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.policyUnsupported, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
@@ -1498,10 +1316,10 @@
         'generic-start-jp-verified':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
         'generic-start-jp-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
         'generic-start-cn-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', noOwnerAssurance()) }) },
-        // ── Generic /v1/idv/kyc/get ──
-        'generic-kyc-get-us': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
-        'generic-kyc-get-jp': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
-        'generic-kyc-get-cn': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.kycGetOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
+        // ── Generic /v1/idv/result ──
+        'generic-kyc-get-us': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
+        'generic-kyc-get-jp': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
+        'generic-kyc-get-cn': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
         // ── Policy Tests ──
         'policy-us-personal-info-sms':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'policy-us-residential-card-ocr':     { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('residential_card', 'document_ocr_check', noOwnerAssurance()) }) },
@@ -1512,10 +1330,10 @@
         'policy-cn-idcard-ocr-owner-check':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'document_ocr_check', ownerCheck('submitted_doc_selfie_match')) }) },
         'policy-missing':                     { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board' }) },
         // ── Personal ID Resolution Test ──
-        'pid-existing':  { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.ppidExisting, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board' }) },
-        'pid-resolve':   { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '<paste pid from Card 6-1>', callback_url: window.location.origin + '/test-board' }) },
-        'pid-new':       { endpoint: '/v1/idv/us/start',   expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'pid-kyc-get':   { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.ppidKycGet, body: () => ({ user_id: '<paste pid from Card 6-1>' }) },
+        'pid-existing':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.ppidExisting, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'pid-resolve':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '<paste pid from Card 6-1>', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'pid-new':       { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'pid-kyc-get':   { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.ppidResult, body: () => ({ user_id: '<paste pid from Card 6-1>', country: 'us' }) },
         // ── Email Fallback Test ──
         'email-fallback-plaid': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.emailFallback, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
       };
@@ -1529,114 +1347,6 @@
       });
 
       installCustomDebugCopyButtons();
-
-      // 문제점: 기존 sendCustom는 응답을 화면에만 렌더링하고 endpoint/request/expected/actual response를
-      // 한 번에 공유할 수 있는 디버그 스냅샷을 남기지 않는다. 개선된 함수: sendCustom.
-      async function sendCustomOld(id) {
-        const cfg = CUSTOM_CARDS[id];
-        if (!cfg) return;
-        const bodyText = document.getElementById('body-' + id).value;
-        const resultEl = document.getElementById('result-' + id);
-        const jsonEl = document.getElementById('json-' + id);
-        const badgeEl = document.getElementById('badge-' + id);
-        const cardEl = document.getElementById('card-' + id);
-        const authLinkEl = document.getElementById('authlink-' + id);
-
-        resultEl.classList.remove('hidden');
-        if (authLinkEl) authLinkEl.classList.add('hidden');
-        jsonEl.textContent = 'Requesting...';
-        badgeEl.className = 'api-badge api-badge-idle';
-        badgeEl.textContent = 'LOADING';
-        cardEl.classList.remove('api-success', 'api-error');
-
-        let parsedBody;
-        try {
-          parsedBody = JSON.parse(bodyText);
-        } catch (e) {
-          jsonEl.textContent = 'Invalid JSON: ' + e.message;
-          badgeEl.className = 'api-badge api-badge-fail';
-          badgeEl.textContent = 'JSON ERROR';
-          cardEl.classList.add('api-error');
-          return;
-        }
-
-        // CN start: 파일이 있으면 base64 변환 후 JSON body에 포함
-        const isCnStart = id.startsWith('cn-start');
-        const cardFile = isCnStart ? document.getElementById('verify-card-file')?.files[0] : null;
-        const selfieFile = isCnStart ? document.getElementById('verify-selfie-file')?.files[0] : null;
-
-        if (isCnStart && (cardFile || selfieFile)) {
-          const toBase64 = (file) => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-          if (cardFile) parsedBody.card_image_base64 = await toBase64(cardFile);
-          if (selfieFile) parsedBody.best_frame_base64 = await toBase64(selfieFile);
-        }
-
-        const fetchOpts = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(parsedBody),
-        };
-
-        const endpoint = cfg.endpoint;
-        const { ok, status, data, text } = await apiCall(endpoint, fetchOpts);
-
-        jsonEl.textContent = renderApiResponseBody(ok, data, text);
-        if (ok) {
-          badgeEl.className = 'api-badge api-badge-ok';
-          badgeEl.textContent = 'OK ' + status;
-          cardEl.classList.remove('api-error');
-          cardEl.classList.add('api-success');
-
-          // Show "Open Authorization Page" link if start_idv_uri is present
-          const authUrl = data && (data.start_idv_uri || data.authorization_url);
-          if (authUrl && authLinkEl) {
-            const linkEl = authLinkEl.querySelector('a');
-            linkEl.href = authUrl;
-            authLinkEl.classList.remove('hidden');
-          }
-
-          // Show "Copy pid" button if response contains pid field
-          if (id === 'pid-existing' && data.pid) {
-            document.getElementById('btn-copy-pid').style.display = 'inline-block';
-          }
-
-          // Render JWT inspector if start_idv_uri contains a token
-          const inspectorEl = document.getElementById('jwt-' + id);
-          if (inspectorEl && data.start_idv_uri) {
-            renderJwtInspector('jwt-' + id, data.start_idv_uri);
-          }
-
-          // Render response table for easy reading
-          const tableEl = document.getElementById('table-' + id);
-          if (tableEl) {
-            renderResponseTable('table-' + id, data);
-          }
-
-          // Render session_token JWT if present
-          if (data.session_token) {
-            const stInspector = document.getElementById('jwt-' + id);
-            if (stInspector) {
-              const jwt = parseJwtParts(data.session_token);
-              if (jwt) {
-                let html = '<div class="jwt-inspector"><div class="jwt-verify pending">Session Token JWT (no key for verification)</div>';
-                html += '<div class="jwt-section"><div class="jwt-section-title">Header</div>' + renderClaimsTable(jwt.header) + '</div>';
-                html += '<div class="jwt-section"><div class="jwt-section-title">Payload (Claims)</div>' + renderClaimsTable(jwt.payload) + '</div></div>';
-                stInspector.innerHTML = html;
-              }
-            }
-          }
-        } else {
-          badgeEl.className = 'api-badge api-badge-fail';
-          badgeEl.textContent = 'ERR ' + status;
-          cardEl.classList.remove('api-success');
-          cardEl.classList.add('api-error');
-        }
-      }
 
       function cloneDebugValue(value) {
         if (value === undefined) return null;
@@ -1746,23 +1456,6 @@
         };
       }
 
-      function collectCnFileAttachments(id) {
-        if (!id.startsWith('cn-start')) return [];
-        const pairs = [
-          ['card_image_base64', document.getElementById('verify-card-file')?.files[0]],
-          ['best_frame_base64', document.getElementById('verify-selfie-file')?.files[0]],
-        ];
-        return pairs
-          .filter(([, file]) => !!file)
-          .map(([field, file]) => ({
-            field,
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            lastModified: file.lastModified,
-          }));
-      }
-
       function createActualResponseDebug(result) {
         if (!result) return null;
         return {
@@ -1795,7 +1488,6 @@
             body: currentRequest.body,
             bodyParseError: currentRequest.bodyParseError,
             lastSentBody: overrides.lastSentBody ?? last.request?.lastSentBody ?? null,
-            attachments: overrides.attachments ?? last.request?.attachments ?? collectCnFileAttachments(id),
           },
           expectedResponse: cloneDebugValue(cfg?.expectedResponse || null),
           actualResponse: overrides.actualResponse ?? last.actualResponse ?? null,
@@ -1903,22 +1595,6 @@
           return;
         }
 
-        const isCnStart = id.startsWith('cn-start');
-        const cardFile = isCnStart ? document.getElementById('verify-card-file')?.files[0] : null;
-        const selfieFile = isCnStart ? document.getElementById('verify-selfie-file')?.files[0] : null;
-        const attachments = collectCnFileAttachments(id);
-
-        if (isCnStart && (cardFile || selfieFile)) {
-          const toBase64 = (file) => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-          if (cardFile) parsedBody.card_image_base64 = await toBase64(cardFile);
-          if (selfieFile) parsedBody.best_frame_base64 = await toBase64(selfieFile);
-        }
-
         const fetchOpts = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1939,7 +1615,6 @@
             finishedAt: new Date().toISOString(),
             durationMs: Math.round(performance.now() - startedAtMs),
             lastSentBody: sanitizeDebugValue(parsedBody),
-            attachments,
             error: { type: 'network', message: e.message },
           });
           return;
@@ -1954,7 +1629,6 @@
           finishedAt: new Date().toISOString(),
           durationMs: Math.round(performance.now() - startedAtMs),
           lastSentBody: sanitizeDebugValue(parsedBody),
-          attachments,
           actualResponse: createActualResponseDebug(result),
           error: null,
         });
@@ -2144,193 +1818,6 @@
         } catch (e) {
           alert('Failed to extract pid: ' + e.message);
         }
-      }
-
-      // ══════════════════════════════════════
-      // Old API — button-based API testing
-      // ══════════════════════════════════════
-      const INTERNAL_APIS = {
-        'verify-session':         { endpoint: '/v1/verify/session',         method: 'POST', body: (sid) => ({ session_id: sid }) },
-        'us-results':             { endpoint: '/v1/us/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
-        'us-verify-kyc':          { endpoint: '/v1/us/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
-        'uk-results':             { endpoint: '/v1/uk/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
-        'uk-verify-kyc':          { endpoint: '/v1/uk/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
-        'ca-results':             { endpoint: '/v1/ca/results',             method: 'POST', body: (sid) => ({ session_id: sid }) },
-        'ca-verify-kyc':          { endpoint: '/v1/ca/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
-        'jp-ic-info':             { endpoint: null, method: 'GET', body: null },
-        'jp-verify-kyc':          { endpoint: '/v1/jp/verify/kyc',          method: 'POST', body: (sid) => ({ session_id: sid }) },
-      };
-
-      async function testOldApi(id) {
-        const cfg = INTERNAL_APIS[id];
-        if (!cfg || !oldApiSessionId) return;
-
-        const badgeEl = document.getElementById('badge-int-' + id);
-        const rowEl = document.getElementById('int-row-' + id);
-        const resultEl = document.getElementById('result-int-' + id);
-        const jsonEl = document.getElementById('json-int-' + id);
-
-        badgeEl.className = 'api-badge api-badge-idle int-ep-badge';
-        badgeEl.textContent = '...';
-        if (rowEl) rowEl.classList.remove('api-success', 'api-error');
-        resultEl.classList.remove('hidden');
-        jsonEl.textContent = 'Requesting...';
-
-        let endpoint = cfg.endpoint;
-        let fetchOpts;
-        if (id === 'jp-ic-info') {
-          endpoint = '/v1/jp/applicants/' + encodeURIComponent(oldApiSessionId) + '/id_document_ic_information';
-          fetchOpts = { method: 'GET' };
-        } else {
-          fetchOpts = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(cfg.body(oldApiSessionId)),
-          };
-        }
-
-        const { ok, status, data, text } = await apiCall(endpoint, fetchOpts);
-
-        jsonEl.textContent = renderApiResponseBody(ok, data, text);
-        if (ok) {
-          badgeEl.className = 'api-badge api-badge-ok int-ep-badge'; badgeEl.textContent = status;
-          if (rowEl) { rowEl.classList.remove('api-error'); rowEl.classList.add('api-success'); }
-        } else {
-          badgeEl.className = 'api-badge api-badge-fail int-ep-badge'; badgeEl.textContent = status;
-          if (rowEl) { rowEl.classList.remove('api-success'); rowEl.classList.add('api-error'); }
-        }
-      }
-
-      // ── Webhook SSE + Login Popup ──
-      let sseConnection = null;
-      let loginPopup = null;
-      let oldApiSessionId = null;
-      let popupCheckInterval = null;
-
-      function loginWithTomoIDV() {
-        if (sseConnection) sseConnection.close();
-        if (loginPopup && !loginPopup.closed) loginPopup.close();
-
-        const baseUrl = oldApiServerUrl.replace(/\/+$/, '');
-        if (!baseUrl) { alert('IDV Server URL이 설정되지 않았습니다. /test-board/config를 확인하세요.'); return; }
-
-        const statusEl = document.getElementById('oldapi-sse-status');
-        const logEl = document.getElementById('oldapi-sse-log');
-        const msgEl = document.getElementById('oldapi-sse-messages');
-        logEl.style.display = 'block';
-
-        statusEl.textContent = 'Connecting...';
-        statusEl.style.color = '#e65100';
-
-        sseConnection = new EventSource(baseUrl + '/v1/webhook/session');
-
-        sseConnection.onopen = () => {
-          statusEl.textContent = 'Connected — waiting for login...';
-          statusEl.style.color = '#2e7d32';
-          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] SSE connected\n';
-        };
-
-        // Named event: 'connection' — parse JSON, extract conn_id from .data
-        sseConnection.addEventListener('connection', (event) => {
-          const webhookEvent = JSON.parse(event.data);
-          const connId = webhookEvent.data;
-          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] connection: conn_id=' + connId + '\n';
-          logEl.scrollTop = logEl.scrollHeight;
-          openLoginPopup(connId);
-        });
-
-        // Named event: 'session.opened' — parse JSON, extract session_id from .data
-        sseConnection.addEventListener('session.opened', (event) => {
-          const webhookEvent = JSON.parse(event.data);
-          const sessionId = webhookEvent.data;
-          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] session.opened: session_id=' + sessionId + '\n';
-          logEl.scrollTop = logEl.scrollHeight;
-          setOldApiSessionId(sessionId);
-          statusEl.textContent = 'Session acquired';
-          statusEl.style.color = '#2e7d32';
-        });
-
-        // Catch-all for other/unnamed events
-        sseConnection.onmessage = (event) => {
-          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] ' + event.data + '\n';
-          logEl.scrollTop = logEl.scrollHeight;
-        };
-
-        sseConnection.onerror = () => {
-          statusEl.textContent = 'Error / Disconnected';
-          statusEl.style.color = '#c62828';
-          msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] SSE error or disconnected\n';
-        };
-      }
-
-      function openLoginPopup(connId) {
-        const appUrl = oldApiAppUrl.replace(/\/+$/, '');
-        const url = appUrl + '/auth/tomo-idv?conn_id=' + encodeURIComponent(connId);
-        const w = 500, h = 600;
-        const left = window.screenX + (window.outerWidth - w) / 2;
-        const top = window.screenY + (window.outerHeight - h) / 2;
-        loginPopup = window.open(url, 'TomoIDV', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes');
-        if (!loginPopup) {
-          alert('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
-          return;
-        }
-        // Monitor popup close
-        if (popupCheckInterval) clearInterval(popupCheckInterval);
-        popupCheckInterval = setInterval(() => {
-          try {
-            if (loginPopup && loginPopup.closed) {
-              clearInterval(popupCheckInterval);
-              popupCheckInterval = null;
-              const msgEl = document.getElementById('oldapi-sse-messages');
-              msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] Login popup closed\n';
-            }
-          } catch (e) { /* COOP may block access */ }
-        }, 2000);
-      }
-
-      function startIDV() {
-        if (!oldApiSessionId) return;
-        const appUrl = oldApiAppUrl.replace(/\/+$/, '');
-        const url = appUrl + '/idv/old?sessionId=' + encodeURIComponent(oldApiSessionId);
-        const w = 500, h = 600;
-        const left = window.screenX + (window.outerWidth - w) / 2;
-        const top = window.screenY + (window.outerHeight - h) / 2;
-        window.open(url, 'TomoIDV_Verify', 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes');
-      }
-
-      function disconnectWebhook() {
-        if (sseConnection) { sseConnection.close(); sseConnection = null; }
-        if (loginPopup && !loginPopup.closed) loginPopup.close();
-        if (popupCheckInterval) { clearInterval(popupCheckInterval); popupCheckInterval = null; }
-        const statusEl = document.getElementById('oldapi-sse-status');
-        statusEl.textContent = 'Disconnected';
-        statusEl.style.color = '#888';
-        const msgEl = document.getElementById('oldapi-sse-messages');
-        msgEl.textContent += '[' + new Date().toLocaleTimeString() + '] SSE disconnected\n';
-      }
-
-      function setOldApiSessionId(sid) {
-        oldApiSessionId = sid;
-
-        // Show banner
-        document.getElementById('oldapi-session-banner').style.display = 'block';
-        document.getElementById('oldapi-session-id-display').textContent = sid;
-
-        // Enable Start IDV button
-        document.getElementById('btn-start-idv').disabled = false;
-
-        // Enable all Test buttons
-        document.querySelectorAll('.int-test-btn').forEach(btn => { btn.disabled = false; });
-      }
-
-      function copySessionId() {
-        if (!oldApiSessionId) return;
-        navigator.clipboard.writeText(oldApiSessionId).then(() => {
-          const btn = event.target;
-          const orig = btn.textContent;
-          btn.textContent = 'Copied!';
-          setTimeout(() => { btn.textContent = orig; }, 1500);
-        });
       }
 
       // Issue OAuth2 token for Custom KYC requests.

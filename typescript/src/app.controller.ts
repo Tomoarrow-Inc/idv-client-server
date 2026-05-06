@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import type {
   TokenRes,
@@ -35,62 +35,10 @@ export class AppController {
     }
   }
 
-  @Post('/v1/idv/kyc/get')
-  async idvKycGet(@Body() body: GetKycReq): Promise<GetKycRes> {
+  @Post('/v1/idv/result')
+  async idvResult(@Body() body: GetKycReq): Promise<GetKycRes> {
     try {
-      return await this.appService.idvKycGet(body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
-  }
-
-  // ── CN start (이미지 포함 시 verify, 없으면 그대로 전달 → 서버에서 분기) ──
-
-  @Post('/v1/idv/cn/start')
-  async idvStartCN(
-    @Body()
-    body: {
-      user_id: string;
-      callback_url?: string;
-      card_image_base64?: string;
-      best_frame_base64?: string;
-    },
-  ): Promise<any> {
-    try {
-      return await this.appService.idvStartCN(body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
-  }
-
-  // ── Per-country start (delegates to generic start with country) ──
-
-  @Post('/v1/idv/:country/start')
-  async idvCountryStart(
-    @Param('country') country: string,
-    @Body()
-    body: {
-      user_id: string;
-      callback_url?: string;
-      email?: string;
-      card_image_base64?: string;
-      best_frame_base64?: string;
-    },
-  ): Promise<StartIdvRes> {
-    try {
-      return await this.appService.idvCountryStart(country, body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
-  }
-
-  @Post('/v1/idv/:country/kyc/get')
-  async idvCountryKycGet(
-    @Param('country') country: string,
-    @Body() body: { user_id: string; fields?: string[] },
-  ): Promise<unknown> {
-    try {
-      return await this.appService.idvCountryKycGet(country, body);
+      return await this.appService.idvResult(body);
     } catch (e) {
       return rethrowUpstream(e);
     }

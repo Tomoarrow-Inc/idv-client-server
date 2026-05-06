@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import type {
@@ -67,109 +67,11 @@ export class AppService {
     });
   }
 
-  async idvKycGet(body: GetKycReq): Promise<GetKycRes> {
-    return this.api.v1IdvKycGetPost({
+  async idvResult(body: GetKycReq): Promise<GetKycRes> {
+    return this.api.v1IdvResultPost({
       Authorization: this.bearerToken(),
       GetKycReq: body,
     });
-  }
-
-  // ── CN start ──
-
-  async idvStartCN(body: {
-    user_id: string;
-    callback_url?: string;
-    card_image_base64?: string;
-    best_frame_base64?: string;
-  }): Promise<StartIdvRes> {
-    return this.api.v1IdvCnStartPost({
-      Authorization: this.bearerToken(),
-      TencentStartReq: body,
-    });
-  }
-
-  // ── Per-country start ──
-
-  async idvCountryStart(
-    country: string,
-    body: {
-      user_id: string;
-      callback_url?: string;
-      email?: string;
-      card_image_base64?: string;
-      best_frame_base64?: string;
-    },
-  ): Promise<StartIdvRes> {
-    switch (country.toLowerCase()) {
-      case 'us':
-        return this.api.v1IdvUsStartPost({
-          Authorization: this.bearerToken(),
-          PlaidStartIdvReq: body as never,
-        });
-      case 'uk':
-        return this.api.v1IdvUkStartPost({
-          Authorization: this.bearerToken(),
-          PlaidStartIdvReq: body as never,
-        });
-      case 'ca':
-        return this.api.v1IdvCaStartPost({
-          Authorization: this.bearerToken(),
-          PlaidStartIdvReq: body as never,
-        });
-      case 'jp':
-        return this.api.v1IdvJpStartPost({
-          Authorization: this.bearerToken(),
-          LiquidStartIdvReq: body as never,
-        });
-      case 'cn':
-        return this.api.v1IdvCnStartPost({
-          Authorization: this.bearerToken(),
-          TencentStartReq: body as never,
-        });
-      default:
-        throw new BadRequestException(
-          `Unsupported SDK country start endpoint: ${country}`,
-        );
-    }
-  }
-
-  // ── Per-country kyc/get ──
-
-  async idvCountryKycGet(
-    country: string,
-    body: { user_id: string; fields?: string[] },
-  ): Promise<unknown> {
-    switch (country.toLowerCase()) {
-      case 'us':
-        return this.api.v1IdvUsKycGetPost({
-          Authorization: this.bearerToken(),
-          PlaidGetKycReq: body as never,
-        });
-      case 'uk':
-        return this.api.v1IdvUkKycGetPost({
-          Authorization: this.bearerToken(),
-          PlaidGetKycReq: body as never,
-        });
-      case 'ca':
-        return this.api.v1IdvCaKycGetPost({
-          Authorization: this.bearerToken(),
-          PlaidGetKycReq: body as never,
-        });
-      case 'jp':
-        return this.api.v1IdvJpKycGetPost({
-          Authorization: this.bearerToken(),
-          LiquidGetKycReq: body as never,
-        });
-      case 'cn':
-        return this.api.v1IdvCnKycGetPost({
-          Authorization: this.bearerToken(),
-          TencentGetKycReq: body as never,
-        });
-      default:
-        throw new BadRequestException(
-          `Unsupported SDK country kyc/get endpoint: ${country}`,
-        );
-    }
   }
 
   private requireAccessToken(): string {

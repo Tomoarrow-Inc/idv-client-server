@@ -6,7 +6,7 @@
  * Verification
  * - Every Custom KYC case declares an expected response.
  * - The copied debug bundle includes request, expected response, actual
- *   response, timing, browser, UI, attachment, and error context.
+ *   response, timing, browser, UI, and error context.
  * - The UI installs a Copy debug button for every Custom KYC card.
  */
 
@@ -14,7 +14,10 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 const readTestBoardHtml = () =>
-  readFileSync(join(__dirname, '..', '..', 'test-board', 'test-board.html'), 'utf8');
+  readFileSync(
+    join(__dirname, '..', '..', 'test-board', 'test-board.html'),
+    'utf8',
+  );
 
 const customCardsBlock = (html: string) => {
   const customCardsStart = html.indexOf('const CUSTOM_CARDS = {');
@@ -43,10 +46,16 @@ describe('test-board Custom KYC debug copy', () => {
   it('builds a debug payload with request, expectation, response, and context', () => {
     const html = readTestBoardHtml();
 
-    expect(html).toContain('function buildCustomDebugPayload(id, overrides = {}) {');
+    expect(html).toContain(
+      'function buildCustomDebugPayload(id, overrides = {}) {',
+    );
     expect(html).toContain('request: {');
-    expect(html).toContain('expectedResponse: cloneDebugValue(cfg?.expectedResponse || null)');
-    expect(html).toContain('actualResponse: overrides.actualResponse ?? last.actualResponse ?? null');
+    expect(html).toContain(
+      'expectedResponse: cloneDebugValue(cfg?.expectedResponse || null)',
+    );
+    expect(html).toContain(
+      'actualResponse: overrides.actualResponse ?? last.actualResponse ?? null',
+    );
     expect(html).toContain('timing: {');
     expect(html).toContain('browserContext: getBrowserDebugContext()');
     expect(html).toContain('uiState: getCustomCardUiState(id)');
@@ -54,16 +63,25 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain('copiedAt: overrides.copiedAt ?? null');
   });
 
-  it('stores actual responses and sanitizes large base64 request fields', () => {
+  it('stores actual responses without deprecated CN file attachment handling', () => {
+    // CN-specific file attachments belonged to the removed /v1/idv/cn/start
+    // compatibility route. Debug payloads should now preserve only the JSON
+    // request body sent to non-deprecated endpoints.
     const html = readTestBoardHtml();
 
-    expect(html).toContain('async function apiCallWithDebug(url, options = {})');
+    expect(html).toContain(
+      'async function apiCallWithDebug(url, options = {})',
+    );
     expect(html).toContain('statusText: res.statusText');
     expect(html).toContain('headers: collectResponseHeaders(res.headers)');
-    expect(html).toContain('LAST_CUSTOM_RESULTS[id] = buildCustomDebugPayload(id, {');
+    expect(html).toContain(
+      'LAST_CUSTOM_RESULTS[id] = buildCustomDebugPayload(id, {',
+    );
     expect(html).toContain('actualResponse: createActualResponseDebug(result)');
     expect(html).toContain('lastSentBody: sanitizeDebugValue(parsedBody)');
-    expect(html).toContain('collectCnFileAttachments(id)');
+    expect(html).not.toContain('collectCnFileAttachments(id)');
+    expect(html).not.toContain('card_image_base64');
+    expect(html).not.toContain('best_frame_base64');
   });
 
   it('marks expected error responses as successful test-board assertions', () => {
@@ -72,12 +90,24 @@ describe('test-board Custom KYC debug copy', () => {
     // Policy validation cards intentionally expect 400 responses. The board
     // should grade them against expectedResponse instead of treating every
     // non-2xx response as a failed customer test case.
-    expect(html).toContain('function matchesExpectedResponse(result, expectedResponse) {');
-    expect(html).toContain('expectedResponse.statuses?.includes(result.status)');
-    expect(html).toContain('const expectedMatched = matchesExpectedResponse(result, cfg.expectedResponse);');
-    expect(html).toContain('const shouldMarkSuccess = expectedMatched === null ? ok : expectedMatched;');
-    expect(html).toContain("badgeEl.textContent = (expectedMatched === null ? 'OK ' : 'PASS ') + status;");
-    expect(html).toContain("badgeEl.textContent = (expectedMatched === null ? 'ERR ' : 'FAIL ') + status;");
+    expect(html).toContain(
+      'function matchesExpectedResponse(result, expectedResponse) {',
+    );
+    expect(html).toContain(
+      'expectedResponse.statuses?.includes(result.status)',
+    );
+    expect(html).toContain(
+      'const expectedMatched = matchesExpectedResponse(result, cfg.expectedResponse);',
+    );
+    expect(html).toContain(
+      'const shouldMarkSuccess = expectedMatched === null ? ok : expectedMatched;',
+    );
+    expect(html).toContain(
+      "badgeEl.textContent = (expectedMatched === null ? 'OK ' : 'PASS ') + status;",
+    );
+    expect(html).toContain(
+      "badgeEl.textContent = (expectedMatched === null ? 'ERR ' : 'FAIL ') + status;",
+    );
   });
 
   it('installs a Copy debug button for each Custom KYC card', () => {
@@ -86,7 +116,9 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain('installCustomDebugCopyButtons();');
     expect(html).toContain('function installCustomDebugCopyButtons() {');
     expect(html).toContain("button.textContent = 'Copy debug'");
-    expect(html).toContain("button.addEventListener('click', () => copyCustomDebugCase(id, button))");
+    expect(html).toContain(
+      "button.addEventListener('click', () => copyCustomDebugCase(id, button))",
+    );
     expect(html).toContain('actionsEl.appendChild(button)');
   });
 
@@ -126,7 +158,9 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain('id="card-email-fallback-plaid"');
     expect(html).toContain("sendCustom('email-fallback-plaid')");
     expect(block).toContain("'email-fallback-plaid':");
-    expect(block).toContain('expectedResponse: EXPECTED_RESPONSES.emailFallback');
+    expect(block).toContain(
+      'expectedResponse: EXPECTED_RESPONSES.emailFallback',
+    );
     expect(block).toContain('includeDefaultEmail: false');
   });
 });

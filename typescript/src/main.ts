@@ -44,12 +44,30 @@ function injectSwaggerExamples(doc: any): void {
 
   setExample('GetKycReq', 'user_id', USER_ID_US);
   setExample('GetKycReq', 'country', 'us');
+}
 
-  // ── Session (vendor-agnostic) ──
-  setExample('SessionStartReq', 'user_id', USER_ID_US);
-  setExample('SessionStartReq', 'callback_url', CALLBACK_URL);
-  setExample('SessionStartReq', 'country', 'us');
+function removeDeprecatedOperations(doc: any): void {
+  const paths = doc.paths;
+  if (!paths) return;
 
+  for (const [path, operations] of Object.entries(paths)) {
+    if (!operations || typeof operations !== 'object') continue;
+
+    for (const [method, operation] of Object.entries(operations)) {
+      if (
+        operation &&
+        typeof operation === 'object' &&
+        'deprecated' in operation &&
+        operation.deprecated === true
+      ) {
+        delete (operations as Record<string, unknown>)[method];
+      }
+    }
+
+    if (Object.keys(operations).length === 0) {
+      delete paths[path];
+    }
+  }
 }
 
 async function bootstrap() {
@@ -67,13 +85,11 @@ async function bootstrap() {
   });
 
   const swaggerDoc = JSON.parse(
-    readFileSync(
-      join(__dirname, 'swagger', 'sdk.openapi.json'),
-      'utf-8',
-    ),
+    readFileSync(join(__dirname, 'swagger', 'sdk.openapi.json'), 'utf-8'),
   );
   swaggerDoc.servers = [{ url: '/', description: 'Current server' }];
   injectSwaggerExamples(swaggerDoc);
+  removeDeprecatedOperations(swaggerDoc);
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 

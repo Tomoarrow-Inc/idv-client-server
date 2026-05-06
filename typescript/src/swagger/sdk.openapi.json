@@ -1,6 +1,44 @@
 {
     "components": {
         "schemas": {
+            "CaStartIdvReq": {
+                "properties": {
+                    "callback_url": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id",
+                    "callback_url"
+                ],
+                "type": "object"
+            },
+            "CnStartIdvReq": {
+                "properties": {
+                    "best_frame_base64": {
+                        "type": "string"
+                    },
+                    "callback_url": {
+                        "type": "string"
+                    },
+                    "card_image_base64": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id"
+                ],
+                "type": "object"
+            },
             "Country": {
                 "enum": [
                     "us",
@@ -77,84 +115,7 @@
                 ],
                 "type": "object"
             },
-            "LiquidGetKycReq": {
-                "properties": {
-                    "fields": {
-                        "items": {
-                            "$ref": "#/components/schemas/LiquidIdvField"
-                        },
-                        "type": "array"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "user_id"
-                ],
-                "type": "object"
-            },
-            "LiquidGetResultRes": {
-                "properties": {
-                    "address": {
-                        "type": "string"
-                    },
-                    "date_of_birth": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "postal_code": {
-                        "type": "string"
-                    },
-                    "sex": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "date_of_birth",
-                    "name",
-                    "sex",
-                    "address"
-                ],
-                "type": "object"
-            },
-            "LiquidGetUnionResultRes": {
-                "oneOf": [
-                    {
-                        "$ref": "#/components/schemas/LiquidGetResultRes"
-                    },
-                    {
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "type": "object"
-                    }
-                ]
-            },
-            "LiquidIdvField": {
-                "enum": [
-                    "name",
-                    "date_of_birth",
-                    "sex",
-                    "address",
-                    "postal_code"
-                ],
-                "type": "string"
-            },
-            "LiquidIntegratedAppRes": {
-                "properties": {
-                    "start_idv_uri": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "start_idv_uri"
-                ],
-                "type": "object"
-            },
-            "LiquidStartIdvReq": {
+            "JpStartIdvReq": {
                 "properties": {
                     "callback_url": {
                         "type": "string"
@@ -169,77 +130,22 @@
                 ],
                 "type": "object"
             },
-            "PlaidGetKycReq": {
+            "KycPolicy": {
                 "properties": {
-                    "fields": {
-                        "items": {
-                            "$ref": "#/components/schemas/PlaidIdvField"
-                        },
-                        "type": "array"
-                    },
-                    "user_id": {
+                    "method": {
                         "type": "string"
-                    }
-                },
-                "required": [
-                    "user_id"
-                ],
-                "type": "object"
-            },
-            "PlaidGetResultRes": {
-                "oneOf": [
-                    {
-                        "$ref": "#/components/schemas/PlaidGetResultRes"
                     },
-                    {
-                        "additionalProperties": {
-                            "type": "string"
-                        },
+                    "owner_assurance": {
+                        "type": "object"
+                    },
+                    "subject": {
                         "type": "object"
                     }
-                ]
-            },
-            "PlaidIdvField": {
-                "enum": [
-                    "date_of_birth",
-                    "email_address",
-                    "phone_number",
-                    "family_name",
-                    "given_name",
-                    "city",
-                    "country",
-                    "postal_code",
-                    "region",
-                    "street"
-                ],
-                "type": "string"
-            },
-            "PlaidStartIdvReq": {
-                "properties": {
-                    "callback_url": {
-                        "type": "string"
-                    },
-                    "email": {
-                        "type": "string"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    }
                 },
                 "required": [
-                    "user_id",
-                    "callback_url"
-                ],
-                "type": "object"
-            },
-            "PlaidStartIdvRes": {
-                "properties": {
-                    "start_idv_uri": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "start_idv_uri"
+                    "subject",
+                    "method",
+                    "owner_assurance"
                 ],
                 "type": "object"
             },
@@ -249,10 +155,13 @@
                         "type": "string"
                     },
                     "country": {
-                        "$ref": "#/components/schemas/Country"
+                        "type": "string"
                     },
                     "email": {
                         "type": "string"
+                    },
+                    "kyc_policy": {
+                        "$ref": "#/components/schemas/KycPolicy"
                     },
                     "user_id": {
                         "type": "string"
@@ -271,125 +180,6 @@
                 },
                 "required": [
                     "start_idv_uri"
-                ],
-                "type": "object"
-            },
-            "TencentGetKycReq": {
-                "properties": {
-                    "fields": {
-                        "items": {
-                            "$ref": "#/components/schemas/TencentIdvField"
-                        },
-                        "type": "array"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "user_id"
-                ],
-                "type": "object"
-            },
-            "TencentGetKycRes": {
-                "properties": {
-                    "address": {
-                        "type": "string"
-                    },
-                    "date_of_birth": {
-                        "type": "string"
-                    },
-                    "document_type": {
-                        "type": "string"
-                    },
-                    "face_compare_passed": {
-                        "type": "boolean"
-                    },
-                    "family_name": {
-                        "type": "string"
-                    },
-                    "full_name": {
-                        "type": "string"
-                    },
-                    "given_name": {
-                        "type": "string"
-                    },
-                    "id_number": {
-                        "type": "string"
-                    },
-                    "issuing_country": {
-                        "type": "string"
-                    },
-                    "liveness_passed": {
-                        "type": "boolean"
-                    },
-                    "nationality": {
-                        "type": "string"
-                    },
-                    "ocr_passed": {
-                        "type": "boolean"
-                    },
-                    "sex": {
-                        "type": "string"
-                    },
-                    "similarity": {
-                        "type": "number"
-                    },
-                    "status": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "status"
-                ],
-                "type": "object"
-            },
-            "TencentGetUnionResultRes": {
-                "oneOf": [
-                    {
-                        "$ref": "#/components/schemas/TencentGetKycRes"
-                    },
-                    {
-                        "additionalProperties": {
-                            "type": "string"
-                        },
-                        "type": "object"
-                    }
-                ]
-            },
-            "TencentIdvField": {
-                "enum": [
-                    "full_name",
-                    "date_of_birth",
-                    "sex",
-                    "address",
-                    "id_number",
-                    "nationality"
-                ],
-                "type": "string"
-            },
-            "TencentStartIdvRes": {
-                "properties": {
-                    "tencent_start_idv_uri": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "tencent_start_idv_uri"
-                ],
-                "type": "object"
-            },
-            "TencentStartReq": {
-                "properties": {
-                    "callback_url": {
-                        "type": "string"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "user_id"
                 ],
                 "type": "object"
             },
@@ -441,6 +231,42 @@
                     "expires_in"
                 ],
                 "type": "object"
+            },
+            "UkStartIdvReq": {
+                "properties": {
+                    "callback_url": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id",
+                    "callback_url"
+                ],
+                "type": "object"
+            },
+            "UsStartIdvReq": {
+                "properties": {
+                    "callback_url": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id",
+                    "callback_url"
+                ],
+                "type": "object"
             }
         }
     },
@@ -452,6 +278,8 @@
     "paths": {
         "/v1/idv/ca/health": {
             "get": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/health.",
                 "responses": {
                     "200": {
                         "content": {
@@ -466,46 +294,10 @@
                 }
             }
         },
-        "/v1/idv/ca/kyc/get": {
-            "post": {
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PlaidGetKycReq"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json;charset=utf-8": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PlaidGetResultRes"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body` or `Authorization`"
-                    }
-                }
-            }
-        },
         "/v1/idv/ca/start": {
             "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/start with country=ca.",
                 "parameters": [
                     {
                         "in": "header",
@@ -520,7 +312,7 @@
                     "content": {
                         "application/json;charset=utf-8": {
                             "schema": {
-                                "$ref": "#/components/schemas/PlaidStartIdvReq"
+                                "$ref": "#/components/schemas/CaStartIdvReq"
                             }
                         }
                     }
@@ -530,7 +322,7 @@
                         "content": {
                             "application/json;charset=utf-8": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PlaidStartIdvRes"
+                                    "$ref": "#/components/schemas/StartIdvRes"
                                 }
                             }
                         },
@@ -544,6 +336,8 @@
         },
         "/v1/idv/cn/health": {
             "get": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/health.",
                 "responses": {
                     "200": {
                         "content": {
@@ -558,46 +352,10 @@
                 }
             }
         },
-        "/v1/idv/cn/kyc/get": {
-            "post": {
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/TencentGetKycReq"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json;charset=utf-8": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/TencentGetUnionResultRes"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body` or `Authorization`"
-                    }
-                }
-            }
-        },
         "/v1/idv/cn/start": {
             "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/start with country=cn.",
                 "parameters": [
                     {
                         "in": "header",
@@ -612,7 +370,7 @@
                     "content": {
                         "application/json;charset=utf-8": {
                             "schema": {
-                                "$ref": "#/components/schemas/TencentStartReq"
+                                "$ref": "#/components/schemas/CnStartIdvReq"
                             }
                         }
                     }
@@ -622,7 +380,7 @@
                         "content": {
                             "application/json;charset=utf-8": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TencentStartIdvRes"
+                                    "$ref": "#/components/schemas/StartIdvRes"
                                 }
                             }
                         },
@@ -634,7 +392,7 @@
                 }
             }
         },
-        "/v1/idv/jp/health": {
+        "/v1/idv/health": {
             "get": {
                 "responses": {
                     "200": {
@@ -650,46 +408,28 @@
                 }
             }
         },
-        "/v1/idv/jp/kyc/get": {
-            "post": {
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/LiquidGetKycReq"
-                            }
-                        }
-                    }
-                },
+        "/v1/idv/jp/health": {
+            "get": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/health.",
                 "responses": {
                     "200": {
                         "content": {
                             "application/json;charset=utf-8": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/LiquidGetUnionResultRes"
+                                    "type": "string"
                                 }
                             }
                         },
                         "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body` or `Authorization`"
                     }
                 }
             }
         },
         "/v1/idv/jp/start": {
             "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/start with country=jp.",
                 "parameters": [
                     {
                         "in": "header",
@@ -704,7 +444,7 @@
                     "content": {
                         "application/json;charset=utf-8": {
                             "schema": {
-                                "$ref": "#/components/schemas/LiquidStartIdvReq"
+                                "$ref": "#/components/schemas/JpStartIdvReq"
                             }
                         }
                     }
@@ -714,7 +454,7 @@
                         "content": {
                             "application/json;charset=utf-8": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/LiquidIntegratedAppRes"
+                                    "$ref": "#/components/schemas/StartIdvRes"
                                 }
                             }
                         },
@@ -727,6 +467,46 @@
             }
         },
         "/v1/idv/kyc/get": {
+            "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/result.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetKycReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetKycRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
+                    }
+                }
+            }
+        },
+        "/v1/idv/result": {
             "post": {
                 "parameters": [
                     {
@@ -804,6 +584,8 @@
         },
         "/v1/idv/uk/health": {
             "get": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/health.",
                 "responses": {
                     "200": {
                         "content": {
@@ -818,46 +600,10 @@
                 }
             }
         },
-        "/v1/idv/uk/kyc/get": {
-            "post": {
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PlaidGetKycReq"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json;charset=utf-8": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PlaidGetResultRes"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body` or `Authorization`"
-                    }
-                }
-            }
-        },
         "/v1/idv/uk/start": {
             "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/start with country=uk.",
                 "parameters": [
                     {
                         "in": "header",
@@ -872,7 +618,7 @@
                     "content": {
                         "application/json;charset=utf-8": {
                             "schema": {
-                                "$ref": "#/components/schemas/PlaidStartIdvReq"
+                                "$ref": "#/components/schemas/UkStartIdvReq"
                             }
                         }
                     }
@@ -882,7 +628,7 @@
                         "content": {
                             "application/json;charset=utf-8": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PlaidStartIdvRes"
+                                    "$ref": "#/components/schemas/StartIdvRes"
                                 }
                             }
                         },
@@ -896,6 +642,8 @@
         },
         "/v1/idv/us/health": {
             "get": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/health.",
                 "responses": {
                     "200": {
                         "content": {
@@ -910,46 +658,10 @@
                 }
             }
         },
-        "/v1/idv/us/kyc/get": {
-            "post": {
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PlaidGetKycReq"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json;charset=utf-8": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/PlaidGetResultRes"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body` or `Authorization`"
-                    }
-                }
-            }
-        },
         "/v1/idv/us/start": {
             "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/start with country=us.",
                 "parameters": [
                     {
                         "in": "header",
@@ -964,7 +676,7 @@
                     "content": {
                         "application/json;charset=utf-8": {
                             "schema": {
-                                "$ref": "#/components/schemas/PlaidStartIdvReq"
+                                "$ref": "#/components/schemas/UsStartIdvReq"
                             }
                         }
                     }
@@ -974,7 +686,7 @@
                         "content": {
                             "application/json;charset=utf-8": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PlaidStartIdvRes"
+                                    "$ref": "#/components/schemas/StartIdvRes"
                                 }
                             }
                         },

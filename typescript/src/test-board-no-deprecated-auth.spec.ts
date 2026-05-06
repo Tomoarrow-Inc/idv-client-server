@@ -17,7 +17,10 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 const readTestBoardHtml = () =>
-  readFileSync(join(__dirname, '..', '..', 'test-board', 'test-board.html'), 'utf8');
+  readFileSync(
+    join(__dirname, '..', '..', 'test-board', 'test-board.html'),
+    'utf8',
+  );
 
 describe('test-board deprecated auth removal', () => {
   const customCardEntry = (html: string, cardId: string) => {
@@ -28,7 +31,9 @@ describe('test-board deprecated auth removal', () => {
     expect(customCardsEnd).toBeGreaterThan(customCardsStart);
 
     const customCards = html.slice(customCardsStart, customCardsEnd);
-    const match = customCards.match(new RegExp(`'${cardId}'\\s*:\\s*\\{[^\\n]+\\}`));
+    const match = customCards.match(
+      new RegExp(`'${cardId}'\\s*:\\s*\\{[^\\n]+\\}`),
+    );
 
     expect(match).not.toBeNull();
     return match?.[0] ?? '';
@@ -50,6 +55,33 @@ describe('test-board deprecated auth removal', () => {
     }
   });
 
+  it('does not expose deprecated IDV endpoint implementations', () => {
+    // The test-board is the customer frontend simulator. It must not keep
+    // buttons, fixtures, or scripts for BFF routes removed from AppController.
+    const html = readTestBoardHtml();
+    const deprecatedRouteStrings = [
+      'Old API',
+      'old-api',
+      'sendCustomOld',
+      '/v1/verify/session',
+      '/v1/idv/kyc/get',
+      '/v1/idv/us/start',
+      '/v1/idv/uk/start',
+      '/v1/idv/ca/start',
+      '/v1/idv/jp/start',
+      '/v1/idv/cn/start',
+      '/v1/idv/us/kyc/get',
+      '/v1/idv/jp/kyc/get',
+      '/v1/idv/cn/kyc/get',
+      '/v1/jp/applicants/',
+      '/idv/old',
+    ];
+
+    for (const deprecatedRouteString of deprecatedRouteStrings) {
+      expect(html).not.toContain(deprecatedRouteString);
+    }
+  });
+
   it('initializes default Custom KYC request bodies with email', () => {
     const html = readTestBoardHtml();
     const customCardsStart = html.indexOf('const CUSTOM_CARDS = {');
@@ -63,8 +95,12 @@ describe('test-board deprecated auth removal', () => {
     // so customer examples do not accidentally exercise Plaid email fallback.
     expect(html).toContain('function withDefaultEmail(body) {');
     expect(html).toContain('function customCardBody(id) {');
-    expect(html).toContain('return cfg.includeDefaultEmail === false ? body : withDefaultEmail(body);');
-    expect(html).toContain('if (el) el.value = JSON.stringify(customCardBody(id), null, 2);');
+    expect(html).toContain(
+      'return cfg.includeDefaultEmail === false ? body : withDefaultEmail(body);',
+    );
+    expect(html).toContain(
+      'if (el) el.value = JSON.stringify(customCardBody(id), null, 2);',
+    );
     expect(customCards.match(/includeDefaultEmail:\s*false/g)).toHaveLength(1);
   });
 
@@ -78,7 +114,9 @@ describe('test-board deprecated auth removal', () => {
     expect(html).toContain('id="card-email-fallback-plaid"');
     expect(html).toContain("sendCustom('email-fallback-plaid')");
     expect(entry).toContain("endpoint: '/v1/idv/start'");
-    expect(entry).toContain('expectedResponse: EXPECTED_RESPONSES.emailFallback');
+    expect(entry).toContain(
+      'expectedResponse: EXPECTED_RESPONSES.emailFallback',
+    );
     expect(entry).toContain('includeDefaultEmail: false');
     expect(entry).toContain('kyc_policy: personalInfoSmsPolicy()');
     expect(entry).not.toContain('email:');
@@ -87,7 +125,10 @@ describe('test-board deprecated auth removal', () => {
   it('keeps no-country start examples on typed policy validation', () => {
     const html = readTestBoardHtml();
     const removedPolicyIdField = ['kyc', 'policy', 'id'].join('_');
-    const noCountryStartCardIds = ['generic-start-none-verified', 'generic-start-none-new'];
+    const noCountryStartCardIds = [
+      'generic-start-none-verified',
+      'generic-start-none-new',
+    ];
 
     for (const cardId of noCountryStartCardIds) {
       const entry = customCardEntry(html, cardId);
@@ -96,7 +137,9 @@ describe('test-board deprecated auth removal', () => {
       // omit country while sending a typed policy so validation rejects the
       // unsupported UNKNOWN-country combination.
       expect(entry).toContain("endpoint: '/v1/idv/start'");
-      expect(entry).toContain('expectedResponse: EXPECTED_RESPONSES.policyUnsupported');
+      expect(entry).toContain(
+        'expectedResponse: EXPECTED_RESPONSES.policyUnsupported',
+      );
       expect(entry).toContain('kyc_policy: personalInfoSmsPolicy()');
       expect(entry).not.toContain(`${removedPolicyIdField}:`);
       expect(entry).not.toContain('country:');
@@ -107,9 +150,21 @@ describe('test-board deprecated auth removal', () => {
     const html = readTestBoardHtml();
     const removedPolicyIdField = ['kyc', 'policy', 'id'].join('_');
     const countryStartCases = [
-      ['generic-start-us-new', "country: 'us'", 'kyc_policy: personalInfoSmsPolicy()'],
-      ['generic-start-jp-new', "country: 'jp'", "documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret'))"],
-      ['generic-start-cn-new', "country: 'cn'", "documentPolicy('id_card', 'government_id_verf', noOwnerAssurance())"],
+      [
+        'generic-start-us-new',
+        "country: 'us'",
+        'kyc_policy: personalInfoSmsPolicy()',
+      ],
+      [
+        'generic-start-jp-new',
+        "country: 'jp'",
+        "documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret'))",
+      ],
+      [
+        'generic-start-cn-new',
+        "country: 'cn'",
+        "documentPolicy('id_card', 'government_id_verf', noOwnerAssurance())",
+      ],
     ];
 
     for (const [cardId, country, policy] of countryStartCases) {
@@ -133,13 +188,41 @@ describe('test-board deprecated auth removal', () => {
     const removedPolicyIdField = ['kyc', 'policy', 'id'].join('_');
 
     const validPolicyCases = [
-      ['policy-us-personal-info-sms', "country: 'us'", 'kyc_policy: personalInfoSmsPolicy()'],
-      ['policy-us-residential-card-ocr', "country: 'us'", "documentPolicy('residential_card', 'document_ocr_check', noOwnerAssurance())"],
-      ['policy-jp-idcard-gov', "country: 'jp'", "documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret'))"],
-      ['policy-jp-passport-ocr', "country: 'jp'", "documentPolicy('passport', 'document_ocr_check', noOwnerAssurance())"],
-      ['policy-cn-idcard-gov', "country: 'cn'", "documentPolicy('id_card', 'government_id_verf', noOwnerAssurance())"],
-      ['policy-cn-idcard-doc-auth-owner-check', "country: 'cn'", "documentPolicy('id_card', 'document_authenticity_check', ownerCheck('submitted_doc_selfie_match'))"],
-      ['policy-cn-idcard-ocr-owner-check', "country: 'cn'", "documentPolicy('id_card', 'document_ocr_check', ownerCheck('submitted_doc_selfie_match'))"],
+      [
+        'policy-us-personal-info-sms',
+        "country: 'us'",
+        'kyc_policy: personalInfoSmsPolicy()',
+      ],
+      [
+        'policy-us-residential-card-ocr',
+        "country: 'us'",
+        "documentPolicy('residential_card', 'document_ocr_check', noOwnerAssurance())",
+      ],
+      [
+        'policy-jp-idcard-gov',
+        "country: 'jp'",
+        "documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret'))",
+      ],
+      [
+        'policy-jp-passport-ocr',
+        "country: 'jp'",
+        "documentPolicy('passport', 'document_ocr_check', noOwnerAssurance())",
+      ],
+      [
+        'policy-cn-idcard-gov',
+        "country: 'cn'",
+        "documentPolicy('id_card', 'government_id_verf', noOwnerAssurance())",
+      ],
+      [
+        'policy-cn-idcard-doc-auth-owner-check',
+        "country: 'cn'",
+        "documentPolicy('id_card', 'document_authenticity_check', ownerCheck('submitted_doc_selfie_match'))",
+      ],
+      [
+        'policy-cn-idcard-ocr-owner-check',
+        "country: 'cn'",
+        "documentPolicy('id_card', 'document_ocr_check', ownerCheck('submitted_doc_selfie_match'))",
+      ],
     ];
 
     for (const [cardId, country, policy] of validPolicyCases) {
@@ -156,7 +239,9 @@ describe('test-board deprecated auth removal', () => {
 
     const missingPolicy = customCardEntry(html, 'policy-missing');
     expect(missingPolicy).toContain("endpoint: '/v1/idv/start'");
-    expect(missingPolicy).toContain('expectedResponse: EXPECTED_RESPONSES.startOk');
+    expect(missingPolicy).toContain(
+      'expectedResponse: EXPECTED_RESPONSES.startOk',
+    );
     expect(missingPolicy).not.toContain('kyc_policy:');
     expect(missingPolicy).not.toContain(`${removedPolicyIdField}:`);
 
@@ -167,12 +252,16 @@ describe('test-board deprecated auth removal', () => {
   it('renders idv-server error response bodies without parsing or reformatting', () => {
     const html = readTestBoardHtml();
 
-    expect(html).toContain("const contentType = res.headers.get('content-type') || ''");
+    expect(html).toContain(
+      "const contentType = res.headers.get('content-type') || ''",
+    );
     expect(html).toContain('statusText: res.statusText');
     expect(html).toContain('headers: collectResponseHeaders(res.headers)');
     expect(html).toContain('function renderApiResponseBody(ok, data, text) {');
     expect(html).toContain('return ok ? formatApiData(data) : text;');
-    expect(html).toContain('jsonEl.textContent = renderApiResponseBody(ok, data, text);');
+    expect(html).toContain(
+      'jsonEl.textContent = renderApiResponseBody(ok, data, text);',
+    );
     expect(html).toContain('actualResponse: createActualResponseDebug(result)');
   });
 });

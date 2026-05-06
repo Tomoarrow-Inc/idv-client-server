@@ -42,85 +42,24 @@ describe('AppService SDK-only idv-server requests', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it('uses the SDK client for generic KYC lookup', async () => {
-    // The installed SDK contract exposes /v1/idv/kyc/get, so BFF lookup must
-    // use v1IdvKycGetPost instead of a raw fetch proxy.
+  it('uses the SDK client for generic IDV result', async () => {
+    // Verifies the new public /v1/idv/result endpoint is wired through the
+    // generated SDK method instead of raw fetch.
     global.fetch = jest.fn();
-    const body = { user_id: 'user-1', country: 'us' };
+    const body = { user_id: 'user-result', country: 'us' };
     const apiMock = {
-      v1IdvKycGetPost: jest.fn().mockResolvedValue({ full_name: 'User One' }),
+      v1IdvResultPost: jest.fn().mockResolvedValue({ status: 'approved' }),
     };
     const service = createService(apiMock);
 
-    await service.idvKycGet(body as never);
+    await service.idvResult(body as never);
 
-    expect(apiMock.v1IdvKycGetPost).toHaveBeenCalledWith({
+    expect(apiMock.v1IdvResultPost).toHaveBeenCalledWith({
       Authorization: 'Bearer access-token',
       GetKycReq: body,
     });
     expect(global.fetch).not.toHaveBeenCalled();
   });
-
-  it.each([
-    ['us', 'v1IdvUsStartPost', 'PlaidStartIdvReq'],
-    ['uk', 'v1IdvUkStartPost', 'PlaidStartIdvReq'],
-    ['ca', 'v1IdvCaStartPost', 'PlaidStartIdvReq'],
-    ['jp', 'v1IdvJpStartPost', 'LiquidStartIdvReq'],
-    ['cn', 'v1IdvCnStartPost', 'TencentStartReq'],
-  ])(
-    'uses the SDK client for %s country start',
-    async (country, method, key) => {
-      // Country start routes are kept only where tomo-idv-client-node exposes a
-      // generated SDK method for that country.
-      global.fetch = jest.fn();
-      const body = {
-        user_id: `user-${country}`,
-        callback_url: 'https://client.example/callback',
-      };
-      const apiMock = {
-        [method]: jest
-          .fn()
-          .mockResolvedValue({ start_idv_uri: 'https://idv.example/start' }),
-      } as Record<string, jest.Mock>;
-      const service = createService(apiMock);
-
-      await service.idvCountryStart(country, body);
-
-      expect(apiMock[method]).toHaveBeenCalledWith({
-        Authorization: 'Bearer access-token',
-        [key]: body,
-      });
-      expect(global.fetch).not.toHaveBeenCalled();
-    },
-  );
-
-  it.each([
-    ['us', 'v1IdvUsKycGetPost', 'PlaidGetKycReq'],
-    ['uk', 'v1IdvUkKycGetPost', 'PlaidGetKycReq'],
-    ['ca', 'v1IdvCaKycGetPost', 'PlaidGetKycReq'],
-    ['jp', 'v1IdvJpKycGetPost', 'LiquidGetKycReq'],
-    ['cn', 'v1IdvCnKycGetPost', 'TencentGetKycReq'],
-  ])(
-    'uses the SDK client for %s country kyc/get',
-    async (country, method, key) => {
-      // Country kyc/get routes are implemented only through generated SDK
-      // methods for countries that the SDK exposes.
-      global.fetch = jest.fn();
-      const body = { user_id: `user-${country}` };
-      const apiMock = {
-        [method]: jest.fn().mockResolvedValue({ status: 'ok' }),
-      } as Record<string, jest.Mock>;
-      const service = createService(apiMock);
-
-      await service.idvCountryKycGet(country, body);
-
-      expect(apiMock[method]).toHaveBeenCalledWith({
-        Authorization: 'Bearer access-token',
-        [key]: body,
-      });
-      expect(global.fetch).not.toHaveBeenCalled();
-    },
-  );
 
   it('keeps AppService free of raw fetch upstream request code', () => {
     // Static regression check: AppService must route idv-server traffic through
@@ -138,5 +77,17 @@ describe('AppService SDK-only idv-server requests', () => {
 
     expect(source).not.toMatch(/\b[A-Za-z0-9_]+Old\s*\(/);
     expect(source).not.toContain('Old problem');
+  });
+
+  it('keeps AppService free of deprecated IDV compatibility implementations', () => {
+    // Static regression check: deprecated SDK methods may still exist in the
+    // generated contract, but AppService must not implement those BFF routes.
+    const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
+
+    expect(source).not.toMatch(/\bidvKycGet\s*\(/);
+    expect(source).not.toMatch(/\bidvStartCN\s*\(/);
+    expect(source).not.toMatch(/\bidvCountry(Start|KycGet)\s*\(/);
+    expect(source).not.toMatch(/\bv1Idv(Us|Uk|Ca|Jp|Cn)StartPost\s*\(/);
+    expect(source).not.toMatch(/\bv1IdvKycGetPost\s*\(/);
   });
 });
