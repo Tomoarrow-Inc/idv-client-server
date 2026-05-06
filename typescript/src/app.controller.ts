@@ -6,8 +6,6 @@ import type {
   GetKycRes,
   StartIdvReq,
   GetKycReq,
-  SessionStartReq,
-  SessionStartRes,
 } from 'tomo-idv-client-node';
 import { rethrowUpstream } from './upstream-response';
 
@@ -50,8 +48,8 @@ export class AppController {
 
   @Post('/v1/idv/sessions/start')
   async idvSessionStart(
-    @Body() body: SessionStartReq,
-  ): Promise<SessionStartRes> {
+    @Body() body: Record<string, unknown>,
+  ): Promise<unknown> {
     try {
       return await this.appService.idvSessionStart(body);
     } catch (e) {

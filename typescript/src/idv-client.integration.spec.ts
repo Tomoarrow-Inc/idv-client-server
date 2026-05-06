@@ -1,19 +1,31 @@
-import { DefaultApi, Configuration, createClientAssertion } from 'tomo-idv-client-node';
+import {
+  DefaultApi,
+  Configuration,
+  createClientAssertion,
+} from 'tomo-idv-client-node';
 
 const shouldRun = process.env.RUN_IDV_INTEGRATION_TESTS === 'true';
 const describeIf = shouldRun ? describe : describe.skip;
 
-const REQUIRED_ENV = ['TOMO_IDV_CLIENT_ID', 'TOMO_IDV_SECRET', 'IDV_BASE_URL'] as const;
+const REQUIRED_ENV = [
+  'TOMO_IDV_CLIENT_ID',
+  'TOMO_IDV_SECRET',
+  'IDV_BASE_URL',
+] as const;
 
 describeIf('DefaultApi -> real idv-server (integration)', () => {
   const clientId = process.env.TOMO_IDV_CLIENT_ID as string;
   const secret = process.env.TOMO_IDV_SECRET as string;
-  const baseUrl = (process.env.IDV_BASE_URL ?? 'http://idv-server-ghci').replace(/\/$/, '');
+  const baseUrl = (
+    process.env.IDV_BASE_URL ?? 'http://idv-server-ghci'
+  ).replace(/\/$/, '');
 
   const ensureRequiredEnv = () => {
     const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
     if (missing.length > 0) {
-      throw new Error(`Missing required env for integration test: ${missing.join(', ')}`);
+      throw new Error(
+        `Missing required env for integration test: ${missing.join(', ')}`,
+      );
     }
   };
 
@@ -28,18 +40,21 @@ describeIf('DefaultApi -> real idv-server (integration)', () => {
 
     const token = await api.v1Oauth2TokenPost({
       client_assertion: assertion,
-      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      client_assertion_type:
+        'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
       grant_type: 'client_credentials',
       scope: 'idv.read',
       resource: 'https://api.tomopayment.com/v1/idv',
     });
 
-    const accessToken = (token as any).access_token ?? (token as any).accessToken;
+    const accessToken =
+      (token as any).access_token ?? (token as any).accessToken;
     expect(typeof accessToken).toBe('string');
     return accessToken as string;
   };
 
-  const uniqueUserId = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  const uniqueUserId = (prefix: string) =>
+    `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
   beforeAll(() => {
     ensureRequiredEnv();
@@ -55,15 +70,27 @@ describeIf('DefaultApi -> real idv-server (integration)', () => {
     const accessToken = await issueToken();
     const userId = uniqueUserId('sdk-us-start');
 
-    const resp = await api.v1IdvSessionsStartPost({
-      Authorization: `Bearer ${accessToken}`,
-      SessionStartReq: {
+    // /v1/idv/sessions/start is an app-contract endpoint, not an SDK-contract
+    // endpoint, so this integration test exercises it with raw HTTP.
+    const response = await fetch(`${baseUrl}/v1/idv/sessions/start`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({
         user_id: userId,
         country: 'us',
         email: 'sdk-user@example.com',
         callback_url: 'idvexpo://verify',
-      },
+      }),
     });
+    if (!response.ok) {
+      throw new Error(
+        `Failed to start IDV session (${response.status}): ${await response.text()}`,
+      );
+    }
+    const resp = (await response.json()) as { session_id?: unknown };
 
     expect(typeof resp.session_id).toBe('string');
   });

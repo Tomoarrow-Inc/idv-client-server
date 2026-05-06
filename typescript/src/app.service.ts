@@ -7,8 +7,6 @@ import type {
   GetKycRes,
   StartIdvReq,
   GetKycReq,
-  SessionStartReq,
-  SessionStartRes,
 } from 'tomo-idv-client-node';
 import { UpstreamResponseError } from './upstream-response';
 
