@@ -3,8 +3,6 @@ import { APP_FILTER } from '@nestjs/core';
 import { DefaultApi, Configuration } from 'tomo-idv-client-node';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MockController } from './mock/mock.controller';
-import { MockService } from './mock/mock.service';
 import { StateService } from './state.service';
 import { UpstreamResponseFilter } from './upstream-response';
 
@@ -18,7 +16,7 @@ function resolveBaseUrl(): string {
 }
 
 @Module({
-  controllers: [AppController, MockController],
+  controllers: [AppController],
   providers: [
     {
       provide: DefaultApi,
@@ -30,7 +28,6 @@ function resolveBaseUrl(): string {
       useClass: UpstreamResponseFilter,
     },
     AppService,
-    MockService,
     StateService,
   ],
 })

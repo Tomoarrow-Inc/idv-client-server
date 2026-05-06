@@ -168,9 +168,6 @@ All routes are on the root controller (`@Controller()`), all are POST except hea
 - `POST /v1/idv/cn/kyc/get` → Get KYC (requires access_token)
 - `POST /v1/idv/cn/result/web` → Get web result (no access_token needed)
 - `GET  /v1/idv/cn/health` → Health check
-- `POST /v1/idv/cn/mock/start` → Mock start (requires access_token)
-- `POST /v1/idv/cn/mock/token` → Mock token (requires access_token)
-- `POST /v1/idv/cn/mock/kyc/get` → Mock KYC get (requires access_token)
 
 ### Session Tokens
 - `POST /v1/idv/plaid/token/session` → Plaid session token
@@ -276,7 +273,7 @@ master agent가 Teams를 통해 작업을 위임할 때 적용되는 프로토�
 
 ### 3. 국가별 엔드포인트 대폭 확장
 - **Before (main)**: US(start, kyc/get), JP(start, kyc/get), Generic(start) — 6개 엔드포인트
-- **After**: US/UK/CA(Plaid), JP(Liquid), CN(Tencent) + Generic — 30+ 엔드포인트 (start, kyc/get, kyc/put, cookie/start, health, session token, notification, mock, login-ticket)
+- **After**: US/UK/CA(Plaid), JP(Liquid), CN(Tencent) + Generic — v1 엔드포인트 (start, kyc/get, kyc/put, cookie/start, health, session token, notification, login-ticket)
 
 ### 4. DI 구조 변경
 - **Before (main)**: `AppModule { providers: [AppService, StateService] }` — AppService가 직접 fetch
