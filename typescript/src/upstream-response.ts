@@ -36,6 +36,10 @@ export async function rethrowUpstream(error: unknown): Promise<never> {
     throw error;
   }
 
+  if (error instanceof HttpException) {
+    throw error;
+  }
+
   if (error instanceof ResponseError) {
     const status = error.response.status || HttpStatus.BAD_GATEWAY;
     const contentType = error.response.headers.get('content-type') ?? undefined;

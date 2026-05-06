@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import type {
@@ -8,7 +8,6 @@ import type {
   StartIdvReq,
   GetKycReq,
 } from 'tomo-idv-client-node';
-import { UpstreamResponseError } from './upstream-response';
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
@@ -61,17 +60,11 @@ export class AppService {
 
   // ── Generic (country-agnostic) ──
 
-  // Old problem: the generated SDK serializer can drop newly introduced typed
-  // kyc_policy fields before idv-server validates/routes them. Improved by idvStart.
-  async idvStartOld(body: StartIdvReq): Promise<StartIdvRes> {
+  async idvStart(body: StartIdvReq): Promise<StartIdvRes> {
     return this.api.v1IdvStartPost({
       Authorization: this.bearerToken(),
       StartIdvReq: body,
     });
-  }
-
-  async idvStart(body: StartIdvReq): Promise<StartIdvRes> {
-    return this.proxyPost('/v1/idv/start', body) as Promise<StartIdvRes>;
   }
 
   async idvKycGet(body: GetKycReq): Promise<GetKycRes> {
@@ -81,21 +74,6 @@ export class AppService {
     });
   }
 
-  // ── Session (vendor-agnostic) ──
-
-  // Old problem: the generated SDK serializer can drop newly introduced typed
-  // kyc_policy fields before idv-server validates/routes them. Improved by idvSessionStart.
-  async idvSessionStartOld(body: SessionStartReq): Promise<SessionStartRes> {
-    return this.api.v1IdvSessionsStartPost({
-      Authorization: this.bearerToken(),
-      SessionStartReq: body,
-    });
-  }
-
-  async idvSessionStart(body: SessionStartReq): Promise<SessionStartRes> {
-    return this.proxyPost('/v1/idv/sessions/start', body) as Promise<SessionStartRes>;
-  }
-
   // ── CN start ──
 
   async idvStartCN(body: {
@@ -103,8 +81,11 @@ export class AppService {
     callback_url?: string;
     card_image_base64?: string;
     best_frame_base64?: string;
-  }): Promise<unknown> {
-    return this.proxyPost('/v1/idv/cn/start', body);
+  }): Promise<StartIdvRes> {
+    return this.api.v1IdvCnStartPost({
+      Authorization: this.bearerToken(),
+      TencentStartReq: body,
+    });
   }
 
   // ── Per-country start ──
@@ -115,18 +96,80 @@ export class AppService {
       user_id: string;
       callback_url?: string;
       email?: string;
+      card_image_base64?: string;
+      best_frame_base64?: string;
     },
-  ): Promise<unknown> {
-    return this.proxyPost(`/v1/idv/${country}/start`, body);
+  ): Promise<StartIdvRes> {
+    switch (country.toLowerCase()) {
+      case 'us':
+        return this.api.v1IdvUsStartPost({
+          Authorization: this.bearerToken(),
+          PlaidStartIdvReq: body as never,
+        });
+      case 'uk':
+        return this.api.v1IdvUkStartPost({
+          Authorization: this.bearerToken(),
+          PlaidStartIdvReq: body as never,
+        });
+      case 'ca':
+        return this.api.v1IdvCaStartPost({
+          Authorization: this.bearerToken(),
+          PlaidStartIdvReq: body as never,
+        });
+      case 'jp':
+        return this.api.v1IdvJpStartPost({
+          Authorization: this.bearerToken(),
+          LiquidStartIdvReq: body as never,
+        });
+      case 'cn':
+        return this.api.v1IdvCnStartPost({
+          Authorization: this.bearerToken(),
+          TencentStartReq: body as never,
+        });
+      default:
+        throw new BadRequestException(
+          `Unsupported SDK country start endpoint: ${country}`,
+        );
+    }
   }
 
   // ── Per-country kyc/get ──
 
   async idvCountryKycGet(
     country: string,
-    body: { user_id: string },
+    body: { user_id: string; fields?: string[] },
   ): Promise<unknown> {
-    return this.proxyPost(`/v1/idv/${country}/kyc/get`, body);
+    switch (country.toLowerCase()) {
+      case 'us':
+        return this.api.v1IdvUsKycGetPost({
+          Authorization: this.bearerToken(),
+          PlaidGetKycReq: body as never,
+        });
+      case 'uk':
+        return this.api.v1IdvUkKycGetPost({
+          Authorization: this.bearerToken(),
+          PlaidGetKycReq: body as never,
+        });
+      case 'ca':
+        return this.api.v1IdvCaKycGetPost({
+          Authorization: this.bearerToken(),
+          PlaidGetKycReq: body as never,
+        });
+      case 'jp':
+        return this.api.v1IdvJpKycGetPost({
+          Authorization: this.bearerToken(),
+          LiquidGetKycReq: body as never,
+        });
+      case 'cn':
+        return this.api.v1IdvCnKycGetPost({
+          Authorization: this.bearerToken(),
+          TencentGetKycReq: body as never,
+        });
+      default:
+        throw new BadRequestException(
+          `Unsupported SDK country kyc/get endpoint: ${country}`,
+        );
+    }
   }
 
   private requireAccessToken(): string {
@@ -142,32 +185,6 @@ export class AppService {
   private resolveBaseUrl(): string {
     const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';
     return base.replace(/\/$/, '');
-  }
-
-  private async proxyPost(path: string, body: unknown): Promise<unknown> {
-    const response = await fetch(`${this.resolveBaseUrl()}${path}`, {
-      method: 'POST',
-      headers: {
-        Authorization: this.bearerToken(),
-        'Content-Type': 'application/json;charset=utf-8',
-      },
-      body: JSON.stringify(body),
-    });
-    const responseBody = await response.text();
-
-    if (!response.ok) {
-      throw new UpstreamResponseError(
-        response.status,
-        responseBody,
-        response.headers.get('content-type') ?? undefined,
-      );
-    }
-
-    try {
-      return JSON.parse(responseBody) as unknown;
-    } catch {
-      return responseBody;
-    }
   }
 
   // ==================== State Management Methods ====================

@@ -66,32 +66,23 @@ describeIf('DefaultApi -> real idv-server (integration)', () => {
     expect(accessToken.split('.').length).toBeGreaterThanOrEqual(2);
   });
 
-  it('starts US IDV via /v1/idv/sessions/start', async () => {
+  it('starts US IDV via SDK-supported /v1/idv/start', async () => {
     const accessToken = await issueToken();
     const userId = uniqueUserId('sdk-us-start');
 
-    // /v1/idv/sessions/start is an app-contract endpoint, not an SDK-contract
-    // endpoint, so this integration test exercises it with raw HTTP.
-    const response = await fetch(`${baseUrl}/v1/idv/sessions/start`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json;charset=utf-8',
-      },
-      body: JSON.stringify({
+    // idv-client-server is only allowed to request idv-server through
+    // tomo-idv-client-node, so this integration path stays on SDK-supported
+    // /v1/idv/start rather than app-only /v1/idv/sessions/start.
+    const resp = await api.v1IdvStartPost({
+      Authorization: `Bearer ${accessToken}`,
+      StartIdvReq: {
         user_id: userId,
         country: 'us',
         email: 'sdk-user@example.com',
         callback_url: 'idvexpo://verify',
-      }),
+      },
     });
-    if (!response.ok) {
-      throw new Error(
-        `Failed to start IDV session (${response.status}): ${await response.text()}`,
-      );
-    }
-    const resp = (await response.json()) as { session_id?: unknown };
 
-    expect(typeof resp.session_id).toBe('string');
+    expect(typeof resp.start_idv_uri).toBe('string');
   });
 });

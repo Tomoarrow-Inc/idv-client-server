@@ -44,19 +44,6 @@ export class AppController {
     }
   }
 
-  // ── Session (vendor-agnostic) ──
-
-  @Post('/v1/idv/sessions/start')
-  async idvSessionStart(
-    @Body() body: Record<string, unknown>,
-  ): Promise<unknown> {
-    try {
-      return await this.appService.idvSessionStart(body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
-  }
-
   // ── CN start (이미지 포함 시 verify, 없으면 그대로 전달 → 서버에서 분기) ──
 
   @Post('/v1/idv/cn/start')
@@ -86,8 +73,10 @@ export class AppController {
       user_id: string;
       callback_url?: string;
       email?: string;
+      card_image_base64?: string;
+      best_frame_base64?: string;
     },
-  ): Promise<unknown> {
+  ): Promise<StartIdvRes> {
     try {
       return await this.appService.idvCountryStart(country, body);
     } catch (e) {
@@ -95,12 +84,10 @@ export class AppController {
     }
   }
 
-  // ── Per-country kyc/get (delegates to unified kyc/get with country) ──
-
   @Post('/v1/idv/:country/kyc/get')
   async idvCountryKycGet(
     @Param('country') country: string,
-    @Body() body: { user_id: string },
+    @Body() body: { user_id: string; fields?: string[] },
   ): Promise<unknown> {
     try {
       return await this.appService.idvCountryKycGet(country, body);
