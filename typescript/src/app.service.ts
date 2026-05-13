@@ -8,9 +8,12 @@ import type {
   StartIdvReq,
   GetKycReq,
 } from 'tomo-idv-client-node';
+import { UpstreamResponseError } from './upstream-response';
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
+
+type LegacyCountry = 'us' | 'uk' | 'ca' | 'jp' | 'cn';
 
 @Injectable()
 export class AppService {
@@ -72,6 +75,66 @@ export class AppService {
       Authorization: this.bearerToken(),
       GetKycReq: body,
     });
+  }
+
+  // ── Deprecated compatibility routes ──
+
+  async legacyKycGet(body: unknown): Promise<unknown> {
+    return this.proxyPost('/v1/idv/kyc/get', body, true);
+  }
+
+  async legacyCountryStart(
+    country: LegacyCountry,
+    body: unknown,
+  ): Promise<unknown> {
+    return this.proxyPost(`/v1/idv/${country}/start`, body, true);
+  }
+
+  async legacyUsKycGet(body: unknown): Promise<unknown> {
+    return this.proxyPost('/v1/idv/us/kyc/get', body, true);
+  }
+
+  async legacyVerifySession(body: unknown): Promise<unknown> {
+    return this.proxyPost('/v1/verify/session', body, false);
+  }
+
+  private async proxyPost(
+    path: string,
+    body: unknown,
+    withAuthorization: boolean,
+  ): Promise<unknown> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (withAuthorization) {
+      headers.Authorization = this.bearerToken();
+    }
+
+    const response = await fetch(`${this.resolveBaseUrl()}${path}`, {
+      method: 'POST',
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const contentType = response.headers.get('content-type') ?? undefined;
+    const text = await response.text();
+
+    if (!response.ok) {
+      throw new UpstreamResponseError(response.status, text, contentType);
+    }
+
+    if (!text) {
+      return null;
+    }
+
+    if (contentType?.toLowerCase().includes('json')) {
+      try {
+        return JSON.parse(text);
+      } catch {
+        return text;
+      }
+    }
+
+    return text;
   }
 
   private requireAccessToken(): string {

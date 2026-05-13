@@ -462,18 +462,11 @@
     <nav class="qj-sidebar visible" id="qjSidebar">
       <div class="qj-title">Quick Jump</div>
       <a class="qj-item" data-target="section-token">0 Token</a>
-      <a class="qj-item" data-target="section-plaid">1 Plaid</a>
-      <a class="qj-item" data-target="section-liquid">2 Liquid</a>
-      <a class="qj-item" data-target="section-tencent">3 Tencent</a>
-      <a class="qj-item" data-target="section-generic">4 Generic</a>
-      <a class="qj-item" data-target="section-policy">5 Policy</a>
-      <a class="qj-item" data-target="section-ppid">6 PPID</a>
-      <a class="qj-item" data-target="section-email-fallback">7 Email</a>
-      <a class="qj-item" data-target="section-deprecated-compat">8 Deprecated</a>
+      <a class="qj-item" data-target="section-deprecated-compat">1 Legacy</a>
     </nav>
-    <h1>KYC Test Board</h1>
+    <h1>Deprecated KYC Test Board</h1>
     <p class="subtitle">
-      Customer site simulation &mdash; IDV API testing
+      Customer BFF simulation &mdash; legacy IDV API testing
     </p>
 
     <!-- Tab Navigation -->
@@ -503,6 +496,7 @@
         </div>
       </div>
 
+      <div class="legacy-hidden" hidden aria-hidden="true">
       <!-- ════════════════════════════════════ -->
       <!-- 1. Plaid IDV (US/UK/CA)              -->
       <!-- ════════════════════════════════════ -->
@@ -1196,23 +1190,24 @@
           <div id="jwt-email-fallback-plaid"></div>
         </div>
       </div>
+      </div>
 
       <!-- ════════════════════════════════════ -->
       <!-- 8. Deprecated Compatibility Tests    -->
       <!-- ════════════════════════════════════ -->
       <hr class="section-divider">
       <div class="section-card" id="section-deprecated-compat">
-        <h2><span class="step">8</span>Deprecated Compatibility Tests</h2>
-        <p class="note">제거된 호환성 endpoint가 BFF에서 다시 노출되지 않는지 404 응답으로 검증합니다.</p>
+        <h2><span class="step">1</span>Deprecated Legacy Routes</h2>
+        <p class="note">현재 test-board에 있던 8개 deprecated endpoint만 BFF를 통해 idv-server로 그대로 전달합니다.</p>
       </div>
 
       <!-- 8-1: generic kyc/get alias removed -->
-      <p class="substep-title"><span class="substep">8-1</span> POST /v1/idv/kyc/get &mdash; 404 기대</p>
-      <p class="note" style="margin-bottom:8px">결과 조회는 /v1/idv/result만 사용해야 합니다.</p>
+      <p class="substep-title"><span class="substep">1-1</span> POST /v1/idv/kyc/get</p>
+      <p class="note" style="margin-bottom:8px">legacy generic 결과 조회 endpoint를 그대로 호출합니다.</p>
 
       <div class="api-card" id="card-deprecated-generic-kyc-get">
         <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Removed</span> Generic kyc/get</span>
+          <span class="endpoint"><span class="case-label">Legacy</span> Generic kyc/get</span>
           <span class="api-badge api-badge-idle" id="badge-deprecated-generic-kyc-get">NOT TESTED</span>
         </div>
         <textarea class="json-editor" id="body-deprecated-generic-kyc-get"></textarea>
@@ -1225,8 +1220,8 @@
       </div>
 
       <!-- 8-2: country start compatibility routes removed -->
-      <p class="substep-title"><span class="substep">8-2</span> POST /v1/idv/{country}/start &mdash; 404 기대</p>
-      <p class="note" style="margin-bottom:8px">국가별 start route는 /v1/idv/start + country body로 대체되었습니다.</p>
+      <p class="substep-title"><span class="substep">1-2</span> POST /v1/idv/{country}/start</p>
+      <p class="note" style="margin-bottom:8px">legacy 국가별 start route를 그대로 호출합니다.</p>
 
       <div class="api-card" id="card-deprecated-us-start">
         <div class="api-card-header">
@@ -1299,8 +1294,8 @@
       </div>
 
       <!-- 8-3: country kyc/get compatibility routes removed -->
-      <p class="substep-title"><span class="substep">8-3</span> POST /v1/idv/{country}/kyc/get &mdash; 404 기대</p>
-      <p class="note" style="margin-bottom:8px">국가별 kyc/get route는 /v1/idv/result + country body로 대체되었습니다.</p>
+      <p class="substep-title"><span class="substep">1-3</span> POST /v1/idv/{country}/kyc/get</p>
+      <p class="note" style="margin-bottom:8px">현재 legacy test-board 범위에서는 US kyc/get만 호출합니다.</p>
 
       <div class="api-card" id="card-deprecated-us-kyc-get">
         <div class="api-card-header">
@@ -1317,12 +1312,12 @@
       </div>
 
       <!-- 8-4: old verify session route removed -->
-      <p class="substep-title"><span class="substep">8-4</span> POST /v1/verify/session &mdash; 404 기대</p>
-      <p class="note" style="margin-bottom:8px">구버전 session verification route는 BFF에서 제공하지 않습니다.</p>
+      <p class="substep-title"><span class="substep">1-4</span> POST /v1/verify/session</p>
+      <p class="note" style="margin-bottom:8px">구버전 session verification route를 그대로 호출합니다.</p>
 
       <div class="api-card" id="card-deprecated-verify-session">
         <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Removed</span> /v1/verify/session</span>
+          <span class="endpoint"><span class="case-label">Legacy</span> /v1/verify/session</span>
           <span class="api-badge api-badge-idle" id="badge-deprecated-verify-session">NOT TESTED</span>
         </div>
         <textarea class="json-editor" id="body-deprecated-verify-session"></textarea>
@@ -1417,7 +1412,7 @@
         policyUnsupported: { status: 400, bodyContains: 'Unsupported kyc_policy', description: 'Unsupported Country x Subject x Method x OwnerAssurance combinations should fail validation.' },
         ppidExisting: { status: 200, bodyShape: ['pid or personal_id'], description: 'Existing auth_id start should return the already resolved personal identifier.' },
         ppidResult: { status: 200, bodyShape: ['KYC result JSON object for personal_id'], description: 'IDV result by personal_id should resolve back to the verified user result.' },
-        deprecatedRemoved: { status: 404, bodyShape: ['not found response'], description: 'Deprecated compatibility routes must stay removed from idv-client-server.' },
+        legacyForwarded: { statuses: [200, 201, 400, 401, 403, 404, 409, 422, 500], bodyDoesNotContain: ['Cannot POST', 'No access token found'], description: 'BFF must route the legacy request to idv-server instead of returning its own missing-route response.' },
       };
 
       const noOwnerAssurance = () => ({ kind: 'no_owner_assurance' });
@@ -1435,55 +1430,14 @@
       });
 
       const CUSTOM_CARDS = {
-        // ── US ──
-        'us-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'us-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'us-kyc-get':        { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
-        // ── JP ──
-        'jp-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
-        'jp-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
-        'jp-kyc-get':        { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
-        // ── CN ──
-        'cn-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', noOwnerAssurance()) }) },
-        'cn-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', noOwnerAssurance()) }) },
-        'cn-kyc-get':        { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
-        // ── Generic /v1/idv/start ──
-        'generic-start-none-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.policyUnsupported, body: () => ({ user_id: '7999752903327968491', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'generic-start-none-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.policyUnsupported, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'generic-start-us-verified':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'generic-start-us-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'generic-start-jp-verified':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
-        'generic-start-jp-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
-        'generic-start-cn-new':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', noOwnerAssurance()) }) },
-        // ── Generic /v1/idv/result ──
-        'generic-kyc-get-us': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
-        'generic-kyc-get-jp': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'jp' }) },
-        'generic-kyc-get-cn': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '799975290332796849300000000000044', country: 'cn' }) },
-        // ── Policy Tests ──
-        'policy-us-personal-info-sms':        { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'policy-us-residential-card-ocr':     { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('residential_card', 'document_ocr_check', noOwnerAssurance()) }) },
-        'policy-jp-idcard-gov':               { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', ownerVerf('document_secret')) }) },
-        'policy-jp-passport-ocr':             { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'jp', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('passport', 'document_ocr_check', noOwnerAssurance()) }) },
-        'policy-cn-idcard-gov':               { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'government_id_verf', noOwnerAssurance()) }) },
-        'policy-cn-idcard-doc-auth-owner-check': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'document_authenticity_check', ownerCheck('submitted_doc_selfie_match')) }) },
-        'policy-cn-idcard-ocr-owner-check':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'cn', callback_url: window.location.origin + '/test-board', kyc_policy: documentPolicy('id_card', 'document_ocr_check', ownerCheck('submitted_doc_selfie_match')) }) },
-        'policy-missing':                     { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board' }) },
-        // ── Personal ID Resolution Test ──
-        'pid-existing':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.ppidExisting, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'pid-resolve':   { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '<paste pid from Card 6-1>', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'pid-new':       { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'pid-kyc-get':   { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.ppidResult, body: () => ({ user_id: '<paste pid from Card 6-1>', country: 'us' }) },
-        // ── Email Fallback Test ──
-        'email-fallback-plaid': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.emailFallback, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        // ── Deprecated Compatibility Tests ──
-        'deprecated-generic-kyc-get': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
-        'deprecated-us-start':        { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'deprecated-uk-start':        { endpoint: '/v1/idv/uk/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'deprecated-ca-start':        { endpoint: '/v1/idv/ca/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'deprecated-jp-start':        { endpoint: '/v1/idv/jp/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'deprecated-cn-start':        { endpoint: '/v1/idv/cn/start', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
-        'deprecated-us-kyc-get':      { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ user_id: '7999752903327968491' }) },
-        'deprecated-verify-session':  { endpoint: '/v1/verify/session', expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved, includeDefaultEmail: false, body: () => ({ session_id: 'removed-session' }) },
+        'deprecated-generic-kyc-get': { endpoint: '/v1/idv/kyc/get', expectedResponse: EXPECTED_RESPONSES.legacyForwarded, includeDefaultEmail: false, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
+        'deprecated-us-start':        { endpoint: '/v1/idv/us/start', expectedResponse: EXPECTED_RESPONSES.legacyForwarded, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-uk-start':        { endpoint: '/v1/idv/uk/start', expectedResponse: EXPECTED_RESPONSES.legacyForwarded, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-ca-start':        { endpoint: '/v1/idv/ca/start', expectedResponse: EXPECTED_RESPONSES.legacyForwarded, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-jp-start':        { endpoint: '/v1/idv/jp/start', expectedResponse: EXPECTED_RESPONSES.legacyForwarded, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-cn-start':        { endpoint: '/v1/idv/cn/start', expectedResponse: EXPECTED_RESPONSES.legacyForwarded, includeDefaultEmail: false, body: () => ({ user_id: randomUserId(), callback_url: window.location.origin + '/test-board' }) },
+        'deprecated-us-kyc-get':      { endpoint: '/v1/idv/us/kyc/get', expectedResponse: EXPECTED_RESPONSES.legacyForwarded, includeDefaultEmail: false, body: () => ({ user_id: '7999752903327968491' }) },
+        'deprecated-verify-session':  { endpoint: '/v1/verify/session', expectedResponse: EXPECTED_RESPONSES.legacyForwarded, includeDefaultEmail: false, body: () => ({ session_id: 'removed-session' }) },
       };
 
       const LAST_CUSTOM_RESULTS = {};
@@ -1516,7 +1470,11 @@
           result.status === expectedResponse.status;
         const bodyText = typeof result.data === 'string' ? result.data : (result.text || JSON.stringify(result.data ?? ''));
         const bodyMatches = !expectedResponse.bodyContains || bodyText.includes(expectedResponse.bodyContains);
-        return statusMatches && bodyMatches;
+        const excludedBodies = Array.isArray(expectedResponse.bodyDoesNotContain)
+          ? expectedResponse.bodyDoesNotContain
+          : (expectedResponse.bodyDoesNotContain ? [expectedResponse.bodyDoesNotContain] : []);
+        const bodyExcludesMatch = excludedBodies.every(text => !bodyText.includes(text));
+        return statusMatches && bodyMatches && bodyExcludesMatch;
       }
 
       async function apiCallWithDebug(url, options = {}) {

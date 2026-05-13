@@ -1,19 +1,29 @@
 /**
  * Purpose
- * - The test-board is used to reproduce customer-facing IDV flows. Each Custom
- *   KYC card must be able to copy a complete debug bundle in one action.
+ * - The deprecated branch test-board is used to reproduce legacy IDV flows.
+ *   Each legacy card must be able to copy a complete debug bundle in one
+ *   action.
  *
  * Verification
- * - Every Custom KYC case declares an expected response.
+ * - The board declares expected passthrough behavior for all 8 legacy cases.
  * - The copied debug bundle includes request, expected response, actual
  *   response, timing, browser, UI, and error context.
- * - The UI installs a Copy debug button for every Custom KYC card.
- * - Deprecated compatibility cards are expected-response checks for removed
- *   BFF routes.
+ * - The UI installs a Copy debug button for every registered legacy card.
  */
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
+
+const legacyCardIds = [
+  'deprecated-generic-kyc-get',
+  'deprecated-us-start',
+  'deprecated-uk-start',
+  'deprecated-ca-start',
+  'deprecated-jp-start',
+  'deprecated-cn-start',
+  'deprecated-us-kyc-get',
+  'deprecated-verify-session',
+];
 
 const readTestBoardHtml = () =>
   readFileSync(
@@ -31,17 +41,20 @@ const customCardsBlock = (html: string) => {
   return html.slice(customCardsStart, customCardsEnd);
 };
 
-describe('test-board Custom KYC debug copy', () => {
-  it('declares expected responses for every Custom KYC case', () => {
+describe('test-board legacy debug copy', () => {
+  it('declares expected responses for exactly the 8 legacy cases', () => {
     const html = readTestBoardHtml();
     const block = customCardsBlock(html);
     const entries = block.match(/'[^']+'\s*:\s*\{[^\n]+\}/g) ?? [];
 
     expect(html).toContain('const EXPECTED_RESPONSES = {');
-    expect(entries.length).toBeGreaterThan(20);
+    expect(entries).toHaveLength(legacyCardIds.length);
 
-    for (const entry of entries) {
-      expect(entry).toContain('expectedResponse:');
+    for (const cardId of legacyCardIds) {
+      expect(block).toContain(`'${cardId}':`);
+      expect(block).toContain(
+        'expectedResponse: EXPECTED_RESPONSES.legacyForwarded',
+      );
     }
   });
 
@@ -66,9 +79,6 @@ describe('test-board Custom KYC debug copy', () => {
   });
 
   it('stores actual responses without deprecated CN file attachment handling', () => {
-    // CN-specific file attachments belonged to the removed /v1/idv/cn/start
-    // compatibility route. Debug payloads should now preserve only the JSON
-    // request body sent to non-deprecated endpoints.
     const html = readTestBoardHtml();
 
     expect(html).toContain(
@@ -86,18 +96,16 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).not.toContain('best_frame_base64');
   });
 
-  it('marks expected error responses as successful test-board assertions', () => {
+  it('marks expected legacy passthrough responses as successful assertions', () => {
     const html = readTestBoardHtml();
 
-    // Policy validation cards intentionally expect 400 responses. The board
-    // should grade them against expectedResponse instead of treating every
-    // non-2xx response as a failed customer test case.
     expect(html).toContain(
       'function matchesExpectedResponse(result, expectedResponse) {',
     );
     expect(html).toContain(
       'expectedResponse.statuses?.includes(result.status)',
     );
+    expect(html).toContain('expectedResponse.bodyDoesNotContain');
     expect(html).toContain(
       'const expectedMatched = matchesExpectedResponse(result, cfg.expectedResponse);',
     );
@@ -112,7 +120,7 @@ describe('test-board Custom KYC debug copy', () => {
     );
   });
 
-  it('installs a Copy debug button for each Custom KYC card', () => {
+  it('installs a Copy debug button for each registered legacy card', () => {
     const html = readTestBoardHtml();
 
     expect(html).toContain('installCustomDebugCopyButtons();');
@@ -124,74 +132,19 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain('actionsEl.appendChild(button)');
   });
 
-  it('covers typed kyc_policy routing cases with debug copy metadata', () => {
+  it('renders every legacy card with debug copy metadata', () => {
     const html = readTestBoardHtml();
     const block = customCardsBlock(html);
 
-    const policyCases = [
-      ['policy-us-personal-info-sms', 'EXPECTED_RESPONSES.startOk'],
-      ['policy-us-residential-card-ocr', 'EXPECTED_RESPONSES.startOk'],
-      ['policy-jp-idcard-gov', 'EXPECTED_RESPONSES.startOk'],
-      ['policy-jp-passport-ocr', 'EXPECTED_RESPONSES.startOk'],
-      ['policy-cn-idcard-gov', 'EXPECTED_RESPONSES.startOk'],
-      ['policy-cn-idcard-doc-auth-owner-check', 'EXPECTED_RESPONSES.startOk'],
-      ['policy-cn-idcard-ocr-owner-check', 'EXPECTED_RESPONSES.startOk'],
-      ['policy-missing', 'EXPECTED_RESPONSES.startOk'],
-    ];
-
-    for (const [cardId, expectedResponse] of policyCases) {
-      // The typed policy cards are debug fixtures for customer-reproducible
-      // /v1/idv/start routing, so each one needs rendered UI and expected
-      // response metadata for the copied debug payload.
-      expect(html).toContain(`id="card-${cardId}"`);
-      expect(html).toContain(`sendCustom('${cardId}')`);
-      expect(block).toContain(`'${cardId}':`);
-      expect(block).toContain(`expectedResponse: ${expectedResponse}`);
-    }
-  });
-
-  it('covers the email fallback case with debug copy metadata', () => {
-    const html = readTestBoardHtml();
-    const block = customCardsBlock(html);
-
-    // The fallback card intentionally omits default email, but it still needs
-    // the same debug-copy metadata as every other Custom KYC request.
-    expect(html).toContain('id="section-email-fallback"');
-    expect(html).toContain('id="card-email-fallback-plaid"');
-    expect(html).toContain("sendCustom('email-fallback-plaid')");
-    expect(block).toContain("'email-fallback-plaid':");
-    expect(block).toContain(
-      'expectedResponse: EXPECTED_RESPONSES.emailFallback',
-    );
-    expect(block).toContain('includeDefaultEmail: false');
-  });
-
-  it('covers deprecated compatibility checks with debug copy metadata', () => {
-    const html = readTestBoardHtml();
-    const block = customCardsBlock(html);
-    const deprecatedCases = [
-      'deprecated-generic-kyc-get',
-      'deprecated-us-start',
-      'deprecated-uk-start',
-      'deprecated-ca-start',
-      'deprecated-jp-start',
-      'deprecated-cn-start',
-      'deprecated-us-kyc-get',
-      'deprecated-verify-session',
-    ];
-
-    // These cards intentionally expect 404. They let the board catch accidental
-    // reintroduction of removed compatibility routes while still using the same
-    // debug-copy flow as live endpoint cards.
     expect(html).toContain('id="section-deprecated-compat"');
-    expect(html).toContain('deprecatedRemoved: { status: 404');
+    expect(html).toContain('legacyForwarded: { statuses:');
 
-    for (const cardId of deprecatedCases) {
+    for (const cardId of legacyCardIds) {
       expect(html).toContain(`id="card-${cardId}"`);
       expect(html).toContain(`sendCustom('${cardId}')`);
       expect(block).toContain(`'${cardId}':`);
       expect(block).toContain(
-        'expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved',
+        'expectedResponse: EXPECTED_RESPONSES.legacyForwarded',
       );
     }
   });
