@@ -42,8 +42,8 @@ function injectSwaggerExamples(doc: any): void {
   setExample('StartIdvReq', 'callback_url', CALLBACK_URL);
   setExample('StartIdvReq', 'country', 'us');
 
-  setExample('GetKycReq', 'user_id', USER_ID_US);
-  setExample('GetKycReq', 'country', 'us');
+  setExample('ResultReq', 'user_id', USER_ID_US);
+  setExample('ResultReq', 'country', 'us');
 }
 
 function removeDeprecatedOperations(doc: any): void {

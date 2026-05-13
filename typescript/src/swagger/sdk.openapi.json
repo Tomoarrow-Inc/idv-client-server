@@ -9,6 +9,9 @@
                     "email": {
                         "type": "string"
                     },
+                    "kyc_policy_id": {
+                        "type": "string"
+                    },
                     "user_id": {
                         "type": "string"
                     }
@@ -19,6 +22,100 @@
                 ],
                 "type": "object"
             },
+            "CnGetKycReq": {
+                "properties": {
+                    "fields": {
+                        "items": {
+                            "$ref": "#/components/schemas/CnIdvField"
+                        },
+                        "type": "array"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id"
+                ],
+                "type": "object"
+            },
+            "CnGetKycRes": {
+                "properties": {
+                    "address": {
+                        "type": "string"
+                    },
+                    "date_of_birth": {
+                        "type": "string"
+                    },
+                    "document_type": {
+                        "type": "string"
+                    },
+                    "face_compare_passed": {
+                        "type": "boolean"
+                    },
+                    "family_name": {
+                        "type": "string"
+                    },
+                    "full_name": {
+                        "type": "string"
+                    },
+                    "given_name": {
+                        "type": "string"
+                    },
+                    "id_number": {
+                        "type": "string"
+                    },
+                    "issuing_country": {
+                        "type": "string"
+                    },
+                    "liveness_passed": {
+                        "type": "boolean"
+                    },
+                    "nationality": {
+                        "type": "string"
+                    },
+                    "ocr_passed": {
+                        "type": "boolean"
+                    },
+                    "sex": {
+                        "type": "string"
+                    },
+                    "similarity": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status"
+                ],
+                "type": "object"
+            },
+            "CnGetUnionResultRes": {
+                "oneOf": [
+                    {
+                        "$ref": "#/components/schemas/CnGetKycRes"
+                    },
+                    {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "CnIdvField": {
+                "enum": [
+                    "full_name",
+                    "date_of_birth",
+                    "sex",
+                    "address",
+                    "id_number",
+                    "nationality"
+                ],
+                "type": "string"
+            },
             "CnStartIdvReq": {
                 "properties": {
                     "best_frame_base64": {
@@ -28,6 +125,9 @@
                         "type": "string"
                     },
                     "card_image_base64": {
+                        "type": "string"
+                    },
+                    "kyc_policy_id": {
                         "type": "string"
                     },
                     "user_id": {
@@ -115,9 +215,78 @@
                 ],
                 "type": "object"
             },
+            "JpGetKycReq": {
+                "properties": {
+                    "fields": {
+                        "items": {
+                            "$ref": "#/components/schemas/JpIdvField"
+                        },
+                        "type": "array"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id"
+                ],
+                "type": "object"
+            },
+            "JpGetResultRes": {
+                "properties": {
+                    "address": {
+                        "type": "string"
+                    },
+                    "date_of_birth": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "postal_code": {
+                        "type": "string"
+                    },
+                    "sex": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "date_of_birth",
+                    "name",
+                    "sex",
+                    "address"
+                ],
+                "type": "object"
+            },
+            "JpGetUnionResultRes": {
+                "oneOf": [
+                    {
+                        "$ref": "#/components/schemas/JpGetResultRes"
+                    },
+                    {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "JpIdvField": {
+                "enum": [
+                    "name",
+                    "date_of_birth",
+                    "sex",
+                    "address",
+                    "postal_code"
+                ],
+                "type": "string"
+            },
             "JpStartIdvReq": {
                 "properties": {
                     "callback_url": {
+                        "type": "string"
+                    },
+                    "kyc_policy_id": {
                         "type": "string"
                     },
                     "user_id": {
@@ -149,13 +318,93 @@
                 ],
                 "type": "object"
             },
-            "StartIdvReq": {
+            "LaunchKind": {
+                "properties": {
+                    "config": {
+                        "type": "object"
+                    },
+                    "data": {
+                        "type": "string"
+                    },
+                    "fallback_url": {
+                        "type": "string"
+                    },
+                    "session_token": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "type"
+                ],
+                "type": "object"
+            },
+            "ResultRecord": {
+                "properties": {
+                    "auth_id": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "policy_key": {
+                        "type": "string"
+                    },
+                    "result": {
+                        "$ref": "#/components/schemas/GetKycRes"
+                    }
+                },
+                "required": [
+                    "auth_id",
+                    "policy_key",
+                    "country",
+                    "result"
+                ],
+                "type": "object"
+            },
+            "ResultReq": {
+                "properties": {
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
+                    "policy": {
+                        "$ref": "#/components/schemas/KycPolicy"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id"
+                ],
+                "type": "object"
+            },
+            "ResultRes": {
+                "properties": {
+                    "result": {
+                        "$ref": "#/components/schemas/ResultRecord"
+                    },
+                    "results": {
+                        "items": {
+                            "$ref": "#/components/schemas/ResultRecord"
+                        },
+                        "type": "array"
+                    }
+                },
+                "type": "object"
+            },
+            "SessionStartReq": {
                 "properties": {
                     "callback_url": {
                         "type": "string"
                     },
                     "country": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/Country"
                     },
                     "email": {
                         "type": "string"
@@ -169,6 +418,44 @@
                 },
                 "required": [
                     "user_id"
+                ],
+                "type": "object"
+            },
+            "SessionStartRes": {
+                "properties": {
+                    "launch": {
+                        "$ref": "#/components/schemas/LaunchKind"
+                    },
+                    "session_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "session_id",
+                    "launch"
+                ],
+                "type": "object"
+            },
+            "StartIdvReq": {
+                "properties": {
+                    "callback_url": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "kyc_policy": {
+                        "$ref": "#/components/schemas/KycPolicy"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "callback_url"
                 ],
                 "type": "object"
             },
@@ -232,12 +519,47 @@
                 ],
                 "type": "object"
             },
+            "TomoIdvIssueTokenReq": {
+                "properties": {
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id"
+                ],
+                "type": "object"
+            },
+            "TomoIdvIssueTokenRes": {
+                "properties": {
+                    "expires_in": {
+                        "maximum": 9223372036854775807,
+                        "minimum": -9223372036854775808,
+                        "type": "integer"
+                    },
+                    "key": {
+                        "type": "string"
+                    },
+                    "session_token": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "session_token",
+                    "expires_in",
+                    "key"
+                ],
+                "type": "object"
+            },
             "UkStartIdvReq": {
                 "properties": {
                     "callback_url": {
                         "type": "string"
                     },
                     "email": {
+                        "type": "string"
+                    },
+                    "kyc_policy_id": {
                         "type": "string"
                     },
                     "user_id": {
@@ -250,12 +572,107 @@
                 ],
                 "type": "object"
             },
+            "UsGetKycReq": {
+                "properties": {
+                    "fields": {
+                        "items": {
+                            "$ref": "#/components/schemas/UsIdvField"
+                        },
+                        "type": "array"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id"
+                ],
+                "type": "object"
+            },
+            "UsGetResultRes": {
+                "properties": {
+                    "city": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "date_of_birth": {
+                        "type": "string"
+                    },
+                    "email_address": {
+                        "type": "string"
+                    },
+                    "family_name": {
+                        "type": "string"
+                    },
+                    "given_name": {
+                        "type": "string"
+                    },
+                    "phone_number": {
+                        "type": "string"
+                    },
+                    "postal_code": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "street": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "date_of_birth",
+                    "email_address",
+                    "phone_number",
+                    "family_name",
+                    "given_name",
+                    "city",
+                    "country",
+                    "postal_code",
+                    "region",
+                    "street"
+                ],
+                "type": "object"
+            },
+            "UsGetUnionResultRes": {
+                "oneOf": [
+                    {
+                        "$ref": "#/components/schemas/UsGetResultRes"
+                    },
+                    {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "UsIdvField": {
+                "enum": [
+                    "date_of_birth",
+                    "email_address",
+                    "phone_number",
+                    "family_name",
+                    "given_name",
+                    "city",
+                    "country",
+                    "postal_code",
+                    "region",
+                    "street"
+                ],
+                "type": "string"
+            },
             "UsStartIdvReq": {
                 "properties": {
                     "callback_url": {
                         "type": "string"
                     },
                     "email": {
+                        "type": "string"
+                    },
+                    "kyc_policy_id": {
                         "type": "string"
                     },
                     "user_id": {
@@ -290,6 +707,46 @@
                             }
                         },
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/idv/ca/kyc/get": {
+            "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/result with country=ca.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UsGetKycReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UsGetUnionResultRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
                     }
                 }
             }
@@ -352,6 +809,46 @@
                 }
             }
         },
+        "/v1/idv/cn/kyc/get": {
+            "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/result with country=cn.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CnGetKycReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CnGetUnionResultRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
+                    }
+                }
+            }
+        },
         "/v1/idv/cn/start": {
             "post": {
                 "deprecated": true,
@@ -381,6 +878,46 @@
                             "application/json;charset=utf-8": {
                                 "schema": {
                                     "$ref": "#/components/schemas/StartIdvRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
+                    }
+                }
+            }
+        },
+        "/v1/idv/cn/token": {
+            "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use the OAuth2 token endpoint.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TomoIdvIssueTokenReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TomoIdvIssueTokenRes"
                                 }
                             }
                         },
@@ -422,6 +959,46 @@
                             }
                         },
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/idv/jp/kyc/get": {
+            "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/result with country=jp.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JpGetKycReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JpGetUnionResultRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
                     }
                 }
             }
@@ -522,7 +1099,7 @@
                     "content": {
                         "application/json;charset=utf-8": {
                             "schema": {
-                                "$ref": "#/components/schemas/GetKycReq"
+                                "$ref": "#/components/schemas/ResultReq"
                             }
                         }
                     }
@@ -532,7 +1109,47 @@
                         "content": {
                             "application/json;charset=utf-8": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GetKycRes"
+                                    "$ref": "#/components/schemas/ResultRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
+                    }
+                }
+            }
+        },
+        "/v1/idv/sessions/start": {
+            "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/start.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SessionStartReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SessionStartRes"
                                 }
                             }
                         },
@@ -600,6 +1217,46 @@
                 }
             }
         },
+        "/v1/idv/uk/kyc/get": {
+            "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/result with country=uk.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UsGetKycReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UsGetUnionResultRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
+                    }
+                }
+            }
+        },
         "/v1/idv/uk/start": {
             "post": {
                 "deprecated": true,
@@ -654,6 +1311,46 @@
                             }
                         },
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/idv/us/kyc/get": {
+            "post": {
+                "deprecated": true,
+                "description": "[DEPRECATED] Use /v1/idv/result with country=us.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UsGetKycReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UsGetUnionResultRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
                     }
                 }
             }

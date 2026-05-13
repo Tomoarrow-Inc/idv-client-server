@@ -56,7 +56,7 @@ describe('AppService SDK-only idv-server requests', () => {
 
     expect(apiMock.v1IdvResultPost).toHaveBeenCalledWith({
       Authorization: 'Bearer access-token',
-      GetKycReq: body,
+      ResultReq: body,
     });
     expect(global.fetch).not.toHaveBeenCalled();
   });

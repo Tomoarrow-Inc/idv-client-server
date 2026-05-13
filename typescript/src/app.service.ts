@@ -4,9 +4,9 @@ import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import type {
   TokenRes,
   StartIdvRes,
-  GetKycRes,
+  ResultRes,
   StartIdvReq,
-  GetKycReq,
+  ResultReq,
 } from 'tomo-idv-client-node';
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
@@ -67,10 +67,10 @@ export class AppService {
     });
   }
 
-  async idvResult(body: GetKycReq): Promise<GetKycRes> {
+  async idvResult(body: ResultReq): Promise<ResultRes> {
     return this.api.v1IdvResultPost({
       Authorization: this.bearerToken(),
-      GetKycReq: body,
+      ResultReq: body,
     });
   }
 

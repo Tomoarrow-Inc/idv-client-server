@@ -3,9 +3,9 @@ import { AppService } from './app.service';
 import type {
   TokenRes,
   StartIdvRes,
-  GetKycRes,
+  ResultRes,
   StartIdvReq,
-  GetKycReq,
+  ResultReq,
 } from 'tomo-idv-client-node';
 import { rethrowUpstream } from './upstream-response';
 
@@ -36,7 +36,7 @@ export class AppController {
   }
 
   @Post('/v1/idv/result')
-  async idvResult(@Body() body: GetKycReq): Promise<GetKycRes> {
+  async idvResult(@Body() body: ResultReq): Promise<ResultRes> {
     try {
       return await this.appService.idvResult(body);
     } catch (e) {
