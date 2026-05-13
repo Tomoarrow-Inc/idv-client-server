@@ -26,7 +26,13 @@ class IdvService(
 
     // ===== Generic (country-agnostic) =====
 
-    suspend fun idvStart(authorization: String, startIdvReq: StartIdvReq): StartIdvRes {
+    suspend fun idvStart(authorization: String, body: Map<String, Any?>): Any {
+        return proxyPost(authorization, "/v1/idv/start", body)
+    }
+
+    // 문제점: generated SDK StartIdvReq는 KycPolicy 내부 Any 필드를 kotlinx.serialization으로 직렬화하지 못한다.
+    // 개선 함수명: idvStart
+    suspend fun idvStartOld(authorization: String, startIdvReq: StartIdvReq): StartIdvRes {
         return api.v1IdvStartPost(authorization = authorization, startIdvReq = startIdvReq)
     }
 
