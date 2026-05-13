@@ -1,0 +1,13 @@
+server:
+  port: ${PORT:3000}
+
+spring:
+  application:
+    name: idv-client-server-java
+
+idv:
+  base-url: ${IDV_BASE_URL:http://idv-server-ghci}
+  app-url: ${IDV_APP_URL:}
+  test-board-path: ${TEST_BOARD_PATH:../test-board/test-board.html}
+  client-id: ${TOMO_IDV_CLIENT_ID:}
+  secret: ${TOMO_IDV_SECRET:}

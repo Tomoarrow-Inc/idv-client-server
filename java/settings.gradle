@@ -1,0 +1,26 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'idv-client-server-java'
+
+def sdkPath = System.getenv('TOMO_IDV_CLIENT_JAVA_PATH') ?: '../../tomo-idv-client-java'
+def sdkDir = file(sdkPath)
+if (sdkDir.exists()) {
+    includeBuild(sdkDir) {
+        dependencySubstitution {
+            substitute(module('io.github.tomoarrow-inc:tomo-idv-client-java'))
+                .using(project(':'))
+        }
+    }
+}

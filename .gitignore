@@ -14,6 +14,21 @@ kotlin/*.iml
 kotlin/*.ipr
 kotlin/*.iws
 
+# ===== Python (FastAPI) =====
+python/.pytest_cache/
+python/.ruff_cache/
+python/.venv/
+python/**/__pycache__/
+python/*.egg-info/
+
+# ===== Java (Spring Boot) =====
+java/.gradle/
+java/build/
+java/.idea/
+java/*.iml
+java/*.ipr
+java/*.iws
+
 # ===== Root-level legacy artifacts =====
 /node_modules/
 /dist/
