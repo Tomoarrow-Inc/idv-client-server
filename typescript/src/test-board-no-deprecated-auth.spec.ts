@@ -138,6 +138,12 @@ describe('test-board deprecated auth removal', () => {
     expect(html).toContain("const tokenStr = params.get('token');");
     expect(html).toContain("const keyStr = params.get('key');");
     expect(html).toContain('if (!tokenStr) return;');
+    expect(html).toContain('function renderUrlPpidHighlight(container, ppid) {');
+    expect(html).toContain("label.textContent = 'PPID (payload.sub)';");
+    expect(html).toContain("button.textContent = 'Copy';");
+    expect(html).toContain("button.addEventListener('click', () => copyUrlPpid(String(ppid), button));");
+    expect(html).toContain('async function copyUrlPpid(ppid, button) {');
+    expect(html).toContain('renderUrlPpidHighlight(inspector, jwt.payload.sub);');
     expect(html).toContain("renderDecodedJsonBlock(inspector, 'Decoded Payload', jwt.payload);");
     expect(html).toContain("renderDecodedJsonBlock(inspector, 'Decoded Public Key', jwkJson);");
     expect(html).toContain('initUrlTokenInspector();');

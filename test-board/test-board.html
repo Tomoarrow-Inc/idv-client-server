@@ -415,6 +415,40 @@
         font-size: 0.8rem;
         word-break: break-word;
       }
+      .ppid-highlight {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px;
+        background: #e8f5e9;
+        border-bottom: 1px solid #c8e6c9;
+      }
+      .ppid-highlight-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #2e7d32;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .ppid-highlight-value {
+        font-family: 'SF Mono', 'Fira Code', monospace;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1b5e20;
+        word-break: break-all;
+      }
+      .ppid-copy-btn {
+        flex: 0 0 auto;
+        background: #fff;
+        border: 1px solid #a5d6a7;
+        color: #1b5e20;
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 6px 10px;
+      }
+      .ppid-copy-btn.is-copied { border-color: #2e7d32; color: #2e7d32; background: #f1f8e9; }
+      .ppid-copy-btn.is-failed { border-color: #c62828; color: #c62828; background: #ffebee; }
       /* ── Quick Jump Sidebar (Custom KYC only) ── */
       .qj-sidebar {
         position: fixed;
@@ -2072,6 +2106,52 @@
         container.appendChild(status);
       }
 
+      function renderUrlPpidHighlight(container, ppid) {
+        if (!ppid) return;
+
+        const section = document.createElement('div');
+        section.className = 'ppid-highlight';
+
+        const body = document.createElement('div');
+        const label = document.createElement('div');
+        label.className = 'ppid-highlight-label';
+        label.textContent = 'PPID (payload.sub)';
+
+        const value = document.createElement('div');
+        value.className = 'ppid-highlight-value';
+        value.textContent = String(ppid);
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'ppid-copy-btn';
+        button.textContent = 'Copy';
+        button.addEventListener('click', () => copyUrlPpid(String(ppid), button));
+
+        body.appendChild(label);
+        body.appendChild(value);
+        section.appendChild(body);
+        section.appendChild(button);
+        container.appendChild(section);
+      }
+
+      async function copyUrlPpid(ppid, button) {
+        try {
+          await writeClipboardWithFallback(ppid);
+          button.classList.remove('is-failed');
+          button.classList.add('is-copied');
+          button.textContent = 'Copied';
+        } catch (e) {
+          button.classList.remove('is-copied');
+          button.classList.add('is-failed');
+          button.textContent = 'Failed';
+        }
+
+        setTimeout(() => {
+          button.classList.remove('is-copied', 'is-failed');
+          button.textContent = 'Copy';
+        }, 1400);
+      }
+
       function initUrlTokenInspector() {
         const card = document.getElementById('section-url-token');
         const container = document.getElementById('urlTokenInspector');
@@ -2096,6 +2176,7 @@
         }
 
         renderUrlTokenStatus(inspector, 'valid', 'Token decoded from URL query');
+        renderUrlPpidHighlight(inspector, jwt.payload.sub);
         renderDecodedJsonBlock(inspector, 'Decoded Header', jwt.header);
         renderDecodedJsonBlock(inspector, 'Decoded Payload', jwt.payload);
 
