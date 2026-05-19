@@ -108,18 +108,18 @@ describe('test-board deprecated auth removal', () => {
     expect(html).toContain('id="section-api-tests"');
     expect(html).toContain('id="card-api-start"');
     expect(html).toContain('id="card-api-result"');
-    expect(html).toContain('id="card-api-result-user"');
     expect(html).toContain("sendCustom('api-start')");
     expect(html).toContain("sendCustom('api-result')");
-    expect(html).toContain("sendCustom('api-result-user')");
-    expect(html).toContain(
-      'user_id와 country로 해당 유저의 특정 국적 결과를 조회합니다.',
-    );
     expect(html).toContain(
       'user_id만으로 해당 유저가 가진 모든 국적과 policy 결과를 조회합니다.',
     );
+    expect(html).not.toContain('id="card-api-result-user"');
+    expect(html).not.toContain("sendCustom('api-result-user')");
     expect(html).not.toContain('id="card-api-result-policy"');
     expect(html).not.toContain('id="card-api-result-country"');
+    expect(html).not.toContain(
+      'user_id와 country로 해당 유저의 특정 국적 결과를 조회합니다.',
+    );
     expect(html).toContain('id="hidden-detailed-api-sections"');
     expect(html).toContain('data-target="section-api-tests"');
     expect(html).not.toContain('data-target="section-plaid"');
@@ -149,28 +149,21 @@ describe('test-board deprecated auth removal', () => {
     expect(html).toContain('initUrlTokenInspector();');
   });
 
-  it('renders two visible result query cases without default email or policy', () => {
+  it('renders the visible result query case with only user_id', () => {
     const html = readTestBoardHtml();
-    const resultCases = [
-      ['api-result', "country: 'us'"],
-      ['api-result-user', ''],
-    ];
+    const entry = customCardEntry(html, 'api-result');
 
-    for (const [cardId, country] of resultCases) {
-      const entry = customCardEntry(html, cardId);
-
-      expect(entry).toContain("endpoint: '/v1/idv/result'");
-      expect(entry).toContain(
-        'expectedResponse: EXPECTED_RESPONSES.resultOk',
-      );
-      expect(entry).toContain('includeDefaultEmail: false');
-      expect(entry).toContain(
-        "user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb'",
-      );
-      expect(entry).not.toContain('email:');
-      expect(entry).not.toContain('kyc_policy:');
-      if (country) expect(entry).toContain(country);
-    }
+    expect(entry).toContain("endpoint: '/v1/idv/result'");
+    expect(entry).toContain(
+      'expectedResponse: EXPECTED_RESPONSES.resultOk',
+    );
+    expect(entry).toContain('includeDefaultEmail: false');
+    expect(entry).toContain(
+      "user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb'",
+    );
+    expect(entry).not.toContain('email:');
+    expect(entry).not.toContain('country:');
+    expect(entry).not.toContain('kyc_policy:');
   });
 
   it('initializes default Custom KYC request bodies with email', () => {
@@ -198,7 +191,7 @@ describe('test-board deprecated auth removal', () => {
       "el.addEventListener('input', () => resizeJsonEditor(el));",
     );
     expect(customCards.match(/includeDefaultEmail:\s*false/g)).toHaveLength(
-      deprecatedCompatibilityCardIds.length + 3,
+      deprecatedCompatibilityCardIds.length + 2,
     );
   });
 

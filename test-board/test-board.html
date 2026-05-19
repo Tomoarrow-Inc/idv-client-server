@@ -575,31 +575,16 @@
 
       <div class="api-card" id="card-api-result">
         <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Case 1</span><span class="method">POST</span>/v1/idv/result</span>
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/result</span>
           <span class="api-badge api-badge-idle" id="badge-api-result">NOT TESTED</span>
         </div>
-        <p class="note">user_id와 country로 해당 유저의 특정 국적 결과를 조회합니다.</p>
+        <p class="note">user_id만으로 해당 유저가 가진 모든 국적과 policy 결과를 조회합니다.</p>
         <textarea class="json-editor" id="body-api-result"></textarea>
         <div class="actions">
           <button class="btn-primary" onclick="sendCustom('api-result')">Send</button>
         </div>
         <div id="result-api-result" class="hidden">
           <pre id="json-api-result"></pre>
-        </div>
-      </div>
-
-      <div class="api-card" id="card-api-result-user">
-        <div class="api-card-header">
-          <span class="endpoint"><span class="case-label">Case 2</span><span class="method">POST</span>/v1/idv/result</span>
-          <span class="api-badge api-badge-idle" id="badge-api-result-user">NOT TESTED</span>
-        </div>
-        <p class="note">user_id만으로 해당 유저가 가진 모든 국적과 policy 결과를 조회합니다.</p>
-        <textarea class="json-editor" id="body-api-result-user"></textarea>
-        <div class="actions">
-          <button class="btn-primary" onclick="sendCustom('api-result-user')">Send</button>
-        </div>
-        <div id="result-api-result-user" class="hidden">
-          <pre id="json-api-result-user"></pre>
         </div>
       </div>
 
@@ -1549,9 +1534,7 @@
         // ── Visible API Tests ──
         // 'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        // 'api-result': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
-        'api-result':      { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, includeDefaultEmail: false, body: () => ({ user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb', country: 'us' }) },
-        'api-result-user': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, includeDefaultEmail: false, body: () => ({ user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb' }) },
+        'api-result': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, includeDefaultEmail: false, body: () => ({ user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb' }) },
         // ── US ──
         'us-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'us-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
