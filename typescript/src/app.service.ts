@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
+import { UpstreamResponseError } from './upstream-response';
 import type {
   TokenRes,
   StartIdvRes,
@@ -74,6 +75,33 @@ export class AppService {
     });
   }
 
+  async proxyPost(path: string, body: unknown): Promise<unknown> {
+    const response = await fetch(`${this.resolveBaseUrl()}${path}`, {
+      method: 'POST',
+      headers: {
+        Authorization: this.bearerToken(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body ?? {}),
+    });
+    const contentType = response.headers.get('content-type') ?? undefined;
+    const text = await response.text();
+
+    if (!response.ok) {
+      throw new UpstreamResponseError(response.status, text, contentType);
+    }
+
+    if (contentType?.toLowerCase().includes('application/json')) {
+      try {
+        return text ? JSON.parse(text) : {};
+      } catch {
+        return text;
+      }
+    }
+
+    return text;
+  }
+
   private requireAccessToken(): string {
     const accessToken = this.getState('access_token') as unknown;
     if (typeof accessToken !== 'string' || !accessToken) {
@@ -85,7 +113,11 @@ export class AppService {
   }
 
   private resolveBaseUrl(): string {
-    const base = process.env.IDV_BASE_URL ?? 'http://idv-server-ghci';
+    const base =
+      process.env.IDV_BASE_URL ??
+      process.env.IDV_SERVER ??
+      process.env.IDV_BASEURL ??
+      'http://idv-server-ghci';
     return base.replace(/\/$/, '');
   }
 

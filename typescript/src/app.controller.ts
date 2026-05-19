@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import type {
   TokenRes,
@@ -39,6 +39,53 @@ export class AppController {
   async idvResult(@Body() body: ResultReq): Promise<ResultRes> {
     try {
       return await this.appService.idvResult(body);
+    } catch (e) {
+      return rethrowUpstream(e);
+    }
+  }
+
+  // ── Deprecated compatibility routes still exposed by idv-server ──
+
+  @Post('/v1/idv/kyc/get')
+  async idvKycGet(@Body() body: Record<string, unknown>): Promise<unknown> {
+    try {
+      return await this.appService.proxyPost('/v1/idv/kyc/get', body);
+    } catch (e) {
+      return rethrowUpstream(e);
+    }
+  }
+
+  @Post('/v1/idv/:country/start')
+  async idvCountryStart(
+    @Param('country') country: string,
+    @Body() body: Record<string, unknown>,
+  ): Promise<unknown> {
+    try {
+      return await this.appService.proxyPost(`/v1/idv/${country}/start`, body);
+    } catch (e) {
+      return rethrowUpstream(e);
+    }
+  }
+
+  @Post('/v1/idv/:country/kyc/get')
+  async idvCountryKycGet(
+    @Param('country') country: string,
+    @Body() body: Record<string, unknown>,
+  ): Promise<unknown> {
+    try {
+      return await this.appService.proxyPost(
+        `/v1/idv/${country}/kyc/get`,
+        body,
+      );
+    } catch (e) {
+      return rethrowUpstream(e);
+    }
+  }
+
+  @Post('/v1/verify/session')
+  async verifySession(@Body() body: Record<string, unknown>): Promise<unknown> {
+    try {
+      return await this.appService.proxyPost('/v1/verify/session', body);
     } catch (e) {
       return rethrowUpstream(e);
     }

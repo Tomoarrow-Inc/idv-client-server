@@ -6,7 +6,7 @@
  *
  * Verification
  * - Deprecated auth UI/endpoint strings are absent from the served HTML.
- * - Removed IDV routes are exposed only as 404 compatibility regression cards.
+ * - Deprecated IDV routes are exposed only as upstream-forwarding checks.
  * - Custom KYC request body textareas are initialized with a default email.
  * - Section 7 keeps the only non-deprecated email-free request body for Plaid
  *   fallback.
@@ -68,9 +68,9 @@ describe('test-board deprecated auth removal', () => {
     }
   });
 
-  it('exposes removed IDV routes only as deprecated compatibility checks', () => {
+  it('exposes deprecated IDV routes only as upstream forwarding checks', () => {
     // Deprecated route strings may appear only in Section 8, where the board
-    // asserts they remain removed by expecting a 404 response.
+    // asserts idv-client-server forwards them instead of returning BFF 404.
     const html = readTestBoardHtml();
     const removedUiStrings = [
       'Old API',
@@ -87,7 +87,8 @@ describe('test-board deprecated auth removal', () => {
     }
 
     expect(html).toContain('id="section-deprecated-compat"');
-    expect(html).toContain('EXPECTED_RESPONSES.deprecatedRemoved');
+    expect(html).toContain('EXPECTED_RESPONSES.deprecatedForwarded');
+    expect(html).toContain('deprecatedForwarded: { notStatus: 404');
 
     for (const cardId of deprecatedCompatibilityCardIds) {
       const entry = customCardEntry(html, cardId);
@@ -95,10 +96,24 @@ describe('test-board deprecated auth removal', () => {
       expect(html).toContain(`id="card-${cardId}"`);
       expect(html).toContain(`sendCustom('${cardId}')`);
       expect(entry).toContain(
-        'expectedResponse: EXPECTED_RESPONSES.deprecatedRemoved',
+        'expectedResponse: EXPECTED_RESPONSES.deprecatedForwarded',
       );
       expect(entry).toContain('includeDefaultEmail: false');
     }
+  });
+
+  it('shows only public API tests and Deprecated in the visible custom board', () => {
+    const html = readTestBoardHtml();
+
+    expect(html).toContain('id="section-api-tests"');
+    expect(html).toContain('id="card-api-start"');
+    expect(html).toContain('id="card-api-result"');
+    expect(html).toContain("sendCustom('api-start')");
+    expect(html).toContain("sendCustom('api-result')");
+    expect(html).toContain('id="hidden-detailed-api-sections"');
+    expect(html).toContain('data-target="section-api-tests"');
+    expect(html).not.toContain('data-target="section-plaid"');
+    expect(html).not.toContain('data-target="section-policy"');
   });
 
   it('initializes default Custom KYC request bodies with email', () => {
@@ -112,15 +127,20 @@ describe('test-board deprecated auth removal', () => {
     const customCards = html.slice(customCardsStart, customCardsEnd);
     // Default request body rendering must go through the shared email injector
     // so active customer examples do not accidentally exercise Plaid email
-    // fallback. Deprecated 404 compatibility cards opt out because their body
-    // is not sent to a live implementation.
+    // fallback. Deprecated compatibility cards opt out because their historical
+    // request shape should stay focused on the route being forwarded.
     expect(html).toContain('function withDefaultEmail(body) {');
     expect(html).toContain('function customCardBody(id) {');
     expect(html).toContain(
       'return cfg.includeDefaultEmail === false ? body : withDefaultEmail(body);',
     );
+    expect(html).toContain('function resizeJsonEditor(el) {');
     expect(html).toContain(
-      'if (el) el.value = JSON.stringify(customCardBody(id), null, 2);',
+      'el.value = JSON.stringify(customCardBody(id), null, 2);',
+    );
+    expect(html).toContain('resizeJsonEditor(el);');
+    expect(html).toContain(
+      "el.addEventListener('input', () => resizeJsonEditor(el));",
     );
     expect(customCards.match(/includeDefaultEmail:\s*false/g)).toHaveLength(
       deprecatedCompatibilityCardIds.length + 1,

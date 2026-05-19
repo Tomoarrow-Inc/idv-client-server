@@ -2,11 +2,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { AppService } from './app.service';
 
-describe('AppService SDK-only idv-server requests', () => {
+describe('AppService idv-server requests', () => {
   const originalFetch = global.fetch;
+  const originalBaseUrl = process.env.IDV_BASE_URL;
 
   afterEach(() => {
     global.fetch = originalFetch;
+    process.env.IDV_BASE_URL = originalBaseUrl;
     jest.restoreAllMocks();
   });
 
@@ -61,13 +63,39 @@ describe('AppService SDK-only idv-server requests', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it('keeps AppService free of raw fetch upstream request code', () => {
-    // Static regression check: AppService must route idv-server traffic through
-    // generated SDK methods, so raw fetch/proxyPost must not reappear.
+  it('uses transparent fetch proxy for deprecated compatibility routes', async () => {
+    process.env.IDV_BASE_URL = 'https://idv.example';
+    const body = { user_id: 'user-compat', country: 'us' };
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: { get: jest.fn(() => 'application/json') },
+      text: jest.fn().mockResolvedValue('{"status":"forwarded"}'),
+    });
+    global.fetch = fetchMock;
+    const service = createService({});
+
+    const result = await service.proxyPost('/v1/idv/kyc/get', body);
+
+    expect(result).toEqual({ status: 'forwarded' });
+    expect(fetchMock).toHaveBeenCalledWith('https://idv.example/v1/idv/kyc/get', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer access-token',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  });
+
+  it('keeps public IDV start/result methods on the SDK path', () => {
+    // Static regression check: /v1/idv/start and /v1/idv/result stay on the
+    // generated SDK methods. Deprecated compatibility routes use proxyPost.
     const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
 
-    expect(source).not.toMatch(/\bfetch\s*\(/);
-    expect(source).not.toMatch(/\bproxyPost\s*\(/);
+    expect(source).toMatch(/\bthis\.api\.v1IdvStartPost\s*\(/);
+    expect(source).toMatch(/\bthis\.api\.v1IdvResultPost\s*\(/);
+    expect(source).toMatch(/\bproxyPost\s*\(/);
   });
 
   it('keeps AppService free of Old-suffixed legacy functions', () => {
@@ -79,9 +107,9 @@ describe('AppService SDK-only idv-server requests', () => {
     expect(source).not.toContain('Old problem');
   });
 
-  it('keeps AppService free of deprecated IDV compatibility implementations', () => {
-    // Static regression check: deprecated SDK methods may still exist in the
-    // generated contract, but AppService must not implement those BFF routes.
+  it('keeps AppService free of deprecated SDK compatibility methods', () => {
+    // Static regression check: deprecated paths are forwarded transparently
+    // instead of going through generated SDK methods that can reshape bodies.
     const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
 
     expect(source).not.toMatch(/\bidvKycGet\s*\(/);

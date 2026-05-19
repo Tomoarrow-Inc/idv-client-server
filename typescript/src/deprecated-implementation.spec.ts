@@ -1,13 +1,14 @@
 /**
  * Purpose
- * - Deprecated IDV endpoints must be removed from idv-client-server's runtime
- *   implementation, even if the generated SDK contract still contains them.
+ * - Legacy module files stay removed, while idv-server deprecated endpoints
+ *   remain available through transparent BFF forwarding.
  *
  * Verification
  * - Legacy module source files are gone.
  * - AppModule no longer imports/registers LegacyModule.
- * - AppController no longer registers deprecated route decorators.
- * - AppService no longer calls deprecated SDK methods.
+ * - AppController registers deprecated compatibility route decorators.
+ * - AppService forwards deprecated compatibility calls without generated SDK
+ *   body shaping.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -31,21 +32,22 @@ describe('deprecated IDV implementation removal', () => {
     }
   });
 
-  it('does not register legacy or deprecated IDV routes', () => {
+  it('registers deprecated compatibility IDV routes without the legacy module', () => {
     const appModule = readSource('app.module.ts');
     const appController = readSource('app.controller.ts');
 
     expect(appModule).not.toContain('LegacyModule');
-    expect(appController).not.toContain('/v1/idv/kyc/get');
-    expect(appController).not.toContain('/v1/idv/cn/start');
-    expect(appController).not.toContain('/v1/idv/:country/start');
-    expect(appController).not.toContain('/v1/idv/:country/kyc/get');
-    expect(appController).not.toContain('/v1/verify/session');
+    expect(appController).toContain("@Post('/v1/idv/kyc/get')");
+    expect(appController).toContain("@Post('/v1/idv/:country/start')");
+    expect(appController).toContain("@Post('/v1/idv/:country/kyc/get')");
+    expect(appController).toContain("@Post('/v1/verify/session')");
   });
 
-  it('does not call deprecated SDK methods from AppService', () => {
+  it('forwards deprecated compatibility calls without deprecated SDK methods', () => {
     const appService = readSource('app.service.ts');
 
+    expect(appService).toContain('async proxyPost(path: string, body: unknown)');
+    expect(appService).toContain('fetch(`${this.resolveBaseUrl()}${path}`');
     expect(appService).not.toMatch(/\bv1IdvKycGetPost\s*\(/);
     expect(appService).not.toMatch(/\bv1Idv(Us|Uk|Ca|Jp|Cn)StartPost\s*\(/);
     expect(appService).not.toMatch(
