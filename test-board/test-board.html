@@ -408,6 +408,13 @@
       .claims-table td .copy-val { cursor: pointer; color: #1976d2; text-decoration: underline dotted; }
       .claims-table td .copy-val:hover { color: #0d47a1; }
       .claims-table td .copied-flash { color: #4caf50; font-size: 0.72rem; margin-left: 4px; }
+      .jwt-json {
+        background: #fff;
+        color: #263238;
+        border: 1px solid #e0e0e0;
+        font-size: 0.8rem;
+        word-break: break-word;
+      }
       /* ── Quick Jump Sidebar (Custom KYC only) ── */
       .qj-sidebar {
         position: fixed;
@@ -481,6 +488,13 @@
     <!-- ═══════════════════════════════════════════ -->
     <div class="tab-content active" id="tab-custom">
 
+      <!-- URL callback token details are shown only when ?token= is present. -->
+      <div class="card hidden" id="section-url-token" style="border-left: 4px solid #2e7d32">
+        <h2>Decoded URL Token</h2>
+        <p class="note">URL query의 token/key 값을 디코딩한 결과입니다.</p>
+        <div id="urlTokenInspector"></div>
+      </div>
+
       <!-- Step 0: Access Token -->
       <div class="card" id="section-token" style="border-left: 4px solid #1976d2">
         <h2><span class="step">0</span>Access Token</h2>
@@ -524,17 +538,34 @@
       </div>
 
       <p class="substep-title"><span class="substep">1-2</span> POST /v1/idv/result</p>
+
       <div class="api-card" id="card-api-result">
         <div class="api-card-header">
-          <span class="endpoint"><span class="method">POST</span>/v1/idv/result</span>
+          <span class="endpoint"><span class="case-label">Case 1</span><span class="method">POST</span>/v1/idv/result</span>
           <span class="api-badge api-badge-idle" id="badge-api-result">NOT TESTED</span>
         </div>
+        <p class="note">user_id와 country로 해당 유저의 특정 국적 결과를 조회합니다.</p>
         <textarea class="json-editor" id="body-api-result"></textarea>
         <div class="actions">
           <button class="btn-primary" onclick="sendCustom('api-result')">Send</button>
         </div>
         <div id="result-api-result" class="hidden">
           <pre id="json-api-result"></pre>
+        </div>
+      </div>
+
+      <div class="api-card" id="card-api-result-user">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="case-label">Case 2</span><span class="method">POST</span>/v1/idv/result</span>
+          <span class="api-badge api-badge-idle" id="badge-api-result-user">NOT TESTED</span>
+        </div>
+        <p class="note">user_id만으로 해당 유저가 가진 모든 국적과 policy 결과를 조회합니다.</p>
+        <textarea class="json-editor" id="body-api-result-user"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('api-result-user')">Send</button>
+        </div>
+        <div id="result-api-result-user" class="hidden">
+          <pre id="json-api-result-user"></pre>
         </div>
       </div>
 
@@ -1470,7 +1501,7 @@
       const ownerVerf = (type) => ({ kind: 'owner_verf', type });
       const ownerCheck = (type) => ({ kind: 'owner_check', type });
       const personalInfoSmsPolicy = () => ({
-        subject: { kind: 'personal_info' },
+        subject: { kind: 'personal_info', id_type: "null"},
         method: 'personal_info_verf',
         owner_assurance: ownerVerf('sms_otp'),
       });
@@ -1482,8 +1513,11 @@
 
       const CUSTOM_CARDS = {
         // ── Visible API Tests ──
-        'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'api-result': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
+        // 'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        // 'api-result': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, body: () => ({ user_id: '7999752903327968491', country: 'us' }) },
+        'api-result':      { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, includeDefaultEmail: false, body: () => ({ user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb', country: 'us' }) },
+        'api-result-user': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, includeDefaultEmail: false, body: () => ({ user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb' }) },
         // ── US ──
         'us-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'us-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
@@ -1993,6 +2027,89 @@
         html += '</div>';
         container.innerHTML = html;
       }
+
+      function parseJwkParam(value) {
+        if (!value) return null;
+        const candidates = [value];
+        try {
+          candidates.push(decodeURIComponent(value));
+        } catch (e) {}
+
+        for (const candidate of candidates) {
+          try {
+            return JSON.parse(candidate);
+          } catch (e) {}
+
+          try {
+            return JSON.parse(b64urlDecode(candidate));
+          } catch (e) {}
+        }
+
+        return null;
+      }
+
+      function renderDecodedJsonBlock(container, title, value) {
+        const section = document.createElement('div');
+        section.className = 'jwt-section';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'jwt-section-title';
+        titleEl.textContent = title;
+
+        const pre = document.createElement('pre');
+        pre.className = 'jwt-json';
+        pre.textContent = JSON.stringify(value, null, 2);
+
+        section.appendChild(titleEl);
+        section.appendChild(pre);
+        container.appendChild(section);
+      }
+
+      function renderUrlTokenStatus(container, className, text) {
+        const status = document.createElement('div');
+        status.className = 'jwt-verify ' + className;
+        status.textContent = text;
+        container.appendChild(status);
+      }
+
+      function initUrlTokenInspector() {
+        const card = document.getElementById('section-url-token');
+        const container = document.getElementById('urlTokenInspector');
+        if (!card || !container) return;
+
+        const params = new URLSearchParams(window.location.search);
+        const tokenStr = params.get('token');
+        const keyStr = params.get('key');
+        if (!tokenStr) return;
+
+        card.classList.remove('hidden');
+        container.textContent = '';
+
+        const inspector = document.createElement('div');
+        inspector.className = 'jwt-inspector';
+        container.appendChild(inspector);
+
+        const jwt = parseJwtParts(tokenStr);
+        if (!jwt) {
+          renderUrlTokenStatus(inspector, 'invalid', 'Failed to parse token from URL query');
+          return;
+        }
+
+        renderUrlTokenStatus(inspector, 'valid', 'Token decoded from URL query');
+        renderDecodedJsonBlock(inspector, 'Decoded Header', jwt.header);
+        renderDecodedJsonBlock(inspector, 'Decoded Payload', jwt.payload);
+
+        if (keyStr) {
+          const jwkJson = parseJwkParam(keyStr);
+          if (jwkJson) {
+            renderDecodedJsonBlock(inspector, 'Decoded Public Key', jwkJson);
+          } else {
+            renderUrlTokenStatus(inspector, 'invalid', 'Failed to parse key from URL query');
+          }
+        }
+      }
+
+      initUrlTokenInspector();
 
       function renderResponseTable(containerId, data) {
         const container = document.getElementById(containerId);

@@ -45,7 +45,7 @@ describe('test-board deprecated auth removal', () => {
 
     const customCards = html.slice(customCardsStart, customCardsEnd);
     const match = customCards.match(
-      new RegExp(`'${cardId}'\\s*:\\s*\\{[^\\n]+\\}`),
+      new RegExp(`^\\s*'${cardId}'\\s*:\\s*\\{[^\\n]+\\}`, 'm'),
     );
 
     expect(match).not.toBeNull();
@@ -108,12 +108,63 @@ describe('test-board deprecated auth removal', () => {
     expect(html).toContain('id="section-api-tests"');
     expect(html).toContain('id="card-api-start"');
     expect(html).toContain('id="card-api-result"');
+    expect(html).toContain('id="card-api-result-user"');
     expect(html).toContain("sendCustom('api-start')");
     expect(html).toContain("sendCustom('api-result')");
+    expect(html).toContain("sendCustom('api-result-user')");
+    expect(html).toContain(
+      'user_id와 country로 해당 유저의 특정 국적 결과를 조회합니다.',
+    );
+    expect(html).toContain(
+      'user_id만으로 해당 유저가 가진 모든 국적과 policy 결과를 조회합니다.',
+    );
+    expect(html).not.toContain('id="card-api-result-policy"');
+    expect(html).not.toContain('id="card-api-result-country"');
     expect(html).toContain('id="hidden-detailed-api-sections"');
     expect(html).toContain('data-target="section-api-tests"');
     expect(html).not.toContain('data-target="section-plaid"');
     expect(html).not.toContain('data-target="section-policy"');
+  });
+
+  it('renders URL token details above Access Token only when token query exists', () => {
+    const html = readTestBoardHtml();
+
+    expect(html).toContain('class="card hidden" id="section-url-token"');
+    expect(html).toContain('id="urlTokenInspector"');
+    expect(html.indexOf('id="section-url-token"')).toBeLessThan(
+      html.indexOf('id="section-token"'),
+    );
+    expect(html).toContain('function initUrlTokenInspector() {');
+    expect(html).toContain("const tokenStr = params.get('token');");
+    expect(html).toContain("const keyStr = params.get('key');");
+    expect(html).toContain('if (!tokenStr) return;');
+    expect(html).toContain("renderDecodedJsonBlock(inspector, 'Decoded Payload', jwt.payload);");
+    expect(html).toContain("renderDecodedJsonBlock(inspector, 'Decoded Public Key', jwkJson);");
+    expect(html).toContain('initUrlTokenInspector();');
+  });
+
+  it('renders two visible result query cases without default email or policy', () => {
+    const html = readTestBoardHtml();
+    const resultCases = [
+      ['api-result', "country: 'us'"],
+      ['api-result-user', ''],
+    ];
+
+    for (const [cardId, country] of resultCases) {
+      const entry = customCardEntry(html, cardId);
+
+      expect(entry).toContain("endpoint: '/v1/idv/result'");
+      expect(entry).toContain(
+        'expectedResponse: EXPECTED_RESPONSES.resultOk',
+      );
+      expect(entry).toContain('includeDefaultEmail: false');
+      expect(entry).toContain(
+        "user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb'",
+      );
+      expect(entry).not.toContain('email:');
+      expect(entry).not.toContain('kyc_policy:');
+      if (country) expect(entry).toContain(country);
+    }
   });
 
   it('initializes default Custom KYC request bodies with email', () => {
@@ -126,9 +177,7 @@ describe('test-board deprecated auth removal', () => {
 
     const customCards = html.slice(customCardsStart, customCardsEnd);
     // Default request body rendering must go through the shared email injector
-    // so active customer examples do not accidentally exercise Plaid email
-    // fallback. Deprecated compatibility cards opt out because their historical
-    // request shape should stay focused on the route being forwarded.
+    // unless a case has a reason to preserve an exact request shape.
     expect(html).toContain('function withDefaultEmail(body) {');
     expect(html).toContain('function customCardBody(id) {');
     expect(html).toContain(
@@ -143,7 +192,7 @@ describe('test-board deprecated auth removal', () => {
       "el.addEventListener('input', () => resizeJsonEditor(el));",
     );
     expect(customCards.match(/includeDefaultEmail:\s*false/g)).toHaveLength(
-      deprecatedCompatibilityCardIds.length + 1,
+      deprecatedCompatibilityCardIds.length + 3,
     );
   });
 
