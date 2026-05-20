@@ -141,11 +141,84 @@
             },
             "Country": {
                 "enum": [
-                    "us",
-                    "uk",
+                    "ar",
+                    "au",
+                    "at",
+                    "be",
+                    "br",
                     "ca",
-                    "jp",
+                    "cl",
                     "cn",
+                    "co",
+                    "cz",
+                    "dk",
+                    "fi",
+                    "fr",
+                    "de",
+                    "gi",
+                    "hk",
+                    "in",
+                    "ie",
+                    "it",
+                    "jp",
+                    "ke",
+                    "lu",
+                    "my",
+                    "mx",
+                    "nl",
+                    "nz",
+                    "ng",
+                    "no",
+                    "ph",
+                    "pl",
+                    "pt",
+                    "sg",
+                    "sk",
+                    "za",
+                    "es",
+                    "se",
+                    "ch",
+                    "tr",
+                    "gb",
+                    "us",
+                    "af",
+                    "az",
+                    "bh",
+                    "bd",
+                    "bt",
+                    "bn",
+                    "kh",
+                    "id",
+                    "iq",
+                    "il",
+                    "jo",
+                    "kz",
+                    "kw",
+                    "kg",
+                    "la",
+                    "lb",
+                    "mo",
+                    "mv",
+                    "mn",
+                    "mm",
+                    "np",
+                    "om",
+                    "pk",
+                    "ps",
+                    "qa",
+                    "ru",
+                    "sa",
+                    "kr",
+                    "lk",
+                    "tw",
+                    "tj",
+                    "th",
+                    "tm",
+                    "ae",
+                    "uz",
+                    "vn",
+                    "ye",
+                    "uk",
                     "unknown"
                 ],
                 "type": "string"
@@ -235,27 +308,26 @@
             "JpGetResultRes": {
                 "properties": {
                     "address": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "date_of_birth": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "name": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "postal_code": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "sex": {
+                        "nullable": true,
                         "type": "string"
                     }
                 },
-                "required": [
-                    "date_of_birth",
-                    "name",
-                    "sex",
-                    "address"
-                ],
                 "type": "object"
             },
             "JpGetUnionResultRes": {
@@ -592,48 +664,46 @@
             "UsGetResultRes": {
                 "properties": {
                     "city": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "country": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "date_of_birth": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "email_address": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "family_name": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "given_name": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "phone_number": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "postal_code": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "region": {
+                        "nullable": true,
                         "type": "string"
                     },
                     "street": {
+                        "nullable": true,
                         "type": "string"
                     }
                 },
-                "required": [
-                    "date_of_birth",
-                    "email_address",
-                    "phone_number",
-                    "family_name",
-                    "given_name",
-                    "city",
-                    "country",
-                    "postal_code",
-                    "region",
-                    "street"
-                ],
                 "type": "object"
             },
             "UsGetUnionResultRes": {
@@ -1045,8 +1115,6 @@
         },
         "/v1/idv/kyc/get": {
             "post": {
-                "deprecated": true,
-                "description": "[DEPRECATED] Use /v1/idv/result.",
                 "parameters": [
                     {
                         "in": "header",
