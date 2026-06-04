@@ -12,13 +12,18 @@
                     "kyc_policy_id": {
                         "type": "string"
                     },
+                    "redirect_url": {
+                        "type": "string"
+                    },
                     "user_id": {
+                        "type": "string"
+                    },
+                    "webhook_url": {
                         "type": "string"
                     }
                 },
                 "required": [
-                    "user_id",
-                    "callback_url"
+                    "user_id"
                 ],
                 "type": "object"
             },
@@ -130,7 +135,13 @@
                     "kyc_policy_id": {
                         "type": "string"
                     },
+                    "redirect_url": {
+                        "type": "string"
+                    },
                     "user_id": {
+                        "type": "string"
+                    },
+                    "webhook_url": {
                         "type": "string"
                     }
                 },
@@ -361,13 +372,18 @@
                     "kyc_policy_id": {
                         "type": "string"
                     },
+                    "redirect_url": {
+                        "type": "string"
+                    },
                     "user_id": {
+                        "type": "string"
+                    },
+                    "webhook_url": {
                         "type": "string"
                     }
                 },
                 "required": [
-                    "user_id",
-                    "callback_url"
+                    "user_id"
                 ],
                 "type": "object"
             },
@@ -379,15 +395,13 @@
                     "owner_assurance": {
                         "type": "object"
                     },
+                    "preset": {
+                        "type": "string"
+                    },
                     "subject": {
                         "type": "object"
                     }
                 },
-                "required": [
-                    "subject",
-                    "method",
-                    "owner_assurance"
-                ],
                 "type": "object"
             },
             "LaunchKind": {
@@ -484,7 +498,13 @@
                     "kyc_policy": {
                         "$ref": "#/components/schemas/KycPolicy"
                     },
+                    "redirect_url": {
+                        "type": "string"
+                    },
                     "user_id": {
+                        "type": "string"
+                    },
+                    "webhook_url": {
                         "type": "string"
                     }
                 },
@@ -522,13 +542,16 @@
                     "kyc_policy": {
                         "$ref": "#/components/schemas/KycPolicy"
                     },
+                    "redirect_url": {
+                        "type": "string"
+                    },
                     "user_id": {
+                        "type": "string"
+                    },
+                    "webhook_url": {
                         "type": "string"
                     }
                 },
-                "required": [
-                    "callback_url"
-                ],
                 "type": "object"
             },
             "StartIdvRes": {
@@ -634,13 +657,18 @@
                     "kyc_policy_id": {
                         "type": "string"
                     },
+                    "redirect_url": {
+                        "type": "string"
+                    },
                     "user_id": {
+                        "type": "string"
+                    },
+                    "webhook_url": {
                         "type": "string"
                     }
                 },
                 "required": [
-                    "user_id",
-                    "callback_url"
+                    "user_id"
                 ],
                 "type": "object"
             },
@@ -745,15 +773,27 @@
                     "kyc_policy_id": {
                         "type": "string"
                     },
+                    "redirect_url": {
+                        "type": "string"
+                    },
                     "user_id": {
+                        "type": "string"
+                    },
+                    "webhook_url": {
                         "type": "string"
                     }
                 },
                 "required": [
-                    "user_id",
-                    "callback_url"
+                    "user_id"
                 ],
                 "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "bearerFormat": "JWT",
+                "scheme": "bearer",
+                "type": "http"
             }
         }
     },
@@ -785,16 +825,6 @@
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/result with country=ca.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -818,23 +848,18 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/ca/start": {
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/start with country=ca.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -858,7 +883,12 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/cn/health": {
@@ -883,16 +913,6 @@
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/result with country=cn.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -916,23 +936,18 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/cn/start": {
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/start with country=cn.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -956,23 +971,18 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/cn/token": {
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use the OAuth2 token endpoint.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -996,7 +1006,12 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/health": {
@@ -1037,16 +1052,6 @@
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/result with country=jp.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1070,23 +1075,18 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/jp/start": {
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/start with country=jp.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1110,21 +1110,16 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/kyc/get": {
             "post": {
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1148,21 +1143,16 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/result": {
             "post": {
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1186,23 +1176,18 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/sessions/start": {
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/start.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1226,21 +1211,16 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/start": {
             "post": {
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1264,7 +1244,12 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/uk/health": {
@@ -1289,16 +1274,6 @@
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/result with country=uk.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1322,23 +1297,18 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/uk/start": {
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/start with country=uk.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1362,7 +1332,12 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/us/health": {
@@ -1387,16 +1362,6 @@
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/result with country=us.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1420,23 +1385,18 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/idv/us/start": {
             "post": {
                 "deprecated": true,
                 "description": "[DEPRECATED] Use /v1/idv/start with country=us.",
-                "parameters": [
-                    {
-                        "in": "header",
-                        "name": "Authorization",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -1460,7 +1420,12 @@
                     "400": {
                         "description": "Invalid `body` or `Authorization`"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/v1/oauth2/token": {
