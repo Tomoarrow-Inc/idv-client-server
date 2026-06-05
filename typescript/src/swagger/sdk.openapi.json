@@ -9,9 +9,6 @@
                     "email": {
                         "type": "string"
                     },
-                    "kyc_policy_id": {
-                        "type": "string"
-                    },
                     "redirect_url": {
                         "type": "string"
                     },
@@ -123,16 +120,7 @@
             },
             "CnStartIdvReq": {
                 "properties": {
-                    "best_frame_base64": {
-                        "type": "string"
-                    },
                     "callback_url": {
-                        "type": "string"
-                    },
-                    "card_image_base64": {
-                        "type": "string"
-                    },
-                    "kyc_policy_id": {
                         "type": "string"
                     },
                     "redirect_url": {
@@ -367,9 +355,6 @@
             "JpStartIdvReq": {
                 "properties": {
                     "callback_url": {
-                        "type": "string"
-                    },
-                    "kyc_policy_id": {
                         "type": "string"
                     },
                     "redirect_url": {
@@ -654,9 +639,6 @@
                     "email": {
                         "type": "string"
                     },
-                    "kyc_policy_id": {
-                        "type": "string"
-                    },
                     "redirect_url": {
                         "type": "string"
                     },
@@ -768,9 +750,6 @@
                         "type": "string"
                     },
                     "email": {
-                        "type": "string"
-                    },
-                    "kyc_policy_id": {
                         "type": "string"
                     },
                     "redirect_url": {

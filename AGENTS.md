@@ -80,6 +80,15 @@ Required invariants:
 
 Tests for proxy routes should assert both behavior and non-mutation of request/response wire JSON.
 
+## Naming Stability
+
+Treat variable names, request/response fields, OpenAPI properties, generated type names, enum values, endpoint paths/names, SDK public API names, DB table/column names, OAuth/JWT claims, env/config names, and other contract-derived names as high-risk to rename.
+
+- Do not change names that cross module or service boundaries unilaterally.
+- Required renames need an approved cross-module contract, migration, codegen, and compatibility plan before implementation.
+- Prefer additive aliases and deprecation paths over direct replacement when callers, generated clients, SDKs, persisted data, tests, docs, or monitoring may depend on an existing name.
+- BFF proxy request and response field names must not be renamed, normalized, camelized, snake-cased, translated, wrapped, or otherwise rewritten. Preserve the idv-server wire names as received or sent by the frontend.
+
 ## Generated-Code Policy
 
 OpenAPI contracts and generated clients are part of the cross-repository contract pipeline. Do not manually edit generated outputs.

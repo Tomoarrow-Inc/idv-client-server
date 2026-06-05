@@ -13,6 +13,7 @@ Backend For Frontend (BFF) server for idv-client. Handles OAuth2 client-assertio
 3. **투명한 에러 전달**: idv-server로부터 받는 에러 정보(HTTP status code, content-type, error body)를 그대로 클라이언트에 전달해야 한다.
 4. **Generated 코드 수정 금지**: OpenAPI generated 코드는 절대 직접 수정하지 않는다. 문제가 있으면 idv-server contract를 수정하고 contract generation 파이프라인으로만 갱신한다.
 5. **자동 서버 인증**: 클라이언트측 OAuth2 인증(client_credentials + JWT assertion)을 자동으로 처리한다. 엔드유저들은 인증 과정을 의식하지 않고 이 서버를 통해 idv-server API에 접근한다.
+6. **이름 안정성**: variable name, request/response field, OpenAPI property, generated type name, enum value, endpoint path/name, SDK public API name, DB table/column name, OAuth/JWT claim, env/config name 및 contract-derived name의 rename은 high-risk 변경으로 취급한다. module/service boundary를 넘는 이름은 단독으로 변경하지 않는다. 필요한 rename은 승인된 cross-module contract/migration/codegen/compatibility plan이 있어야 하며, replacement보다 additive alias와 deprecation path를 우선한다. BFF proxy request/response field name은 rename, normalize, camelize/snake-case 변환, 번역, wrapping 없이 idv-server wire name을 그대로 보존해야 한다.
 
 ### 설계 귀결
 
