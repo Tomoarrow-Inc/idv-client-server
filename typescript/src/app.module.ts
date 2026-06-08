@@ -15,13 +15,29 @@ function resolveBaseUrl(): string {
   return raw.replace(/\/+$/, '');
 }
 
+function requireAccessToken(stateService: StateService): string {
+  const accessToken = stateService.get('access_token') as unknown;
+  if (typeof accessToken !== 'string' || !accessToken) {
+    throw new Error(
+      'No access token found. Please call /v1/oauth2/token first.',
+    );
+  }
+  return accessToken;
+}
+
 @Module({
   controllers: [AppController],
   providers: [
     {
       provide: DefaultApi,
-      useFactory: () =>
-        new DefaultApi(new Configuration({ basePath: resolveBaseUrl() })),
+      inject: [StateService],
+      useFactory: (stateService: StateService) =>
+        new DefaultApi(
+          new Configuration({
+            basePath: resolveBaseUrl(),
+            accessToken: () => requireAccessToken(stateService),
+          }),
+        ),
     },
     {
       provide: APP_FILTER,

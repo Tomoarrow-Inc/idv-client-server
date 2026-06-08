@@ -69,12 +69,17 @@ describeIf('DefaultApi -> real idv-server (integration)', () => {
   it('starts US IDV via SDK-supported /v1/idv/start', async () => {
     const accessToken = await issueToken();
     const userId = uniqueUserId('sdk-us-start');
+    const authenticatedApi = new DefaultApi(
+      new Configuration({
+        basePath: baseUrl,
+        accessToken: () => accessToken,
+      }),
+    );
 
     // idv-client-server is only allowed to request idv-server through
     // tomo-idv-client-node, so this integration path stays on SDK-supported
     // /v1/idv/start rather than app-only /v1/idv/sessions/start.
-    const resp = await api.v1IdvStartPost({
-      Authorization: `Bearer ${accessToken}`,
+    const resp = await authenticatedApi.v1IdvStartPost({
       StartIdvReq: {
         user_id: userId,
         country: 'us',

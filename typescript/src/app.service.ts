@@ -63,14 +63,12 @@ export class AppService {
 
   async idvStart(body: StartIdvReq): Promise<StartIdvRes> {
     return this.api.v1IdvStartPost({
-      Authorization: this.bearerToken(),
       StartIdvReq: body,
     });
   }
 
   async idvResult(body: ResultReq): Promise<ResultRes> {
     return this.api.v1IdvResultPost({
-      Authorization: this.bearerToken(),
       ResultReq: body,
     });
   }

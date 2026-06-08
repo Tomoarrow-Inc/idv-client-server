@@ -38,7 +38,6 @@ describe('AppService idv-server requests', () => {
     await service.idvStart(body as never);
 
     expect(apiMock.v1IdvStartPost).toHaveBeenCalledWith({
-      Authorization: 'Bearer access-token',
       StartIdvReq: body,
     });
     expect(global.fetch).not.toHaveBeenCalled();
@@ -57,7 +56,6 @@ describe('AppService idv-server requests', () => {
     await service.idvResult(body as never);
 
     expect(apiMock.v1IdvResultPost).toHaveBeenCalledWith({
-      Authorization: 'Bearer access-token',
       ResultReq: body,
     });
     expect(global.fetch).not.toHaveBeenCalled();
