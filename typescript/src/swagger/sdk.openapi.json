@@ -415,6 +415,63 @@
                 ],
                 "type": "object"
             },
+            "ResultBulkDeleteReq": {
+                "properties": {
+                    "user_ids": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "user_ids"
+                ],
+                "type": "object"
+            },
+            "ResultBulkDeleteRes": {
+                "properties": {
+                    "results": {
+                        "items": {
+                            "$ref": "#/components/schemas/ResultDeleteRes"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "results"
+                ],
+                "type": "object"
+            },
+            "ResultDeleteReq": {
+                "properties": {
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id"
+                ],
+                "type": "object"
+            },
+            "ResultDeleteRes": {
+                "properties": {
+                    "status": {
+                        "$ref": "#/components/schemas/ResultDeleteStatus"
+                    }
+                },
+                "required": [
+                    "status"
+                ],
+                "type": "object"
+            },
+            "ResultDeleteStatus": {
+                "enum": [
+                    "deleted",
+                    "not_deletable"
+                ],
+                "type": "string"
+            },
             "ResultRecord": {
                 "properties": {
                     "auth_id": {
@@ -1147,6 +1204,72 @@
                             "application/json;charset=utf-8": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ResultRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1/idv/result/bulk-delete": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResultBulkDeleteReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResultBulkDeleteRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1/idv/result/delete": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResultDeleteReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResultDeleteRes"
                                 }
                             }
                         },
