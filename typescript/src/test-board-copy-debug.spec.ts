@@ -61,6 +61,8 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain('timing: {');
     expect(html).toContain('browserContext: getBrowserDebugContext()');
     expect(html).toContain('uiState: getCustomCardUiState(id)');
+    expect(html).toContain('webViewButtonVisible:');
+    expect(html).toContain('webViewButtonUrl:');
     expect(html).toContain('error: overrides.error ?? last.error ?? null');
     expect(html).toContain('copiedAt: overrides.copiedAt ?? null');
   });
@@ -122,6 +124,30 @@ describe('test-board Custom KYC debug copy', () => {
       "button.addEventListener('click', () => copyCustomDebugCase(id, button))",
     );
     expect(html).toContain('actionsEl.appendChild(button)');
+  });
+
+  it('adds a WebView launch button for returned start IDV URLs without replacing the new-tab link', () => {
+    const html = readTestBoardHtml();
+
+    expect(html).toContain('function authUrlFromResponse(data) {');
+    expect(html).toContain('data.start_idv_uri || data.authorization_url');
+    expect(html).toContain(
+      'function renderAuthorizationActions(authLinkEl, authUrl) {',
+    );
+    expect(html).toContain('linkEl.href = authUrl;');
+    expect(html).toContain("webViewButton.textContent = 'Open in WebView'");
+    expect(html).toContain(
+      "webViewButton.setAttribute('data-webview-open', 'true')",
+    );
+    expect(html).toContain(
+      'openStartIdvWebView(webViewButton.dataset.webviewUrl)',
+    );
+    expect(html).toContain('authLinkEl.appendChild(webViewButton)');
+    expect(html).toContain('id="startIdvWebViewOverlay"');
+    expect(html).toContain('id="startIdvWebViewFrame"');
+    expect(html).toContain('id="startIdvWebViewExternalLink"');
+    expect(html).toContain('frame.src = startIdvUri;');
+    expect(html).toContain('externalLink.href = startIdvUri;');
   });
 
   it('covers typed kyc_policy routing cases with debug copy metadata', () => {

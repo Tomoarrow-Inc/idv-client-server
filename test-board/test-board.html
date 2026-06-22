@@ -179,6 +179,71 @@
       a.ext:hover {
         text-decoration: underline;
       }
+      .auth-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .webview-open-btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+      }
+      .webview-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.55);
+        padding: 24px;
+      }
+      .webview-panel {
+        width: min(420px, 100%);
+        height: min(760px, calc(100vh - 48px));
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid #d0d0d0;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      }
+      .webview-header {
+        border-bottom: 1px solid #e0e0e0;
+        padding: 12px;
+        background: #fafafa;
+      }
+      .webview-header-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .webview-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #333;
+      }
+      .webview-url {
+        margin-top: 8px;
+        padding: 6px 8px;
+        border: 1px solid #ddd;
+        border-radius: 999px;
+        background: #fff;
+        color: #666;
+        font-size: 0.72rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .webview-frame {
+        flex: 1;
+        width: 100%;
+        border: 0;
+        background: #fff;
+      }
       .footer {
         margin-top: 24px;
         text-align: center;
@@ -573,6 +638,28 @@
     <p class="subtitle">
       Customer site simulation &mdash; IDV API testing
     </p>
+
+    <div class="webview-overlay hidden" id="startIdvWebViewOverlay" role="dialog" aria-modal="true" aria-labelledby="startIdvWebViewTitle">
+      <div class="webview-panel">
+        <div class="webview-header">
+          <div class="webview-header-row">
+            <div class="webview-title" id="startIdvWebViewTitle">Embedded WebView</div>
+            <div class="actions" style="margin-top:0">
+              <a href="#" target="_blank" rel="noopener noreferrer" class="ext" id="startIdvWebViewExternalLink">Open in New Tab &#8599;</a>
+              <button class="btn-secondary" type="button" id="startIdvWebViewClose">Close</button>
+            </div>
+          </div>
+          <div class="webview-url" id="startIdvWebViewUrl"></div>
+        </div>
+        <iframe
+          class="webview-frame"
+          id="startIdvWebViewFrame"
+          referrerpolicy="no-referrer"
+          sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+          title="Embedded IDV WebView"
+        ></iframe>
+      </div>
+    </div>
 
     <!-- Tab Navigation -->
     <div class="tab-nav">
@@ -1536,6 +1623,80 @@
         return ok ? formatApiData(data) : text;
       }
 
+      function authUrlFromResponse(data) {
+        return data && (data.start_idv_uri || data.authorization_url);
+      }
+
+      function renderAuthorizationActions(authLinkEl, authUrl) {
+        if (!authLinkEl || !authUrl) return;
+
+        authLinkEl.classList.add('auth-actions');
+
+        const linkEl = authLinkEl.querySelector('a');
+        if (linkEl) {
+          linkEl.href = authUrl;
+        }
+
+        let webViewButton = authLinkEl.querySelector('[data-webview-open]');
+        if (!webViewButton) {
+          webViewButton = document.createElement('button');
+          webViewButton.type = 'button';
+          webViewButton.className = 'btn-secondary webview-open-btn';
+          webViewButton.textContent = 'Open in WebView';
+          webViewButton.setAttribute('data-webview-open', 'true');
+          webViewButton.addEventListener('click', () => {
+            openStartIdvWebView(webViewButton.dataset.webviewUrl);
+          });
+          authLinkEl.appendChild(webViewButton);
+        }
+
+        webViewButton.dataset.webviewUrl = authUrl;
+        authLinkEl.classList.remove('hidden');
+      }
+
+      function resetAuthorizationActions(authLinkEl) {
+        if (!authLinkEl) return;
+        authLinkEl.classList.add('hidden');
+        const webViewButton = authLinkEl.querySelector('[data-webview-open]');
+        if (webViewButton) {
+          webViewButton.dataset.webviewUrl = '';
+        }
+      }
+
+      function openStartIdvWebView(startIdvUri) {
+        if (!startIdvUri) return;
+
+        const overlay = document.getElementById('startIdvWebViewOverlay');
+        const frame = document.getElementById('startIdvWebViewFrame');
+        const urlEl = document.getElementById('startIdvWebViewUrl');
+        const externalLink = document.getElementById('startIdvWebViewExternalLink');
+        if (!overlay || !frame || !urlEl || !externalLink) return;
+
+        frame.src = startIdvUri;
+        urlEl.textContent = startIdvUri;
+        externalLink.href = startIdvUri;
+        overlay.classList.remove('hidden');
+      }
+
+      function closeStartIdvWebView() {
+        const overlay = document.getElementById('startIdvWebViewOverlay');
+        const frame = document.getElementById('startIdvWebViewFrame');
+        if (frame) frame.removeAttribute('src');
+        if (overlay) overlay.classList.add('hidden');
+      }
+
+      function initStartIdvWebViewPanel() {
+        const overlay = document.getElementById('startIdvWebViewOverlay');
+        const closeButton = document.getElementById('startIdvWebViewClose');
+        closeButton?.addEventListener('click', closeStartIdvWebView);
+        overlay?.addEventListener('click', event => {
+          if (event.target === overlay) closeStartIdvWebView();
+        });
+        window.addEventListener('keydown', event => {
+          if (event.key === 'Escape') closeStartIdvWebView();
+        });
+      }
+
       // ══════════════════════════════════════
       // Tab Navigation
       // ══════════════════════════════════════
@@ -1770,6 +1931,7 @@
         const badgeEl = document.getElementById('badge-' + id);
         const authLinkEl = document.getElementById('authlink-' + id);
         const linkEl = authLinkEl?.querySelector('a');
+        const webViewButtonEl = authLinkEl?.querySelector('[data-webview-open]');
         return {
           cardLabel: getCustomCardLabel(id),
           badgeText: badgeEl?.textContent || null,
@@ -1777,6 +1939,8 @@
           cardClassName: cardEl?.className || null,
           authLinkVisible: !!authLinkEl && !authLinkEl.classList.contains('hidden'),
           authLinkHref: linkEl?.href || null,
+          webViewButtonVisible: !!webViewButtonEl && !!authLinkEl && !authLinkEl.classList.contains('hidden'),
+          webViewButtonUrl: webViewButtonEl?.dataset.webviewUrl || null,
         };
       }
 
@@ -1908,7 +2072,7 @@
         const startedAtMs = performance.now();
 
         resultEl.classList.remove('hidden');
-        if (authLinkEl) authLinkEl.classList.add('hidden');
+        resetAuthorizationActions(authLinkEl);
         jsonEl.textContent = 'Requesting...';
         badgeEl.className = 'api-badge api-badge-idle';
         badgeEl.textContent = 'LOADING';
@@ -1982,12 +2146,8 @@
         }
 
         if (ok) {
-          const authUrl = data && (data.start_idv_uri || data.authorization_url);
-          if (authUrl && authLinkEl) {
-            const linkEl = authLinkEl.querySelector('a');
-            linkEl.href = authUrl;
-            authLinkEl.classList.remove('hidden');
-          }
+          const authUrl = authUrlFromResponse(data);
+          renderAuthorizationActions(authLinkEl, authUrl);
 
           if (id === 'pid-existing' && data.pid) {
             document.getElementById('btn-copy-pid').style.display = 'inline-block';
@@ -2616,6 +2776,8 @@
       // ══════════════════════════════════════
       // Quick Jump Sidebar — scroll & highlight
       // ══════════════════════════════════════
+      initStartIdvWebViewPanel();
+
       (function initQuickJump() {
         const items = document.querySelectorAll('.qj-item');
         const sectionIds = Array.from(items).map(i => i.dataset.target);
