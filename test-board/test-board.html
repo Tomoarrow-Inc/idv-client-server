@@ -408,8 +408,10 @@
         box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
       }
       .api-card .actions { margin-top: 10px; }
-      .debug-copy-btn.is-copied { border-color: #2e7d32; color: #2e7d32; background: #e8f5e9; }
-      .debug-copy-btn.is-failed { border-color: #c62828; color: #c62828; background: #ffebee; }
+      .debug-copy-btn.is-copied,
+      .auth-url-copy-btn.is-copied { border-color: #2e7d32; color: #2e7d32; background: #e8f5e9; }
+      .debug-copy-btn.is-failed,
+      .auth-url-copy-btn.is-failed { border-color: #c62828; color: #c62828; background: #ffebee; }
       /* Section card (numbered provider group) */
       .section-card {
         background: #fff;
@@ -1554,6 +1556,19 @@
           linkEl.href = authUrl;
         }
 
+        let copyUrlButton = authLinkEl.querySelector('[data-auth-url-copy]');
+        if (!copyUrlButton) {
+          copyUrlButton = document.createElement('button');
+          copyUrlButton.type = 'button';
+          copyUrlButton.className = 'btn-secondary auth-url-copy-btn';
+          copyUrlButton.textContent = 'Copy URL';
+          copyUrlButton.setAttribute('data-auth-url-copy', 'true');
+          copyUrlButton.addEventListener('click', () => {
+            copyAuthorizationUrl(copyUrlButton.dataset.authUrl, copyUrlButton);
+          });
+          authLinkEl.appendChild(copyUrlButton);
+        }
+
         let webViewButton = authLinkEl.querySelector('[data-webview-open]');
         if (!webViewButton) {
           webViewButton = document.createElement('button');
@@ -1567,6 +1582,7 @@
           authLinkEl.appendChild(webViewButton);
         }
 
+        copyUrlButton.dataset.authUrl = authUrl;
         webViewButton.dataset.webviewUrl = authUrl;
         authLinkEl.classList.remove('hidden');
       }
@@ -1577,6 +1593,32 @@
         const webViewButton = authLinkEl.querySelector('[data-webview-open]');
         if (webViewButton) {
           webViewButton.dataset.webviewUrl = '';
+        }
+        const copyUrlButton = authLinkEl.querySelector('[data-auth-url-copy]');
+        if (copyUrlButton) {
+          copyUrlButton.dataset.authUrl = '';
+          copyUrlButton.classList.remove('is-copied', 'is-failed');
+          copyUrlButton.textContent = 'Copy URL';
+        }
+      }
+
+      function setAuthUrlCopyButtonState(button, state, label) {
+        button.classList.remove('is-copied', 'is-failed');
+        if (state) button.classList.add(state);
+        button.textContent = label;
+        setTimeout(() => {
+          button.classList.remove('is-copied', 'is-failed');
+          button.textContent = 'Copy URL';
+        }, 1400);
+      }
+
+      async function copyAuthorizationUrl(url, button) {
+        if (!url) return;
+        try {
+          await writeClipboardWithFallback(url);
+          setAuthUrlCopyButtonState(button, 'is-copied', 'Copied');
+        } catch (_) {
+          setAuthUrlCopyButtonState(button, 'is-failed', 'Copy failed');
         }
       }
 

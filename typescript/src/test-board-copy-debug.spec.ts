@@ -126,7 +126,7 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain('actionsEl.appendChild(button)');
   });
 
-  it('adds a WebView launch button for returned start IDV URLs without replacing the new-tab link', () => {
+  it('adds launch and copy actions for returned start IDV URLs without replacing the new-tab link', () => {
     const html = readTestBoardHtml();
 
     expect(html).toContain('function authUrlFromResponse(data) {');
@@ -135,6 +135,15 @@ describe('test-board Custom KYC debug copy', () => {
       'function renderAuthorizationActions(authLinkEl, authUrl) {',
     );
     expect(html).toContain('linkEl.href = authUrl;');
+    expect(html).toContain("copyUrlButton.textContent = 'Copy URL'");
+    expect(html).toContain(
+      "copyUrlButton.setAttribute('data-auth-url-copy', 'true')",
+    );
+    expect(html).toContain(
+      'copyAuthorizationUrl(copyUrlButton.dataset.authUrl, copyUrlButton)',
+    );
+    expect(html).toContain('copyUrlButton.dataset.authUrl = authUrl;');
+    expect(html).toContain('await writeClipboardWithFallback(url);');
     expect(html).toContain("webViewButton.textContent = 'Open in WebView'");
     expect(html).toContain(
       "webViewButton.setAttribute('data-webview-open', 'true')",
