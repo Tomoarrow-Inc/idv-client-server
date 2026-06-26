@@ -514,68 +514,6 @@
       }
       .ppid-copy-btn.is-copied { border-color: #2e7d32; color: #2e7d32; background: #f1f8e9; }
       .ppid-copy-btn.is-failed { border-color: #c62828; color: #c62828; background: #ffebee; }
-      .ppid-decrypt-panel {
-        border-top: 1px solid #e0e0e0;
-        background: #fbfbfb;
-      }
-      .ppid-decrypt-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-      .ppid-decrypt-label {
-        display: block;
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: #555;
-        margin: 0 0 4px;
-        text-transform: uppercase;
-      }
-      .ppid-decrypt-input {
-        width: 100%;
-        min-height: 74px;
-        resize: vertical;
-        padding: 8px 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 0.82rem;
-        font-family: 'SF Mono', 'Fira Code', monospace;
-        color: #263238;
-        background: #fff;
-        word-break: break-all;
-      }
-      .ppid-decrypt-input:focus {
-        outline: none;
-        border-color: #1976d2;
-        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
-      }
-      .ppid-decrypt-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      .ppid-decrypt-result {
-        margin-top: 10px;
-        padding: 10px;
-        border-radius: 4px;
-        font-family: 'SF Mono', 'Fira Code', monospace;
-        font-size: 0.86rem;
-        word-break: break-all;
-        display: none;
-      }
-      .ppid-decrypt-result.ok {
-        display: block;
-        background: #e8f5e9;
-        color: #1b5e20;
-        border: 1px solid #a5d6a7;
-      }
-      .ppid-decrypt-result.error {
-        display: block;
-        background: #ffebee;
-        color: #b71c1c;
-        border: 1px solid #ffcdd2;
-      }
       /* ── Quick Jump Sidebar (Custom KYC only) ── */
       .qj-sidebar {
         position: fixed;
@@ -664,7 +602,6 @@
     <!-- Tab Navigation -->
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('custom')">Custom KYC</button>
-      <button class="tab-btn" onclick="switchTab('ppid-decrypt')">PPID Decrypt</button>
     </div>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -1576,26 +1513,6 @@
 
     </div><!-- end tab-custom -->
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- TAB: PPID Decrypt                            -->
-    <!-- ═══════════════════════════════════════════ -->
-    <div class="tab-content" id="tab-ppid-decrypt">
-      <div class="card" style="border-left: 4px solid #2e7d32">
-        <h2>PPID Decrypt</h2>
-        <label for="manualEncryptedPpid">Encrypted PPID</label>
-        <textarea class="ppid-decrypt-input" id="manualEncryptedPpid" rows="4"></textarea>
-
-        <label for="manualPpidSecret">Secret Key / Private JWK</label>
-        <textarea class="ppid-decrypt-input" id="manualPpidSecret" rows="4" placeholder="Paste TOMO_IDV_SECRET or EC P-256 private JWK"></textarea>
-
-        <div class="ppid-decrypt-actions">
-          <button class="btn-primary" id="btnManualPpidDecrypt" onclick="decryptManualPpid()">Decrypt PPID</button>
-          <span class="status info" id="manualPpidStatus">Ready</span>
-        </div>
-        <div class="ppid-decrypt-result" id="manualPpidResult"></div>
-      </div>
-    </div><!-- end tab-ppid-decrypt -->
-
     <div class="footer">
       <a href="/api-docs" class="ext">Swagger UI (/api-docs) &rarr;</a>
     </div>
@@ -1778,7 +1695,7 @@
         // ── Visible API Tests ──
         // 'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'api-result': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, includeDefaultEmail: false, body: () => ({ user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb' }) },
+        'api-result': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, includeDefaultEmail: false, body: () => ({ user_id: 'ppid.AQAAAAEAIDnz8lnVJbayAXTGHVOf042qcMc8cZTBsiRsScq-EBZKIG6fXJq_7UDCGdAFMVFIvqQ6yvIdw19EF43u4_O0ORiZ' }) },
         // ── US ──
         'us-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'us-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
@@ -2172,10 +2089,6 @@
                 html += '<div class="jwt-section"><div class="jwt-section-title">Header</div>' + renderClaimsTable(jwt.header) + '</div>';
                 html += '<div class="jwt-section"><div class="jwt-section-title">Payload (Claims)</div>' + renderClaimsTable(jwt.payload) + '</div></div>';
                 stInspector.innerHTML = html;
-                renderPpidDecryptPanel(
-                  stInspector.querySelector('.jwt-inspector'),
-                  selectEncryptedPpid(data.ppid, jwt.payload),
-                );
               }
             }
           }
@@ -2217,212 +2130,6 @@
         } catch (e) { return false; }
       }
 
-      function textToBytes(value) {
-        return new TextEncoder().encode(value);
-      }
-
-      function bytesToText(value) {
-        return new TextDecoder().decode(value);
-      }
-
-      function concatBytes(parts) {
-        const chunks = parts.map(part => part instanceof Uint8Array ? part : new Uint8Array(part));
-        const total = chunks.reduce((sum, part) => sum + part.length, 0);
-        const out = new Uint8Array(total);
-        let offset = 0;
-        chunks.forEach(part => {
-          out.set(part, offset);
-          offset += part.length;
-        });
-        return out;
-      }
-
-      function uint32be(value) {
-        const out = new Uint8Array(4);
-        new DataView(out.buffer).setUint32(0, value, false);
-        return out;
-      }
-
-      function lengthPrefixedAscii(value) {
-        const bytes = textToBytes(value);
-        return concatBytes([uint32be(bytes.length), bytes]);
-      }
-
-      function isCompactPpidJwe(value) {
-        if (!value || typeof value !== 'string') return false;
-        const parts = value.split('.');
-        return parts.length === 5
-          && parts[0] !== ''
-          && parts[1] === ''
-          && parts[2] !== ''
-          && parts[3] !== ''
-          && parts[4] !== '';
-      }
-
-      function selectEncryptedPpid(ppidValue, payload) {
-        const values = [
-          ppidValue,
-          payload && payload.ppid,
-          payload && payload.sub,
-        ].filter(value => typeof value === 'string' && value.trim() !== '');
-        const compact = values.find(isCompactPpidJwe);
-        if (compact) return compact;
-        if (payload && payload.sub_type === 'encrypted_ppid' && typeof payload.sub === 'string') {
-          return payload.sub;
-        }
-        return '';
-      }
-
-      function parseJsonObject(text) {
-        try {
-          const parsed = JSON.parse(text);
-          return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
-        } catch (e) {
-          return null;
-        }
-      }
-
-      function uniqueStrings(values) {
-        const seen = new Set();
-        return values.filter(value => {
-          if (typeof value !== 'string') return false;
-          const trimmed = value.trim();
-          if (!trimmed || seen.has(trimmed)) return false;
-          seen.add(trimmed);
-          return true;
-        }).map(value => value.trim());
-      }
-
-      function base64TextToBytes(value) {
-        const raw = atob(value);
-        return Uint8Array.from(raw, c => c.charCodeAt(0));
-      }
-
-      function hexToBytes(value) {
-        const clean = value.trim();
-        if (!/^[0-9a-fA-F]+$/.test(clean) || clean.length % 2 !== 0) {
-          throw new Error('Invalid hex');
-        }
-        const out = new Uint8Array(clean.length / 2);
-        for (let i = 0; i < clean.length; i += 2) {
-          out[i / 2] = parseInt(clean.slice(i, i + 2), 16);
-        }
-        return out;
-      }
-
-      function pemToPkcs8Bytes(value) {
-        if (/BEGIN EC PRIVATE KEY/.test(value)) {
-          throw new Error('SEC1 EC PRIVATE KEY is not supported in this browser panel. Use TOMO_IDV_SECRET or PKCS8 PRIVATE KEY.');
-        }
-        if (!/BEGIN PRIVATE KEY/.test(value)) {
-          throw new Error('Not a PKCS8 private key PEM');
-        }
-        const body = value
-          .replace(/-----BEGIN PRIVATE KEY-----/g, '')
-          .replace(/-----END PRIVATE KEY-----/g, '')
-          .replace(/\s+/g, '');
-        return base64TextToBytes(body);
-      }
-
-      function normalizePrivateJwk(jwk) {
-        if (!jwk || jwk.kty !== 'EC' || jwk.crv !== 'P-256' || !jwk.d) {
-          throw new Error('Expected an EC P-256 private JWK with d');
-        }
-        if (!jwk.x || !jwk.y) {
-          throw new Error('Raw private scalar d is not enough here. Paste TOMO_IDV_SECRET or a full private JWK with x, y, and d.');
-        }
-        return {
-          kty: 'EC',
-          crv: 'P-256',
-          x: jwk.x,
-          y: jwk.y,
-          d: jwk.d,
-        };
-      }
-
-      async function importPpidPrivateKey(secretValue) {
-        const raw = String(secretValue || '').trim();
-        if (!raw) throw new Error('Secret key is required');
-
-        const textCandidates = uniqueStrings([
-          raw,
-          (() => { try { return decodeURIComponent(raw); } catch (e) { return ''; } })(),
-          (() => { try { return b64urlDecode(raw); } catch (e) { return ''; } })(),
-        ]);
-
-        for (const candidate of textCandidates) {
-          if (candidate.includes('BEGIN PRIVATE KEY') || candidate.includes('BEGIN EC PRIVATE KEY')) {
-            const pkcs8 = pemToPkcs8Bytes(candidate);
-            return crypto.subtle.importKey('pkcs8', pkcs8, { name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']);
-          }
-
-          const jwk = parseJsonObject(candidate);
-          if (jwk) {
-            return crypto.subtle.importKey('jwk', normalizePrivateJwk(jwk), { name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']);
-          }
-        }
-
-        const rawByteCandidates = [];
-        try { rawByteCandidates.push(b64urlToUint8(raw)); } catch (e) {}
-        try { rawByteCandidates.push(base64TextToBytes(raw)); } catch (e) {}
-        try { rawByteCandidates.push(hexToBytes(raw)); } catch (e) {}
-        if (rawByteCandidates.some(bytes => bytes.length === 32)) {
-          throw new Error('This looks like a raw P-256 private scalar. Paste TOMO_IDV_SECRET or a full private JWK with x, y, and d.');
-        }
-
-        throw new Error('Could not parse secret key as TOMO_IDV_SECRET, private JWK, or PKCS8 PEM.');
-      }
-
-      async function decryptCompactPpidJwe(compact, secretValue) {
-        if (!isCompactPpidJwe(compact)) {
-          throw new Error('Encrypted PPID must be compact JWE: protected..iv.ciphertext.tag');
-        }
-
-        const [protectedPart, encryptedKeyPart, ivPart, ciphertextPart, tagPart] = compact.split('.');
-        if (encryptedKeyPart !== '') {
-          throw new Error('Expected empty encrypted_key for ECDH-ES');
-        }
-
-        const header = JSON.parse(b64urlDecode(protectedPart));
-        if (header.alg !== 'ECDH-ES' || header.enc !== 'A256GCM') {
-          throw new Error('Unsupported PPID JWE alg/enc: ' + header.alg + '/' + header.enc);
-        }
-        if (!header.epk || header.epk.kty !== 'EC' || header.epk.crv !== 'P-256') {
-          throw new Error('PPID JWE header is missing a P-256 ephemeral public key');
-        }
-
-        const privateKey = await importPpidPrivateKey(secretValue);
-        const publicKey = await crypto.subtle.importKey(
-          'jwk',
-          { kty: 'EC', crv: 'P-256', x: header.epk.x, y: header.epk.y },
-          { name: 'ECDH', namedCurve: 'P-256' },
-          false,
-          [],
-        );
-        const sharedSecret = new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: publicKey }, privateKey, 256));
-
-        const otherInfo = concatBytes([
-          lengthPrefixedAscii('A256GCM'),
-          uint32be(0),
-          uint32be(0),
-          uint32be(256),
-        ]);
-        const cek = await crypto.subtle.digest('SHA-256', concatBytes([uint32be(1), sharedSecret, otherInfo]));
-        const aesKey = await crypto.subtle.importKey('raw', cek, { name: 'AES-GCM' }, false, ['decrypt']);
-        const plaintext = await crypto.subtle.decrypt(
-          {
-            name: 'AES-GCM',
-            iv: b64urlToUint8(ivPart),
-            additionalData: textToBytes(protectedPart),
-            tagLength: 128,
-          },
-          aesKey,
-          concatBytes([b64urlToUint8(ciphertextPart), b64urlToUint8(tagPart)]),
-        );
-
-        return bytesToText(new Uint8Array(plaintext));
-      }
-
       function renderClaimsTable(obj) {
         let html = '<table class="claims-table">';
         for (const [k, v] of Object.entries(obj)) {
@@ -2452,23 +2159,18 @@
         if (!container) return;
 
         // Extract token and key from URL
-        let tokenStr, jwkJson, ppidStr;
+        let tokenStr, jwkJson;
         try {
           const url = new URL(startIdvUri);
           tokenStr = url.searchParams.get('token');
-          ppidStr = url.searchParams.get('ppid');
           const keyB64 = url.searchParams.get('key');
           if (keyB64) jwkJson = JSON.parse(b64urlDecode(keyB64));
         } catch (e) {
           // Try manual extraction for non-standard URLs
           const tokenMatch = startIdvUri.match(/[?&]token=([^&]+)/);
           const keyMatch = startIdvUri.match(/[?&]key=([^&]+)/);
-          const ppidMatch = startIdvUri.match(/[?&]ppid=([^&]+)/);
           if (tokenMatch) tokenStr = tokenMatch[1];
           if (keyMatch) try { jwkJson = JSON.parse(b64urlDecode(keyMatch[1])); } catch(e2) {}
-          if (ppidMatch) {
-            try { ppidStr = decodeURIComponent(ppidMatch[1]); } catch (e3) { ppidStr = ppidMatch[1]; }
-          }
         }
 
         if (!tokenStr) {
@@ -2501,10 +2203,6 @@
 
         html += '</div>';
         container.innerHTML = html;
-        renderPpidDecryptPanel(
-          container.querySelector('.jwt-inspector'),
-          selectEncryptedPpid(ppidStr, jwt.payload),
-        );
       }
 
       function parseJwkParam(value) {
@@ -2579,88 +2277,6 @@
         container.appendChild(section);
       }
 
-      function renderPpidDecryptPanel(container, encryptedPpid) {
-        if (!container || !encryptedPpid) return;
-        const encryptedPpidValue = String(encryptedPpid);
-
-        const section = document.createElement('div');
-        section.className = 'jwt-section ppid-decrypt-panel';
-
-        const grid = document.createElement('div');
-        grid.className = 'ppid-decrypt-grid';
-
-        const secretWrap = document.createElement('div');
-        const secretLabel = document.createElement('label');
-        secretLabel.className = 'ppid-decrypt-label';
-        secretLabel.textContent = 'Secret Key / Private JWK';
-        const secretInput = document.createElement('textarea');
-        secretInput.className = 'ppid-decrypt-input';
-        secretInput.placeholder = 'Paste TOMO_IDV_SECRET or EC P-256 private JWK';
-        secretInput.rows = 3;
-        secretWrap.appendChild(secretLabel);
-        secretWrap.appendChild(secretInput);
-
-        const actions = document.createElement('div');
-        actions.className = 'ppid-decrypt-actions';
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'btn-secondary';
-        button.textContent = 'Decrypt PPID';
-        const status = document.createElement('span');
-        status.className = 'status info';
-        status.textContent = 'Ready';
-        actions.appendChild(button);
-        actions.appendChild(status);
-
-        const result = document.createElement('div');
-        result.className = 'ppid-decrypt-result';
-
-        button.addEventListener('click', () => runPpidDecrypt(encryptedPpidValue, secretInput.value, button, status, result));
-
-        grid.appendChild(secretWrap);
-        grid.appendChild(actions);
-        grid.appendChild(result);
-        section.appendChild(grid);
-        container.appendChild(section);
-      }
-
-      async function runPpidDecrypt(encryptedPpid, secretValue, button, status, result) {
-        button.disabled = true;
-        status.className = 'status info';
-        status.textContent = 'Decrypting...';
-        result.className = 'ppid-decrypt-result';
-        result.textContent = '';
-
-        try {
-          if (!window.crypto || !window.crypto.subtle) {
-            throw new Error('WebCrypto is unavailable. Open the test board over http://localhost or HTTPS.');
-          }
-          const rawPpid = await decryptCompactPpidJwe(String(encryptedPpid || '').trim(), secretValue);
-          status.className = 'status ok';
-          status.textContent = 'Decrypted';
-          result.className = 'ppid-decrypt-result ok';
-          result.textContent = rawPpid;
-        } catch (e) {
-          status.className = 'status error';
-          status.textContent = 'Failed';
-          result.className = 'ppid-decrypt-result error';
-          result.textContent = e && e.message ? e.message : String(e);
-        } finally {
-          button.disabled = false;
-        }
-      }
-
-      function decryptManualPpid() {
-        const encryptedInput = document.getElementById('manualEncryptedPpid');
-        const secretInput = document.getElementById('manualPpidSecret');
-        const button = document.getElementById('btnManualPpidDecrypt');
-        const status = document.getElementById('manualPpidStatus');
-        const result = document.getElementById('manualPpidResult');
-        if (!encryptedInput || !secretInput || !button || !status || !result) return;
-
-        runPpidDecrypt(encryptedInput.value, secretInput.value, button, status, result);
-      }
-
       async function copyUrlPpid(ppid, button) {
         try {
           await writeClipboardWithFallback(ppid);
@@ -2687,7 +2303,6 @@
         const params = new URLSearchParams(window.location.search);
         const tokenStr = params.get('token');
         const keyStr = params.get('key');
-        const ppidStr = params.get('ppid');
         if (!tokenStr) return;
 
         card.classList.remove('hidden');
@@ -2705,7 +2320,6 @@
 
         renderUrlTokenStatus(inspector, 'valid', 'Token decoded from URL query');
         renderUrlPpidHighlight(inspector, jwt.payload.sub);
-        renderPpidDecryptPanel(inspector, selectEncryptedPpid(ppidStr, jwt.payload));
         renderDecodedJsonBlock(inspector, 'Decoded Header', jwt.header);
         renderDecodedJsonBlock(inspector, 'Decoded Payload', jwt.payload);
 
