@@ -1736,7 +1736,7 @@
       const CUSTOM_CARDS = {
         // ── Visible API Tests ──
         // 'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
-        'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
+        'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ country: 'us', redirect_url_success: window.location.origin + '/test-board?success=1', redirect_url_fail: window.location.origin + '/test-board?fail=1', kyc_policy: personalInfoSmsPolicy() }) },
         'api-result': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, includeDefaultEmail: false, body: () => ({ user_id: 'ppid.AQAAAAEAIDnz8lnVJbayAXTGHVOf042qcMc8cZTBsiRsScq-EBZKIG6fXJq_7UDCGdAFMVFIvqQ6yvIdw19EF43u4_O0ORiZ' }) },
         // ── US ──
         'us-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
