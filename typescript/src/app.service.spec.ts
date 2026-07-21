@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import type { ResetRes } from 'tomo-idv-client-node';
 import { AppService } from './app.service';
 
 describe('AppService idv-server requests', () => {
@@ -61,6 +62,28 @@ describe('AppService idv-server requests', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
+  it('uses the SDK client for policy reset', async () => {
+    global.fetch = jest.fn();
+    const body = {
+      country: 'us',
+      kyc_policy: { preset: 'basic' },
+      user_id: 'user-reset',
+    };
+    const resetResponse: ResetRes = { status: 'reset' };
+    const apiMock = {
+      v1IdvResetPost: jest.fn().mockResolvedValue(resetResponse),
+    };
+    const service = createService(apiMock);
+
+    const result = await service.idvReset(body as never);
+
+    expect(apiMock.v1IdvResetPost).toHaveBeenCalledWith({
+      ResetReq: body,
+    });
+    expect(result).toBe(resetResponse);
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
   it('uses transparent fetch proxy for deprecated compatibility routes', async () => {
     process.env.IDV_BASE_URL = 'https://idv.example';
     const body = { user_id: 'user-compat', country: 'us' };
@@ -86,13 +109,14 @@ describe('AppService idv-server requests', () => {
     });
   });
 
-  it('keeps public IDV start/result methods on the SDK path', () => {
-    // Static regression check: /v1/idv/start and /v1/idv/result stay on the
-    // generated SDK methods. Deprecated compatibility routes use proxyPost.
+  it('keeps public IDV start/result/reset methods on the SDK path', () => {
+    // Static regression check: public IDV routes stay on the generated SDK
+    // methods. Deprecated compatibility routes use proxyPost.
     const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
 
     expect(source).toMatch(/\bthis\.api\.v1IdvStartPost\s*\(/);
     expect(source).toMatch(/\bthis\.api\.v1IdvResultPost\s*\(/);
+    expect(source).toMatch(/\bthis\.api\.v1IdvResetPost\s*\(/);
     expect(source).toMatch(/\bproxyPost\s*\(/);
   });
 

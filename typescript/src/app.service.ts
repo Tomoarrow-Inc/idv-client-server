@@ -8,6 +8,8 @@ import type {
   ResultRes,
   StartIdvReq,
   ResultReq,
+  ResetReq,
+  ResetRes,
 } from 'tomo-idv-client-node';
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
@@ -70,6 +72,12 @@ export class AppService {
   async idvResult(body: ResultReq): Promise<ResultRes> {
     return this.api.v1IdvResultPost({
       ResultReq: body,
+    });
+  }
+
+  async idvReset(body: ResetReq): Promise<ResetRes> {
+    return this.api.v1IdvResetPost({
+      ResetReq: body,
     });
   }
 

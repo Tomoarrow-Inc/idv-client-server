@@ -547,6 +547,43 @@
                 ],
                 "type": "object"
             },
+            "ResetReq": {
+                "properties": {
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
+                    "kyc_policy": {
+                        "$ref": "#/components/schemas/KycPolicy"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id",
+                    "country",
+                    "kyc_policy"
+                ],
+                "type": "object"
+            },
+            "ResetRes": {
+                "properties": {
+                    "status": {
+                        "$ref": "#/components/schemas/ResetStatus"
+                    }
+                },
+                "required": [
+                    "status"
+                ],
+                "type": "object"
+            },
+            "ResetStatus": {
+                "enum": [
+                    "reset",
+                    "not_resettable"
+                ],
+                "type": "string"
+            },
             "ResultBulkDeleteReq": {
                 "properties": {
                     "user_ids": {
@@ -1306,6 +1343,39 @@
                             "application/json;charset=utf-8": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GetKycRes"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body` or `Authorization`"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1/idv/reset": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetReq"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResetRes"
                                 }
                             }
                         },

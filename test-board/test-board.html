@@ -635,7 +635,7 @@
         </div>
       </div>
 
-      <!-- API Tests: only the current public start/result APIs are visible. -->
+      <!-- API Tests: only the current public start/result/reset APIs are visible. -->
       <hr class="section-divider">
       <div class="section-card" id="section-api-tests">
         <h2><span class="step">1</span>API Tests</h2>
@@ -674,6 +674,23 @@
         </div>
         <div id="result-api-result" class="hidden">
           <pre id="json-api-result"></pre>
+        </div>
+      </div>
+
+      <p class="substep-title"><span class="substep">1-3</span> POST /v1/idv/reset</p>
+
+      <div class="api-card" id="card-api-reset">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/reset</span>
+          <span class="api-badge api-badge-idle" id="badge-api-reset">NOT TESTED</span>
+        </div>
+        <p class="note">country와 kyc_policy에 해당하는 user_id의 기존 인증 결과를 reset합니다.</p>
+        <textarea class="json-editor" id="body-api-reset"></textarea>
+        <div class="actions">
+          <button class="btn-primary" onclick="sendCustom('api-reset')">Send</button>
+        </div>
+        <div id="result-api-reset" class="hidden">
+          <pre id="json-api-reset"></pre>
         </div>
       </div>
 
@@ -1711,6 +1728,7 @@
       const EXPECTED_RESPONSES = {
         startOk: { statuses: [200, 201], bodyShape: ['start_idv_uri or authorization_url'], description: 'IDV start should return a launch URL for the provider or complete flow.' },
         resultOk: { statuses: [200, 201], bodyShape: ['KYC result JSON object'], description: 'IDV result should return the selected user identity verification result.' },
+        resetOk: { status: 200, bodyContains: '"status":"reset"', bodyShape: ['{ "status": "reset" }'], description: 'IDV reset should return the upstream reset status JSON.' },
         emailFallback: { status: 200, bodyShape: ['start_idv_uri for email fallback flow'], description: 'Missing Plaid email should return an idv-app fallback URL before vendor redirect.' },
         policyMissing: { statuses: [200, 201], bodyShape: ['start_idv_uri or authorization_url'], description: 'Missing kyc_policy should apply the country default policy.' },
         policyUnsupported: { status: 400, bodyContains: 'Unsupported kyc_policy', description: 'Unsupported Country x Subject x Method x OwnerAssurance combinations should fail validation.' },
@@ -1738,6 +1756,7 @@
         // 'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ country: 'us', redirect_url_success: window.location.origin + '/test-board?success=1', redirect_url_fail: window.location.origin + '/test-board?fail=1', kyc_policy: personalInfoSmsPolicy() }) },
         'api-result': { endpoint: '/v1/idv/result', expectedResponse: EXPECTED_RESPONSES.resultOk, includeDefaultEmail: false, body: () => ({ user_id: 'ppid.AQAAAAEAIDnz8lnVJbayAXTGHVOf042qcMc8cZTBsiRsScq-EBZKIG6fXJq_7UDCGdAFMVFIvqQ6yvIdw19EF43u4_O0ORiZ' }) },
+        'api-reset':  { endpoint: '/v1/idv/reset', expectedResponse: EXPECTED_RESPONSES.resetOk, includeDefaultEmail: false, body: () => ({ country: 'us', kyc_policy: personalInfoSmsPolicy(), user_id: 'ppid.AQAAAAEAIDnz8lnVJbayAXTGHVOf042qcMc8cZTBsiRsScq-EBZKIG6fXJq_7UDCGdAFMVFIvqQ6yvIdw19EF43u4_O0ORiZ' }) },
         // ── US ──
         'us-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'us-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },

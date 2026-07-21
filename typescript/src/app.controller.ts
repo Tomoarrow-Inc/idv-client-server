@@ -1,4 +1,11 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import type {
   TokenRes,
@@ -6,6 +13,8 @@ import type {
   ResultRes,
   StartIdvReq,
   ResultReq,
+  ResetReq,
+  ResetRes,
 } from 'tomo-idv-client-node';
 import { rethrowUpstream } from './upstream-response';
 
@@ -39,6 +48,16 @@ export class AppController {
   async idvResult(@Body() body: ResultReq): Promise<ResultRes> {
     try {
       return await this.appService.idvResult(body);
+    } catch (e) {
+      return rethrowUpstream(e);
+    }
+  }
+
+  @Post('/v1/idv/reset')
+  @HttpCode(HttpStatus.OK)
+  async idvReset(@Body() body: ResetReq): Promise<ResetRes> {
+    try {
+      return await this.appService.idvReset(body);
     } catch (e) {
       return rethrowUpstream(e);
     }
