@@ -504,6 +504,567 @@
                 ],
                 "type": "object"
             },
+            "KycAddressView": {
+                "properties": {
+                    "city": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "country": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "full": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "postal_code": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "region": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "street": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "street2": {
+                        "nullable": true,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "full",
+                    "street",
+                    "street2",
+                    "city",
+                    "region",
+                    "postal_code",
+                    "country"
+                ],
+                "type": "object"
+            },
+            "KycAttributeMatchView": {
+                "properties": {
+                    "address": {
+                        "$ref": "#/components/schemas/KycMatchOutcome"
+                    },
+                    "date_of_birth": {
+                        "$ref": "#/components/schemas/KycMatchOutcome"
+                    },
+                    "id_number": {
+                        "$ref": "#/components/schemas/KycMatchOutcome"
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/KycMatchOutcome"
+                    },
+                    "phone": {
+                        "$ref": "#/components/schemas/KycMatchOutcome"
+                    }
+                },
+                "required": [
+                    "name",
+                    "date_of_birth",
+                    "address",
+                    "phone",
+                    "id_number"
+                ],
+                "type": "object"
+            },
+            "KycBiometricCheckView": {
+                "properties": {
+                    "attempts": {
+                        "maximum": 9223372036854775807,
+                        "minimum": -9223372036854775808,
+                        "nullable": true,
+                        "type": "integer"
+                    },
+                    "document_comparison": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    },
+                    "face_match": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    },
+                    "liveness": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    },
+                    "outcome": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    },
+                    "similarity_score": {
+                        "format": "double",
+                        "nullable": true,
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "outcome",
+                    "liveness",
+                    "face_match",
+                    "document_comparison",
+                    "similarity_score",
+                    "attempts"
+                ],
+                "type": "object"
+            },
+            "KycCertificateCheckView": {
+                "properties": {
+                    "outcome": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    },
+                    "valid_from": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "valid_to": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "verified_at": {
+                        "nullable": true,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "outcome",
+                    "verified_at",
+                    "valid_from",
+                    "valid_to"
+                ],
+                "type": "object"
+            },
+            "KycCheckOutcome": {
+                "enum": [
+                    "passed",
+                    "failed",
+                    "not_performed"
+                ],
+                "type": "string"
+            },
+            "KycChecksView": {
+                "properties": {
+                    "biometric": {
+                        "$ref": "#/components/schemas/KycBiometricCheckView"
+                    },
+                    "certificate": {
+                        "$ref": "#/components/schemas/KycCertificateCheckView"
+                    },
+                    "data_source": {
+                        "$ref": "#/components/schemas/KycDataSourceCheckView"
+                    },
+                    "document": {
+                        "$ref": "#/components/schemas/KycDocumentCheckView"
+                    },
+                    "phone_verification": {
+                        "$ref": "#/components/schemas/KycPhoneVerificationCheckView"
+                    },
+                    "risk": {
+                        "$ref": "#/components/schemas/KycRiskCheckView"
+                    },
+                    "watchlist": {
+                        "$ref": "#/components/schemas/KycWatchlistCheckView"
+                    }
+                },
+                "required": [
+                    "document",
+                    "biometric",
+                    "data_source",
+                    "certificate",
+                    "risk",
+                    "watchlist",
+                    "phone_verification"
+                ],
+                "type": "object"
+            },
+            "KycContactView": {
+                "properties": {
+                    "email_address": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "phone_number": {
+                        "nullable": true,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email_address",
+                    "phone_number"
+                ],
+                "type": "object"
+            },
+            "KycDataComparisonView": {
+                "properties": {
+                    "date_of_birth": {
+                        "$ref": "#/components/schemas/KycMatchOutcome"
+                    },
+                    "expiration_date": {
+                        "$ref": "#/components/schemas/KycMatchOutcome"
+                    },
+                    "issuing_country": {
+                        "$ref": "#/components/schemas/KycMatchOutcome"
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/KycMatchOutcome"
+                    }
+                },
+                "required": [
+                    "name",
+                    "date_of_birth",
+                    "expiration_date",
+                    "issuing_country"
+                ],
+                "type": "object"
+            },
+            "KycDataSourceCheckView": {
+                "properties": {
+                    "address_type": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "attribute_match": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KycAttributeMatchView"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "outcome": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    }
+                },
+                "required": [
+                    "outcome",
+                    "attribute_match",
+                    "address_type"
+                ],
+                "type": "object"
+            },
+            "KycDocumentCategory": {
+                "enum": [
+                    "drivers_license",
+                    "id_card",
+                    "passport",
+                    "residence_permit_card",
+                    "residence_card",
+                    "my_number_card",
+                    "visa"
+                ],
+                "type": "string"
+            },
+            "KycDocumentCheckView": {
+                "properties": {
+                    "attempts": {
+                        "maximum": 9223372036854775807,
+                        "minimum": -9223372036854775808,
+                        "nullable": true,
+                        "type": "integer"
+                    },
+                    "authenticity": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "data_comparison": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KycDataComparisonView"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "image_quality": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "outcome": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    }
+                },
+                "required": [
+                    "outcome",
+                    "authenticity",
+                    "image_quality",
+                    "data_comparison",
+                    "attempts"
+                ],
+                "type": "object"
+            },
+            "KycDocumentExtractView": {
+                "properties": {
+                    "category": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "date_of_birth": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "expiration_date": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "family_name": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "given_name": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "id_number": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "issuing_country": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "issuing_region": {
+                        "nullable": true,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "category",
+                    "id_number",
+                    "issuing_country",
+                    "issuing_region",
+                    "date_of_birth",
+                    "expiration_date",
+                    "family_name",
+                    "given_name"
+                ],
+                "type": "object"
+            },
+            "KycDocumentView": {
+                "properties": {
+                    "category": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KycDocumentCategory"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "expiration_date": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "extracted": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KycDocumentExtractView"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "issuing_country": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "issuing_region": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "number": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "residence_permit": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KycResidencePermitView"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "category",
+                    "number",
+                    "issuing_country",
+                    "issuing_region",
+                    "expiration_date",
+                    "extracted",
+                    "residence_permit"
+                ],
+                "type": "object"
+            },
+            "KycFieldProvenanceView": {
+                "properties": {
+                    "derived_fields": {
+                        "items": {
+                            "$ref": "#/components/schemas/KycStandardField"
+                        },
+                        "type": "array"
+                    },
+                    "missing_fields": {
+                        "items": {
+                            "$ref": "#/components/schemas/KycStandardField"
+                        },
+                        "type": "array"
+                    },
+                    "not_collected_fields": {
+                        "items": {
+                            "$ref": "#/components/schemas/KycStandardField"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "missing_fields",
+                    "not_collected_fields",
+                    "derived_fields"
+                ],
+                "type": "object"
+            },
+            "KycGovernmentIdView": {
+                "properties": {
+                    "type": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "type",
+                    "value"
+                ],
+                "type": "object"
+            },
+            "KycMatchOutcome": {
+                "enum": [
+                    "match",
+                    "partial_match",
+                    "no_match",
+                    "not_checked"
+                ],
+                "type": "string"
+            },
+            "KycMediaKind": {
+                "enum": [
+                    "document_front",
+                    "document_back",
+                    "portrait",
+                    "selfie_image",
+                    "selfie_video"
+                ],
+                "type": "string"
+            },
+            "KycMediaView": {
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/KycMediaKind"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "url"
+                ],
+                "type": "object"
+            },
+            "KycNameVariantKind": {
+                "enum": [
+                    "phonetic",
+                    "phonetic_half_width",
+                    "alternate_script",
+                    "previous"
+                ],
+                "type": "string"
+            },
+            "KycNameVariantView": {
+                "properties": {
+                    "kind": {
+                        "$ref": "#/components/schemas/KycNameVariantKind"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "value"
+                ],
+                "type": "object"
+            },
+            "KycPersonView": {
+                "properties": {
+                    "date_of_birth": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "family_name": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "full_name": {
+                        "type": "string"
+                    },
+                    "given_name": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "government_id": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KycGovernmentIdView"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "name_variants": {
+                        "items": {
+                            "$ref": "#/components/schemas/KycNameVariantView"
+                        },
+                        "type": "array"
+                    },
+                    "nationality": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "sex": {
+                        "nullable": true,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "full_name",
+                    "family_name",
+                    "given_name",
+                    "date_of_birth",
+                    "sex",
+                    "nationality",
+                    "name_variants",
+                    "government_id"
+                ],
+                "type": "object"
+            },
+            "KycPhoneVerificationCheckView": {
+                "properties": {
+                    "attempts": {
+                        "maximum": 9223372036854775807,
+                        "minimum": -9223372036854775808,
+                        "nullable": true,
+                        "type": "integer"
+                    },
+                    "outcome": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    }
+                },
+                "required": [
+                    "outcome",
+                    "attempts"
+                ],
+                "type": "object"
+            },
             "KycPolicy": {
                 "properties": {
                     "method": {
@@ -519,6 +1080,225 @@
                         "type": "object"
                     }
                 },
+                "type": "object"
+            },
+            "KycProcessStepsView": {
+                "properties": {
+                    "biometric_check": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "data_source_check": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "document_check": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "phone_verification": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "risk_check": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "terms_acceptance": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "watchlist_screening": {
+                        "nullable": true,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "terms_acceptance",
+                    "document_check",
+                    "data_source_check",
+                    "risk_check",
+                    "biometric_check",
+                    "phone_verification",
+                    "watchlist_screening"
+                ],
+                "type": "object"
+            },
+            "KycProcessView": {
+                "properties": {
+                    "steps": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KycProcessStepsView"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "steps"
+                ],
+                "type": "object"
+            },
+            "KycResidencePermitView": {
+                "properties": {
+                    "card_type": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "comprehensive_permission": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "individual_permission": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "info_type": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "update_status": {
+                        "nullable": true,
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "comprehensive_permission",
+                    "individual_permission",
+                    "update_status",
+                    "info_type",
+                    "card_type"
+                ],
+                "type": "object"
+            },
+            "KycResultSchemaVersion": {
+                "enum": [
+                    "kyc_result.v1"
+                ],
+                "type": "string"
+            },
+            "KycResultStatus": {
+                "enum": [
+                    "approved",
+                    "rejected",
+                    "pending_review",
+                    "expired",
+                    "canceled"
+                ],
+                "type": "string"
+            },
+            "KycRiskCheckView": {
+                "properties": {
+                    "outcome": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    },
+                    "signals": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KycRiskSignalsView"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "outcome",
+                    "signals"
+                ],
+                "type": "object"
+            },
+            "KycRiskSignalsView": {
+                "properties": {
+                    "abuse_signals": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "bot_detected": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "email_breach_count": {
+                        "nullable": true,
+                        "type": "integer"
+                    },
+                    "email_domain_is_disposable": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "email_is_deliverable": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "fraud_ring_detected": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "ip_proxy_type": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "ip_spam_list_count": {
+                        "nullable": true,
+                        "type": "integer"
+                    },
+                    "ip_timezone_offset": {
+                        "nullable": true,
+                        "type": "string"
+                    },
+                    "user_interactions": {
+                        "nullable": true,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "bot_detected",
+                    "fraud_ring_detected",
+                    "user_interactions",
+                    "ip_proxy_type",
+                    "ip_spam_list_count",
+                    "ip_timezone_offset",
+                    "email_breach_count",
+                    "email_domain_is_disposable",
+                    "email_is_deliverable",
+                    "abuse_signals"
+                ],
+                "type": "object"
+            },
+            "KycStandardField": {
+                "enum": [
+                    "status",
+                    "full_name",
+                    "family_name",
+                    "given_name",
+                    "date_of_birth",
+                    "sex",
+                    "nationality",
+                    "government_id",
+                    "full_address",
+                    "street",
+                    "city",
+                    "region",
+                    "postal_code",
+                    "email_address",
+                    "phone_number",
+                    "document_category",
+                    "document_number",
+                    "document_issuing_country",
+                    "document_issuing_region",
+                    "document_expiration_date"
+                ],
+                "type": "string"
+            },
+            "KycWatchlistCheckView": {
+                "properties": {
+                    "outcome": {
+                        "$ref": "#/components/schemas/KycCheckOutcome"
+                    }
+                },
+                "required": [
+                    "outcome"
+                ],
                 "type": "object"
             },
             "LaunchKind": {
@@ -643,24 +1423,20 @@
             },
             "ResultRecord": {
                 "properties": {
-                    "auth_id": {
-                        "type": "string"
-                    },
                     "country": {
                         "type": "string"
                     },
+                    "kyc": {
+                        "$ref": "#/components/schemas/StandardKycResultView"
+                    },
                     "policy_key": {
                         "type": "string"
-                    },
-                    "result": {
-                        "$ref": "#/components/schemas/GetKycRes"
                     }
                 },
                 "required": [
-                    "auth_id",
                     "policy_key",
                     "country",
-                    "result"
+                    "kyc"
                 ],
                 "type": "object"
             },
@@ -683,16 +1459,20 @@
             },
             "ResultRes": {
                 "properties": {
-                    "result": {
-                        "$ref": "#/components/schemas/ResultRecord"
-                    },
                     "results": {
                         "items": {
                             "$ref": "#/components/schemas/ResultRecord"
                         },
                         "type": "array"
+                    },
+                    "user_id": {
+                        "type": "string"
                     }
                 },
+                "required": [
+                    "user_id",
+                    "results"
+                ],
                 "type": "object"
             },
             "SessionStartReq": {
@@ -736,6 +1516,65 @@
                 "required": [
                     "session_id",
                     "launch"
+                ],
+                "type": "object"
+            },
+            "StandardKycResultView": {
+                "properties": {
+                    "address": {
+                        "$ref": "#/components/schemas/KycAddressView"
+                    },
+                    "checks": {
+                        "$ref": "#/components/schemas/KycChecksView"
+                    },
+                    "completed_at": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/UTCTime"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "contact": {
+                        "$ref": "#/components/schemas/KycContactView"
+                    },
+                    "document": {
+                        "$ref": "#/components/schemas/KycDocumentView"
+                    },
+                    "field_provenance": {
+                        "$ref": "#/components/schemas/KycFieldProvenanceView"
+                    },
+                    "media": {
+                        "items": {
+                            "$ref": "#/components/schemas/KycMediaView"
+                        },
+                        "type": "array"
+                    },
+                    "person": {
+                        "$ref": "#/components/schemas/KycPersonView"
+                    },
+                    "process": {
+                        "$ref": "#/components/schemas/KycProcessView"
+                    },
+                    "schema_version": {
+                        "$ref": "#/components/schemas/KycResultSchemaVersion"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/KycResultStatus"
+                    }
+                },
+                "required": [
+                    "schema_version",
+                    "status",
+                    "completed_at",
+                    "person",
+                    "document",
+                    "address",
+                    "contact",
+                    "checks",
+                    "process",
+                    "media",
+                    "field_provenance"
                 ],
                 "type": "object"
             },
@@ -859,6 +1698,11 @@
                     "key"
                 ],
                 "type": "object"
+            },
+            "UTCTime": {
+                "example": "2016-07-22T00:00:00Z",
+                "format": "yyyy-mm-ddThh:MM:ssZ",
+                "type": "string"
             },
             "UkStartIdvReq": {
                 "properties": {
