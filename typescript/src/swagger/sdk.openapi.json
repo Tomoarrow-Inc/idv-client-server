@@ -1423,6 +1423,9 @@
             },
             "ResultRecord": {
                 "properties": {
+                    "auth_id": {
+                        "type": "string"
+                    },
                     "country": {
                         "type": "string"
                     },
@@ -1431,11 +1434,16 @@
                     },
                     "policy_key": {
                         "type": "string"
+                    },
+                    "result": {
+                        "$ref": "#/components/schemas/GetKycRes"
                     }
                 },
                 "required": [
+                    "auth_id",
                     "policy_key",
                     "country",
+                    "result",
                     "kyc"
                 ],
                 "type": "object"
