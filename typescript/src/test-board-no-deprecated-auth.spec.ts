@@ -13,6 +13,8 @@
  * - Generic start cards use typed kyc_policy bodies.
  * - Dedicated policy cards cover valid Country x Subject/ID Type x Method x
  *   OwnerAssurance cases plus missing-policy default routing.
+ * - The shared personal_info policy helper sends only subject.kind (no
+ *   id_type key), matching idv-server request validation.
  */
 
 import { readFileSync } from 'fs';
@@ -338,6 +340,24 @@ describe('test-board deprecated auth removal', () => {
 
     expect(html).not.toContain(['policy', 'legacy', 'id'].join('-'));
     expect(html).not.toContain(['policy', 'Legacy', 'Id'].join(''));
+  });
+
+  it('keeps the personal_info policy helper free of id_type', () => {
+    const html = readTestBoardHtml();
+    const helperStart = html.indexOf('const personalInfoSmsPolicy = () => ({');
+    const helperEnd = html.indexOf('});', helperStart);
+
+    expect(helperStart).toBeGreaterThanOrEqual(0);
+    expect(helperEnd).toBeGreaterThan(helperStart);
+
+    const helper = html.slice(helperStart, helperEnd);
+
+    // idv-server rejects subject.kind=personal_info request bodies that carry
+    // an id_type key, so the shared helper must send only the subject kind.
+    expect(helper).toContain("subject: { kind: 'personal_info' }");
+    expect(helper).toContain("method: 'personal_info_verf'");
+    expect(helper).toContain("owner_assurance: ownerVerf('sms_otp')");
+    expect(helper).not.toContain('id_type');
   });
 
   it('renders idv-server error response bodies without parsing or reformatting', () => {

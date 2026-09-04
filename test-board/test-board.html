@@ -1741,7 +1741,7 @@
       const ownerVerf = (type) => ({ kind: 'owner_verf', type });
       const ownerCheck = (type) => ({ kind: 'owner_check', type });
       const personalInfoSmsPolicy = () => ({
-        subject: { kind: 'personal_info', id_type: "null"},
+        subject: { kind: 'personal_info' },
         method: 'personal_info_verf',
         owner_assurance: ownerVerf('sms_otp'),
       });
