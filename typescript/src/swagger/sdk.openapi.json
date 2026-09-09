@@ -1071,6 +1071,7 @@
                         "type": "string"
                     },
                     "owner_assurance": {
+                        "description": "Owner assurance. kind is no_owner_assurance / owner_verf / owner_check; type names the verification method (for KR eid certificate policies the certificate authority: toss / kakao / naver / pass). For a KR eid certificate policy, omitting type delegates the certificate authority to the user: /v1/idv/start offers the authorities active in the current environment and the user picks one; /v1/idv/result matches every KR eid certificate policy.",
                         "type": "object"
                     },
                     "preset": {
@@ -1392,6 +1393,16 @@
                 ],
                 "type": "object"
             },
+            "ResultContractResponse": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/ResultRes13"
+                    },
+                    {
+                        "$ref": "#/components/schemas/ResultRes"
+                    }
+                ]
+            },
             "ResultDeleteReq": {
                 "properties": {
                     "user_id": {
@@ -1448,6 +1459,29 @@
                 ],
                 "type": "object"
             },
+            "ResultRecord13": {
+                "properties": {
+                    "auth_id": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "policy_key": {
+                        "type": "string"
+                    },
+                    "result": {
+                        "$ref": "#/components/schemas/GetKycRes"
+                    }
+                },
+                "required": [
+                    "auth_id",
+                    "policy_key",
+                    "country",
+                    "result"
+                ],
+                "type": "object"
+            },
             "ResultReq": {
                 "properties": {
                     "country": {
@@ -1466,22 +1500,70 @@
                 "type": "object"
             },
             "ResultRes": {
-                "properties": {
-                    "results": {
-                        "items": {
-                            "$ref": "#/components/schemas/ResultRecord"
+                "oneOf": [
+                    {
+                        "properties": {
+                            "results": {
+                                "items": {
+                                    "$ref": "#/components/schemas/ResultRecord"
+                                },
+                                "type": "array"
+                            },
+                            "user_id": {
+                                "type": "string"
+                            }
                         },
-                        "type": "array"
+                        "required": [
+                            "user_id",
+                            "results"
+                        ],
+                        "type": "object"
                     },
-                    "user_id": {
-                        "type": "string"
+                    {
+                        "properties": {
+                            "result": {
+                                "$ref": "#/components/schemas/ResultRecord"
+                            },
+                            "user_id": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "user_id",
+                            "result"
+                        ],
+                        "type": "object"
                     }
-                },
-                "required": [
-                    "user_id",
-                    "results"
-                ],
-                "type": "object"
+                ]
+            },
+            "ResultRes13": {
+                "oneOf": [
+                    {
+                        "properties": {
+                            "results": {
+                                "items": {
+                                    "$ref": "#/components/schemas/ResultRecord13"
+                                },
+                                "type": "array"
+                            }
+                        },
+                        "required": [
+                            "results"
+                        ],
+                        "type": "object"
+                    },
+                    {
+                        "properties": {
+                            "result": {
+                                "$ref": "#/components/schemas/ResultRecord13"
+                            }
+                        },
+                        "required": [
+                            "result"
+                        ],
+                        "type": "object"
+                    }
+                ]
             },
             "SessionStartReq": {
                 "properties": {
@@ -2246,6 +2328,16 @@
         },
         "/v1/idv/result": {
             "post": {
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Tomo-API-Version",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "content": {
                         "application/json;charset=utf-8": {
@@ -2260,14 +2352,21 @@
                         "content": {
                             "application/json;charset=utf-8": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ResultRes"
+                                    "$ref": "#/components/schemas/ResultContractResponse"
                                 }
                             }
                         },
-                        "description": ""
+                        "description": "",
+                        "headers": {
+                            "Tomo-API-Version": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
                     },
                     "400": {
-                        "description": "Invalid `body` or `Authorization`"
+                        "description": "Invalid `body` or `Tomo-API-Version` or `Authorization`"
                     }
                 },
                 "security": [
