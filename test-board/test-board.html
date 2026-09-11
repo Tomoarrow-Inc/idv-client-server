@@ -561,6 +561,53 @@
         border-left-color: #1976d2;
         background: #e8f0fe;
       }
+      /* ── Contract version selector (sidebar) ── */
+      .qj-divider {
+        border-top: 1px solid #f0f0f0;
+        margin: 10px 0 8px;
+      }
+      .qj-version-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 0 12px;
+      }
+      .qj-version-btn {
+        width: 100%;
+        padding: 5px 8px;
+        font-size: 0.8rem;
+        font-family: inherit;
+        color: #555;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .qj-version-btn:hover { background: #f5f7fa; color: #333; }
+      .qj-version-btn.active {
+        color: #1976d2;
+        font-weight: 600;
+        border-color: #1976d2;
+        background: #e8f0fe;
+      }
+      .qj-version-note {
+        font-size: 0.68rem;
+        color: #999;
+        line-height: 1.45;
+        padding: 8px 16px 0;
+        margin: 0;
+      }
+      .version-line {
+        font-size: 0.78rem;
+        color: #555;
+        background: #f5f7fa;
+        border: 1px solid #e6e9ee;
+        border-radius: 6px;
+        padding: 6px 10px;
+        margin-bottom: 8px;
+      }
+      .version-line .version-missing { color: #c62828; }
       @media (max-width: 1320px) {
         .qj-sidebar { display: none !important; }
       }
@@ -573,6 +620,10 @@
       <a class="qj-item" data-target="section-token">0 Token</a>
       <a class="qj-item" data-target="section-api-tests">API Tests</a>
       <a class="qj-item" data-target="section-deprecated-compat">8 Deprecated</a>
+      <div class="qj-divider"></div>
+      <div class="qj-title" style="border-bottom:none;margin-bottom:6px">API Version</div>
+      <div class="qj-version-list" id="qjVersionList"></div>
+      <p class="qj-version-note">POST /v1/idv/result 에만 적용됩니다.</p>
     </nav>
     <h1>KYC Test Board</h1>
     <p class="subtitle">
@@ -1751,6 +1802,119 @@
         owner_assurance: ownerAssurance,
       });
 
+      // ── Contract version registry ──
+      // 계약이 늘어나면 이 배열에만 항목을 추가한다. header 가 null 이면
+      // Tomo-API-Version 자체를 보내지 않는다.
+      const CONTRACT_VERSIONS = [
+        {
+          id: 'default',
+          label: 'default',
+          header: null,
+          note: 'header 미전송 — idv-server 기본 계약(1.3)이 적용된다',
+        },
+        {
+          id: 'v13',
+          label: '1.3',
+          header: '1.3',
+          note: 'v1.3.20 구조: result/results, record = auth_id·policy_key·country·result',
+        },
+        {
+          id: 'v14',
+          label: '1.4',
+          header: '1.4',
+          note: '현재 구조: user_id + record 에 legacy result 와 표준 kyc 병행',
+        },
+      ];
+
+      // idv-server 가 Tomo-API-Version 을 해석하는 endpoint 만 등록한다.
+      // Servant 타입상 Header "Tomo-API-Version" 선언은 /v1/idv/result 하나뿐이며,
+      // 다른 endpoint 에 붙이면 조용히 무시되어 가짜 신호가 된다.
+      const VERSIONED_ENDPOINTS = new Set(['/v1/idv/result']);
+
+      const CONTRACT_VERSION_STORAGE_KEY = 'testBoard.contractVersionId';
+      let activeContractVersionId = CONTRACT_VERSIONS[0].id;
+
+      function contractVersionById(id) {
+        return CONTRACT_VERSIONS.find(v => v.id === id) || CONTRACT_VERSIONS[0];
+      }
+
+      function activeVersionFor(endpoint) {
+        if (!VERSIONED_ENDPOINTS.has(endpoint)) return null;
+        return contractVersionById(activeContractVersionId);
+      }
+
+      function initContractVersionSelector() {
+        const list = document.getElementById('qjVersionList');
+        if (!list) return;
+
+        try {
+          const stored = localStorage.getItem(CONTRACT_VERSION_STORAGE_KEY);
+          if (stored && CONTRACT_VERSIONS.some(v => v.id === stored)) {
+            activeContractVersionId = stored;
+          }
+        } catch {
+          // private mode 등에서 storage 접근이 막혀도 기본값으로 동작한다.
+        }
+
+        list.innerHTML = '';
+        CONTRACT_VERSIONS.forEach(version => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'qj-version-btn';
+          button.dataset.versionId = version.id;
+          button.textContent = version.label;
+          button.title = version.note;
+          button.addEventListener('click', () => selectContractVersion(version.id));
+          list.appendChild(button);
+        });
+
+        selectContractVersion(activeContractVersionId);
+      }
+
+      function selectContractVersion(id) {
+        activeContractVersionId = contractVersionById(id).id;
+        try {
+          localStorage.setItem(CONTRACT_VERSION_STORAGE_KEY, activeContractVersionId);
+        } catch {
+          // 저장 실패는 무시한다. 이번 세션 선택만 유지된다.
+        }
+        document.querySelectorAll('.qj-version-btn').forEach(button => {
+          button.classList.toggle(
+            'active',
+            button.dataset.versionId === activeContractVersionId,
+          );
+        });
+      }
+
+      function renderVersionLine(resultEl, jsonEl, version, responseHeaders) {
+        if (!resultEl || !jsonEl) return;
+        let line = resultEl.querySelector('.version-line');
+
+        if (!version) {
+          if (line) line.remove();
+          return;
+        }
+
+        if (!line) {
+          line = document.createElement('div');
+          line.className = 'version-line';
+          resultEl.insertBefore(line, jsonEl);
+        }
+
+        const sent = version.header ?? '(미전송)';
+        const applied = (responseHeaders || {})['tomo-api-version'];
+        line.innerHTML = '';
+        line.append('요청 Tomo-API-Version: ' + sent + '   |   응답 Tomo-API-Version: ');
+        const appliedEl = document.createElement('span');
+        if (applied) {
+          appliedEl.textContent = applied;
+        } else {
+          appliedEl.className = 'version-missing';
+          appliedEl.textContent = '(없음 — 버전 파싱 실패이거나 미지원 endpoint)';
+        }
+        line.appendChild(appliedEl);
+      }
+
       const CUSTOM_CARDS = {
         // ── Visible API Tests ──
         // 'api-start':  { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
@@ -1821,6 +1985,7 @@
       });
 
       installCustomDebugCopyButtons();
+      initContractVersionSelector();
 
       function cloneDebugValue(value) {
         if (value === undefined) return null;
@@ -1947,6 +2112,16 @@
         };
       }
 
+      function customRequestHeaders(id) {
+        const cfg = CUSTOM_CARDS[id];
+        const headers = { 'Content-Type': 'application/json' };
+        const version = cfg ? activeVersionFor(cfg.endpoint) : null;
+        if (version && version.header) {
+          headers['Tomo-API-Version'] = version.header;
+        }
+        return headers;
+      }
+
       function buildCustomDebugPayload(id, overrides = {}) {
         const cfg = CUSTOM_CARDS[id];
         const currentRequest = parseCurrentRequestBody(id);
@@ -1961,7 +2136,7 @@
             method: 'POST',
             endpoint: cfg?.endpoint || null,
             fullUrl,
-            headers: { 'Content-Type': 'application/json' },
+            headers: customRequestHeaders(id),
             bodyText: currentRequest.bodyText,
             body: currentRequest.body,
             bodyParseError: currentRequest.bodyParseError,
@@ -2050,6 +2225,7 @@
         const startedAtMs = performance.now();
 
         resultEl.classList.remove('hidden');
+        resultEl.querySelector('.version-line')?.remove();
         resetAuthorizationActions(authLinkEl);
         jsonEl.textContent = 'Requesting...';
         badgeEl.className = 'api-badge api-badge-idle';
@@ -2073,13 +2249,17 @@
           return;
         }
 
+        const endpoint = cfg.endpoint;
+        const version = activeVersionFor(endpoint);
         const fetchOpts = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(parsedBody),
         };
+        if (version && version.header) {
+          fetchOpts.headers['Tomo-API-Version'] = version.header;
+        }
 
-        const endpoint = cfg.endpoint;
         let result;
         try {
           result = await apiCallWithDebug(endpoint, fetchOpts);
@@ -2101,6 +2281,7 @@
         const { ok, status, data, text } = result;
         const expectedMatched = matchesExpectedResponse(result, cfg.expectedResponse);
         const shouldMarkSuccess = expectedMatched === null ? ok : expectedMatched;
+        renderVersionLine(resultEl, jsonEl, version, result.headers);
         jsonEl.textContent = renderApiResponseBody(ok, data, text);
         LAST_CUSTOM_RESULTS[id] = buildCustomDebugPayload(id, {
           startedAt: startedAt.toISOString(),
