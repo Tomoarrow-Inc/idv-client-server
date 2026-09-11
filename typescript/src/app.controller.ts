@@ -17,6 +17,10 @@ import type {
   ResultReq,
   ResetReq,
   ResetRes,
+  ResultDeleteReq,
+  ResultDeleteRes,
+  ResultBulkDeleteReq,
+  ResultBulkDeleteRes,
 } from 'tomo-idv-client-node';
 import {
   CONTRACT_VERSION_HEADER,
@@ -76,6 +80,30 @@ export class AppController {
   async idvReset(@Body() body: ResetReq): Promise<ResetRes> {
     try {
       return await this.appService.idvReset(body);
+    } catch (e) {
+      return rethrowUpstream(e);
+    }
+  }
+
+  @Post('/v1/idv/result/delete')
+  @HttpCode(HttpStatus.OK)
+  async idvResultDelete(
+    @Body() body: ResultDeleteReq,
+  ): Promise<ResultDeleteRes> {
+    try {
+      return await this.appService.idvResultDelete(body);
+    } catch (e) {
+      return rethrowUpstream(e);
+    }
+  }
+
+  @Post('/v1/idv/result/bulk-delete')
+  @HttpCode(HttpStatus.OK)
+  async idvResultBulkDelete(
+    @Body() body: ResultBulkDeleteReq,
+  ): Promise<ResultBulkDeleteRes> {
+    try {
+      return await this.appService.idvResultBulkDelete(body);
     } catch (e) {
       return rethrowUpstream(e);
     }

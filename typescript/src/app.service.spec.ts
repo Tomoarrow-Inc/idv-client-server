@@ -204,6 +204,44 @@ describe('AppService idv-server requests', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
+  it('uses the SDK client for single result delete', async () => {
+    global.fetch = jest.fn();
+    const body = { user_id: 'ppid.x' };
+    const apiMock = {
+      v1IdvResultDeletePost: jest.fn().mockResolvedValue({ status: 'deleted' }),
+    };
+    const service = createService(apiMock);
+
+    const result = await service.idvResultDelete(body as never);
+
+    expect(apiMock.v1IdvResultDeletePost).toHaveBeenCalledWith({
+      ResultDeleteReq: body,
+    });
+    expect(result).toEqual({ status: 'deleted' });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('uses the SDK client for bulk result delete', async () => {
+    global.fetch = jest.fn();
+    const body = { user_ids: ['ppid.x', 'ppid.y'] };
+    const apiMock = {
+      v1IdvResultBulkDeletePost: jest.fn().mockResolvedValue({
+        results: [{ status: 'deleted' }, { status: 'not_deletable' }],
+      }),
+    };
+    const service = createService(apiMock);
+
+    const result = await service.idvResultBulkDelete(body as never);
+
+    expect(apiMock.v1IdvResultBulkDeletePost).toHaveBeenCalledWith({
+      ResultBulkDeleteReq: body,
+    });
+    expect(result).toEqual({
+      results: [{ status: 'deleted' }, { status: 'not_deletable' }],
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
   it('uses transparent fetch proxy for deprecated compatibility routes', async () => {
     process.env.IDV_BASE_URL = 'https://idv.example';
     const body = { user_id: 'user-compat', country: 'us' };
@@ -237,6 +275,8 @@ describe('AppService idv-server requests', () => {
     expect(source).toMatch(/\bthis\.api\.v1IdvStartPost\s*\(/);
     expect(source).toMatch(/\bthis\.api\.v1IdvResultPostRaw\s*\(/);
     expect(source).toMatch(/\bthis\.api\.v1IdvResetPost\s*\(/);
+    expect(source).toMatch(/\bthis\.api\.v1IdvResultDeletePost\s*\(/);
+    expect(source).toMatch(/\bthis\.api\.v1IdvResultBulkDeletePost\s*\(/);
     expect(source).toMatch(/\bproxyPost\s*\(/);
   });
 

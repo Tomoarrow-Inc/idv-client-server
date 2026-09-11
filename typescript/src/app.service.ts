@@ -9,6 +9,10 @@ import type {
   ResultReq,
   ResetReq,
   ResetRes,
+  ResultDeleteReq,
+  ResultDeleteRes,
+  ResultBulkDeleteReq,
+  ResultBulkDeleteRes,
 } from 'tomo-idv-client-node';
 
 /**
@@ -107,6 +111,22 @@ export class AppService {
   async idvReset(body: ResetReq): Promise<ResetRes> {
     return this.api.v1IdvResetPost({
       ResetReq: body,
+    });
+  }
+
+  // delete 응답은 status enum 하나뿐인 단순 객체라 union 평탄화 문제가 없다.
+  // result 와 달리 생성 SDK 역직렬화를 그대로 쓴다.
+  async idvResultDelete(body: ResultDeleteReq): Promise<ResultDeleteRes> {
+    return this.api.v1IdvResultDeletePost({
+      ResultDeleteReq: body,
+    });
+  }
+
+  async idvResultBulkDelete(
+    body: ResultBulkDeleteReq,
+  ): Promise<ResultBulkDeleteRes> {
+    return this.api.v1IdvResultBulkDeletePost({
+      ResultBulkDeleteReq: body,
     });
   }
 
