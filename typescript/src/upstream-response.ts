@@ -8,11 +8,14 @@ import {
 import type { Response } from 'express';
 import { ResponseError } from 'tomo-idv-client-node';
 
+export const CONTRACT_VERSION_HEADER = 'Tomo-API-Version';
+
 export class UpstreamResponseError extends Error {
   constructor(
     readonly status: number,
     readonly body: string,
     readonly contentType?: string,
+    readonly versionHeader?: string,
   ) {
     super(`Upstream response ${status}`);
   }
@@ -26,6 +29,12 @@ export class UpstreamResponseFilter
     const response = host.switchToHttp().getResponse<Response>();
     if (exception.contentType) {
       response.type(exception.contentType);
+    }
+    // idv-server attaches the applied contract version to errors raised after
+    // version selection. Keep it on the BFF error response so the caller can
+    // tell "version applied, handler failed" from "version rejected".
+    if (exception.versionHeader) {
+      response.setHeader(CONTRACT_VERSION_HEADER, exception.versionHeader);
     }
     response.status(exception.status).send(exception.body);
   }
@@ -43,13 +52,15 @@ export async function rethrowUpstream(error: unknown): Promise<never> {
   if (error instanceof ResponseError) {
     const status = error.response.status || HttpStatus.BAD_GATEWAY;
     const contentType = error.response.headers.get('content-type') ?? undefined;
+    const versionHeader =
+      error.response.headers.get(CONTRACT_VERSION_HEADER) ?? undefined;
     let body = '';
     try {
       body = await error.response.text();
     } catch {
       body = error.message;
     }
-    throw new UpstreamResponseError(status, body, contentType);
+    throw new UpstreamResponseError(status, body, contentType, versionHeader);
   }
 
   const msg = error instanceof Error ? error.message : 'Unknown error';

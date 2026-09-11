@@ -1,22 +1,27 @@
 import {
   Body,
   Controller,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
   Post,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { AppService } from './app.service';
 import type {
   TokenRes,
   StartIdvRes,
-  ResultRes,
   StartIdvReq,
   ResultReq,
   ResetReq,
   ResetRes,
 } from 'tomo-idv-client-node';
-import { rethrowUpstream } from './upstream-response';
+import {
+  CONTRACT_VERSION_HEADER,
+  rethrowUpstream,
+} from './upstream-response';
 
 @Controller()
 export class AppController {
@@ -44,10 +49,23 @@ export class AppController {
     }
   }
 
+  // Tomo-API-Version은 idv-server에서 이 endpoint만 해석한다. 값 검증도 서버가
+  // 하므로 BFF는 받은 그대로 넘기고, 서버가 적용한 버전을 그대로 되돌려준다.
   @Post('/v1/idv/result')
-  async idvResult(@Body() body: ResultReq): Promise<ResultRes> {
+  async idvResult(
+    @Body() body: ResultReq,
+    @Headers('tomo-api-version') apiVersion: string | undefined,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<unknown> {
     try {
-      return await this.appService.idvResult(body);
+      const { body: payload, version } = await this.appService.idvResult(
+        body,
+        apiVersion,
+      );
+      if (version) {
+        res.setHeader(CONTRACT_VERSION_HEADER, version);
+      }
+      return payload;
     } catch (e) {
       return rethrowUpstream(e);
     }

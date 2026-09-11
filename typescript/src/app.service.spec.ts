@@ -44,22 +44,142 @@ describe('AppService idv-server requests', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
+  const rawResultResponse = (
+    payload: string,
+    versionHeader?: string,
+  ): { raw: { text: jest.Mock; headers: { get: jest.Mock } } } => ({
+    raw: {
+      text: jest.fn().mockResolvedValue(payload),
+      headers: {
+        get: jest.fn((name: string) =>
+          name.toLowerCase() === 'tomo-api-version'
+            ? (versionHeader ?? null)
+            : null,
+        ),
+      },
+    },
+  });
+
   it('uses the SDK client for generic IDV result', async () => {
-    // Verifies the new public /v1/idv/result endpoint is wired through the
-    // generated SDK method instead of raw fetch.
+    // Verifies the public /v1/idv/result endpoint is wired through the
+    // generated SDK request path instead of raw fetch.
     global.fetch = jest.fn();
     const body = { user_id: 'user-result', country: 'us' };
     const apiMock = {
-      v1IdvResultPost: jest.fn().mockResolvedValue({ status: 'approved' }),
+      v1IdvResultPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawResultResponse('{"result":{}}', '1.3')),
     };
     const service = createService(apiMock);
 
     await service.idvResult(body as never);
 
-    expect(apiMock.v1IdvResultPost).toHaveBeenCalledWith({
+    expect(apiMock.v1IdvResultPostRaw).toHaveBeenCalledWith({
       ResultReq: body,
     });
     expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('omits Tomo-API-Version when the caller did not send one', async () => {
+    // The default contract belongs to idv-server. Injecting a BFF-side default
+    // would silently pin callers to whichever version the BFF happens to pick.
+    const apiMock = {
+      v1IdvResultPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawResultResponse('{"result":{}}', '1.3')),
+    };
+    const service = createService(apiMock);
+
+    await service.idvResult({ user_id: 'user-result' } as never, undefined);
+
+    const sent = apiMock.v1IdvResultPostRaw.mock.calls[0][0];
+    expect(Object.keys(sent)).toEqual(['ResultReq']);
+    expect(sent).not.toHaveProperty('Tomo_API_Version');
+  });
+
+  it.each(['1.3', '1.4', '1.3.0'])(
+    'forwards Tomo-API-Version %s to idv-server verbatim',
+    async (version) => {
+      // Unsupported values are rejected by idv-server with 400. The BFF must
+      // not pre-filter them, otherwise callers cannot see the real error.
+      const apiMock = {
+        v1IdvResultPostRaw: jest
+          .fn()
+          .mockResolvedValue(rawResultResponse('{"result":{}}', version)),
+      };
+      const service = createService(apiMock);
+
+      await service.idvResult({ user_id: 'user-result' } as never, version);
+
+      expect(apiMock.v1IdvResultPostRaw).toHaveBeenCalledWith({
+        ResultReq: { user_id: 'user-result' },
+        Tomo_API_Version: version,
+      });
+    },
+  );
+
+  it('returns the single-result body untouched and echoes the applied version', async () => {
+    // Regression guard: the generated ResultContractResponse deserializer
+    // flattens the 1.3/1.4 anyOf and calls json['results'].map() unconditionally,
+    // so a single-result body would throw. The BFF must bypass it.
+    const singleResult = {
+      result: {
+        auth_id: 'auth-1',
+        policy_key: 'policy-1',
+        country: 'us',
+        result: { full_name: 'Test User' },
+      },
+    };
+    const apiMock = {
+      v1IdvResultPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawResultResponse(JSON.stringify(singleResult), '1.3')),
+    };
+    const service = createService(apiMock);
+
+    const result = await service.idvResult({ user_id: 'ppid.x' } as never, '1.3');
+
+    expect(result.body).toEqual(singleResult);
+    expect(result.version).toBe('1.3');
+  });
+
+  it('returns the 1.4 list body untouched', async () => {
+    const listResult = {
+      user_id: 'ppid.x',
+      results: [
+        {
+          auth_id: 'auth-1',
+          policy_key: 'policy-1',
+          country: 'us',
+          result: { full_name: 'Test User' },
+          kyc: { schema_version: '1.0' },
+        },
+      ],
+    };
+    const apiMock = {
+      v1IdvResultPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawResultResponse(JSON.stringify(listResult), '1.4')),
+    };
+    const service = createService(apiMock);
+
+    const result = await service.idvResult({ user_id: 'ppid.x' } as never, '1.4');
+
+    expect(result.body).toEqual(listResult);
+    expect(result.version).toBe('1.4');
+  });
+
+  it('leaves version undefined when idv-server sends no version header', async () => {
+    const apiMock = {
+      v1IdvResultPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawResultResponse('{"result":{}}')),
+    };
+    const service = createService(apiMock);
+
+    const result = await service.idvResult({ user_id: 'ppid.x' } as never);
+
+    expect(result.version).toBeUndefined();
   });
 
   it('uses the SDK client for policy reset', async () => {
@@ -115,7 +235,7 @@ describe('AppService idv-server requests', () => {
     const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
 
     expect(source).toMatch(/\bthis\.api\.v1IdvStartPost\s*\(/);
-    expect(source).toMatch(/\bthis\.api\.v1IdvResultPost\s*\(/);
+    expect(source).toMatch(/\bthis\.api\.v1IdvResultPostRaw\s*\(/);
     expect(source).toMatch(/\bthis\.api\.v1IdvResetPost\s*\(/);
     expect(source).toMatch(/\bproxyPost\s*\(/);
   });

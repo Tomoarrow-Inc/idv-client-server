@@ -5,12 +5,21 @@ import { UpstreamResponseError } from './upstream-response';
 import type {
   TokenRes,
   StartIdvRes,
-  ResultRes,
   StartIdvReq,
   ResultReq,
   ResetReq,
   ResetRes,
 } from 'tomo-idv-client-node';
+
+/**
+ * /v1/idv/result 응답은 계약 버전(Tomo-API-Version)에 따라 봉투가 달라진다.
+ * 생성 SDK의 ResultContractResponse는 1.3/1.4 anyOf를 필수 필드의 합으로
+ * 평탄화해 단건 응답에서 깨지므로, BFF는 wire 원문을 그대로 통과시킨다.
+ */
+export interface UpstreamResultResponse {
+  body: unknown;
+  version?: string;
+}
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
@@ -69,10 +78,30 @@ export class AppService {
     });
   }
 
-  async idvResult(body: ResultReq): Promise<ResultRes> {
-    return this.api.v1IdvResultPost({
+  async idvResult(
+    body: ResultReq,
+    apiVersion?: string,
+  ): Promise<UpstreamResultResponse> {
+    // apiVersion이 undefined면 header 자체를 보내지 않는다. 기본 계약 선택은
+    // idv-server의 몫이고, BFF가 기본값을 주입하면 전달 투명성이 깨진다.
+    const response = await this.api.v1IdvResultPostRaw({
       ResultReq: body,
+      ...(apiVersion !== undefined ? { Tomo_API_Version: apiVersion } : {}),
     });
+    const text = await response.raw.text();
+    return {
+      body: this.parseUpstreamJson(text),
+      version: response.raw.headers.get('tomo-api-version') ?? undefined,
+    };
+  }
+
+  private parseUpstreamJson(text: string): unknown {
+    if (!text) return {};
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
   }
 
   async idvReset(body: ResetReq): Promise<ResetRes> {
