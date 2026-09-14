@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Headers,
-  HttpCode,
-  HttpStatus,
   Param,
   Post,
   Res,
@@ -44,9 +42,12 @@ export class AppController {
     ) => Promise<UpstreamResponse<T>>,
   ): Promise<T> {
     try {
-      const { body, version, varies } = await call(
+      const { body, status, version, varies } = await call(
         resolveContractSelection(headers),
       );
+      // Nest 의 POST 기본 status 는 201 이다. upstream 이 낸 status 를 그대로
+      // 돌려주지 않으면 idv-server 의 200 이 201 로 바뀐다.
+      res.status(status);
       if (version) {
         res.setHeader(CONTRACT_VERSION_HEADER, version);
       }
@@ -97,7 +98,6 @@ export class AppController {
   }
 
   @Post('/v1/idv/reset')
-  @HttpCode(HttpStatus.OK)
   async idvReset(
     @Body() body: ResetReq,
     @Headers() headers: InboundHeaders,
@@ -109,7 +109,6 @@ export class AppController {
   }
 
   @Post('/v1/idv/result/delete')
-  @HttpCode(HttpStatus.OK)
   async idvResultDelete(
     @Body() body: ResultDeleteReq,
     @Headers() headers: InboundHeaders,
@@ -121,7 +120,6 @@ export class AppController {
   }
 
   @Post('/v1/idv/result/bulk-delete')
-  @HttpCode(HttpStatus.OK)
   async idvResultBulkDelete(
     @Body() body: ResultBulkDeleteReq,
     @Headers() headers: InboundHeaders,

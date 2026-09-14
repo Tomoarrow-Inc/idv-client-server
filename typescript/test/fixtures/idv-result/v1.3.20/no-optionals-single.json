@@ -1,0 +1,13 @@
+{
+  "result": {
+    "auth_id": "synthetic-no-optionals-auth",
+    "policy_key": "us:default",
+    "country": "us",
+    "result": {
+      "date_of_birth": "1990-05-15",
+      "full_name": "raw",
+      "country": "us",
+      "full_address": "vendor"
+    }
+  }
+}

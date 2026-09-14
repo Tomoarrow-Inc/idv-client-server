@@ -34,6 +34,12 @@ import type {
  */
 export interface UpstreamResponse<T> {
   body: T;
+  /**
+   * upstream 이 실제로 낸 성공 status. Nest 는 POST 기본값이 201 이라, 이걸
+   * 전달하지 않으면 idv-server 의 200 이 201 로 바뀐다 — AGENTS.md 의
+   * "Preserve upstream HTTP status codes" 위반이다.
+   */
+  status: number;
   version?: string;
   /**
    * idv-server 의 버전 게이트가 이 요청을 실제로 처리했는가. `Vary` 로 판정한다.
@@ -107,7 +113,12 @@ export class AppService {
   ): Promise<UpstreamResponse<T>> {
     const version = this.appliedVersion(response.raw);
     const varies = this.appliedVary(response.raw);
-    return { body: await response.value(), version, varies };
+    return {
+      body: await response.value(),
+      status: response.raw.status,
+      version,
+      varies,
+    };
   }
 
   // ── OAuth2 ──
@@ -122,7 +133,12 @@ export class AppService {
       base_url: baseUrl,
     });
 
-    const { body: tokenResponse, version, varies } = await this.withVersion(
+    const {
+      body: tokenResponse,
+      status,
+      version,
+      varies,
+    } = await this.withVersion(
       await this.api.v1Oauth2TokenPostRaw(
         {
           Tomo_API_Version: SDK_VERSION_PARAM,
@@ -146,7 +162,7 @@ export class AppService {
       issuedAt: new Date().toISOString(),
     });
 
-    return { body: tokenResponse, version, varies };
+    return { body: tokenResponse, status, version, varies };
   }
 
   // ── Generic (country-agnostic) ──
@@ -177,6 +193,7 @@ export class AppService {
     const text = await response.raw.text();
     return {
       body: this.parseUpstreamJson(text),
+      status: response.raw.status,
       version: this.appliedVersion(response.raw),
       varies: this.appliedVary(response.raw),
     };
@@ -263,6 +280,7 @@ export class AppService {
     const isJson = contentType?.toLowerCase().includes('application/json');
     return {
       body: isJson ? this.parseUpstreamJson(text) : text,
+      status: response.status,
       version,
       varies,
     };

@@ -38,7 +38,12 @@ import {
 const readSource = (name: string) =>
   readFileSync(join(__dirname, name), 'utf8');
 
-const fakeResponse = () => ({ setHeader: jest.fn(), vary: jest.fn() });
+// Nest 는 forward() 가 부른 res.status() 로 upstream status 를 그대로 쓴다.
+const fakeResponse = () => ({
+  setHeader: jest.fn(),
+  vary: jest.fn(),
+  status: jest.fn(),
+});
 
 describe('SDK contract version selection', () => {
   it('defaults to sending no version header at all', () => {
@@ -161,7 +166,7 @@ describe('version gate signal (Vary)', () => {
     const service = {
       idvResult: jest
         .fn()
-        .mockResolvedValue({ body: {}, version: '1.3', varies: true }),
+        .mockResolvedValue({ body: {}, status: 200, version: '1.3', varies: true }),
     };
     const controller = new AppController(service as never);
 
@@ -181,7 +186,7 @@ describe('version gate signal (Vary)', () => {
     const service = {
       idvStart: jest
         .fn()
-        .mockResolvedValue({ body: {}, version: undefined, varies: true }),
+        .mockResolvedValue({ body: {}, status: 200, version: undefined, varies: true }),
     };
     const controller = new AppController(service as never);
 
@@ -196,7 +201,7 @@ describe('version gate signal (Vary)', () => {
     const service = {
       proxyPost: jest
         .fn()
-        .mockResolvedValue({ body: {}, version: undefined, varies: false }),
+        .mockResolvedValue({ body: {}, status: 200, version: undefined, varies: false }),
     };
     const controller = new AppController(service as never);
 
@@ -256,7 +261,7 @@ describe('result contract version passthrough', () => {
     const service = {
       idvResult: jest
         .fn()
-        .mockResolvedValue({ body: { result: {} }, version: '1.4' }),
+        .mockResolvedValue({ body: { result: {} }, status: 200, version: '1.4' }),
     };
     const controller = new AppController(service as never);
 
@@ -279,7 +284,7 @@ describe('result contract version passthrough', () => {
     const service = {
       idvResult: jest
         .fn()
-        .mockResolvedValue({ body: { result: {} }, version: '1.3' }),
+        .mockResolvedValue({ body: { result: {} }, status: 200, version: '1.3' }),
     };
     const controller = new AppController(service as never);
 
@@ -299,7 +304,7 @@ describe('result contract version passthrough', () => {
     const service = {
       idvResult: jest
         .fn()
-        .mockResolvedValue({ body: { result: {} }, version: undefined }),
+        .mockResolvedValue({ body: { result: {} }, status: 200, version: undefined }),
     };
     const controller = new AppController(service as never);
 

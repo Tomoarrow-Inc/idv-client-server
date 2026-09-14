@@ -1,0 +1,15 @@
+{
+  "result": {
+    "auth_id": "synthetic-kr-auth",
+    "policy_key": "kr:eid:certificate:government_ci_verf:owner_verf:toss",
+    "country": "kr",
+    "result": {
+      "date_of_birth": "1990-05-15",
+      "full_name": "합성 사용자",
+      "country": "kr",
+      "full_address": "",
+      "sex": "F",
+      "phone_number": "01000000000"
+    }
+  }
+}

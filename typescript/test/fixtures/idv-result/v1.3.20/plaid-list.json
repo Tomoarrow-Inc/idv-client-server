@@ -1,0 +1,23 @@
+{
+  "results": [
+    {
+      "auth_id": "user-plaid-1",
+      "policy_key": "us:default",
+      "country": "us",
+      "result": {
+        "date_of_birth": "1990-05-15",
+        "full_name": "Doe Jane",
+        "country": "US",
+        "full_address": "123 Market St San Francisco CA 94105",
+        "postal_code": "94105",
+        "email_address": "jane.doe@example.com",
+        "phone_number": "+15551234567",
+        "family_name": "Doe",
+        "given_name": "Jane",
+        "city": "San Francisco",
+        "region": "CA",
+        "street": "123 Market St"
+      }
+    }
+  ]
+}

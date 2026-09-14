@@ -14,7 +14,7 @@ describe('POST /v1/idv/reset', () => {
   beforeEach(async () => {
     idvReset
       .mockReset()
-      .mockResolvedValue({ body: resetResponse, version: '1.4' });
+      .mockResolvedValue({ body: resetResponse, status: 200, version: '1.4' });
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
@@ -60,7 +60,11 @@ describe('POST /v1/idv/reset', () => {
     };
     const controller = new AppController({ idvReset } as never);
 
-    await controller.idvReset(body, {}, { setHeader: jest.fn() } as never);
+    await controller.idvReset(body, {}, {
+      setHeader: jest.fn(),
+      vary: jest.fn(),
+      status: jest.fn(),
+    } as never);
 
     expect(idvReset.mock.calls[0][0]).toBe(body);
   });

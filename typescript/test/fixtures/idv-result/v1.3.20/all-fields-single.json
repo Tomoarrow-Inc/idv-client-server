@@ -1,0 +1,22 @@
+{
+  "result": {
+    "auth_id": "synthetic-authorized-auth",
+    "policy_key": "us:default",
+    "country": "us",
+    "result": {
+      "date_of_birth": "1990-05-15",
+      "full_name": "raw",
+      "country": "us",
+      "full_address": "vendor",
+      "sex": "",
+      "postal_code": "",
+      "email_address": "synthetic@example.invalid",
+      "phone_number": "+15550000000",
+      "family_name": "lv0",
+      "given_name": "lv1",
+      "city": "lv2",
+      "region": "lv3",
+      "street": ""
+    }
+  }
+}
