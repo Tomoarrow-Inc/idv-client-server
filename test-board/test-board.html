@@ -623,7 +623,7 @@
       <div class="qj-divider"></div>
       <div class="qj-title" style="border-bottom:none;margin-bottom:6px">API Version</div>
       <div class="qj-version-list" id="qjVersionList"></div>
-      <p class="qj-version-note">POST /v1/idv/result 에만 적용됩니다.</p>
+      <p class="qj-version-note">SDK 25개 endpoint 전체에 적용됩니다. 토큰 발급 포함.</p>
     </nav>
     <h1>KYC Test Board</h1>
     <p class="subtitle">
@@ -1849,36 +1849,68 @@
       });
 
       // ── Contract version registry ──
-      // 계약이 늘어나면 이 배열에만 항목을 추가한다. header 가 null 이면
-      // Tomo-API-Version 자체를 보내지 않는다.
+      // idv-server lib/App/Contract/Version.hs 의 경계 규칙을 그대로 반영한다.
+      // 요청 값으로 받아주는 것은 "1.4" 하나뿐이고, legacy(고정 v1.3.20) 계약은
+      // header 를 아예 보내지 않아야 선택된다. 계약이 늘어나면 이 배열에만
+      // 항목을 추가한다.
+      //   header : 그대로 Tomo-API-Version 으로 나간다
+      //   legacy : BFF 전용 제어 header 로 "버전 header 미전송" 을 지시한다
+      //   rejected: idv-server 가 400 unsupported_api_version 으로 거부하는 값
       const CONTRACT_VERSIONS = [
-        {
-          id: 'default',
-          label: 'no header',
-          header: null,
-          note: 'Tomo-API-Version 자체를 보내지 않는다. header 를 안 보내는 기존 고객사 경로를 그대로 재현하며, idv-server 의 기본 계약(현재 1.3)이 적용된다. 서버 기본값이 바뀌면 이 버튼만 결과가 달라진다.',
-        },
-        {
-          id: 'v13',
-          label: '1.3',
-          header: '1.3',
-          note: 'v1.3.20 구조: result/results, record = auth_id·policy_key·country·result',
-        },
         {
           id: 'v14',
           label: '1.4',
           header: '1.4',
-          note: '현재 구조: user_id + record 에 legacy result 와 표준 kyc 병행',
+          note: 'SDK 계약 1.4.0 이 25개 operation 전부에 required enum ["1.4"] 로 요구하는 값. /v1/idv/result 는 user_id + record 에 legacy result 와 표준 kyc 를 병행한다.',
+        },
+        {
+          id: 'legacy',
+          label: 'legacy',
+          legacy: true,
+          note: 'Tomo-API-Version 을 아예 보내지 않는다. header 를 안 보내는 기존 고객사 경로이며 고정 v1.3.20 계약이 적용된다. 응답 버전 header 는 /v1/idv/result 에만 1.3 으로 오고 나머지 24개에는 오지 않는다 — 정상이다.',
+        },
+        {
+          id: 'v13',
+          label: '1.3 → 400',
+          header: '1.3',
+          rejected: true,
+          note: '거부 확인용. idv-server 는 1.3 을 지원 값으로 받지 않는다(1.3.20 / 1.4.0 / latest / 빈 값도 동일). 25개 operation 전부가 400 unsupported_api_version 이 되며 토큰 발급도 실패한다.',
         },
       ];
 
-      // idv-server 가 Tomo-API-Version 을 해석하는 endpoint 만 등록한다.
-      // Servant 타입상 Header "Tomo-API-Version" 선언은 /v1/idv/result 하나뿐이며,
-      // 다른 endpoint 에 붙이면 조용히 무시되어 가짜 신호가 된다.
-      const VERSIONED_ENDPOINTS = new Set(['/v1/idv/result']);
+      // idv-server 가 Tomo-API-Version 을 해석하는 25개 operation.
+      // lib/App/Contract/Version.hs sdkOperations 와 1:1 대응한다.
+      // 이 목록 밖(예: /v1/verify/session)에는 header 를 보내도 무시된다.
+      const VERSIONED_ENDPOINTS = new Set([
+        '/v1/oauth2/token',
+        '/v1/idv/health',
+        '/v1/idv/start',
+        '/v1/idv/result',
+        '/v1/idv/reset',
+        '/v1/idv/kyc/get',
+        '/v1/idv/result/delete',
+        '/v1/idv/result/bulk-delete',
+        '/v1/idv/sessions/start',
+        '/v1/idv/cn/token',
+        ...['us', 'uk', 'ca', 'jp', 'cn'].flatMap(c => [
+          '/v1/idv/' + c + '/health',
+          '/v1/idv/' + c + '/start',
+          '/v1/idv/' + c + '/kyc/get',
+        ]),
+      ]);
+
+      // BFF 가 소비하고 upstream 으로 전달하지 않는 제어 header.
+      const CONTRACT_MODE_HEADER = 'X-Tomo-Contract-Mode';
+
+      const NEGOTIATION_ERROR = {
+        status: 400,
+        bodyContains: 'unsupported_api_version',
+        bodyShape: ['{ "error": "unsupported_api_version", "error_description": "..." }'],
+        description: 'idv-server rejects the selected Tomo-API-Version before running the handler.',
+      };
 
       const CONTRACT_VERSION_STORAGE_KEY = 'testBoard.contractVersionId';
-      let activeContractVersionId = CONTRACT_VERSIONS[0].id;
+      let activeContractVersionId = CONTRACT_VERSIONS[0].id; // 기본값 1.4
 
       function contractVersionById(id) {
         return CONTRACT_VERSIONS.find(v => v.id === id) || CONTRACT_VERSIONS[0];
@@ -1947,16 +1979,20 @@
           resultEl.insertBefore(line, jsonEl);
         }
 
-        const sent = version.header ?? '(미전송)';
+        const sent = version.legacy ? '(미전송 — legacy)' : version.header;
         const applied = (responseHeaders || {})['tomo-api-version'];
         line.innerHTML = '';
         line.append('요청 Tomo-API-Version: ' + sent + '   |   응답 Tomo-API-Version: ');
         const appliedEl = document.createElement('span');
         if (applied) {
           appliedEl.textContent = applied;
+        } else if (version.legacy) {
+          // legacy 에서는 /v1/idv/result 만 1.3 을 돌려준다. 나머지 24개의
+          // 부재는 정상이므로 경고색을 쓰지 않는다.
+          appliedEl.textContent = '(없음 — legacy 계약에서는 정상)';
         } else {
           appliedEl.className = 'version-missing';
-          appliedEl.textContent = '(없음 — 버전 파싱 실패이거나 미지원 endpoint)';
+          appliedEl.textContent = '(없음 — 협상 실패. 계약이 선택되지 않았다)';
         }
         line.appendChild(appliedEl);
       }
@@ -2050,11 +2086,16 @@
 
       function matchesExpectedResponse(result, expectedResponse) {
         if (!expectedResponse) return null;
+        // statuses 와 status 는 둘 중 하나만 쓰인다. 예전 식은 statuses 만 준
+        // 기대값에서 `status === undefined` 가 항상 참이라 어떤 status 든
+        // 통과시켰고, 그래서 협상 400 이 PASS 로 보였다.
         const statusMatches = expectedResponse.notStatus !== undefined
           ? result.status !== expectedResponse.notStatus
-          : expectedResponse.statuses?.includes(result.status) ||
-            expectedResponse.status === undefined ||
-            result.status === expectedResponse.status;
+          : expectedResponse.statuses !== undefined
+            ? expectedResponse.statuses.includes(result.status)
+            : expectedResponse.status !== undefined
+              ? result.status === expectedResponse.status
+              : true;
         const bodyText = typeof result.data === 'string' ? result.data : (result.text || JSON.stringify(result.data ?? ''));
         const bodyMatches = !expectedResponse.bodyContains || bodyText.includes(expectedResponse.bodyContains);
         return statusMatches && bodyMatches;
@@ -2161,14 +2202,23 @@
         };
       }
 
+      // 선택한 계약을 실제 요청 header 로 바꾼다. legacy 는 값이 아니라
+      // "보내지 않음" 이므로 BFF 제어 header 로 지시한다.
+      function contractHeadersFor(endpoint, base) {
+        const headers = Object.assign({}, base);
+        const version = activeVersionFor(endpoint);
+        if (!version) return headers;
+        if (version.legacy) headers[CONTRACT_MODE_HEADER] = 'legacy';
+        else if (version.header) headers['Tomo-API-Version'] = version.header;
+        return headers;
+      }
+
       function customRequestHeaders(id) {
         const cfg = CUSTOM_CARDS[id];
-        const headers = { 'Content-Type': 'application/json' };
-        const version = cfg ? activeVersionFor(cfg.endpoint) : null;
-        if (version && version.header) {
-          headers['Tomo-API-Version'] = version.header;
-        }
-        return headers;
+        if (!cfg) return { 'Content-Type': 'application/json' };
+        return contractHeadersFor(cfg.endpoint, {
+          'Content-Type': 'application/json',
+        });
       }
 
       function buildCustomDebugPayload(id, overrides = {}) {
@@ -2302,12 +2352,11 @@
         const version = activeVersionFor(endpoint);
         const fetchOpts = {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: contractHeadersFor(endpoint, {
+            'Content-Type': 'application/json',
+          }),
           body: JSON.stringify(parsedBody),
         };
-        if (version && version.header) {
-          fetchOpts.headers['Tomo-API-Version'] = version.header;
-        }
 
         let result;
         try {
@@ -2328,7 +2377,10 @@
         }
 
         const { ok, status, data, text } = result;
-        const expectedMatched = matchesExpectedResponse(result, cfg.expectedResponse);
+        const expectedMatched = matchesExpectedResponse(
+          result,
+          version && version.rejected ? NEGOTIATION_ERROR : cfg.expectedResponse,
+        );
         const shouldMarkSuccess = expectedMatched === null ? ok : expectedMatched;
         renderVersionLine(resultEl, jsonEl, version, result.headers);
         jsonEl.textContent = renderApiResponseBody(ok, data, text);
@@ -2664,7 +2716,12 @@
         allBtns.forEach(b => b.disabled = true);
         allStatus.forEach(s => { s.className = 'status info'; s.textContent = 'Requesting...'; });
 
-        const { ok, status, data, text } = await apiCall('/v1/oauth2/token', { method: 'POST' });
+        // /v1/oauth2/token 도 25개 게이트 대상이다. 거부 버전을 고르면 토큰
+        // 발급부터 400 이 되며, 그게 서버의 실제 동작이다.
+        const { ok, status, data, text } = await apiCall('/v1/oauth2/token', {
+          method: 'POST',
+          headers: contractHeadersFor('/v1/oauth2/token', {}),
+        });
 
         allBtns.forEach(b => b.disabled = false);
         allDetail.forEach(d => d.classList.remove('hidden'));

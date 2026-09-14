@@ -97,11 +97,16 @@ describe('test-board Custom KYC debug copy', () => {
     expect(html).toContain(
       'function matchesExpectedResponse(result, expectedResponse) {',
     );
+    // statuses 기대값은 실제 status 와 대조돼야 한다. 예전 식은
+    // `expectedResponse.status === undefined` 가 항상 참이라 statuses 만 준
+    // 기대값이 어떤 status 든 PASS 로 통과시켰다 — 협상 400 을 놓치던 자리다.
     expect(html).toContain(
-      'expectedResponse.statuses?.includes(result.status)',
+      'expectedResponse.statuses.includes(result.status)',
     );
+    expect(html).not.toContain('expectedResponse.status === undefined');
+    // 거부되는 계약 버전을 고르면 카드별 기대값 대신 협상 400 으로 채점한다.
     expect(html).toContain(
-      'const expectedMatched = matchesExpectedResponse(result, cfg.expectedResponse);',
+      'version && version.rejected ? NEGOTIATION_ERROR : cfg.expectedResponse',
     );
     expect(html).toContain(
       'const shouldMarkSuccess = expectedMatched === null ? ok : expectedMatched;',
