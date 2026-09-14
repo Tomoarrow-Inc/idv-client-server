@@ -19,6 +19,7 @@ import type {
   ResultBulkDeleteReq,
 } from 'tomo-idv-client-node';
 import {
+  CONTRACT_VARY_TOKEN,
   CONTRACT_VERSION_HEADER,
   resolveContractSelection,
 } from './contract-version';
@@ -43,9 +44,15 @@ export class AppController {
     ) => Promise<UpstreamResponse<T>>,
   ): Promise<T> {
     try {
-      const { body, version } = await call(resolveContractSelection(headers));
+      const { body, version, varies } = await call(
+        resolveContractSelection(headers),
+      );
       if (version) {
         res.setHeader(CONTRACT_VERSION_HEADER, version);
+      }
+      // setHeader 가 아니라 vary() 를 쓴다. 기존 Vary 토큰을 덮어쓰지 않는다.
+      if (varies) {
+        res.vary(CONTRACT_VARY_TOKEN);
       }
       return body;
     } catch (e) {

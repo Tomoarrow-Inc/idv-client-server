@@ -18,12 +18,14 @@ import { join } from 'node:path';
 import { ResponseError } from 'tomo-idv-client-node';
 import { AppController } from './app.controller';
 import {
+  CONTRACT_VARY_TOKEN,
   CONTRACT_VERSION_HEADER,
   DEFAULT_SELECTION,
   EXPLICIT_CONTRACT_VERSION,
   EXPLICIT_SELECTION,
   SDK_CONTRACT_PATHS,
   SDK_VERSION_PARAM,
+  hasContractVaryToken,
   resolveContractSelection,
   withContractHeaders,
 } from './contract-version';
@@ -36,7 +38,7 @@ import {
 const readSource = (name: string) =>
   readFileSync(join(__dirname, name), 'utf8');
 
-const fakeResponse = () => ({ setHeader: jest.fn() });
+const fakeResponse = () => ({ setHeader: jest.fn(), vary: jest.fn() });
 
 describe('SDK contract version selection', () => {
   it('defaults to sending no version header at all', () => {
@@ -131,6 +133,123 @@ describe('SDK contract version selection', () => {
   });
 });
 
+describe('version gate signal (Vary)', () => {
+  it.each([
+    ['Tomo-API-Version', true],
+    ['tomo-api-version', true],
+    ['Origin, Tomo-API-Version', true],
+    ['Tomo-API-Version, Origin', true],
+    ['  Tomo-API-Version  ', true],
+    ['*', true],
+    ['Origin', false],
+    ['', false],
+  ])('reads %p as gate-handled=%p', (vary, expected) => {
+    // idv-server 는 게이트를 거친 모든 응답에 이 토큰을 붙인다. 비교 규칙은
+    // 서버가 Vary 중복을 판정할 때 쓰는 것과 같다(대소문자 무시, 쉼표 분해, *).
+    expect(hasContractVaryToken(vary)).toBe(expected);
+  });
+
+  it('treats a missing header as no signal', () => {
+    expect(hasContractVaryToken(null)).toBe(false);
+    expect(hasContractVaryToken(undefined)).toBe(false);
+  });
+
+  it('forwards the gate signal with vary(), not setHeader()', async () => {
+    // setHeader 는 기존 Vary 를 덮어쓴다. 다른 Vary 생산자가 생겨도 안전하도록
+    // 토큰을 추가하는 vary() 를 쓴다.
+    const res = fakeResponse();
+    const service = {
+      idvResult: jest
+        .fn()
+        .mockResolvedValue({ body: {}, version: '1.3', varies: true }),
+    };
+    const controller = new AppController(service as never);
+
+    await controller.idvResult({ user_id: 'ppid.x' } as never, {}, res as never);
+
+    expect(res.vary).toHaveBeenCalledWith(CONTRACT_VARY_TOKEN);
+    expect(res.setHeader).not.toHaveBeenCalledWith(
+      'Vary',
+      expect.anything(),
+    );
+  });
+
+  it('forwards the gate signal even when no version header came back', async () => {
+    // legacy 계약의 24개 operation 이 이 경우다. 버전 header 는 없지만
+    // 게이트는 돌았다 — Vary 가 그것을 보여주는 유일한 신호다.
+    const res = fakeResponse();
+    const service = {
+      idvStart: jest
+        .fn()
+        .mockResolvedValue({ body: {}, version: undefined, varies: true }),
+    };
+    const controller = new AppController(service as never);
+
+    await controller.idvStart({ country: 'us' } as never, {}, res as never);
+
+    expect(res.setHeader).not.toHaveBeenCalled();
+    expect(res.vary).toHaveBeenCalledWith(CONTRACT_VARY_TOKEN);
+  });
+
+  it('sets no gate signal for endpoints outside the 25 operations', async () => {
+    const res = fakeResponse();
+    const service = {
+      proxyPost: jest
+        .fn()
+        .mockResolvedValue({ body: {}, version: undefined, varies: false }),
+    };
+    const controller = new AppController(service as never);
+
+    await controller.verifySession({}, {}, res as never);
+
+    expect(res.vary).not.toHaveBeenCalled();
+  });
+
+  it('forwards the gate signal on a negotiation failure', () => {
+    // 협상 400 은 버전 header 가 없다. Vary 가 "게이트가 돌았고 거부했다" 를
+    // 보여주므로 오류 경로에서도 반드시 전달해야 한다.
+    const send = jest.fn();
+    const response = {
+      type: jest.fn(),
+      setHeader: jest.fn(),
+      vary: jest.fn(),
+      status: jest.fn(() => ({ send })),
+    };
+    const host = { switchToHttp: () => ({ getResponse: () => response }) };
+
+    new UpstreamResponseFilter().catch(
+      new UpstreamResponseError(
+        400,
+        '{"error":"unsupported_api_version"}',
+        undefined,
+        undefined,
+        true,
+      ),
+      host as never,
+    );
+
+    expect(response.setHeader).not.toHaveBeenCalled();
+    expect(response.vary).toHaveBeenCalledWith(CONTRACT_VARY_TOKEN);
+    expect(response.status).toHaveBeenCalledWith(400);
+  });
+
+  it('extracts the gate signal from an upstream error response', async () => {
+    const upstream = {
+      status: 400,
+      headers: {
+        get: jest.fn((name: string) =>
+          name.toLowerCase() === 'vary' ? 'Tomo-API-Version' : null,
+        ),
+      },
+      text: jest.fn().mockResolvedValue('{"error":"unsupported_api_version"}'),
+    };
+
+    await expect(
+      rethrowUpstream(new ResponseError(upstream as never, 'error')),
+    ).rejects.toMatchObject({ status: 400, varies: true });
+  });
+});
+
 describe('result contract version passthrough', () => {
   it('echoes the version idv-server applied', async () => {
     const res = fakeResponse();
@@ -218,6 +337,7 @@ describe('result contract version passthrough', () => {
     const response = {
       type: jest.fn(),
       setHeader: jest.fn(),
+      vary: jest.fn(),
       status: jest.fn(() => ({ send })),
     };
     const host = { switchToHttp: () => ({ getResponse: () => response }) };
@@ -240,6 +360,7 @@ describe('result contract version passthrough', () => {
     const response = {
       type: jest.fn(),
       setHeader: jest.fn(),
+      vary: jest.fn(),
       status: jest.fn(() => ({ send })),
     };
     const host = { switchToHttp: () => ({ getResponse: () => response }) };

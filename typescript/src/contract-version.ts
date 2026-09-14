@@ -8,6 +8,18 @@
 
 export const CONTRACT_VERSION_HEADER = 'Tomo-API-Version';
 
+export const VARY_HEADER = 'Vary';
+
+/**
+ * idv-server 는 버전 게이트를 거친 모든 응답에 `Vary: Tomo-API-Version` 을
+ * 붙인다 — 성공과 협상 400 양쪽 다.
+ *
+ * legacy(계약 1.3) 에서는 `/v1/idv/result` 를 뺀 24개 operation 에 버전 응답
+ * header 가 오지 않으므로, 이 토큰이 "게이트가 실제로 돌았다" 를 알려주는
+ * 유일한 신호다. 이게 없으면 "1.3 적용됨" 과 "게이트 미작동" 을 구분할 수 없다.
+ */
+export const CONTRACT_VARY_TOKEN = CONTRACT_VERSION_HEADER;
+
 /** 명시 선택으로 고를 수 있는 유일한 값. 계약 1.4.0 이 enum ["1.4"] 로 못박았다. */
 export const EXPLICIT_CONTRACT_VERSION = '1.4';
 
@@ -111,4 +123,21 @@ export function withContractHeaders(
     next[CONTRACT_VERSION_HEADER] = selection.version;
   }
   return next;
+}
+
+/**
+ * upstream `Vary` 에 계약 토큰이 있는지 본다.
+ *
+ * 토큰 비교는 대소문자를 무시하고 쉼표로 분해하며 `*` 도 인정한다 —
+ * idv-server 가 Vary 중복을 판정할 때 쓰는 규칙과 같다.
+ */
+export function hasContractVaryToken(
+  vary: string | null | undefined,
+): boolean {
+  if (!vary) return false;
+  const wanted = CONTRACT_VARY_TOKEN.toLowerCase();
+  return vary
+    .split(',')
+    .map((token) => token.trim().toLowerCase())
+    .some((token) => token === wanted || token === '*');
 }

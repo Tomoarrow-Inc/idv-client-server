@@ -6,6 +6,8 @@ import {
   CONTRACT_VERSION_HEADER,
   DEFAULT_SELECTION,
   SDK_VERSION_PARAM,
+  VARY_HEADER,
+  hasContractVaryToken,
   withContractHeaders,
 } from './contract-version';
 import type { ContractSelection } from './contract-version';
@@ -33,6 +35,12 @@ import type {
 export interface UpstreamResponse<T> {
   body: T;
   version?: string;
+  /**
+   * idv-server 의 버전 게이트가 이 요청을 실제로 처리했는가. `Vary` 로 판정한다.
+   * legacy 계약에서는 `/v1/idv/result` 를 뺀 24개에 버전 응답 header 가 오지
+   * 않으므로, 이 값이 "1.3 적용됨" 과 "게이트 미작동" 을 구분하는 신호다.
+   */
+  varies: boolean;
 }
 
 /**
@@ -86,12 +94,20 @@ export class AppService {
     );
   }
 
-  /** 생성 SDK 의 *Raw 호출을 body + 적용 버전 쌍으로 변환한다. */
+  /** upstream 응답 Vary 로 버전 게이트 작동 여부를 판정한다. */
+  private appliedVary(raw: Response): boolean {
+    return hasContractVaryToken(
+      raw.headers.get(VARY_HEADER.toLowerCase()),
+    );
+  }
+
+  /** 생성 SDK 의 *Raw 호출을 body + 계약 신호 쌍으로 변환한다. */
   private async withVersion<T>(
     response: { raw: Response; value: () => Promise<T> },
   ): Promise<UpstreamResponse<T>> {
     const version = this.appliedVersion(response.raw);
-    return { body: await response.value(), version };
+    const varies = this.appliedVary(response.raw);
+    return { body: await response.value(), version, varies };
   }
 
   // ── OAuth2 ──
@@ -106,7 +122,7 @@ export class AppService {
       base_url: baseUrl,
     });
 
-    const { body: tokenResponse, version } = await this.withVersion(
+    const { body: tokenResponse, version, varies } = await this.withVersion(
       await this.api.v1Oauth2TokenPostRaw(
         {
           Tomo_API_Version: SDK_VERSION_PARAM,
@@ -130,7 +146,7 @@ export class AppService {
       issuedAt: new Date().toISOString(),
     });
 
-    return { body: tokenResponse, version };
+    return { body: tokenResponse, version, varies };
   }
 
   // ── Generic (country-agnostic) ──
@@ -162,6 +178,7 @@ export class AppService {
     return {
       body: this.parseUpstreamJson(text),
       version: this.appliedVersion(response.raw),
+      varies: this.appliedVary(response.raw),
     };
   }
 
@@ -230,6 +247,7 @@ export class AppService {
     });
     const contentType = response.headers.get('content-type') ?? undefined;
     const version = this.appliedVersion(response);
+    const varies = this.appliedVary(response);
     const text = await response.text();
 
     if (!response.ok) {
@@ -238,6 +256,7 @@ export class AppService {
         text,
         contentType,
         version,
+        varies,
       );
     }
 
@@ -245,6 +264,7 @@ export class AppService {
     return {
       body: isJson ? this.parseUpstreamJson(text) : text,
       version,
+      varies,
     };
   }
 
