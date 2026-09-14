@@ -2,6 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { StateService } from './state.service';
 import { createClientAssertion, DefaultApi } from 'tomo-idv-client-node';
 import { UpstreamResponseError } from './upstream-response';
+import {
+  CONTRACT_VERSION_HEADER,
+  DEFAULT_SELECTION,
+  withContractHeaders,
+} from './contract-version';
+import type { ContractSelection } from './contract-version';
 import type {
   TokenRes,
   StartIdvRes,
@@ -16,14 +22,24 @@ import type {
 } from 'tomo-idv-client-node';
 
 /**
- * /v1/idv/result 응답은 계약 버전(Tomo-API-Version)에 따라 봉투가 달라진다.
- * 생성 SDK의 ResultContractResponse는 1.3/1.4 anyOf를 필수 필드의 합으로
- * 평탄화해 단건 응답에서 깨지므로, BFF는 wire 원문을 그대로 통과시킨다.
+ * upstream 응답 body 와 idv-server 가 실제로 적용한 계약 버전을 함께 돌려준다.
+ *
+ * 25개 SDK operation 은 모두 버전 게이트를 거치므로, 어느 endpoint 를 불러도
+ * "무슨 계약이 적용됐는지"를 호출자가 볼 수 있어야 한다. legacy 경로에서는
+ * /v1/idv/result 를 뺀 24개에 버전 header 가 오지 않으므로 version 은
+ * undefined 가 된다 — 오류가 아니라 정상이다.
  */
-export interface UpstreamResultResponse {
-  body: unknown;
+export interface UpstreamResponse<T> {
+  body: T;
   version?: string;
 }
+
+/**
+ * /v1/idv/result 응답은 계약 버전에 따라 봉투가 달라진다. 생성 SDK 의
+ * ResultContractResponse 는 1.3/1.4 anyOf 를 필수 필드의 합으로 평탄화해
+ * 단건 응답에서 깨지므로, BFF 는 wire 원문을 그대로 통과시킨다.
+ */
+export type UpstreamResultResponse = UpstreamResponse<unknown>;
 
 const TOMO_IDV_CLIENT_ID = process.env.TOMO_IDV_CLIENT_ID as string;
 const TOMO_IDV_SECRET = process.env.TOMO_IDV_SECRET as string;
@@ -43,9 +59,42 @@ export class AppService {
     return `Bearer ${this.requireAccessToken()}`;
   }
 
+  /**
+   * 생성 SDK 의 모든 endpoint 에 계약 선택을 적용한다.
+   *
+   * initOverrides 반환값은 기본 init 위에 shallow spread 되므로 headers 를
+   * 통째로 교체한다. Authorization·Content-Type 이 사라지지 않도록 기존
+   * init.headers 를 반드시 다시 병합한다.
+   */
+  private contractInit(selection: ContractSelection) {
+    return async ({ init }: { init: RequestInit }) => ({
+      headers: withContractHeaders(
+        { ...((init.headers ?? {}) as Record<string, string>) },
+        selection,
+      ),
+    });
+  }
+
+  /** upstream 응답 header 에서 idv-server 가 적용한 계약 버전을 읽는다. */
+  private appliedVersion(raw: Response): string | undefined {
+    return (
+      raw.headers.get(CONTRACT_VERSION_HEADER.toLowerCase()) ?? undefined
+    );
+  }
+
+  /** 생성 SDK 의 *Raw 호출을 body + 적용 버전 쌍으로 변환한다. */
+  private async withVersion<T>(
+    response: { raw: Response; value: () => Promise<T> },
+  ): Promise<UpstreamResponse<T>> {
+    const version = this.appliedVersion(response.raw);
+    return { body: await response.value(), version };
+  }
+
   // ── OAuth2 ──
 
-  async issueClientCredentialsToken(): Promise<TokenRes> {
+  async issueClientCredentialsToken(
+    selection: ContractSelection = DEFAULT_SELECTION,
+  ): Promise<UpstreamResponse<TokenRes>> {
     const baseUrl = this.resolveBaseUrl();
     const clientAssertion = createClientAssertion({
       client_id: TOMO_IDV_CLIENT_ID,
@@ -53,14 +102,19 @@ export class AppService {
       base_url: baseUrl,
     });
 
-    const tokenResponse = await this.api.v1Oauth2TokenPost({
-      client_assertion: clientAssertion,
-      client_assertion_type:
-        'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-      grant_type: 'client_credentials',
-      scope: 'idv.read',
-      resource: `https://api.tomopayment.com/v1/idv`,
-    });
+    const { body: tokenResponse, version } = await this.withVersion(
+      await this.api.v1Oauth2TokenPostRaw(
+        {
+          client_assertion: clientAssertion,
+          client_assertion_type:
+            'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+          grant_type: 'client_credentials',
+          scope: 'idv.read',
+          resource: `https://api.tomopayment.com/v1/idv`,
+        },
+        this.contractInit(selection),
+      ),
+    );
 
     this.setState('access_token', tokenResponse.access_token);
     this.setState('token_info', {
@@ -71,31 +125,37 @@ export class AppService {
       issuedAt: new Date().toISOString(),
     });
 
-    return tokenResponse;
+    return { body: tokenResponse, version };
   }
 
   // ── Generic (country-agnostic) ──
 
-  async idvStart(body: StartIdvReq): Promise<StartIdvRes> {
-    return this.api.v1IdvStartPost({
-      StartIdvReq: body,
-    });
+  async idvStart(
+    body: StartIdvReq,
+    selection: ContractSelection = DEFAULT_SELECTION,
+  ): Promise<UpstreamResponse<StartIdvRes>> {
+    return this.withVersion(
+      await this.api.v1IdvStartPostRaw(
+        { StartIdvReq: body },
+        this.contractInit(selection),
+      ),
+    );
   }
 
   async idvResult(
     body: ResultReq,
-    apiVersion?: string,
+    selection: ContractSelection = DEFAULT_SELECTION,
   ): Promise<UpstreamResultResponse> {
-    // apiVersion이 undefined면 header 자체를 보내지 않는다. 기본 계약 선택은
-    // idv-server의 몫이고, BFF가 기본값을 주입하면 전달 투명성이 깨진다.
-    const response = await this.api.v1IdvResultPostRaw({
-      ResultReq: body,
-      ...(apiVersion !== undefined ? { Tomo_API_Version: apiVersion } : {}),
-    });
+    // 버전은 contractInit 이 붙인다. 생성 SDK 의 Tomo_API_Version 파라미터는
+    // /v1/idv/result 에만 있어서 25개 operation 을 균일하게 다루지 못한다.
+    const response = await this.api.v1IdvResultPostRaw(
+      { ResultReq: body },
+      this.contractInit(selection),
+    );
     const text = await response.raw.text();
     return {
       body: this.parseUpstreamJson(text),
-      version: response.raw.headers.get('tomo-api-version') ?? undefined,
+      version: this.appliedVersion(response.raw),
     };
   }
 
@@ -108,53 +168,78 @@ export class AppService {
     }
   }
 
-  async idvReset(body: ResetReq): Promise<ResetRes> {
-    return this.api.v1IdvResetPost({
-      ResetReq: body,
-    });
+  async idvReset(
+    body: ResetReq,
+    selection: ContractSelection = DEFAULT_SELECTION,
+  ): Promise<UpstreamResponse<ResetRes>> {
+    return this.withVersion(
+      await this.api.v1IdvResetPostRaw(
+        { ResetReq: body },
+        this.contractInit(selection),
+      ),
+    );
   }
 
   // delete 응답은 status enum 하나뿐인 단순 객체라 union 평탄화 문제가 없다.
   // result 와 달리 생성 SDK 역직렬화를 그대로 쓴다.
-  async idvResultDelete(body: ResultDeleteReq): Promise<ResultDeleteRes> {
-    return this.api.v1IdvResultDeletePost({
-      ResultDeleteReq: body,
-    });
+  async idvResultDelete(
+    body: ResultDeleteReq,
+    selection: ContractSelection = DEFAULT_SELECTION,
+  ): Promise<UpstreamResponse<ResultDeleteRes>> {
+    return this.withVersion(
+      await this.api.v1IdvResultDeletePostRaw(
+        { ResultDeleteReq: body },
+        this.contractInit(selection),
+      ),
+    );
   }
 
   async idvResultBulkDelete(
     body: ResultBulkDeleteReq,
-  ): Promise<ResultBulkDeleteRes> {
-    return this.api.v1IdvResultBulkDeletePost({
-      ResultBulkDeleteReq: body,
-    });
+    selection: ContractSelection = DEFAULT_SELECTION,
+  ): Promise<UpstreamResponse<ResultBulkDeleteRes>> {
+    return this.withVersion(
+      await this.api.v1IdvResultBulkDeletePostRaw(
+        { ResultBulkDeleteReq: body },
+        this.contractInit(selection),
+      ),
+    );
   }
 
-  async proxyPost(path: string, body: unknown): Promise<unknown> {
+  async proxyPost(
+    path: string,
+    body: unknown,
+    selection: ContractSelection = DEFAULT_SELECTION,
+  ): Promise<UpstreamResponse<unknown>> {
     const response = await fetch(`${this.resolveBaseUrl()}${path}`, {
       method: 'POST',
-      headers: {
-        Authorization: this.bearerToken(),
-        'Content-Type': 'application/json',
-      },
+      headers: withContractHeaders(
+        {
+          Authorization: this.bearerToken(),
+          'Content-Type': 'application/json',
+        },
+        selection,
+      ),
       body: JSON.stringify(body ?? {}),
     });
     const contentType = response.headers.get('content-type') ?? undefined;
+    const version = this.appliedVersion(response);
     const text = await response.text();
 
     if (!response.ok) {
-      throw new UpstreamResponseError(response.status, text, contentType);
+      throw new UpstreamResponseError(
+        response.status,
+        text,
+        contentType,
+        version,
+      );
     }
 
-    if (contentType?.toLowerCase().includes('application/json')) {
-      try {
-        return text ? JSON.parse(text) : {};
-      } catch {
-        return text;
-      }
-    }
-
-    return text;
+    const isJson = contentType?.toLowerCase().includes('application/json');
+    return {
+      body: isJson ? this.parseUpstreamJson(text) : text,
+      version,
+    };
   }
 
   private requireAccessToken(): string {

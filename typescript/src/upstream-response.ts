@@ -7,8 +7,9 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { ResponseError } from 'tomo-idv-client-node';
+import { CONTRACT_VERSION_HEADER } from './contract-version';
 
-export const CONTRACT_VERSION_HEADER = 'Tomo-API-Version';
+export { CONTRACT_VERSION_HEADER };
 
 export class UpstreamResponseError extends Error {
   constructor(

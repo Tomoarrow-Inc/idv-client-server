@@ -46,7 +46,11 @@ describe('deprecated IDV implementation removal', () => {
   it('forwards deprecated compatibility calls without deprecated SDK methods', () => {
     const appService = readSource('app.service.ts');
 
-    expect(appService).toContain('async proxyPost(path: string, body: unknown)');
+    // 계약 선택 인자가 붙으면서 시그니처가 여러 줄로 바뀌었다. 이름과 두 필수
+    // 인자만 고정해 raw 프록시 경로 자체가 유지되는지 본다.
+    expect(appService).toMatch(
+      /async proxyPost\(\s*path: string,\s*body: unknown,/,
+    );
     expect(appService).toContain('fetch(`${this.resolveBaseUrl()}${path}`');
     expect(appService).not.toMatch(/\bv1IdvKycGetPost\s*\(/);
     expect(appService).not.toMatch(/\bv1Idv(Us|Uk|Ca|Jp|Cn)StartPost\s*\(/);

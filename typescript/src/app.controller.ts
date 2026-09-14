@@ -10,149 +10,169 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AppService } from './app.service';
+import type { UpstreamResponse } from './app.service';
 import type {
-  TokenRes,
-  StartIdvRes,
   StartIdvReq,
   ResultReq,
   ResetReq,
-  ResetRes,
   ResultDeleteReq,
-  ResultDeleteRes,
   ResultBulkDeleteReq,
-  ResultBulkDeleteRes,
 } from 'tomo-idv-client-node';
 import {
   CONTRACT_VERSION_HEADER,
-  rethrowUpstream,
-} from './upstream-response';
+  resolveContractSelection,
+} from './contract-version';
+import { rethrowUpstream } from './upstream-response';
+
+type InboundHeaders = Record<string, string | string[] | undefined>;
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // ── OAuth2 ──
-
-  @Post('/v1/oauth2/token')
-  async issueClientCredentialsToken(): Promise<TokenRes> {
+  /**
+   * idv-server 는 25개 SDK operation 전부에서 Tomo-API-Version 을 해석한다.
+   * 모든 라우트가 같은 규칙을 쓰도록 선택 해석과 응답 header 에코를 한 곳에
+   * 모았다. 값 검증은 서버 몫이라 BFF 는 거르지 않는다.
+   */
+  private async forward<T>(
+    res: Response,
+    headers: InboundHeaders,
+    call: (
+      selection: ReturnType<typeof resolveContractSelection>,
+    ) => Promise<UpstreamResponse<T>>,
+  ): Promise<T> {
     try {
-      return await this.appService.issueClientCredentialsToken();
+      const { body, version } = await call(resolveContractSelection(headers));
+      if (version) {
+        res.setHeader(CONTRACT_VERSION_HEADER, version);
+      }
+      return body;
     } catch (e) {
       return rethrowUpstream(e);
     }
+  }
+
+  // ── OAuth2 ──
+
+  @Post('/v1/oauth2/token')
+  async issueClientCredentialsToken(
+    @Headers() headers: InboundHeaders,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<unknown> {
+    return this.forward(res, headers, (selection) =>
+      this.appService.issueClientCredentialsToken(selection),
+    );
   }
 
   // ── Generic (country-agnostic) ──
 
   @Post('/v1/idv/start')
-  async idvStart(@Body() body: StartIdvReq): Promise<StartIdvRes> {
-    try {
-      return await this.appService.idvStart(body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
+  async idvStart(
+    @Body() body: StartIdvReq,
+    @Headers() headers: InboundHeaders,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<unknown> {
+    return this.forward(res, headers, (selection) =>
+      this.appService.idvStart(body, selection),
+    );
   }
 
-  // Tomo-API-Version은 idv-server에서 이 endpoint만 해석한다. 값 검증도 서버가
-  // 하므로 BFF는 받은 그대로 넘기고, 서버가 적용한 버전을 그대로 되돌려준다.
   @Post('/v1/idv/result')
   async idvResult(
     @Body() body: ResultReq,
-    @Headers('tomo-api-version') apiVersion: string | undefined,
+    @Headers() headers: InboundHeaders,
     @Res({ passthrough: true }) res: Response,
   ): Promise<unknown> {
-    try {
-      const { body: payload, version } = await this.appService.idvResult(
-        body,
-        apiVersion,
-      );
-      if (version) {
-        res.setHeader(CONTRACT_VERSION_HEADER, version);
-      }
-      return payload;
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
+    return this.forward(res, headers, (selection) =>
+      this.appService.idvResult(body, selection),
+    );
   }
 
   @Post('/v1/idv/reset')
   @HttpCode(HttpStatus.OK)
-  async idvReset(@Body() body: ResetReq): Promise<ResetRes> {
-    try {
-      return await this.appService.idvReset(body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
+  async idvReset(
+    @Body() body: ResetReq,
+    @Headers() headers: InboundHeaders,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<unknown> {
+    return this.forward(res, headers, (selection) =>
+      this.appService.idvReset(body, selection),
+    );
   }
 
   @Post('/v1/idv/result/delete')
   @HttpCode(HttpStatus.OK)
   async idvResultDelete(
     @Body() body: ResultDeleteReq,
-  ): Promise<ResultDeleteRes> {
-    try {
-      return await this.appService.idvResultDelete(body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
+    @Headers() headers: InboundHeaders,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<unknown> {
+    return this.forward(res, headers, (selection) =>
+      this.appService.idvResultDelete(body, selection),
+    );
   }
 
   @Post('/v1/idv/result/bulk-delete')
   @HttpCode(HttpStatus.OK)
   async idvResultBulkDelete(
     @Body() body: ResultBulkDeleteReq,
-  ): Promise<ResultBulkDeleteRes> {
-    try {
-      return await this.appService.idvResultBulkDelete(body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
+    @Headers() headers: InboundHeaders,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<unknown> {
+    return this.forward(res, headers, (selection) =>
+      this.appService.idvResultBulkDelete(body, selection),
+    );
   }
 
   // ── Deprecated compatibility routes still exposed by idv-server ──
 
   @Post('/v1/idv/kyc/get')
-  async idvKycGet(@Body() body: Record<string, unknown>): Promise<unknown> {
-    try {
-      return await this.appService.proxyPost('/v1/idv/kyc/get', body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
+  async idvKycGet(
+    @Body() body: Record<string, unknown>,
+    @Headers() headers: InboundHeaders,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<unknown> {
+    return this.forward(res, headers, (selection) =>
+      this.appService.proxyPost('/v1/idv/kyc/get', body, selection),
+    );
   }
 
   @Post('/v1/idv/:country/start')
   async idvCountryStart(
     @Param('country') country: string,
     @Body() body: Record<string, unknown>,
+    @Headers() headers: InboundHeaders,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<unknown> {
-    try {
-      return await this.appService.proxyPost(`/v1/idv/${country}/start`, body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
+    return this.forward(res, headers, (selection) =>
+      this.appService.proxyPost(`/v1/idv/${country}/start`, body, selection),
+    );
   }
 
   @Post('/v1/idv/:country/kyc/get')
   async idvCountryKycGet(
     @Param('country') country: string,
     @Body() body: Record<string, unknown>,
+    @Headers() headers: InboundHeaders,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<unknown> {
-    try {
-      return await this.appService.proxyPost(
-        `/v1/idv/${country}/kyc/get`,
-        body,
-      );
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
+    return this.forward(res, headers, (selection) =>
+      this.appService.proxyPost(`/v1/idv/${country}/kyc/get`, body, selection),
+    );
   }
 
+  // /v1/verify/session 은 idv-server 의 25개 SDK operation 에 없다. 게이트를
+  // 거치지 않으므로 버전 header 는 무시되지만, 규칙을 라우트마다 갈라놓지
+  // 않기 위해 같은 경로로 전달한다.
   @Post('/v1/verify/session')
-  async verifySession(@Body() body: Record<string, unknown>): Promise<unknown> {
-    try {
-      return await this.appService.proxyPost('/v1/verify/session', body);
-    } catch (e) {
-      return rethrowUpstream(e);
-    }
+  async verifySession(
+    @Body() body: Record<string, unknown>,
+    @Headers() headers: InboundHeaders,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<unknown> {
+    return this.forward(res, headers, (selection) =>
+      this.appService.proxyPost('/v1/verify/session', body, selection),
+    );
   }
 }

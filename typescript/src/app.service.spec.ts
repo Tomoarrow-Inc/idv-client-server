@@ -2,6 +2,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ResetRes } from 'tomo-idv-client-node';
 import { AppService } from './app.service';
+import {
+  CONTRACT_VERSION_HEADER,
+  DEFAULT_SELECTION,
+} from './contract-version';
 
 describe('AppService idv-server requests', () => {
   const originalFetch = global.fetch;
@@ -19,37 +23,14 @@ describe('AppService idv-server requests', () => {
       apiMock as never,
     );
 
-  it('uses the SDK client for generic IDV start', async () => {
-    // Verifies the BFF sends /v1/idv/start through tomo-idv-client-node,
-    // not a raw fetch proxy.
-    global.fetch = jest.fn();
-    const body = {
-      user_id: 'user-sdk-start',
-      country: 'us',
-      callback_url: 'https://client.example/callback',
-      email: 'user-sdk-start@example.com',
-    };
-    const apiMock = {
-      v1IdvStartPost: jest
-        .fn()
-        .mockResolvedValue({ start_idv_uri: 'https://idv.example/start' }),
-    };
-    const service = createService(apiMock);
-
-    await service.idvStart(body as never);
-
-    expect(apiMock.v1IdvStartPost).toHaveBeenCalledWith({
-      StartIdvReq: body,
-    });
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
-
-  const rawResultResponse = (
-    payload: string,
-    versionHeader?: string,
-  ): { raw: { text: jest.Mock; headers: { get: jest.Mock } } } => ({
+  /** *Raw SDK 호출의 반환 모양. value() 는 파싱된 body, raw 는 fetch Response. */
+  const rawApiResponse = (payload: unknown, versionHeader?: string) => ({
     raw: {
-      text: jest.fn().mockResolvedValue(payload),
+      text: jest
+        .fn()
+        .mockResolvedValue(
+          typeof payload === 'string' ? payload : JSON.stringify(payload),
+        ),
       headers: {
         get: jest.fn((name: string) =>
           name.toLowerCase() === 'tomo-api-version'
@@ -58,70 +39,137 @@ describe('AppService idv-server requests', () => {
         ),
       },
     },
+    value: jest.fn().mockResolvedValue(payload),
+  });
+
+  /**
+   * SDK 호출에 넘어간 initOverrides 함수를 실제 init 으로 실행해, 최종적으로
+   * 어떤 header 가 나가는지 확인한다. 생성 runtime 은 반환 headers 로 기존
+   * headers 를 통째로 교체하므로 Authorization 보존까지 같이 본다.
+   */
+  const resolvedHeaders = async (mock: jest.Mock, callIndex = 0) => {
+    const initFn = mock.mock.calls[callIndex][1];
+    const result = await initFn({
+      init: {
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          Authorization: 'Bearer access-token',
+          [CONTRACT_VERSION_HEADER]: '1.4',
+        },
+      },
+      context: {},
+    });
+    return result.headers as Record<string, string>;
+  };
+
+  // ── 계약 버전 header ──
+
+  it('attaches the SDK contract version to every generated call by default', async () => {
+    // idv-server 는 25개 operation 전부에서 이 header 를 해석하고, SDK 계약
+    // 1.4.0 은 required enum ["1.4"] 로 요구한다.
+    const apiMock = {
+      v1IdvStartPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawApiResponse({ start_idv_uri: 'x' }, '1.4')),
+    };
+    const service = createService(apiMock);
+
+    await service.idvStart({ country: 'us' } as never);
+
+    const headers = await resolvedHeaders(apiMock.v1IdvStartPostRaw);
+    expect(headers[CONTRACT_VERSION_HEADER]).toBe('1.4');
+    expect(headers.Authorization).toBe('Bearer access-token');
+    expect(headers['Content-Type']).toBe('application/json;charset=utf-8');
+  });
+
+  it('omits the version header entirely for the legacy contract path', async () => {
+    // idv-server 는 header 부재만을 legacy(v1.3.20) 계약 선택으로 인정한다.
+    // 값으로 "1.3" 을 보내는 것은 400 이라 legacy 를 고르는 방법이 아니다.
+    const apiMock = {
+      v1IdvStartPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawApiResponse({ start_idv_uri: 'x' })),
+    };
+    const service = createService(apiMock);
+
+    await service.idvStart({ country: 'us' } as never, {
+      version: '',
+      omit: true,
+    });
+
+    const headers = await resolvedHeaders(apiMock.v1IdvStartPostRaw);
+    expect(headers).not.toHaveProperty(CONTRACT_VERSION_HEADER);
+    expect(headers.Authorization).toBe('Bearer access-token');
+  });
+
+  it.each(['1.3', '1.3.20', '1.4.0', 'latest', ''])(
+    'forwards the caller version %p to idv-server verbatim',
+    async (version) => {
+      // idv-server 가 거부할 값이라도 BFF 가 미리 거르지 않는다. 걸러버리면
+      // 호출자가 실제 400 unsupported_api_version 을 볼 수 없다.
+      const apiMock = {
+        v1IdvStartPostRaw: jest
+          .fn()
+          .mockResolvedValue(rawApiResponse({ start_idv_uri: 'x' })),
+      };
+      const service = createService(apiMock);
+
+      await service.idvStart({ country: 'us' } as never, {
+        version,
+        omit: false,
+      });
+
+      const headers = await resolvedHeaders(apiMock.v1IdvStartPostRaw);
+      expect(headers[CONTRACT_VERSION_HEADER]).toBe(version);
+    },
+  );
+
+  // ── 개별 endpoint ──
+
+  it('uses the SDK client for generic IDV start', async () => {
+    global.fetch = jest.fn();
+    const body = { user_id: 'user-sdk-start', country: 'us' };
+    const apiMock = {
+      v1IdvStartPostRaw: jest
+        .fn()
+        .mockResolvedValue(
+          rawApiResponse({ start_idv_uri: 'https://idv.example/start' }, '1.4'),
+        ),
+    };
+    const service = createService(apiMock);
+
+    const result = await service.idvStart(body as never);
+
+    expect(apiMock.v1IdvStartPostRaw.mock.calls[0][0]).toEqual({
+      StartIdvReq: body,
+    });
+    expect(result.body).toEqual({ start_idv_uri: 'https://idv.example/start' });
+    expect(result.version).toBe('1.4');
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('uses the SDK client for generic IDV result', async () => {
-    // Verifies the public /v1/idv/result endpoint is wired through the
-    // generated SDK request path instead of raw fetch.
     global.fetch = jest.fn();
     const body = { user_id: 'user-result', country: 'us' };
     const apiMock = {
       v1IdvResultPostRaw: jest
         .fn()
-        .mockResolvedValue(rawResultResponse('{"result":{}}', '1.3')),
+        .mockResolvedValue(rawApiResponse({ result: {} }, '1.4')),
     };
     const service = createService(apiMock);
 
     await service.idvResult(body as never);
 
-    expect(apiMock.v1IdvResultPostRaw).toHaveBeenCalledWith({
+    expect(apiMock.v1IdvResultPostRaw.mock.calls[0][0]).toEqual({
       ResultReq: body,
     });
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it('omits Tomo-API-Version when the caller did not send one', async () => {
-    // The default contract belongs to idv-server. Injecting a BFF-side default
-    // would silently pin callers to whichever version the BFF happens to pick.
-    const apiMock = {
-      v1IdvResultPostRaw: jest
-        .fn()
-        .mockResolvedValue(rawResultResponse('{"result":{}}', '1.3')),
-    };
-    const service = createService(apiMock);
-
-    await service.idvResult({ user_id: 'user-result' } as never, undefined);
-
-    const sent = apiMock.v1IdvResultPostRaw.mock.calls[0][0];
-    expect(Object.keys(sent)).toEqual(['ResultReq']);
-    expect(sent).not.toHaveProperty('Tomo_API_Version');
-  });
-
-  it.each(['1.3', '1.4', '1.3.0'])(
-    'forwards Tomo-API-Version %s to idv-server verbatim',
-    async (version) => {
-      // Unsupported values are rejected by idv-server with 400. The BFF must
-      // not pre-filter them, otherwise callers cannot see the real error.
-      const apiMock = {
-        v1IdvResultPostRaw: jest
-          .fn()
-          .mockResolvedValue(rawResultResponse('{"result":{}}', version)),
-      };
-      const service = createService(apiMock);
-
-      await service.idvResult({ user_id: 'user-result' } as never, version);
-
-      expect(apiMock.v1IdvResultPostRaw).toHaveBeenCalledWith({
-        ResultReq: { user_id: 'user-result' },
-        Tomo_API_Version: version,
-      });
-    },
-  );
-
   it('returns the single-result body untouched and echoes the applied version', async () => {
-    // Regression guard: the generated ResultContractResponse deserializer
-    // flattens the 1.3/1.4 anyOf and calls json['results'].map() unconditionally,
-    // so a single-result body would throw. The BFF must bypass it.
+    // Regression guard: 생성 ResultContractResponse 역직렬화는 1.3/1.4 anyOf 를
+    // 평탄화해 json['results'].map() 을 무조건 부른다. 단건 응답이면 터지므로
+    // BFF 는 그 경로를 우회해야 한다.
     const singleResult = {
       result: {
         auth_id: 'auth-1',
@@ -133,11 +181,14 @@ describe('AppService idv-server requests', () => {
     const apiMock = {
       v1IdvResultPostRaw: jest
         .fn()
-        .mockResolvedValue(rawResultResponse(JSON.stringify(singleResult), '1.3')),
+        .mockResolvedValue(rawApiResponse(singleResult, '1.3')),
     };
     const service = createService(apiMock);
 
-    const result = await service.idvResult({ user_id: 'ppid.x' } as never, '1.3');
+    const result = await service.idvResult({ user_id: 'ppid.x' } as never, {
+      version: '',
+      omit: true,
+    });
 
     expect(result.body).toEqual(singleResult);
     expect(result.version).toBe('1.3');
@@ -159,25 +210,30 @@ describe('AppService idv-server requests', () => {
     const apiMock = {
       v1IdvResultPostRaw: jest
         .fn()
-        .mockResolvedValue(rawResultResponse(JSON.stringify(listResult), '1.4')),
+        .mockResolvedValue(rawApiResponse(listResult, '1.4')),
     };
     const service = createService(apiMock);
 
-    const result = await service.idvResult({ user_id: 'ppid.x' } as never, '1.4');
+    const result = await service.idvResult({ user_id: 'ppid.x' } as never);
 
     expect(result.body).toEqual(listResult);
     expect(result.version).toBe('1.4');
   });
 
   it('leaves version undefined when idv-server sends no version header', async () => {
+    // legacy 계약에서는 /v1/idv/result 를 제외한 24개 operation 에 버전
+    // 응답 header 가 오지 않는다. 오류가 아니라 정상 동작이다.
     const apiMock = {
-      v1IdvResultPostRaw: jest
+      v1IdvResetPostRaw: jest
         .fn()
-        .mockResolvedValue(rawResultResponse('{"result":{}}')),
+        .mockResolvedValue(rawApiResponse({ status: 'reset' })),
     };
     const service = createService(apiMock);
 
-    const result = await service.idvResult({ user_id: 'ppid.x' } as never);
+    const result = await service.idvReset({ country: 'us' } as never, {
+      version: '',
+      omit: true,
+    });
 
     expect(result.version).toBeUndefined();
   });
@@ -191,16 +247,18 @@ describe('AppService idv-server requests', () => {
     };
     const resetResponse: ResetRes = { status: 'reset' };
     const apiMock = {
-      v1IdvResetPost: jest.fn().mockResolvedValue(resetResponse),
+      v1IdvResetPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawApiResponse(resetResponse, '1.4')),
     };
     const service = createService(apiMock);
 
     const result = await service.idvReset(body as never);
 
-    expect(apiMock.v1IdvResetPost).toHaveBeenCalledWith({
+    expect(apiMock.v1IdvResetPostRaw.mock.calls[0][0]).toEqual({
       ResetReq: body,
     });
-    expect(result).toBe(resetResponse);
+    expect(result.body).toBe(resetResponse);
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
@@ -208,16 +266,18 @@ describe('AppService idv-server requests', () => {
     global.fetch = jest.fn();
     const body = { user_id: 'ppid.x' };
     const apiMock = {
-      v1IdvResultDeletePost: jest.fn().mockResolvedValue({ status: 'deleted' }),
+      v1IdvResultDeletePostRaw: jest
+        .fn()
+        .mockResolvedValue(rawApiResponse({ status: 'deleted' }, '1.4')),
     };
     const service = createService(apiMock);
 
     const result = await service.idvResultDelete(body as never);
 
-    expect(apiMock.v1IdvResultDeletePost).toHaveBeenCalledWith({
+    expect(apiMock.v1IdvResultDeletePostRaw.mock.calls[0][0]).toEqual({
       ResultDeleteReq: body,
     });
-    expect(result).toEqual({ status: 'deleted' });
+    expect(result.body).toEqual({ status: 'deleted' });
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
@@ -225,22 +285,27 @@ describe('AppService idv-server requests', () => {
     global.fetch = jest.fn();
     const body = { user_ids: ['ppid.x', 'ppid.y'] };
     const apiMock = {
-      v1IdvResultBulkDeletePost: jest.fn().mockResolvedValue({
-        results: [{ status: 'deleted' }, { status: 'not_deletable' }],
-      }),
+      v1IdvResultBulkDeletePostRaw: jest.fn().mockResolvedValue(
+        rawApiResponse(
+          { results: [{ status: 'deleted' }, { status: 'not_deletable' }] },
+          '1.4',
+        ),
+      ),
     };
     const service = createService(apiMock);
 
     const result = await service.idvResultBulkDelete(body as never);
 
-    expect(apiMock.v1IdvResultBulkDeletePost).toHaveBeenCalledWith({
+    expect(apiMock.v1IdvResultBulkDeletePostRaw.mock.calls[0][0]).toEqual({
       ResultBulkDeleteReq: body,
     });
-    expect(result).toEqual({
+    expect(result.body).toEqual({
       results: [{ status: 'deleted' }, { status: 'not_deletable' }],
     });
     expect(global.fetch).not.toHaveBeenCalled();
   });
+
+  // ── raw proxy ──
 
   it('uses transparent fetch proxy for deprecated compatibility routes', async () => {
     process.env.IDV_BASE_URL = 'https://idv.example';
@@ -248,7 +313,13 @@ describe('AppService idv-server requests', () => {
     const fetchMock = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      headers: { get: jest.fn(() => 'application/json') },
+      headers: {
+        get: jest.fn((name: string) =>
+          name.toLowerCase() === 'tomo-api-version'
+            ? '1.4'
+            : 'application/json',
+        ),
+      },
       text: jest.fn().mockResolvedValue('{"status":"forwarded"}'),
     });
     global.fetch = fetchMock;
@@ -256,33 +327,69 @@ describe('AppService idv-server requests', () => {
 
     const result = await service.proxyPost('/v1/idv/kyc/get', body);
 
-    expect(result).toEqual({ status: 'forwarded' });
+    expect(result.body).toEqual({ status: 'forwarded' });
+    expect(result.version).toBe('1.4');
     expect(fetchMock).toHaveBeenCalledWith('https://idv.example/v1/idv/kyc/get', {
       method: 'POST',
       headers: {
         Authorization: 'Bearer access-token',
         'Content-Type': 'application/json',
+        [CONTRACT_VERSION_HEADER]: '1.4',
       },
       body: JSON.stringify(body),
     });
   });
 
-  it('keeps public IDV start/result/reset methods on the SDK path', () => {
-    // Static regression check: public IDV routes stay on the generated SDK
-    // methods. Deprecated compatibility routes use proxyPost.
+  it('omits the version header on the raw proxy for the legacy path', async () => {
+    process.env.IDV_BASE_URL = 'https://idv.example';
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: { get: jest.fn(() => 'application/json') },
+      text: jest.fn().mockResolvedValue('{}'),
+    });
+    global.fetch = fetchMock;
+    const service = createService({});
+
+    await service.proxyPost('/v1/idv/us/start', {}, { version: '', omit: true });
+
+    expect(fetchMock.mock.calls[0][1].headers).not.toHaveProperty(
+      CONTRACT_VERSION_HEADER,
+    );
+  });
+
+  // ── 정적 회귀 검사 ──
+
+  it('routes every SDK endpoint through a *Raw call so the applied version is visible', () => {
+    // 25개 operation 전부가 버전 게이트를 거치므로, 어느 endpoint 를 불러도
+    // 적용된 계약을 호출자가 볼 수 있어야 한다.
     const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
 
-    expect(source).toMatch(/\bthis\.api\.v1IdvStartPost\s*\(/);
-    expect(source).toMatch(/\bthis\.api\.v1IdvResultPostRaw\s*\(/);
-    expect(source).toMatch(/\bthis\.api\.v1IdvResetPost\s*\(/);
-    expect(source).toMatch(/\bthis\.api\.v1IdvResultDeletePost\s*\(/);
-    expect(source).toMatch(/\bthis\.api\.v1IdvResultBulkDeletePost\s*\(/);
+    for (const method of [
+      'v1Oauth2TokenPostRaw',
+      'v1IdvStartPostRaw',
+      'v1IdvResultPostRaw',
+      'v1IdvResetPostRaw',
+      'v1IdvResultDeletePostRaw',
+      'v1IdvResultBulkDeletePostRaw',
+    ]) {
+      expect(source).toContain(`this.api.${method}(`);
+    }
     expect(source).toMatch(/\bproxyPost\s*\(/);
   });
 
+  it('applies the contract selection to every upstream call site', () => {
+    // contractInit 을 빠뜨린 SDK 호출이 있으면 그 endpoint 만 기본 header 로
+    // 나가 25개 operation 사이에 조용한 불일치가 생긴다.
+    const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
+    const sdkCalls = source.match(/this\.api\.\w+\(/g) ?? [];
+    const contractInits = source.match(/this\.contractInit\(selection\)/g) ?? [];
+
+    expect(sdkCalls.length).toBeGreaterThanOrEqual(6);
+    expect(contractInits).toHaveLength(sdkCalls.length);
+  });
+
   it('keeps AppService free of Old-suffixed legacy functions', () => {
-    // Static regression check for the hot-fix cleanup: legacy copies with
-    // "Old" suffix must not remain in app.service.ts.
     const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
 
     expect(source).not.toMatch(/\b[A-Za-z0-9_]+Old\s*\(/);
@@ -290,8 +397,6 @@ describe('AppService idv-server requests', () => {
   });
 
   it('keeps AppService free of deprecated SDK compatibility methods', () => {
-    // Static regression check: deprecated paths are forwarded transparently
-    // instead of going through generated SDK methods that can reshape bodies.
     const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
 
     expect(source).not.toMatch(/\bidvKycGet\s*\(/);

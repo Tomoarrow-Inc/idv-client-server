@@ -4,14 +4,17 @@ import request from 'supertest';
 import type { ResetReq, ResetRes } from 'tomo-idv-client-node';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { DEFAULT_SELECTION } from './contract-version';
 
 describe('POST /v1/idv/reset', () => {
   let app: INestApplication;
   const resetResponse: ResetRes = { status: 'reset' };
-  const idvReset = jest.fn<Promise<ResetRes>, [ResetReq]>();
+  const idvReset = jest.fn();
 
   beforeEach(async () => {
-    idvReset.mockReset().mockResolvedValue(resetResponse);
+    idvReset
+      .mockReset()
+      .mockResolvedValue({ body: resetResponse, version: '1.4' });
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
@@ -45,7 +48,8 @@ describe('POST /v1/idv/reset', () => {
 
     expect(response.body).toEqual({ status: 'reset' });
     expect(idvReset).toHaveBeenCalledTimes(1);
-    expect(idvReset).toHaveBeenCalledWith(body);
+    expect(idvReset).toHaveBeenCalledWith(body, DEFAULT_SELECTION);
+    expect(response.headers['tomo-api-version']).toBe('1.4');
   });
 
   it('passes the same body object to AppService', async () => {
@@ -56,7 +60,7 @@ describe('POST /v1/idv/reset', () => {
     };
     const controller = new AppController({ idvReset } as never);
 
-    await controller.idvReset(body);
+    await controller.idvReset(body, {}, { setHeader: jest.fn() } as never);
 
     expect(idvReset.mock.calls[0][0]).toBe(body);
   });
