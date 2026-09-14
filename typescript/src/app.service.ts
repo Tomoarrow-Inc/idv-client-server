@@ -5,6 +5,7 @@ import { UpstreamResponseError } from './upstream-response';
 import {
   CONTRACT_VERSION_HEADER,
   DEFAULT_SELECTION,
+  SDK_VERSION_PARAM,
   withContractHeaders,
 } from './contract-version';
 import type { ContractSelection } from './contract-version';
@@ -35,9 +36,8 @@ export interface UpstreamResponse<T> {
 }
 
 /**
- * /v1/idv/result 응답은 계약 버전에 따라 봉투가 달라진다. 생성 SDK 의
- * ResultContractResponse 는 1.3/1.4 anyOf 를 필수 필드의 합으로 평탄화해
- * 단건 응답에서 깨지므로, BFF 는 wire 원문을 그대로 통과시킨다.
+ * /v1/idv/result 응답은 계약 버전에 따라 봉투가 달라진다. 생성 SDK 는 1.4
+ * 전용이라 legacy 응답을 표현하지 못하므로 wire 원문을 그대로 통과시킨다.
  */
 export type UpstreamResultResponse = UpstreamResponse<unknown>;
 
@@ -65,6 +65,10 @@ export class AppService {
    * initOverrides 반환값은 기본 init 위에 shallow spread 되므로 headers 를
    * 통째로 교체한다. Authorization·Content-Type 이 사라지지 않도록 기존
    * init.headers 를 반드시 다시 병합한다.
+   *
+   * 생성 SDK 는 Tomo_API_Version 을 required enum ["1.4"] 로 강제하므로 호출부는
+   * 항상 SDK_VERSION_PARAM 을 넘긴다. legacy 선택이면 여기서 그 header 를
+   * 다시 떼어내 wire 에서는 보내지 않는다.
    */
   private contractInit(selection: ContractSelection) {
     return async ({ init }: { init: RequestInit }) => ({
@@ -105,6 +109,7 @@ export class AppService {
     const { body: tokenResponse, version } = await this.withVersion(
       await this.api.v1Oauth2TokenPostRaw(
         {
+          Tomo_API_Version: SDK_VERSION_PARAM,
           client_assertion: clientAssertion,
           client_assertion_type:
             'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
@@ -136,7 +141,7 @@ export class AppService {
   ): Promise<UpstreamResponse<StartIdvRes>> {
     return this.withVersion(
       await this.api.v1IdvStartPostRaw(
-        { StartIdvReq: body },
+        { Tomo_API_Version: SDK_VERSION_PARAM, StartIdvReq: body },
         this.contractInit(selection),
       ),
     );
@@ -146,10 +151,11 @@ export class AppService {
     body: ResultReq,
     selection: ContractSelection = DEFAULT_SELECTION,
   ): Promise<UpstreamResultResponse> {
-    // 버전은 contractInit 이 붙인다. 생성 SDK 의 Tomo_API_Version 파라미터는
-    // /v1/idv/result 에만 있어서 25개 operation 을 균일하게 다루지 못한다.
+    // 재생성된 SDK 의 ResultRes 는 1.4 전용 oneOf 라, legacy 응답을 넣으면
+    // 어느 쪽에도 매칭되지 않아 FromJSONTyped 가 {} 를 돌려준다 — 조용한 유실.
+    // 그래서 역직렬화를 태우지 않고 wire 원문을 그대로 통과시킨다.
     const response = await this.api.v1IdvResultPostRaw(
-      { ResultReq: body },
+      { Tomo_API_Version: SDK_VERSION_PARAM, ResultReq: body },
       this.contractInit(selection),
     );
     const text = await response.raw.text();
@@ -174,7 +180,7 @@ export class AppService {
   ): Promise<UpstreamResponse<ResetRes>> {
     return this.withVersion(
       await this.api.v1IdvResetPostRaw(
-        { ResetReq: body },
+        { Tomo_API_Version: SDK_VERSION_PARAM, ResetReq: body },
         this.contractInit(selection),
       ),
     );
@@ -188,7 +194,7 @@ export class AppService {
   ): Promise<UpstreamResponse<ResultDeleteRes>> {
     return this.withVersion(
       await this.api.v1IdvResultDeletePostRaw(
-        { ResultDeleteReq: body },
+        { Tomo_API_Version: SDK_VERSION_PARAM, ResultDeleteReq: body },
         this.contractInit(selection),
       ),
     );
@@ -200,7 +206,7 @@ export class AppService {
   ): Promise<UpstreamResponse<ResultBulkDeleteRes>> {
     return this.withVersion(
       await this.api.v1IdvResultBulkDeletePostRaw(
-        { ResultBulkDeleteReq: body },
+        { Tomo_API_Version: SDK_VERSION_PARAM, ResultBulkDeleteReq: body },
         this.contractInit(selection),
       ),
     );

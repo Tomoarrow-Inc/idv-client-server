@@ -39,6 +39,9 @@ describeIf('DefaultApi -> real idv-server (integration)', () => {
     });
 
     const token = await api.v1Oauth2TokenPost({
+      // 재생성된 SDK 는 25개 method 전부에서 이 값을 required enum ["1.4"] 로
+      // 요구한다. 생성 client 로는 legacy 호출을 표현할 수 없다.
+      Tomo_API_Version: '1.4',
       client_assertion: assertion,
       client_assertion_type:
         'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
@@ -80,6 +83,7 @@ describeIf('DefaultApi -> real idv-server (integration)', () => {
     // tomo-idv-client-node, so this integration path stays on SDK-supported
     // /v1/idv/start rather than app-only /v1/idv/sessions/start.
     const resp = await authenticatedApi.v1IdvStartPost({
+      Tomo_API_Version: '1.4',
       StartIdvReq: {
         user_id: userId,
         country: 'us',

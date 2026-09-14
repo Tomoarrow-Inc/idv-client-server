@@ -4,7 +4,8 @@ import type { ResetRes } from 'tomo-idv-client-node';
 import { AppService } from './app.service';
 import {
   CONTRACT_VERSION_HEADER,
-  DEFAULT_SELECTION,
+  EXPLICIT_SELECTION,
+  SDK_VERSION_PARAM,
 } from './contract-version';
 
 describe('AppService idv-server requests', () => {
@@ -54,7 +55,8 @@ describe('AppService idv-server requests', () => {
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
           Authorization: 'Bearer access-token',
-          [CONTRACT_VERSION_HEADER]: '1.4',
+          // 생성 SDK 가 required 파라미터로 미리 넣어둔 header.
+          [CONTRACT_VERSION_HEADER]: SDK_VERSION_PARAM,
         },
       },
       context: {},
@@ -64,27 +66,10 @@ describe('AppService idv-server requests', () => {
 
   // ── 계약 버전 header ──
 
-  it('attaches the SDK contract version to every generated call by default', async () => {
-    // idv-server 는 25개 operation 전부에서 이 header 를 해석하고, SDK 계약
-    // 1.4.0 은 required enum ["1.4"] 로 요구한다.
-    const apiMock = {
-      v1IdvStartPostRaw: jest
-        .fn()
-        .mockResolvedValue(rawApiResponse({ start_idv_uri: 'x' }, '1.4')),
-    };
-    const service = createService(apiMock);
-
-    await service.idvStart({ country: 'us' } as never);
-
-    const headers = await resolvedHeaders(apiMock.v1IdvStartPostRaw);
-    expect(headers[CONTRACT_VERSION_HEADER]).toBe('1.4');
-    expect(headers.Authorization).toBe('Bearer access-token');
-    expect(headers['Content-Type']).toBe('application/json;charset=utf-8');
-  });
-
-  it('omits the version header entirely for the legacy contract path', async () => {
-    // idv-server 는 header 부재만을 legacy(v1.3.20) 계약 선택으로 인정한다.
-    // 값으로 "1.3" 을 보내는 것은 400 이라 legacy 를 고르는 방법이 아니다.
+  it('sends no version header by default, selecting the legacy contract', async () => {
+    // 기본값은 "보내지 않음" 이다. header 부재가 idv-server 의 legacy(고정
+    // v1.3.20 = 계약 1.3) 선택 표현이며, BFF 가 1.4 를 주입하면 호출자 모르게
+    // 응답 형태가 바뀐다. 생성 SDK 가 required 로 넣어둔 header 도 떼어낸다.
     const apiMock = {
       v1IdvStartPostRaw: jest
         .fn()
@@ -92,13 +77,42 @@ describe('AppService idv-server requests', () => {
     };
     const service = createService(apiMock);
 
-    await service.idvStart({ country: 'us' } as never, {
-      version: '',
-      omit: true,
-    });
+    await service.idvStart({ country: 'us' } as never);
 
     const headers = await resolvedHeaders(apiMock.v1IdvStartPostRaw);
     expect(headers).not.toHaveProperty(CONTRACT_VERSION_HEADER);
+    expect(headers.Authorization).toBe('Bearer access-token');
+    expect(headers['Content-Type']).toBe('application/json;charset=utf-8');
+  });
+
+  it('satisfies the SDK required parameter on every call', async () => {
+    // 재생성된 SDK 는 Tomo_API_Version 없이 호출하면 RequiredError 를 던진다.
+    const apiMock = {
+      v1IdvStartPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawApiResponse({ start_idv_uri: 'x' })),
+    };
+    const service = createService(apiMock);
+
+    await service.idvStart({ country: 'us' } as never);
+
+    expect(apiMock.v1IdvStartPostRaw.mock.calls[0][0]).toMatchObject({
+      Tomo_API_Version: SDK_VERSION_PARAM,
+    });
+  });
+
+  it('attaches the version header when the caller explicitly selects 1.4', async () => {
+    const apiMock = {
+      v1IdvStartPostRaw: jest
+        .fn()
+        .mockResolvedValue(rawApiResponse({ start_idv_uri: 'x' }, '1.4')),
+    };
+    const service = createService(apiMock);
+
+    await service.idvStart({ country: 'us' } as never, EXPLICIT_SELECTION);
+
+    const headers = await resolvedHeaders(apiMock.v1IdvStartPostRaw);
+    expect(headers[CONTRACT_VERSION_HEADER]).toBe('1.4');
     expect(headers.Authorization).toBe('Bearer access-token');
   });
 
@@ -140,7 +154,7 @@ describe('AppService idv-server requests', () => {
 
     const result = await service.idvStart(body as never);
 
-    expect(apiMock.v1IdvStartPostRaw.mock.calls[0][0]).toEqual({
+    expect(apiMock.v1IdvStartPostRaw.mock.calls[0][0]).toMatchObject({
       StartIdvReq: body,
     });
     expect(result.body).toEqual({ start_idv_uri: 'https://idv.example/start' });
@@ -160,7 +174,7 @@ describe('AppService idv-server requests', () => {
 
     await service.idvResult(body as never);
 
-    expect(apiMock.v1IdvResultPostRaw.mock.calls[0][0]).toEqual({
+    expect(apiMock.v1IdvResultPostRaw.mock.calls[0][0]).toMatchObject({
       ResultReq: body,
     });
     expect(global.fetch).not.toHaveBeenCalled();
@@ -185,10 +199,7 @@ describe('AppService idv-server requests', () => {
     };
     const service = createService(apiMock);
 
-    const result = await service.idvResult({ user_id: 'ppid.x' } as never, {
-      version: '',
-      omit: true,
-    });
+    const result = await service.idvResult({ user_id: 'ppid.x' } as never);
 
     expect(result.body).toEqual(singleResult);
     expect(result.version).toBe('1.3');
@@ -214,7 +225,10 @@ describe('AppService idv-server requests', () => {
     };
     const service = createService(apiMock);
 
-    const result = await service.idvResult({ user_id: 'ppid.x' } as never);
+    const result = await service.idvResult(
+      { user_id: 'ppid.x' } as never,
+      EXPLICIT_SELECTION,
+    );
 
     expect(result.body).toEqual(listResult);
     expect(result.version).toBe('1.4');
@@ -230,10 +244,7 @@ describe('AppService idv-server requests', () => {
     };
     const service = createService(apiMock);
 
-    const result = await service.idvReset({ country: 'us' } as never, {
-      version: '',
-      omit: true,
-    });
+    const result = await service.idvReset({ country: 'us' } as never);
 
     expect(result.version).toBeUndefined();
   });
@@ -255,7 +266,7 @@ describe('AppService idv-server requests', () => {
 
     const result = await service.idvReset(body as never);
 
-    expect(apiMock.v1IdvResetPostRaw.mock.calls[0][0]).toEqual({
+    expect(apiMock.v1IdvResetPostRaw.mock.calls[0][0]).toMatchObject({
       ResetReq: body,
     });
     expect(result.body).toBe(resetResponse);
@@ -274,7 +285,7 @@ describe('AppService idv-server requests', () => {
 
     const result = await service.idvResultDelete(body as never);
 
-    expect(apiMock.v1IdvResultDeletePostRaw.mock.calls[0][0]).toEqual({
+    expect(apiMock.v1IdvResultDeletePostRaw.mock.calls[0][0]).toMatchObject({
       ResultDeleteReq: body,
     });
     expect(result.body).toEqual({ status: 'deleted' });
@@ -296,7 +307,7 @@ describe('AppService idv-server requests', () => {
 
     const result = await service.idvResultBulkDelete(body as never);
 
-    expect(apiMock.v1IdvResultBulkDeletePostRaw.mock.calls[0][0]).toEqual({
+    expect(apiMock.v1IdvResultBulkDeletePostRaw.mock.calls[0][0]).toMatchObject({
       ResultBulkDeleteReq: body,
     });
     expect(result.body).toEqual({
@@ -329,18 +340,18 @@ describe('AppService idv-server requests', () => {
 
     expect(result.body).toEqual({ status: 'forwarded' });
     expect(result.version).toBe('1.4');
+    // 기본값은 미전송이다. raw proxy 도 같은 규칙을 쓴다.
     expect(fetchMock).toHaveBeenCalledWith('https://idv.example/v1/idv/kyc/get', {
       method: 'POST',
       headers: {
         Authorization: 'Bearer access-token',
         'Content-Type': 'application/json',
-        [CONTRACT_VERSION_HEADER]: '1.4',
       },
       body: JSON.stringify(body),
     });
   });
 
-  it('omits the version header on the raw proxy for the legacy path', async () => {
+  it('attaches the version header on the raw proxy for an explicit selection', async () => {
     process.env.IDV_BASE_URL = 'https://idv.example';
     const fetchMock = jest.fn().mockResolvedValue({
       ok: true,
@@ -351,10 +362,10 @@ describe('AppService idv-server requests', () => {
     global.fetch = fetchMock;
     const service = createService({});
 
-    await service.proxyPost('/v1/idv/us/start', {}, { version: '', omit: true });
+    await service.proxyPost('/v1/idv/us/start', {}, EXPLICIT_SELECTION);
 
-    expect(fetchMock.mock.calls[0][1].headers).not.toHaveProperty(
-      CONTRACT_VERSION_HEADER,
+    expect(fetchMock.mock.calls[0][1].headers[CONTRACT_VERSION_HEADER]).toBe(
+      '1.4',
     );
   });
 
@@ -379,14 +390,17 @@ describe('AppService idv-server requests', () => {
   });
 
   it('applies the contract selection to every upstream call site', () => {
-    // contractInit 을 빠뜨린 SDK 호출이 있으면 그 endpoint 만 기본 header 로
-    // 나가 25개 operation 사이에 조용한 불일치가 생긴다.
+    // contractInit 을 빠뜨린 SDK 호출이 있으면 그 endpoint 만 SDK 가 넣은
+    // 1.4 header 로 나가 25개 operation 사이에 조용한 불일치가 생긴다.
     const source = readFileSync(join(__dirname, 'app.service.ts'), 'utf8');
     const sdkCalls = source.match(/this\.api\.\w+\(/g) ?? [];
     const contractInits = source.match(/this\.contractInit\(selection\)/g) ?? [];
+    const requiredParams =
+      source.match(/Tomo_API_Version: SDK_VERSION_PARAM/g) ?? [];
 
     expect(sdkCalls.length).toBeGreaterThanOrEqual(6);
     expect(contractInits).toHaveLength(sdkCalls.length);
+    expect(requiredParams).toHaveLength(sdkCalls.length);
   });
 
   it('keeps AppService free of Old-suffixed legacy functions', () => {

@@ -622,7 +622,7 @@
       <div class="qj-divider"></div>
       <div class="qj-title" style="border-bottom:none;margin-bottom:6px">API Version</div>
       <div class="qj-version-list" id="qjVersionList"></div>
-      <p class="qj-version-note">SDK 25개 endpoint 전체에 적용됩니다. 토큰 발급 포함.</p>
+      <p class="qj-version-note">SDK 25개 endpoint 전체에 적용됩니다. 1.3 은 header 미전송입니다.</p>
     </nav>
     <h1>KYC Test Board</h1>
     <p class="subtitle">
@@ -1710,32 +1710,23 @@
       });
 
       // ── Contract version registry ──
-      // idv-server lib/App/Contract/Version.hs 의 경계 규칙을 그대로 반영한다.
-      // 요청 값으로 받아주는 것은 "1.4" 하나뿐이고, legacy(고정 v1.3.20) 계약은
-      // header 를 아예 보내지 않아야 선택된다. 계약이 늘어나면 이 배열에만
-      // 항목을 추가한다.
-      //   header : 그대로 Tomo-API-Version 으로 나간다
-      //   legacy : BFF 전용 제어 header 로 "버전 header 미전송" 을 지시한다
-      //   rejected: idv-server 가 400 unsupported_api_version 으로 거부하는 값
+      // idv-server 는 25개 SDK operation 전부에서 Tomo-API-Version 을 해석한다.
+      // 계약 1.3 의 wire 표현은 "header 를 보내지 않는 것" 이다. 명시 값으로
+      // 받아주는 것은 "1.4" 하나뿐이고 "1.3" 이라고 적어 보내면 400 이다.
+      // 계약이 늘어나면 이 배열에만 항목을 추가한다.
+      //   header: null 이면 header 자체를 보내지 않는다.
       const CONTRACT_VERSIONS = [
+        {
+          id: 'v13',
+          label: '1.3',
+          header: null,
+          note: '계약 1.3 (고정 v1.3.20). idv-server 는 header 부재를 1.3 선택으로 읽으므로 Tomo-API-Version 을 보내지 않는다. 기존 고객사가 지금 받고 있는 응답이다. /v1/idv/result 응답 header 로 1.3 이 오고, 나머지 24개에는 버전 header 가 오지 않는다.',
+        },
         {
           id: 'v14',
           label: '1.4',
           header: '1.4',
-          note: 'SDK 계약 1.4.0 이 25개 operation 전부에 required enum ["1.4"] 로 요구하는 값. /v1/idv/result 는 user_id + record 에 legacy result 와 표준 kyc 를 병행한다.',
-        },
-        {
-          id: 'legacy',
-          label: 'legacy',
-          legacy: true,
-          note: 'Tomo-API-Version 을 아예 보내지 않는다. header 를 안 보내는 기존 고객사 경로이며 고정 v1.3.20 계약이 적용된다. 응답 버전 header 는 /v1/idv/result 에만 1.3 으로 오고 나머지 24개에는 오지 않는다 — 정상이다.',
-        },
-        {
-          id: 'v13',
-          label: '1.3 → 400',
-          header: '1.3',
-          rejected: true,
-          note: '거부 확인용. idv-server 는 1.3 을 지원 값으로 받지 않는다(1.3.20 / 1.4.0 / latest / 빈 값도 동일). 25개 operation 전부가 400 unsupported_api_version 이 되며 토큰 발급도 실패한다.',
+          note: '계약 1.4. Tomo-API-Version: 1.4 를 명시한다. /v1/idv/result 응답에 최상위 user_id 와 record 의 표준 kyc 가 추가된다. 25개 operation 전부가 1.4 응답 header 를 돌려준다.',
         },
       ];
 
@@ -1760,18 +1751,8 @@
         ]),
       ]);
 
-      // BFF 가 소비하고 upstream 으로 전달하지 않는 제어 header.
-      const CONTRACT_MODE_HEADER = 'X-Tomo-Contract-Mode';
-
-      const NEGOTIATION_ERROR = {
-        status: 400,
-        bodyContains: 'unsupported_api_version',
-        bodyShape: ['{ "error": "unsupported_api_version", "error_description": "..." }'],
-        description: 'idv-server rejects the selected Tomo-API-Version before running the handler.',
-      };
-
       const CONTRACT_VERSION_STORAGE_KEY = 'testBoard.contractVersionId';
-      let activeContractVersionId = CONTRACT_VERSIONS[0].id; // 기본값 1.4
+      let activeContractVersionId = CONTRACT_VERSIONS[0].id; // 기본값 1.3 (header 미전송)
 
       function contractVersionById(id) {
         return CONTRACT_VERSIONS.find(v => v.id === id) || CONTRACT_VERSIONS[0];
@@ -1840,17 +1821,17 @@
           resultEl.insertBefore(line, jsonEl);
         }
 
-        const sent = version.legacy ? '(미전송 — legacy)' : version.header;
+        const sent = version.header ?? '(미전송 — 계약 1.3)';
         const applied = (responseHeaders || {})['tomo-api-version'];
         line.innerHTML = '';
         line.append('요청 Tomo-API-Version: ' + sent + '   |   응답 Tomo-API-Version: ');
         const appliedEl = document.createElement('span');
         if (applied) {
           appliedEl.textContent = applied;
-        } else if (version.legacy) {
-          // legacy 에서는 /v1/idv/result 만 1.3 을 돌려준다. 나머지 24개의
+        } else if (!version.header) {
+          // 1.3 에서는 /v1/idv/result 만 1.3 을 돌려준다. 나머지 24개의
           // 부재는 정상이므로 경고색을 쓰지 않는다.
-          appliedEl.textContent = '(없음 — legacy 계약에서는 정상)';
+          appliedEl.textContent = '(없음 — 계약 1.3 에서는 정상)';
         } else {
           appliedEl.className = 'version-missing';
           appliedEl.textContent = '(없음 — 협상 실패. 계약이 선택되지 않았다)';
@@ -2055,14 +2036,15 @@
         };
       }
 
-      // 선택한 계약을 실제 요청 header 로 바꾼다. legacy 는 값이 아니라
-      // "보내지 않음" 이므로 BFF 제어 header 로 지시한다.
+      // 선택한 계약을 실제 요청 header 로 바꾼다. 1.3 은 값이 아니라
+      // "보내지 않음" 이므로 아무것도 붙이지 않는다. BFF 도 호출자가 안 보내면
+      // upstream 으로 보내지 않는다(투명 전달).
       function contractHeadersFor(endpoint, base) {
         const headers = Object.assign({}, base);
         const version = activeVersionFor(endpoint);
-        if (!version) return headers;
-        if (version.legacy) headers[CONTRACT_MODE_HEADER] = 'legacy';
-        else if (version.header) headers['Tomo-API-Version'] = version.header;
+        if (version && version.header) {
+          headers['Tomo-API-Version'] = version.header;
+        }
         return headers;
       }
 
@@ -2230,10 +2212,7 @@
         }
 
         const { ok, status, data, text } = result;
-        const expectedMatched = matchesExpectedResponse(
-          result,
-          version && version.rejected ? NEGOTIATION_ERROR : cfg.expectedResponse,
-        );
+        const expectedMatched = matchesExpectedResponse(result, cfg.expectedResponse);
         const shouldMarkSuccess = expectedMatched === null ? ok : expectedMatched;
         renderVersionLine(resultEl, jsonEl, version, result.headers);
         jsonEl.textContent = renderApiResponseBody(ok, data, text);
@@ -2569,8 +2548,7 @@
         allBtns.forEach(b => b.disabled = true);
         allStatus.forEach(s => { s.className = 'status info'; s.textContent = 'Requesting...'; });
 
-        // /v1/oauth2/token 도 25개 게이트 대상이다. 거부 버전을 고르면 토큰
-        // 발급부터 400 이 되며, 그게 서버의 실제 동작이다.
+        // /v1/oauth2/token 도 25개 게이트 대상이라 선택한 계약이 함께 나간다.
         const { ok, status, data, text } = await apiCall('/v1/oauth2/token', {
           method: 'POST',
           headers: contractHeadersFor('/v1/oauth2/token', {}),

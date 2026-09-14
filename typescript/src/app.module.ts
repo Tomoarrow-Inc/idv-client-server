@@ -5,10 +5,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { StateService } from './state.service';
 import { UpstreamResponseFilter } from './upstream-response';
-import {
-  CONTRACT_VERSION_HEADER,
-  DEFAULT_CONTRACT_VERSION,
-} from './contract-version';
 
 function resolveBaseUrl(): string {
   const raw =
@@ -40,10 +36,8 @@ function requireAccessToken(stateService: StateService): string {
           new Configuration({
             basePath: resolveBaseUrl(),
             accessToken: () => requireAccessToken(stateService),
-            // SDK 계약 1.4.0 은 25개 operation 전부에 이 header 를 required
-            // enum ["1.4"] 로 요구한다. 고객사 BFF 로서 기본값으로 항상 붙이고,
-            // 호출자가 다른 값을 지정하면 요청 단위로 덮어쓴다.
-            headers: { [CONTRACT_VERSION_HEADER]: DEFAULT_CONTRACT_VERSION },
+            // 계약 버전 header 는 요청 단위로 정한다. 여기에 기본값을 두면
+            // 호출자가 선택하지 않았는데도 1.4 가 강제된다.
           }),
         ),
     },
