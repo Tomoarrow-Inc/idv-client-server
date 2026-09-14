@@ -109,6 +109,58 @@ idv-server 는 25개 SDK operation 전부에서 `Tomo-API-Version` 요청 header
                                     "result": { ... }, "kyc": { ... } } }
 ```
 
+### 두 계약 체제
+
+SDK 계약(`ci/contracts/openapi/sdk.openapi.json`, info.version 1.4.0)은 **1.4
+계약이다.** 25개 operation 전부에 `Tomo-API-Version` 을 `required` + `enum
+["1.4"]` 로 요구한다. 계약 1.3 은 이 계약의 범위 밖이고, 그 계약은 따로 있다.
+
+| 계약 | 파일 | wire 표현 |
+|---|---|---|
+| 1.4 | `ci/contracts/openapi/sdk.openapi.json` | `Tomo-API-Version: 1.4` 필수 |
+| 1.3 | `ci/contracts/openapi/v1.3.20/sdk.openapi.json` | header 없음 (스펙에 header 개념 자체가 없음) |
+
+그래서 **런타임은 header 부재를 허용하는데 SDK 계약은 required 로 선언**하는
+비대칭이 생긴다. 이건 버그가 아니라 범위 설정이다. 계약을 optional 로 바꾸면
+200 응답 선언이 여전히 1.4 단독이라 "생략 가능한데 그때 응답이 뭔지는 안
+알려주는" 더 부정확한 계약이 된다.
+
+생성 SDK 는 그래서 1.4 전용이다. 25개 method 전부가 `Tomo_API_Version` 을
+required 로 요구하고 없으면 `RequiredError` 를 던진다. BFF 는 그 요구를
+`SDK_VERSION_PARAM` 으로 만족시킨 뒤, 계약 1.3 선택일 때 `contractInit` 에서
+header 를 다시 떼어낸다. `app.service.ts` 의 그 한 곳이 SDK 타입과 실제 wire 가
+갈라지는 유일한 지점이다.
+
+### 버전 신호 해석
+
+응답 header 두 개로 어떤 계약이 적용됐는지 판단한다.
+
+| 응답 `Tomo-API-Version` | 응답 `Vary` | 의미 |
+|---|---|---|
+| `1.4` | 있음 | 계약 1.4 적용 |
+| `1.3` | 있음 | 계약 1.3 적용 (`/v1/idv/result` 전용) |
+| 없음 | **있음** | **계약 1.3 적용** — 게이트는 돌았다. `/v1/idv/result` 를 뺀 24개의 정상 상태 |
+| 없음 | 없음 | 게이트 미작동 의심 — 25개 밖 경로이거나 배선 문제 |
+| 없음 | 있음 + 400 | 협상 실패. 계약이 선택되지 않았다 |
+
+계약 1.3 에서 서버는 `/v1/idv/result` 에만 버전 응답 header 를 붙인다. 나머지
+24개에서는 `Vary: Tomo-API-Version` 이 "게이트가 실제로 돌았다" 를 알려주는
+유일한 신호이므로, BFF 가 이를 그대로 전달한다.
+
+### 응답 status 는 upstream 것을 그대로 쓴다
+
+Nest 의 POST 기본 status 는 201 이다. `forward()` 가 upstream status 를
+`res.status()` 로 적용하므로 idv-server 의 200 이 그대로 나간다. 개별 라우트에
+`@HttpCode` 를 붙이지 않는다 — status 소유권은 `forward()` 한 곳에 있다.
+
+### 계약 1.3 응답 통과 검증
+
+`typescript/test/fixtures/idv-result/v1.3.20/` 에 idv-server 의 독립 golden
+8개가 있고, `src/legacy-result-passthrough.spec.ts` 가 생성 SDK 의
+`Configuration.fetchApi` 주입점으로 전송만 가로채 **실제 코드 경로 전체**를
+태워 검증한다. `/v1/idv/result` 를 `.value()` 로 되돌리면 즉시 깨진다 —
+재생성된 `ResultRes` 는 1.4 전용 oneOf 라 1.3 body 를 `{}` 로 만든다.
+
 ### BFF 동작 — 투명 전달
 
 - 호출자가 `Tomo-API-Version` 을 보내면 **검증 없이 그대로 전달**한다. BFF 가
@@ -132,6 +184,9 @@ idv-server 는 25개 SDK operation 전부에서 `Tomo-API-Version` 요청 header
 |---|---|---|
 | `1.3` (기본) | 아무것도 안 보냄 | 1.3 — 기존 고객사가 지금 받는 응답 |
 | `1.4` | `Tomo-API-Version: 1.4` | 1.4 |
+
+응답 패널 상단 표시줄이 세 칸이다 — 요청 버전 / 응답 버전 / **버전 게이트**.
+세 번째 칸이 "계약 1.3 적용됨" 과 "게이트 미작동" 을 가른다(위 신호 해석표).
 
 선택은 `localStorage` 에 저장되고 25개 endpoint 전체에 적용된다(토큰 발급 포함).
 게이트 대상이 아닌 `/v1/verify/session` 에는 보내지 않는다. 응답 패널 상단에
