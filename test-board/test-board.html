@@ -1684,11 +1684,11 @@
       }
 
       const EXPECTED_RESPONSES = {
-        startOk: { statuses: [200, 201], bodyShape: ['start_idv_uri or authorization_url'], description: 'IDV start should return a launch URL for the provider or complete flow.' },
-        resultOk: { statuses: [200, 201], bodyShape: ['KYC result JSON object'], description: 'IDV result should return the selected user identity verification result.' },
+        startOk: { status: 200, bodyShape: ['start_idv_uri or authorization_url'], description: 'IDV start should return a launch URL for the provider or complete flow.' },
+        resultOk: { status: 200, bodyShape: ['KYC result JSON object'], description: 'IDV result should return the selected user identity verification result.' },
         resetOk: { status: 200, bodyContains: '"status":"reset"', bodyShape: ['{ "status": "reset" }'], description: 'IDV reset should return the upstream reset status JSON.' },
         emailFallback: { status: 200, bodyShape: ['start_idv_uri for email fallback flow'], description: 'Missing Plaid email should return an idv-app fallback URL before vendor redirect.' },
-        policyMissing: { statuses: [200, 201], bodyShape: ['start_idv_uri or authorization_url'], description: 'Missing kyc_policy should apply the country default policy.' },
+        policyMissing: { status: 200, bodyShape: ['start_idv_uri or authorization_url'], description: 'Missing kyc_policy should apply the country default policy.' },
         policyUnsupported: { status: 400, bodyContains: 'Unsupported kyc_policy', description: 'Unsupported Country x Subject x Method x OwnerAssurance combinations should fail validation.' },
         ppidExisting: { status: 200, bodyShape: ['pid or personal_id'], description: 'Existing auth_id start should return the already resolved personal identifier.' },
         ppidResult: { status: 200, bodyShape: ['KYC result JSON object for personal_id'], description: 'IDV result by personal_id should resolve back to the verified user result.' },
@@ -1750,6 +1750,19 @@
           '/v1/idv/' + c + '/kyc/get',
         ]),
       ]);
+
+      // idv-server 는 버전 게이트를 거친 모든 응답에 Vary: Tomo-API-Version 을
+      // 붙인다. 계약 1.3 에서는 /v1/idv/result 를 뺀 24개에 버전 응답 header 가
+      // 오지 않으므로, 이 토큰이 "게이트가 실제로 돌았다" 를 알려주는 유일한
+      // 신호다. BFF 가 그대로 전달한다.
+      function gateHandled(responseHeaders) {
+        const vary = (responseHeaders || {})['vary'];
+        if (!vary) return false;
+        return vary
+          .split(',')
+          .map(token => token.trim().toLowerCase())
+          .some(token => token === 'tomo-api-version' || token === '*');
+      }
 
       const CONTRACT_VERSION_STORAGE_KEY = 'testBoard.contractVersionId';
       let activeContractVersionId = CONTRACT_VERSIONS[0].id; // 기본값 1.3 (header 미전송)
@@ -1823,13 +1836,15 @@
 
         const sent = version.header ?? '(미전송 — 계약 1.3)';
         const applied = (responseHeaders || {})['tomo-api-version'];
+        const handled = gateHandled(responseHeaders);
         line.innerHTML = '';
         line.append('요청 Tomo-API-Version: ' + sent + '   |   응답 Tomo-API-Version: ');
+
         const appliedEl = document.createElement('span');
         if (applied) {
           appliedEl.textContent = applied;
         } else if (!version.header) {
-          // 1.3 에서는 /v1/idv/result 만 1.3 을 돌려준다. 나머지 24개의
+          // 계약 1.3 에서는 /v1/idv/result 만 1.3 을 돌려준다. 나머지 24개의
           // 부재는 정상이므로 경고색을 쓰지 않는다.
           appliedEl.textContent = '(없음 — 계약 1.3 에서는 정상)';
         } else {
@@ -1837,6 +1852,22 @@
           appliedEl.textContent = '(없음 — 협상 실패. 계약이 선택되지 않았다)';
         }
         line.appendChild(appliedEl);
+
+        // 세 번째 칸이 "1.3 적용됨" 과 "게이트 미작동" 을 가른다.
+        line.append('   |   버전 게이트: ');
+        const gateEl = document.createElement('span');
+        if (handled && applied) {
+          gateEl.textContent = '통과';
+        } else if (handled) {
+          gateEl.textContent = '통과 — 계약 1.3 적용';
+        } else if (applied) {
+          gateEl.className = 'version-missing';
+          gateEl.textContent = 'Vary 누락 (서버/프록시 이상)';
+        } else {
+          gateEl.className = 'version-missing';
+          gateEl.textContent = '신호 없음 — 미작동 의심';
+        }
+        line.appendChild(gateEl);
       }
 
       const CUSTOM_CARDS = {
