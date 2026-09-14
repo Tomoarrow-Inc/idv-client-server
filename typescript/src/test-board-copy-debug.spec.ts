@@ -205,34 +205,4 @@ describe('test-board Custom KYC debug copy', () => {
     );
     expect(block).toContain('includeDefaultEmail: false');
   });
-
-  it('covers deprecated compatibility checks with debug copy metadata', () => {
-    const html = readTestBoardHtml();
-    const block = customCardsBlock(html);
-    const deprecatedCases = [
-      'deprecated-generic-kyc-get',
-      'deprecated-us-start',
-      'deprecated-uk-start',
-      'deprecated-ca-start',
-      'deprecated-jp-start',
-      'deprecated-cn-start',
-      'deprecated-us-kyc-get',
-      'deprecated-verify-session',
-    ];
-
-    // These cards intentionally fail only on BFF 404. They let the board catch
-    // accidental blocking of deprecated compatibility routes while still using
-    // the same debug-copy flow as live endpoint cards.
-    expect(html).toContain('id="section-deprecated-compat"');
-    expect(html).toContain('deprecatedForwarded: { notStatus: 404');
-
-    for (const cardId of deprecatedCases) {
-      expect(html).toContain(`id="card-${cardId}"`);
-      expect(html).toContain(`sendCustom('${cardId}')`);
-      expect(block).toContain(`'${cardId}':`);
-      expect(block).toContain(
-        'expectedResponse: EXPECTED_RESPONSES.deprecatedForwarded',
-      );
-    }
-  });
 });

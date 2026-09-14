@@ -25,7 +25,9 @@ const readTestBoardHtml = () =>
   );
 
 describe('test-board deprecated auth removal', () => {
-  const deprecatedCompatibilityCardIds = [
+  // 파기된 Section 8 의 카드들. test-board 는 내부 테스트 전용 화면이라
+  // 화면에서만 걷어냈다. idv-server 계약과 BFF 프록시 라우트는 그대로다.
+  const removedDeprecatedCardIds = [
     'deprecated-generic-kyc-get',
     'deprecated-us-start',
     'deprecated-uk-start',
@@ -68,9 +70,10 @@ describe('test-board deprecated auth removal', () => {
     }
   });
 
-  it('exposes deprecated IDV routes only as upstream forwarding checks', () => {
-    // Deprecated route strings may appear only in Section 8, where the board
-    // asserts idv-client-server forwards them instead of returning BFF 404.
+  it('no longer ships the deprecated compatibility section', () => {
+    // Section 8 은 파기됐다. BFF 라우트(/v1/idv/kyc/get, /v1/idv/:country/...,
+    // /v1/verify/session)와 idv-server 계약은 유지되며, 이 검사는 화면에서만
+    // 사라졌는지를 본다.
     const html = readTestBoardHtml();
     const removedUiStrings = [
       'Old API',
@@ -86,23 +89,19 @@ describe('test-board deprecated auth removal', () => {
       expect(html).not.toContain(removedUiString);
     }
 
-    expect(html).toContain('id="section-deprecated-compat"');
-    expect(html).toContain('EXPECTED_RESPONSES.deprecatedForwarded');
-    expect(html).toContain('deprecatedForwarded: { notStatus: 404');
+    expect(html).not.toContain('id="section-deprecated-compat"');
+    expect(html).not.toContain('data-target="section-deprecated-compat"');
+    expect(html).not.toContain('EXPECTED_RESPONSES.deprecatedForwarded');
+    expect(html).not.toContain('deprecatedForwarded:');
 
-    for (const cardId of deprecatedCompatibilityCardIds) {
-      const entry = customCardEntry(html, cardId);
-
-      expect(html).toContain(`id="card-${cardId}"`);
-      expect(html).toContain(`sendCustom('${cardId}')`);
-      expect(entry).toContain(
-        'expectedResponse: EXPECTED_RESPONSES.deprecatedForwarded',
-      );
-      expect(entry).toContain('includeDefaultEmail: false');
+    for (const cardId of removedDeprecatedCardIds) {
+      expect(html).not.toContain(`id="card-${cardId}"`);
+      expect(html).not.toContain(`sendCustom('${cardId}')`);
+      expect(html).not.toContain(`'${cardId}':`);
     }
   });
 
-  it('shows only public API tests and Deprecated in the visible custom board', () => {
+  it('shows only the public API tests in the visible custom board', () => {
     const html = readTestBoardHtml();
 
     expect(html).toContain('id="section-api-tests"');
@@ -158,9 +157,10 @@ describe('test-board deprecated auth removal', () => {
       'expectedResponse: EXPECTED_RESPONSES.resultOk',
     );
     expect(entry).toContain('includeDefaultEmail: false');
-    expect(entry).toContain(
-      "user_id: '7840a4a65ee46998228be1300fe0e6dbf295157d7734c8d22b71d79f68e917fb'",
-    );
+    // 카드 기본값은 9f9f14e 에서 raw user_id 에서 PPID 토큰으로 바뀌었는데
+    // 이 단언만 갱신되지 않아 계속 실패하고 있었다. /v1/idv/result 는 PPID 를
+    // user_id 로 해석하므로 ppid. 접두사를 기준으로 고정한다.
+    expect(entry).toMatch(/user_id: 'ppid\.[A-Za-z0-9_-]+'/);
     expect(entry).not.toContain('email:');
     expect(entry).not.toContain('country:');
     expect(entry).not.toContain('kyc_policy:');
@@ -190,9 +190,24 @@ describe('test-board deprecated auth removal', () => {
     expect(html).toContain(
       "el.addEventListener('input', () => resizeJsonEditor(el));",
     );
+    // email 주입을 건너뛰는 카드는 정확히 5개다: api-result, api-reset,
+    // api-result-delete, api-result-bulk-delete, email-fallback-plaid.
+    // 예전 식은 파기된 deprecated 카드 수에 묶여 있어 카드가 늘 때마다 깨졌다.
+    const emailFreeCards = [
+      'api-result',
+      'api-reset',
+      'api-result-delete',
+      'api-result-bulk-delete',
+      'email-fallback-plaid',
+    ];
     expect(customCards.match(/includeDefaultEmail:\s*false/g)).toHaveLength(
-      deprecatedCompatibilityCardIds.length + 2,
+      emailFreeCards.length,
     );
+    for (const cardId of emailFreeCards) {
+      expect(customCardEntry(html, cardId)).toContain(
+        'includeDefaultEmail: false',
+      );
+    }
   });
 
   it('keeps section 7 as the explicit Plaid email fallback request', () => {
