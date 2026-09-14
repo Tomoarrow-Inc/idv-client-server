@@ -82,6 +82,57 @@ docker compose down
 - Kotlin: http://localhost:4301/test-board
 - API Docs (TypeScript only): http://localhost:4300/api-docs
 
+## API 계약 버전 (Tomo-API-Version)
+
+idv-server 는 25개 SDK operation 전부에서 `Tomo-API-Version` 요청 header 로
+응답 계약을 고른다 (`idv-server/lib/App/Contract/Version.hs`). 이 BFF 는 고객사
+SDK consumer 로서 **모든 upstream 요청에 기본값 `1.4`** 를 붙인다.
+
+### 서버가 받아주는 값
+
+| 요청 header | 적용 계약 | 결과 |
+|---|---|---|
+| 보내지 않음 | legacy (고정 v1.3.20) | 200. `/v1/idv/result` 응답에만 `Tomo-API-Version: 1.3` 이 붙고 나머지 24개에는 붙지 않는다 |
+| `1.4` | 1.4 | 200. 25개 전부 `Tomo-API-Version: 1.4` 응답 header |
+| `1.3`, `1.3.20`, `1.4.0`, `latest`, 빈 값, 중복 | 선택 없음 | 400 `{"error":"unsupported_api_version", ...}`. 업무 로직 실행 전에 거부된다 |
+
+**legacy 계약을 고르는 방법은 header 를 아예 보내지 않는 것뿐이다.**
+`Tomo-API-Version: 1.3` 은 legacy 선택이 아니라 거부 대상이다.
+
+### BFF 동작
+
+- 기본: `Configuration.headers` 로 모든 SDK 호출에 `Tomo-API-Version: 1.4`.
+- 호출자가 `Tomo-API-Version` 을 보내면 **검증 없이 그대로 전달**한다. BFF 가
+  미리 거르면 호출자가 서버의 실제 400 을 볼 수 없다.
+- 호출자가 `X-Tomo-Contract-Mode: legacy` 를 보내면 버전 header 를 생략한다.
+  이 제어 header 는 BFF 가 소비하고 upstream 으로 전달하지 않는다.
+- idv-server 가 적용한 버전을 응답 `Tomo-API-Version` header 로 그대로 에코한다.
+  legacy 경로에서 값이 없는 것은 정상이다.
+
+### test-board 사용법
+
+좌측 Quick Jump 사이드바 아래 **API VERSION** 에서 고른다.
+
+| 버튼 | 보내는 것 | 용도 |
+|---|---|---|
+| `1.4` | `Tomo-API-Version: 1.4` | 기본. 새 SDK 계약 경로 |
+| `legacy` | `X-Tomo-Contract-Mode: legacy` | header 미전송 = 기존 고객사 경로 |
+| `1.3 → 400` | `Tomo-API-Version: 1.3` | 거부 확인용. **토큰 발급 포함 25개 전부 400 이 된다** |
+
+선택은 `localStorage` 에 저장된다. 게이트 대상이 아닌 `/v1/verify/session` 에는
+버전 header 를 보내지 않는다. 응답 패널 상단에 요청/응답 버전이 나란히 표시된다.
+
+계약 버전이 늘어나면 `test-board/test-board.html` 의 `CONTRACT_VERSIONS` 배열에
+항목 한 줄만 추가하면 버튼이 늘어난다.
+
+### Result delete 카드
+
+API Tests 섹션 1-4 / 1-5 가 `POST /v1/idv/result/delete` 와
+`POST /v1/idv/result/bulk-delete` 다. 저장된 KYC 결과를 **되돌릴 수 없게**
+삭제하므로 기본 body 를 자동 생성하지 않는다. 0번에서 Access Token 을 발급한 뒤
+`<ppid_token 기입>` 자리에 실제 ppid 를 붙여넣고 Send 한다.
+응답 `status` 는 `deleted` 또는 `not_deletable` 이다.
+
 ### superproject 루트에서 실행 (dcp 사용)
 
 ```bash
