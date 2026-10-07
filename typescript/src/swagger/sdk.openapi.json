@@ -1071,7 +1071,7 @@
                         "type": "string"
                     },
                     "owner_assurance": {
-                        "description": "Owner assurance. kind is no_owner_assurance / owner_verf / owner_check; type names the verification method (for KR eid certificate policies the certificate authority: toss / kakao / naver / pass). For a KR eid certificate policy, omitting type or sending it as null opens the standard certificate window, where the person chooses the certificate authority; the journey is recorded only under that authority's policy and never reuses an earlier result. /v1/idv/result with type omitted or null returns the person's latest completed certificate result across all four authorities, while an explicit type matches only that authority and never opens the window.",
+                        "description": "Owner assurance. kind is no_owner_assurance / owner_verf / owner_check; type names the verification method. For a KR eid certificate policy, omit type at start: an omitted type, a JSON null type, or the string \"null\" opens the standard certificate window, where the person chooses the certificate authority; the journey is recorded only under that authority's policy and never reuses an earlier result. Naming a certificate authority (toss / kakao / naver / pass) as type at start is rejected with 400. /v1/idv/result and /v1/idv/reset accept an explicit type to select only that authority, and with type omitted or null select all four authorities (result returns the latest completed certificate result among them).",
                         "type": "object"
                     },
                     "preset": {
