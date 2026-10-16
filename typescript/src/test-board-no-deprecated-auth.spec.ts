@@ -190,14 +190,15 @@ describe('test-board deprecated auth removal', () => {
     expect(html).toContain(
       "el.addEventListener('input', () => resizeJsonEditor(el));",
     );
-    // email 주입을 건너뛰는 카드는 정확히 5개다: api-result, api-reset,
-    // api-result-delete, api-result-bulk-delete, email-fallback-plaid.
+    // email 주입을 건너뛰는 카드는 정확히 6개다: api-result, api-reset,
+    // api-result-delete, api-result-bulk-delete, api-session-token, email-fallback-plaid.
     // 예전 식은 파기된 deprecated 카드 수에 묶여 있어 카드가 늘 때마다 깨졌다.
     const emailFreeCards = [
       'api-result',
       'api-reset',
       'api-result-delete',
       'api-result-bulk-delete',
+      'api-session-token',
       'email-fallback-plaid',
     ];
     expect(customCards.match(/includeDefaultEmail:\s*false/g)).toHaveLength(

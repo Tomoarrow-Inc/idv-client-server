@@ -382,13 +382,15 @@ describe('result contract version passthrough', () => {
     expect(response.status).toHaveBeenCalledWith(400);
   });
 
-  it('routes every proxied endpoint through the shared contract path', () => {
+  it('keeps existing proxy routes on the contract path and excludes public token verification', () => {
     const source = readSource('app.controller.ts');
-    const routes = source.match(/@Post\(/g) ?? [];
+    const routes = [...source.matchAll(/@Post\('([^']+)'\)/g)].map((match) => match[1]);
+    const versionedRoutes = routes.filter((path) => path !== '/v1/verify/session-token');
     const forwards = source.match(/return this\.forward\(/g) ?? [];
 
-    expect(routes.length).toBeGreaterThanOrEqual(10);
-    expect(forwards).toHaveLength(routes.length);
+    expect(versionedRoutes).toHaveLength(10);
+    expect(routes).toContain('/v1/verify/session-token');
+    expect(forwards).toHaveLength(versionedRoutes.length);
     expect(source).toContain('resolveContractSelection(headers)');
   });
 });

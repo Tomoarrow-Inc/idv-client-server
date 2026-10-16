@@ -29,9 +29,28 @@ type InboundHeaders = Record<string, string | string[] | undefined>;
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Post('/v1/verify/session-token')
+  async verifySessionToken(
+    @Body() body: Buffer | undefined,
+    @Headers('content-type') contentType: string | undefined,
+    @Res() res: Response,
+  ): Promise<void> {
+    try {
+      const upstream = await this.appService.verifySessionToken(body, contentType);
+      res.status(upstream.status);
+      if (upstream.contentType) {
+        res.setHeader('Content-Type', upstream.contentType);
+      }
+      // end(Buffer) preserves raw JSON/text and an absent upstream content type.
+      res.end(upstream.body);
+    } catch (error) {
+      return rethrowUpstream(error);
+    }
+  }
+
   /**
-   * idv-server 는 25개 SDK operation 전부에서 Tomo-API-Version 을 해석한다.
-   * 모든 라우트가 같은 규칙을 쓰도록 선택 해석과 응답 header 에코를 한 곳에
+   * idv-server 는 기존 25개 SDK operation 에서 Tomo-API-Version 을 해석한다.
+   * 해당 라우트가 같은 규칙을 쓰도록 선택 해석과 응답 header 에코를 한 곳에
    * 모았다. 값 검증은 서버 몫이라 BFF 는 거르지 않는다.
    */
   private async forward<T>(

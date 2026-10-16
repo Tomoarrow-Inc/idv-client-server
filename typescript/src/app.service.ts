@@ -286,6 +286,25 @@ export class AppService {
     };
   }
 
+  /** This public verification route does not use OAuth or version selection. */
+  async verifySessionToken(body: Buffer | undefined, contentType?: string) {
+    const response = await fetch(
+      `${this.resolveBaseUrl()}/v1/verify/session-token`,
+      {
+        method: 'POST',
+        headers: contentType ? { 'Content-Type': contentType } : {},
+        body: body === undefined ? undefined : new Uint8Array(body),
+        redirect: 'manual',
+        signal: AbortSignal.timeout(30_000),
+      },
+    );
+    return {
+      status: response.status,
+      contentType: response.headers.get('content-type'),
+      body: Buffer.from(await response.arrayBuffer()),
+    };
+  }
+
   private requireAccessToken(): string {
     const accessToken = this.getState('access_token') as unknown;
     if (typeof accessToken !== 'string' || !accessToken) {

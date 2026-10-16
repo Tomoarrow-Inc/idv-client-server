@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import * as swaggerUi from 'swagger-ui-express';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { configureRequestParsers } from './request-parsers';
 /**
  * Swagger UI "Try it out" 기본값 주입.
  * 코드에서 드러나는 고정값은 example로 설정하고,
@@ -70,13 +71,12 @@ function removeDeprecatedOperations(doc: any): void {
   }
 }
 
-async function bootstrap() {
+export async function bootstrap(port: string | number = process.env.PORT ?? 3000) {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false,
   });
 
-  app.useBodyParser('json', { limit: '10mb' });
-  app.useBodyParser('urlencoded', { extended: true, limit: '10mb' });
+  configureRequestParsers(app);
 
   app.enableCors({
     origin: '*',
@@ -107,7 +107,10 @@ async function bootstrap() {
     });
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(port);
+  return app;
 }
 
-bootstrap();
+if (require.main === module) {
+  void bootstrap();
+}

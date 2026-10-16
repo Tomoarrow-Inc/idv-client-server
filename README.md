@@ -82,10 +82,24 @@ docker compose down
 - Kotlin: http://localhost:4301/test-board
 - API Docs (TypeScript only): http://localhost:4300/api-docs
 
+### Session Token 검증 (TypeScript 전용)
+
+`POST /v1/verify/session-token`에 `{"session_token":"..."}`를 보내면
+`{"verified":true|false}`를 받습니다. `/test-board`의 **Session Token 검증**
+카드는 callback URL의 `token`을 처음 한 번 채우며, 수동 입력과 URL 토큰
+다시 불러오기를 지원합니다. Send를 눌렀을 때만 호출하며 OAuth 발급과 API
+Version 선택이 필요하지 않습니다. HTTP 오류와 검증 불일치는 별도로 표시합니다.
+
+`true`는 JWT의 서명·클레임·유효기간 검증 결과이며 현재 KYC 상태나 토큰
+폐기 여부를 조회하는 값은 아닙니다. Kotlin·Python·Java BFF는 이번 API를
+지원하지 않는 레거시입니다. 테스트 및 실제 서버 검증 방법은
+[Session Token 테스트 안내](typescript/test/SESSION_TOKEN_TESTING.md)를 참고하세요.
+
 ## API 계약 버전 (Tomo-API-Version)
 
-idv-server 는 25개 SDK operation 전부에서 `Tomo-API-Version` 요청 header 로
+idv-server 는 기존 25개 SDK operation에서 `Tomo-API-Version` 요청 header 로
 응답 계약을 고른다 (`idv-server/lib/App/Contract/Version.hs`).
+새 `/v1/verify/session-token`은 26번째 SDK operation이며 이 게이트의 대상이 아닙니다.
 
 ### 서버가 받아주는 값
 
