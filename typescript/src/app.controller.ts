@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   Param,
   Post,
@@ -28,6 +29,23 @@ type InboundHeaders = Record<string, string | string[] | undefined>;
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
+
+  @Get('/.well-known/jwks.json')
+  async sessionTokenJwks(@Res() res: Response): Promise<void> {
+    try {
+      const upstream = await this.appService.sessionTokenJwks();
+      res.status(upstream.status);
+      if (upstream.contentType !== null) {
+        res.setHeader('Content-Type', upstream.contentType);
+      }
+      for (const [name, value] of Object.entries(upstream.cacheHeaders)) {
+        res.setHeader(name, value);
+      }
+      res.end(upstream.body);
+    } catch (error) {
+      return rethrowUpstream(error);
+    }
+  }
 
   @Post('/v1/verify/session-token')
   async verifySessionToken(

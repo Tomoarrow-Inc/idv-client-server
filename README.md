@@ -95,6 +95,19 @@ Version 선택이 필요하지 않습니다. HTTP 오류와 검증 불일치는 
 지원하지 않는 레거시입니다. 테스트 및 실제 서버 검증 방법은
 [Session Token 테스트 안내](typescript/test/SESSION_TOKEN_TESTING.md)를 참고하세요.
 
+### JWKS 공개키 조회 (TypeScript 전용)
+
+Session Token 검증 아래 **JWKS 공개키 조회**에서 공개키 조회 버튼을 누르면
+`GET /.well-known/jwks.json`을 호출합니다. BFF의 `IDV_BASE_URL` 환경을 따르며
+OAuth·토큰 입력·API Version 선택 없이 사용할 수 있습니다. HTTP 상태,
+Content-Type과 응답 원문을 표시하고 `keys` 배열의 공개키 개수를 보여줍니다.
+공개키 조회와 응답 구조 확인만 수행하며 JWT 검증 결과를 뜻하지 않습니다.
+
+BFF는 upstream의 status·Content-Type·본문과 Cache-Control·ETag·Last-Modified·
+Expires·Age·Vary를 전달하며 자체 캐시를 만들지 않습니다. 브라우저 조회는
+쿠키 없이 `no-store`로 요청하며 callback token이 포함될 수 있는 Referer도
+보내지 않습니다. SDK·Swagger 계약은 변경하지 않습니다.
+
 ## API 계약 버전 (Tomo-API-Version)
 
 idv-server 는 기존 25개 SDK operation에서 `Tomo-API-Version` 요청 header 로

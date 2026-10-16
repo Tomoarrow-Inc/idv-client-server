@@ -620,6 +620,7 @@
       <a class="qj-item" data-target="section-token">0 Token</a>
       <a class="qj-item" data-target="section-api-tests">API Tests</a>
       <a class="qj-item" data-target="section-session-token">Session Token</a>
+      <a class="qj-item" data-target="section-jwks">JWKS</a>
       <div class="qj-divider"></div>
       <div class="qj-title" style="border-bottom:none;margin-bottom:6px">API Version</div>
       <div class="qj-version-list" id="qjVersionList"></div>
@@ -811,6 +812,26 @@
         <div id="result-api-session-token" class="hidden">
           <p class="status info" id="session-token-status" data-state="idle" aria-live="polite">아직 검증하지 않았습니다.</p>
           <pre id="json-api-session-token"></pre>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+      <div class="section-card" id="section-jwks">
+        <h2>JWKS 공개키 조회</h2>
+        <p class="note">공개키 목록을 조회합니다. OAuth 발급과 API Version 선택은 필요하지 않습니다. JWT 서명 검증은 수행하지 않습니다.</p>
+      </div>
+      <div class="api-card" id="card-jwks">
+        <div class="api-card-header">
+          <span class="endpoint"><span class="method">GET</span>/.well-known/jwks.json</span>
+          <span class="api-badge api-badge-idle" id="badge-jwks">NOT REQUESTED</span>
+        </div>
+        <div class="actions">
+          <button class="btn-primary" id="btn-load-jwks" onclick="loadJwks()">공개키 조회</button>
+        </div>
+        <div id="result-jwks" class="hidden">
+          <p class="status info" id="jwks-status" data-state="idle" aria-live="polite">아직 조회하지 않았습니다.</p>
+          <p class="note" id="jwks-content-type">Content-Type: 없음</p>
+          <pre id="json-jwks"></pre>
         </div>
       </div>
 
@@ -2480,6 +2501,70 @@
             durationMs: Math.round(performance.now() - startedAtMs),
             lastSentBody: body, actualResponse, error: failure,
           });
+        }
+      }
+
+      // A bodyless GET stays outside the POST card/debug initializers.
+      let jwksLoading = false;
+
+      function showJwksState(state, label) {
+        const status = document.getElementById('jwks-status');
+        status.dataset.state = state;
+        status.textContent = label;
+        status.className = 'status ' + (state === 'ready' ? 'ok' : state === 'empty' || state === 'pending' ? 'info' : 'error');
+      }
+
+      async function loadJwks() {
+        if (jwksLoading) return;
+        const button = document.getElementById('btn-load-jwks');
+        const card = document.getElementById('card-jwks');
+        const badge = document.getElementById('badge-jwks');
+        const contentType = document.getElementById('jwks-content-type');
+        const output = document.getElementById('json-jwks');
+        jwksLoading = true;
+        button.disabled = true;
+        document.getElementById('result-jwks').classList.remove('hidden');
+        card.classList.remove('api-success', 'api-error');
+        badge.textContent = 'LOADING';
+        badge.className = 'api-badge api-badge-idle';
+        contentType.textContent = 'Content-Type: 없음';
+        output.textContent = '';
+        showJwksState('pending', '공개키 조회 중…');
+        try {
+          const result = await apiCallWithDebug('/.well-known/jwks.json', {
+            method: 'GET',
+            credentials: 'omit',
+            cache: 'no-store',
+            referrerPolicy: 'no-referrer',
+          });
+          badge.textContent = 'HTTP ' + result.status;
+          badge.className = 'api-badge ' + (result.ok ? 'api-badge-ok' : 'api-badge-fail');
+          contentType.textContent = 'Content-Type: ' + (result.contentType || '없음');
+          // Preserve whitespace and error wording; never insert upstream HTML.
+          output.textContent = result.text;
+          if (!result.ok) {
+            showJwksState('http-error', 'HTTP 오류 · 공개키 목록을 받지 못했습니다.');
+            card.classList.add('api-error');
+          } else {
+            const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+            const hasKeys = isObject(result.data) && Array.isArray(result.data.keys) && result.data.keys.every(isObject);
+            if (result.status !== 200 || !hasKeys) {
+              showJwksState('schema-error', 'JWKS 응답 형식 오류 · keys 배열과 각 키 객체가 필요합니다.');
+              card.classList.add('api-error');
+            } else {
+              const count = result.data.keys.length;
+              showJwksState(count ? 'ready' : 'empty', '공개키 ' + count + '개 · 응답 구조 확인');
+              card.classList.add('api-success');
+            }
+          }
+        } catch (error) {
+          badge.textContent = 'NETWORK';
+          badge.className = 'api-badge api-badge-fail';
+          showJwksState('network-error', '네트워크 오류 · 응답을 받지 못했습니다.');
+          card.classList.add('api-error');
+        } finally {
+          jwksLoading = false;
+          button.disabled = false;
         }
       }
 

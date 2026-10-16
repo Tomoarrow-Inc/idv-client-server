@@ -33,6 +33,7 @@ describe('production BFF bootstrap (e2e)', () => {
       .expect(200);
     expect(response.text).toContain('KYC Test Board');
     expect(response.text).toContain('/v1/verify/session-token');
+    expect(response.text).toContain('JWKS 공개키 조회');
   });
 
   it('serves Swagger with the new relative endpoint and DTOs', async () => {
@@ -66,5 +67,36 @@ describe('production BFF bootstrap (e2e)', () => {
     expect(upstream.mock.calls[0][1]?.headers).toEqual({
       'Content-Type': 'application/json',
     });
+  });
+
+  it('serves the public JWKS GET through the production bootstrap', async () => {
+    const body = ' { "keys" : [] }\n';
+    const upstream = jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(body, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          'Cache-Control': 'public, max-age=60',
+          Vary: 'Accept-Encoding',
+        },
+      }),
+    );
+    const response = await request(app.getHttpServer())
+      .get('/.well-known/jwks.json?ignored=true')
+      .set('Origin', 'https://example.test')
+      .expect(200);
+    expect(response.text).toBe(body);
+    expect(response.headers['content-type']).toBe(
+      'application/json;charset=utf-8',
+    );
+    expect(response.headers['cache-control']).toBe('public, max-age=60');
+    expect(response.headers.vary).toBe('Accept-Encoding');
+    expect(upstream).toHaveBeenCalledTimes(1);
+    expect(upstream.mock.calls[0][0]).toMatch(/\/\.well-known\/jwks\.json$/);
+    const init = upstream.mock.calls[0][1];
+    expect(init?.method).toBe('GET');
+    expect(init?.redirect).toBe('manual');
+    expect(init?.body).toBeUndefined();
+    expect(init?.headers).toBeUndefined();
   });
 });

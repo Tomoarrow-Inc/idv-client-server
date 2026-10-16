@@ -305,6 +305,33 @@ export class AppService {
     };
   }
 
+  /** Public key discovery has no caller body, authentication or version input. */
+  async sessionTokenJwks() {
+    const response = await fetch(`${this.resolveBaseUrl()}/.well-known/jwks.json`, {
+      method: 'GET',
+      redirect: 'manual',
+      signal: AbortSignal.timeout(30_000),
+    });
+    const cacheHeaders: Record<string, string> = {};
+    for (const name of [
+      'Cache-Control',
+      'ETag',
+      'Last-Modified',
+      'Expires',
+      'Age',
+      'Vary',
+    ]) {
+      const value = response.headers.get(name);
+      if (value !== null) cacheHeaders[name] = value;
+    }
+    return {
+      status: response.status,
+      contentType: response.headers.get('content-type'),
+      cacheHeaders,
+      body: Buffer.from(await response.arrayBuffer()),
+    };
+  }
+
   private requireAccessToken(): string {
     const accessToken = this.getState('access_token') as unknown;
     if (typeof accessToken !== 'string' || !accessToken) {

@@ -87,3 +87,47 @@ The tests do not obtain signing keys or mint substitute session tokens.
 
 Without these files, passing false/400 tests does **not** establish real 200/true
 or real access-token rejection coverage. Record those skips explicitly.
+
+## Public JWKS lookup (TypeScript only)
+
+The **JWKS 공개키 조회** card makes a relative `GET /.well-known/jwks.json` only
+when its lookup button is clicked. It sends no body, Content-Type, OAuth or API
+version headers, and uses `credentials:'omit'`, `cache:'no-store'` and
+`referrerPolicy:'no-referrer'` so a callback URL token is not sent as Referer. It displays
+the HTTP status, Content-Type (or its absence), and exact response text. A 200
+JSON object with an array of key objects displays the number of public keys;
+an empty array displays zero. This is a structure check, not JWT verification.
+It neither compares a token's kid nor verifies a signature in the browser.
+
+The fixed BFF GET uses the same `IDV_BASE_URL` as session-token verification.
+Incoming query/body/auth/cookie/version headers are ignored. It preserves raw
+status, Content-Type and body, plus Cache-Control, ETag, Last-Modified, Expires,
+Age and Vary when supplied upstream. There is no BFF cache, generated ETag or
+synthetic TTL. Redirects are not followed, the upstream timeout is 30 seconds,
+and transport failures retain the existing BFF 502 response. Existing POST
+parsers and behavior are unchanged.
+
+`src/session-token-jwks.spec.ts` tests the real Nest/stub HTTP boundaries,
+including error text, missing Content-Type, all six allowed cache headers,
+204/304, inbound credentials, and timeout options. Production bootstrap E2E
+also covers the route and card. The isolated browser fixture is
+`test/jwks-board-browser.mjs` and follows the same Playwright setup as the session
+token fixture. Existing session-token tests remain regression coverage.
+
+Actual public-key parity needs no secret or token fixture. Configure the BFF for
+the same upstream, then run from `typescript/`:
+
+```sh
+RUN_JWKS_LIVE_TESTS=true \
+JWKS_UPSTREAM_URL=https://dev.tomopayment.com \
+JWKS_BFF_URL=http://localhost:4300 \
+pnpm test:e2e --runInBand jwks-live.e2e-spec.ts
+```
+
+This compares direct/BFF status, Content-Type and exact text without pinning
+`kid`, `x` or `y`. It checks that the server publishes at least one EC/P-256/ES256
+signature key with nonempty public coordinates and kid, and no private `d` field.
+A concurrent key rotation may cause a real difference that
+needs investigation. Time-dependent Date/Age headers are not compared in the
+live test; exact header forwarding is covered by the stub. JWKS success does
+not fill the outstanding real callback-token positive verification coverage.
