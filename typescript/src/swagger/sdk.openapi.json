@@ -1885,6 +1885,28 @@
                     "user_id"
                 ],
                 "type": "object"
+            },
+            "VerifySessionTokenRequest": {
+                "properties": {
+                    "session_token": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "session_token"
+                ],
+                "type": "object"
+            },
+            "VerifySessionTokenResponse": {
+                "properties": {
+                    "verified": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "verified"
+                ],
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -3584,6 +3606,34 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/v1/verify/session-token": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifySessionTokenRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VerifySessionTokenResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body`"
                     }
                 }
             }
