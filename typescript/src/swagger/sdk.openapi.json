@@ -1625,7 +1625,20 @@
                 "type": "object"
             },
             "StartIdvReq": {
+                "description": "At start only, a document subject may omit id_type or send null, an empty string, or whitespace to request active document selection. allowed_document_id_types is accepted only with this unresolved document form. Concrete policies and other subject kinds keep their existing meaning.",
                 "properties": {
+                    "allowed_document_id_types": {
+                        "items": {
+                            "enum": [
+                                "id_card",
+                                "driver_license",
+                                "passport",
+                                "residency_permit_card"
+                            ],
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
                     "callback_url": {
                         "type": "string"
                     },
