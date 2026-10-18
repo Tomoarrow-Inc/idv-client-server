@@ -1625,20 +1625,8 @@
                 "type": "object"
             },
             "StartIdvReq": {
-                "description": "At start only, a document subject may omit id_type or send null, an empty string, or whitespace to request active document selection. allowed_document_id_types is accepted only with this unresolved document form. Concrete policies and other subject kinds keep their existing meaning.",
+                "description": "At start only, document subject.id_type accepts a string for a concrete document or a nonempty string array to restrict active document selection. Omitted, null, empty, and whitespace strings keep unrestricted document selection. Array entries are trimmed, lowercased, and deduplicated. Other subject kinds keep their existing meaning; personal_info ignores id_type and eid requires the scalar certificate.",
                 "properties": {
-                    "allowed_document_id_types": {
-                        "items": {
-                            "enum": [
-                                "id_card",
-                                "driver_license",
-                                "passport",
-                                "residency_permit_card"
-                            ],
-                            "type": "string"
-                        },
-                        "type": "array"
-                    },
                     "callback_url": {
                         "type": "string"
                     },
@@ -1649,7 +1637,50 @@
                         "type": "string"
                     },
                     "kyc_policy": {
-                        "$ref": "#/components/schemas/KycPolicy"
+                        "properties": {
+                            "method": {
+                                "type": "string"
+                            },
+                            "owner_assurance": {
+                                "description": "Owner assurance. kind is no_owner_assurance / owner_verf / owner_check; type names the verification method. For a KR eid certificate policy, leave type unset at start: an omitted type, or a type given as JSON null, the empty string, or the string \"null\" in any letter case (\"null\", \"NULL\", \"Null\", ...), opens the standard certificate window, where the person chooses the certificate authority; the journey is recorded only under that authority's policy and never reuses an earlier result. Type values are not trimmed, so a type of \" \" or \" null \" is rejected with 400. Naming a certificate authority (toss / kakao / naver / pass) as type at start is rejected with 400. /v1/idv/result and /v1/idv/reset accept an explicit type to select only that authority, and with type omitted or given as any of those unset values select all four authorities (result returns the latest completed certificate result among them).",
+                                "type": "object"
+                            },
+                            "preset": {
+                                "type": "string"
+                            },
+                            "subject": {
+                                "properties": {
+                                    "id_type": {
+                                        "description": "Document selection arrays support id_card, driver_license, passport, and residency_permit_card. Array entries are trimmed, lowercased, and deduplicated before server validation; unknown values are rejected.",
+                                        "nullable": true,
+                                        "oneOf": [
+                                            {
+                                                "nullable": true,
+                                                "type": "string"
+                                            },
+                                            {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "minItems": 1,
+                                                "type": "array"
+                                            }
+                                        ]
+                                    },
+                                    "kind": {
+                                        "type": "string"
+                                    },
+                                    "preset": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "kind"
+                                ],
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
                     },
                     "redirect_url_fail": {
                         "type": "string"
