@@ -94,7 +94,7 @@ describe('test-board document selection examples', () => {
   });
 
   it.each(['document-selection', 'document-selection-allowlist'])(
-    'fills a countryless document request with JSON null (%s)',
+    'fills a countryless document request with null or an id_type array (%s)',
     (example) => {
       const page = board();
       const result = page.get('body-api-result').value;
@@ -104,7 +104,10 @@ describe('test-board document selection examples', () => {
       const body = page.body();
       expect(body).not.toHaveProperty('country');
       expect(body.kyc_policy).toEqual({
-        subject: { kind: 'document', id_type: null },
+        subject: {
+          kind: 'document',
+          id_type: example.endsWith('allowlist') ? ['passport', 'id_card'] : null,
+        },
         method: 'document_ocr_check',
         owner_assurance: { kind: 'no_owner_assurance' },
       });
@@ -115,11 +118,7 @@ describe('test-board document selection examples', () => {
       expect(body.redirect_url_fail).toBe(
         'http://board.test/test-board?fail=1',
       );
-      if (example.endsWith('allowlist')) {
-        expect(body.allowed_document_id_types).toEqual(['passport', 'id_card']);
-      } else {
-        expect(body).not.toHaveProperty('allowed_document_id_types');
-      }
+      expect(body).not.toHaveProperty('allowed_document_id_types');
       expect(page.get('body-api-result').value).toBe(result);
       expect(page.get('body-api-reset').value).toBe(reset);
       expect(page.fetchMock).not.toHaveBeenCalled();
@@ -138,12 +137,14 @@ describe('test-board document selection examples', () => {
   });
 
   it.each(['v13', 'v14'])(
-    'sends the generated allowlist through the relative BFF route (%s)',
+    'sends the id_type array through the relative BFF route (%s)',
     async (version) => {
       const page = board();
       page.run("loadStartExample('document-selection-allowlist')");
       page.run(`activeContractVersionId = '${version}'`);
       const body = page.body();
+      expect(body.kyc_policy.subject.id_type).toEqual(['passport', 'id_card']);
+      expect(body).not.toHaveProperty('allowed_document_id_types');
       page.fetchMock.mockResolvedValue(response(200, '{}'));
       await page.run("sendCustom('api-start')");
       expect(page.fetchMock).toHaveBeenCalledTimes(1);
@@ -157,6 +158,12 @@ describe('test-board document selection examples', () => {
       });
     },
   );
+
+  it('documents the start id_type forms without advertising a separate public field', () => {
+    expect(html).not.toContain('allowed_document_id_types');
+    expect(html).toContain('subject.id_type');
+    expect(html).toContain('["passport", "id_card"]');
+  });
 
   it('does not repair manually entered string null or suppress the upstream error', async () => {
     const page = board();

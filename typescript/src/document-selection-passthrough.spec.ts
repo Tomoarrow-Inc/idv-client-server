@@ -1,6 +1,6 @@
 /**
  * Exercise the real Nest route and installed Node SDK serializer. Regenerating
- * Swagger alone must not hide an old SDK silently dropping the start allowlist.
+ * Swagger alone must not hide an SDK silently changing the start id_type union.
  * The BFF preserves unresolved document input for the server to validate; it
  * does not select a document, normalize values, or inject a country.
  */
@@ -65,15 +65,18 @@ describe('document selection start through the installed SDK', () => {
 
   afterEach(async () => app?.close());
 
-  const unresolved = [
+  const idTypes = [
     ['omitted', {}],
     ['null', { id_type: null }],
     ['empty', { id_type: '' }],
     ['whitespace', { id_type: '  ' }],
+    ['scalar', { id_type: 'passport' }],
+    // Normalization, deduplication and validation belong to idv-server.
+    ['array', { id_type: [' PASSPORT ', 'id_card', 'passport'] }],
   ] as const;
 
-  it.each(unresolved)(
-    'preserves %s id_type and the allowlist without adding a country',
+  it.each(idTypes)(
+    'preserves %s id_type without adding a country or separate allowlist',
     async (_name, idType) => {
       const body = {
         user_id: 'customer-user',
@@ -83,8 +86,6 @@ describe('document selection start through the installed SDK', () => {
           method: 'document_ocr_check',
           owner_assurance: { kind: 'no_owner_assurance' },
         },
-        // Normalization, deduplication and validation belong to idv-server.
-        allowed_document_id_types: ['passport', 'id_card', 'passport'],
         redirect_url_success: 'https://customer.example.invalid/success',
         redirect_url_fail: 'https://customer.example.invalid/failure',
       };
@@ -99,6 +100,7 @@ describe('document selection start through the installed SDK', () => {
       expect(sent[0].method).toBe('POST');
       expect(sent[0].body).toEqual(body);
       expect(sent[0].body).not.toHaveProperty('country');
+      expect(sent[0].body).not.toHaveProperty('allowed_document_id_types');
       expect(sent[0].headers.get('Authorization')).toBe(
         'Bearer document-selection-test-token',
       );
@@ -109,7 +111,7 @@ describe('document selection start through the installed SDK', () => {
     },
   );
 
-  it.each(unresolved)(
+  it.each(idTypes)(
     'preserves country and explicit contract selection with %s id_type',
     async (_name, idType) => {
       const body = {
@@ -119,7 +121,6 @@ describe('document selection start through the installed SDK', () => {
           method: 'document_ocr_check',
           owner_assurance: { kind: 'no_owner_assurance' },
         },
-        allowed_document_id_types: ['driver_license', 'residency_permit_card'],
       };
       await request(app.getHttpServer())
         .post('/v1/idv/start')
@@ -159,19 +160,45 @@ describe('document selection start through the installed SDK', () => {
     expect(sent[0].body).not.toHaveProperty('allowed_document_id_types');
   });
 
-  it('preserves invalid allowlist input and the upstream rejection', async () => {
+  it.each([{}, { id_type: null }])(
+    'preserves optional SMS id_type and extra fields for upstream validation (%j)',
+    async (idType) => {
+      const body = {
+        country: 'us',
+        kyc_policy: {
+          subject: {
+            kind: 'personal_info',
+            ...idType,
+            unknown_nested_field: 'leave unchanged',
+          },
+          method: 'personal_info_verf',
+          owner_assurance: { kind: 'owner_verf', type: 'sms_otp' },
+        },
+      };
+      await request(app.getHttpServer())
+        .post('/v1/idv/start')
+        .send(body)
+        .expect(200);
+
+      expect(sent[0].body).toEqual(body);
+    },
+  );
+
+  it('preserves invalid id_type array input and the upstream rejection', async () => {
     const body = {
       kyc_policy: {
-        subject: { kind: 'document', id_type: 'null' },
+        subject: {
+          kind: 'document',
+          id_type: [' PASSPORT ', 'unknown_document'],
+        },
         method: 'document_ocr_check',
         owner_assurance: { kind: 'no_owner_assurance' },
       },
-      allowed_document_id_types: [' PASSPORT ', 'unknown_document'],
     };
     const error = {
       error: 'invalid_request',
       message: '지원하지 않는 문서 선택입니다.',
-      details: { field: 'allowed_document_id_types' },
+      details: { field: 'kyc_policy.subject.id_type' },
     };
     upstream = new Response(JSON.stringify(error), {
       status: 400,
@@ -187,4 +214,44 @@ describe('document selection start through the installed SDK', () => {
     expect(response.body).toEqual(error);
     expect(response.headers['content-type']).toContain('application/problem+json');
   });
+
+  it.each([undefined, '1.4'])(
+    'retains retired and unknown input so upstream validation cannot be bypassed (%s)',
+    async (version) => {
+      const body = {
+        kyc_policy: {
+          subject: {
+            kind: 'document',
+            id_type: ['passport', 'id_card'],
+            unknown_nested_field: 'preserve for upstream validation',
+          },
+          method: 'document_ocr_check',
+          owner_assurance: { kind: 'no_owner_assurance' },
+        },
+        allowed_document_id_types: ['driver_license'],
+        unknown_top_level_field: { restriction: ['passport'] },
+      };
+      const error = {
+        error: 'invalid_request',
+        message: 'The retired field is not accepted.',
+        details: { field: 'allowed_document_id_types' },
+      };
+      upstream = new Response(JSON.stringify(error), {
+        status: 400,
+        headers: { 'Content-Type': 'application/problem+json' },
+      });
+      const pending = request(app.getHttpServer()).post('/v1/idv/start');
+      if (version) pending.set('Tomo-API-Version', version);
+      const response = await pending.send(body).expect(400);
+
+      expect(sent).toHaveLength(1);
+      expect(sent[0].body).toEqual(body);
+      expect(sent[0].headers.get('Authorization')).toBe(
+        'Bearer document-selection-test-token',
+      );
+      expect(sent[0].headers.get('Tomo-API-Version')).toBe(version ?? null);
+      expect(response.body).toEqual(error);
+      expect(response.headers['content-type']).toContain('application/problem+json');
+    },
+  );
 });

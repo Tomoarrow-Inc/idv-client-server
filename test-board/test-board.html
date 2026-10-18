@@ -705,8 +705,8 @@
           <button class="btn-secondary" type="button" onclick="loadStartExample('document-selection')">국가·문서 선택 예제</button>
           <button class="btn-secondary" type="button" onclick="loadStartExample('document-selection-allowlist')">여권·신분증 제한 예제</button>
         </div>
-        <p class="note">예제 버튼은 아래 JSON을 교체합니다. 전송 전 email을 테스트할 주소로 수정하세요. 국가·문서 선택 예제는 country를 생략하고 document의 id_type을 JSON <code>null</code>로 보냅니다. 문자열 <code>"null"</code>은 유효한 문서 종류가 아닙니다.</p>
-        <p class="note" style="margin-bottom:8px">선택 후보는 기존 DB의 활성 정책으로 결정됩니다. <code>allowed_document_id_types</code>는 start에서 문서 후보를 제한하며, 새 정책을 만들지 않습니다. <code>no_owner_assurance</code>에는 type을 넣지 않습니다.</p>
+        <p class="note">예제 버튼은 아래 JSON을 교체합니다. 전송 전 email을 테스트할 주소로 수정하세요. document의 <code>subject.id_type</code>은 <code>"passport"</code>처럼 문자열이면 문서를 지정하고, <code>["passport", "id_card"]</code>처럼 배열이면 선택 후보를 제한합니다. 생략 또는 JSON <code>null</code>은 문서 미선택이며, 문자열 <code>"null"</code>은 유효하지 않습니다.</p>
+        <p class="note" style="margin-bottom:8px">국가·문서 선택 예제는 country를 생략합니다. 선택 후보는 기존 DB의 활성 정책으로 결정되며, 예제가 새 정책을 만들지는 않습니다. <code>no_owner_assurance</code>에는 type을 넣지 않습니다.</p>
         <textarea class="json-editor" id="body-api-start"></textarea>
         <div class="actions">
           <button class="btn-primary" onclick="sendCustom('api-start')">Send</button>
@@ -1770,10 +1770,8 @@
         const body = customCardBody('api-start');
         if (example !== 'personal-info-sms') {
           delete body.country;
-          body.kyc_policy = documentPolicy(null, 'document_ocr_check', noOwnerAssurance());
-          if (example === 'document-selection-allowlist') {
-            body.allowed_document_id_types = ['passport', 'id_card'];
-          }
+          const idType = example === 'document-selection-allowlist' ? ['passport', 'id_card'] : null;
+          body.kyc_policy = documentPolicy(idType, 'document_ocr_check', noOwnerAssurance());
         }
         editor.value = JSON.stringify(body, null, 2);
         resizeJsonEditor(editor);

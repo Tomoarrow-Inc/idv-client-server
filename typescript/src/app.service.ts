@@ -174,7 +174,13 @@ export class AppService {
     return this.withVersion(
       await this.api.v1IdvStartPostRaw(
         { Tomo_API_Version: SDK_VERSION_PARAM, StartIdvReq: body },
-        this.contractInit(selection),
+        async (params) => ({
+          ...(await this.contractInit(selection)(params)),
+          // The SDK applies this override before JSON.stringify. Preserve the
+          // original object so generated serializers cannot remove restrictions
+          // or invalid fields that idv-server must validate.
+          body: body as unknown as BodyInit,
+        }),
       ),
     );
   }
