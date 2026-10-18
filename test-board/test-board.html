@@ -700,6 +700,13 @@
           <span class="endpoint"><span class="method">POST</span>/v1/idv/start</span>
           <span class="api-badge api-badge-idle" id="badge-api-start">NOT TESTED</span>
         </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+          <button class="btn-secondary" type="button" onclick="loadStartExample('personal-info-sms')">기존 US SMS 예제</button>
+          <button class="btn-secondary" type="button" onclick="loadStartExample('document-selection')">국가·문서 선택 예제</button>
+          <button class="btn-secondary" type="button" onclick="loadStartExample('document-selection-allowlist')">여권·신분증 제한 예제</button>
+        </div>
+        <p class="note">예제 버튼은 아래 JSON을 교체합니다. 전송 전 email을 테스트할 주소로 수정하세요. 국가·문서 선택 예제는 country를 생략하고 document의 id_type을 JSON <code>null</code>로 보냅니다. 문자열 <code>"null"</code>은 유효한 문서 종류가 아닙니다.</p>
+        <p class="note" style="margin-bottom:8px">선택 후보는 기존 DB의 활성 정책으로 결정됩니다. <code>allowed_document_id_types</code>는 start에서 문서 후보를 제한하며, 새 정책을 만들지 않습니다. <code>no_owner_assurance</code>에는 type을 넣지 않습니다.</p>
         <textarea class="json-editor" id="body-api-start"></textarea>
         <div class="actions">
           <button class="btn-primary" onclick="sendCustom('api-start')">Send</button>
@@ -1746,7 +1753,7 @@
       const ownerVerf = (type) => ({ kind: 'owner_verf', type });
       const ownerCheck = (type) => ({ kind: 'owner_check', type });
       const personalInfoSmsPolicy = () => ({
-        subject: { kind: 'personal_info', id_type: "null"},
+        subject: { kind: 'personal_info', id_type: null },
         method: 'personal_info_verf',
         owner_assurance: ownerVerf('sms_otp'),
       });
@@ -1755,6 +1762,22 @@
         method,
         owner_assurance: ownerAssurance,
       });
+
+      function loadStartExample(example) {
+        if (!['personal-info-sms', 'document-selection', 'document-selection-allowlist'].includes(example)) return;
+        const editor = document.getElementById('body-api-start');
+        if (!editor) return;
+        const body = customCardBody('api-start');
+        if (example !== 'personal-info-sms') {
+          delete body.country;
+          body.kyc_policy = documentPolicy(null, 'document_ocr_check', noOwnerAssurance());
+          if (example === 'document-selection-allowlist') {
+            body.allowed_document_id_types = ['passport', 'id_card'];
+          }
+        }
+        editor.value = JSON.stringify(body, null, 2);
+        resizeJsonEditor(editor);
+      }
 
       // ── Contract version registry ──
       // idv-server 는 25개 SDK operation 전부에서 Tomo-API-Version 을 해석한다.
