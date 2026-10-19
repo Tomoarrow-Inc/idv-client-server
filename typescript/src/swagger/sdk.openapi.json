@@ -3047,6 +3047,34 @@
                 ]
             }
         },
+        "/v1/idv/session-tokens/introspection": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json;charset=utf-8": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifySessionTokenRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json;charset=utf-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VerifySessionTokenResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Invalid `body`"
+                    }
+                }
+            }
+        },
         "/v1/idv/sessions/start": {
             "post": {
                 "deprecated": true,
@@ -3650,34 +3678,6 @@
                                 }
                             }
                         }
-                    }
-                }
-            }
-        },
-        "/v1/verify/session-token": {
-            "post": {
-                "requestBody": {
-                    "content": {
-                        "application/json;charset=utf-8": {
-                            "schema": {
-                                "$ref": "#/components/schemas/VerifySessionTokenRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json;charset=utf-8": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/VerifySessionTokenResponse"
-                                }
-                            }
-                        },
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Invalid `body`"
                     }
                 }
             }
