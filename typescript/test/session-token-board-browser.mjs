@@ -20,7 +20,7 @@ const server = createServer(async (req, res) => {
     res.end(html);
     return;
   }
-  if (req.url === '/v1/verify/session-token') {
+  if (req.url === '/v1/idv/session-tokens/introspection') {
     let body = '';
     for await (const chunk of req) body += chunk;
     requests.push({ body, headers: req.headers, url: req.url });
@@ -133,11 +133,11 @@ try {
   releaseRequest();
   await state('invalid');
 
-  await page.route('**/v1/verify/session-token', route => route.abort('failed'));
+  await page.route('**/v1/idv/session-tokens/introspection', route => route.abort('failed'));
   await send.click();
   await state('network-error');
   assert.equal(await badge.textContent(), 'NETWORK');
-  await page.unroute('**/v1/verify/session-token');
+  await page.unroute('**/v1/idv/session-tokens/introspection');
   await editor.fill('{"session_token":"\\ud800"}');
   await checkResponse({ body: '{"verified":false}', expected: 'invalid' });
   await page.locator('#btn-copy-debug-api-session-token').click();

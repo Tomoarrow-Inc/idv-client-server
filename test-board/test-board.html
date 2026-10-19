@@ -805,7 +805,7 @@
       </div>
       <div class="api-card" id="card-api-session-token">
         <div class="api-card-header">
-          <span class="endpoint"><span class="method">POST</span>/v1/verify/session-token</span>
+          <span class="endpoint"><span class="method">POST</span>/v1/idv/session-tokens/introspection</span>
           <span class="api-badge api-badge-idle" id="badge-api-session-token">NOT TESTED</span>
         </div>
         <p class="note">session_token에 토큰 원문을 입력하세요. URL 토큰은 처음에만 채워지며 Send를 눌러야 검증합니다. true는 JWT가 유효하다는 뜻이며 현재 KYC 상태나 토큰 폐기 여부를 조회하지 않습니다. false의 상세 원인은 이 API가 제공하지 않습니다.</p>
@@ -1947,7 +1947,7 @@
         // 파괴적 API: 기본 body는 자동 생성하지 않고 안내 문자열을 둔다.
         'api-result-delete':      { endpoint: '/v1/idv/result/delete', expectedResponse: EXPECTED_RESPONSES.deleteOk, includeDefaultEmail: false, body: () => ({ user_id: '<ppid_token 기입>' }) },
         'api-result-bulk-delete': { endpoint: '/v1/idv/result/bulk-delete', expectedResponse: EXPECTED_RESPONSES.deleteOk, includeDefaultEmail: false, body: () => ({ user_ids: ['<ppid_token 기입>', '<ppid_token 기입>'] }) },
-        'api-session-token': { endpoint: '/v1/verify/session-token', expectedResponse: EXPECTED_RESPONSES.sessionToken, includeDefaultEmail: false, body: () => ({ session_token: '' }) },
+        'api-session-token': { endpoint: '/v1/idv/session-tokens/introspection', expectedResponse: EXPECTED_RESPONSES.sessionToken, includeDefaultEmail: false, body: () => ({ session_token: '' }) },
         // ── US ──
         'us-start-verified': { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: '7999752903327968491', country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },
         'us-start-new':      { endpoint: '/v1/idv/start', expectedResponse: EXPECTED_RESPONSES.startOk, body: () => ({ user_id: randomUserId(), country: 'us', callback_url: window.location.origin + '/test-board', kyc_policy: personalInfoSmsPolicy() }) },

@@ -1,9 +1,14 @@
 # Session token verification (TypeScript only)
 
-`POST /v1/verify/session-token` forwards the request bytes to the configured
+`POST /v1/idv/session-tokens/introspection` forwards the request bytes to the configured
 `IDV_BASE_URL` without OAuth, cookies or API version headers. The upstream status,
 body and Content-Type (including an absent header) are preserved. Network failures
 and the 30-second upstream timeout use the existing BFF 502 error response.
+
+The previous `POST /v1/verify/session-token` route has been replaced and returns
+404. Regenerate and distribute the OpenAPI/SDK contracts separately before using
+Swagger or generated clients with the new route. The test board and its raw BFF
+proxy use the new route directly without waiting for contract regeneration.
 
 Open `/test-board` and use **Session Token 검증**. The initial JSON is
 `{"session_token":""}`. A callback URL's `token` query value is prefilled once;

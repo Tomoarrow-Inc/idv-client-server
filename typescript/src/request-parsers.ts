@@ -6,7 +6,9 @@ export function configureRequestParsers(app: NestExpressApplication): void {
     limit: '10mb',
     type: (req) =>
       req.method === 'POST' &&
-      /^\/v1\/verify\/session-token\/?$/i.test((req.url ?? '').split('?')[0]),
+      /^\/v1\/idv\/session-tokens\/introspection\/?$/i.test(
+        (req.url ?? '').split('?')[0],
+      ),
   });
   // Existing authenticated routes retain their original JSON parsing policy.
   app.useBodyParser('json', { limit: '10mb' });

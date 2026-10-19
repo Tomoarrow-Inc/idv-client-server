@@ -385,11 +385,13 @@ describe('result contract version passthrough', () => {
   it('keeps existing proxy routes on the contract path and excludes public token verification', () => {
     const source = readSource('app.controller.ts');
     const routes = [...source.matchAll(/@Post\('([^']+)'\)/g)].map((match) => match[1]);
-    const versionedRoutes = routes.filter((path) => path !== '/v1/verify/session-token');
+    const versionedRoutes = routes.filter(
+      (path) => path !== '/v1/idv/session-tokens/introspection',
+    );
     const forwards = source.match(/return this\.forward\(/g) ?? [];
 
     expect(versionedRoutes).toHaveLength(10);
-    expect(routes).toContain('/v1/verify/session-token');
+    expect(routes).toContain('/v1/idv/session-tokens/introspection');
     expect(forwards).toHaveLength(versionedRoutes.length);
     expect(source).toContain('resolveContractSelection(headers)');
   });

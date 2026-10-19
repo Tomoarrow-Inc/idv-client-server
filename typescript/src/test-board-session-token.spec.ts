@@ -109,7 +109,9 @@ describe('session token test-board behavior', () => {
     expect(JSON.parse(page.get(`body-${cardId}`).value)).toEqual({
       session_token: '',
     });
-    expect(page.run(`activeVersionFor('/v1/verify/session-token')`)).toBeNull();
+    expect(
+      page.run(`activeVersionFor('/v1/idv/session-tokens/introspection')`),
+    ).toBeNull();
     expect(page.fetchMock).not.toHaveBeenCalled();
     expect(page.storage.setItem).not.toHaveBeenCalled();
   });
@@ -136,11 +138,14 @@ describe('session token test-board behavior', () => {
       page.get(`body-${cardId}`).value = text;
       page.fetchMock.mockResolvedValue(response(200, { verified: false }));
       await page.send();
-      expect(page.fetchMock).toHaveBeenCalledWith('/v1/verify/session-token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: text,
-      });
+      expect(page.fetchMock).toHaveBeenCalledWith(
+        '/v1/idv/session-tokens/introspection',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: text,
+        },
+      );
       expect(page.fetchMock).toHaveBeenCalledTimes(1);
     },
   );

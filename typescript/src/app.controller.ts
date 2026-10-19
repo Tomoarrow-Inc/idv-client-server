@@ -47,7 +47,7 @@ export class AppController {
     }
   }
 
-  @Post('/v1/verify/session-token')
+  @Post('/v1/idv/session-tokens/introspection')
   async verifySessionToken(
     @Body() body: Buffer | undefined,
     @Headers('content-type') contentType: string | undefined,

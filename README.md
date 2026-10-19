@@ -84,11 +84,14 @@ docker compose down
 
 ### Session Token 검증 (TypeScript 전용)
 
-`POST /v1/verify/session-token`에 `{"session_token":"..."}`를 보내면
+`POST /v1/idv/session-tokens/introspection`에 `{"session_token":"..."}`를 보내면
 `{"verified":true|false}`를 받습니다. `/test-board`의 **Session Token 검증**
 카드는 callback URL의 `token`을 처음 한 번 채우며, 수동 입력과 URL 토큰
 다시 불러오기를 지원합니다. Send를 눌렀을 때만 호출하며 OAuth 발급과 API
 Version 선택이 필요하지 않습니다. HTTP 오류와 검증 불일치는 별도로 표시합니다.
+
+기존 `/v1/verify/session-token` 경로는 제거되었습니다. Test Board와 BFF는 새 경로를
+직접 사용합니다. Swagger 및 생성된 SDK에는 별도의 계약 재생성·배포가 필요합니다.
 
 `true`는 JWT의 서명·클레임·유효기간 검증 결과이며 현재 KYC 상태나 토큰
 폐기 여부를 조회하는 값은 아닙니다. Kotlin·Python·Java BFF는 이번 API를
@@ -112,7 +115,7 @@ Expires·Age·Vary를 전달하며 자체 캐시를 만들지 않습니다. 브�
 
 idv-server 는 기존 25개 SDK operation에서 `Tomo-API-Version` 요청 header 로
 응답 계약을 고른다 (`idv-server/lib/App/Contract/Version.hs`).
-새 `/v1/verify/session-token`은 26번째 SDK operation이며 이 게이트의 대상이 아닙니다.
+새 `/v1/idv/session-tokens/introspection`은 26번째 SDK operation이며 이 게이트의 대상이 아닙니다.
 
 ### 서버가 받아주는 값
 

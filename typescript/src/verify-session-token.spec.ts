@@ -9,7 +9,7 @@ import { AppModule } from './app.module';
 import { StateService } from './state.service';
 import { configureRequestParsers } from './request-parsers';
 
-const endpoint = '/v1/verify/session-token';
+const endpoint = '/v1/idv/session-tokens/introspection';
 
 // Exercise actual Nest routing and a real upstream socket. Raw malformed JSON,
 // missing bodies and upstream content types must survive both HTTP boundaries.
@@ -234,6 +234,14 @@ describe('session token verification transparent HTTP proxy', () => {
     expect(received).toHaveLength(0);
   });
 
+  it('does not serve the replaced verification route', async () => {
+    await request(app.getHttpServer())
+      .post('/v1/verify/session-token')
+      .send({ session_token: 'x' })
+      .expect(404);
+    expect(received).toHaveLength(0);
+  });
+
   it('does not relax JSON parsing on existing authenticated routes', async () => {
     await request(app.getHttpServer())
       .post('/v1/idv/reset')
@@ -258,11 +266,17 @@ describe('session token verification transparent HTTP proxy', () => {
     },
   );
 
-  it('publishes the additive endpoint and exact DTOs in the served Swagger source', () => {
+  it('keeps the session-token DTOs in the generated Swagger source', () => {
     const doc = JSON.parse(
       readFileSync(join(__dirname, 'swagger/sdk.openapi.json'), 'utf8'),
     );
-    const operation = doc.paths[endpoint].post;
+    // Contract regeneration is a separate pipeline step. Keep checking the
+    // unchanged DTOs on either contract revision without editing generated JSON.
+    const operations = [endpoint, '/v1/verify/session-token']
+      .map((path) => doc.paths[path]?.post)
+      .filter(Boolean);
+    expect(operations).toHaveLength(1);
+    const [operation] = operations;
     expect(
       operation.requestBody.content['application/json;charset=utf-8'].schema
         .$ref,

@@ -295,7 +295,7 @@ export class AppService {
   /** This public verification route does not use OAuth or version selection. */
   async verifySessionToken(body: Buffer | undefined, contentType?: string) {
     const response = await fetch(
-      `${this.resolveBaseUrl()}/v1/verify/session-token`,
+      `${this.resolveBaseUrl()}/v1/idv/session-tokens/introspection`,
       {
         method: 'POST',
         headers: contentType ? { 'Content-Type': contentType } : {},

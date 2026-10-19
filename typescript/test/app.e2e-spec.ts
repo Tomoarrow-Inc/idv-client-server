@@ -32,16 +32,19 @@ describe('production BFF bootstrap (e2e)', () => {
       .get('/test-board')
       .expect(200);
     expect(response.text).toContain('KYC Test Board');
-    expect(response.text).toContain('/v1/verify/session-token');
+    expect(response.text).toContain('/v1/idv/session-tokens/introspection');
     expect(response.text).toContain('JWKS 공개키 조회');
   });
 
-  it('serves Swagger with the new relative endpoint and DTOs', async () => {
+  it('serves the generated Swagger with session-token DTOs and a relative server', async () => {
     await request(app.getHttpServer()).get('/api-docs/').expect(200);
     const response = await request(app.getHttpServer())
       .get('/api-docs/swagger-ui-init.js')
       .expect(200);
-    expect(response.text).toContain('/v1/verify/session-token');
+    // The separately regenerated contract may still contain the previous path.
+    expect(response.text).toMatch(
+      /\/v1\/(?:idv\/session-tokens\/introspection|verify\/session-token)/,
+    );
     expect(response.text).toContain('VerifySessionTokenRequest');
     expect(response.text).toContain('VerifySessionTokenResponse');
     expect(response.text).toContain('Current server');
@@ -54,13 +57,15 @@ describe('production BFF bootstrap (e2e)', () => {
         new Response('Error in $: not enough input', { status: 400 }),
       );
     const result = await request(app.getHttpServer())
-      .post('/v1/verify/session-token')
+      .post('/v1/idv/session-tokens/introspection')
       .type('json')
       .send('{')
       .expect(400);
     expect(result.text).toBe('Error in $: not enough input');
     expect(upstream).toHaveBeenCalledTimes(1);
-    expect(upstream.mock.calls[0][0]).toMatch(/\/v1\/verify\/session-token$/);
+    expect(upstream.mock.calls[0][0]).toMatch(
+      /\/v1\/idv\/session-tokens\/introspection$/,
+    );
     expect(
       Buffer.from(upstream.mock.calls[0][1]?.body as Uint8Array).toString(),
     ).toBe('{');

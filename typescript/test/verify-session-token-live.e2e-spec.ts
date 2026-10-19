@@ -20,7 +20,7 @@ describeLive('real server and TypeScript BFF session token parity', () => {
     const responses = await Promise.all(
       [upstreamBase, bffBase].map(async (base) => {
         const response = await fetch(
-          `${base.replace(/\/$/, '')}/v1/verify/session-token`,
+          `${base.replace(/\/$/, '')}/v1/idv/session-tokens/introspection`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
